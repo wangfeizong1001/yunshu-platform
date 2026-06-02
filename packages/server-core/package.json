@@ -1,0 +1,43 @@
+{
+  "name": "@yunshu/server-core",
+  "version": "0.1.0",
+  "private": false,
+  "description": "云枢中台 — 后端核心基础设施，框架无关的 Service 层",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@yunshu/shared": "workspace:*",
+    "ioredis": "^5.3.0"
+  },
+  "devDependencies": {
+    "@yunshu/tsconfig": "workspace:*",
+    "tsup": "^8.0.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "mongoose": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "mongoose": { "optional": true },
+    "ioredis": { "optional": true }
+  }
+}

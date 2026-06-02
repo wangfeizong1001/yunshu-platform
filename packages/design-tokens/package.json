@@ -1,0 +1,37 @@
+{
+  "name": "@yunshu/design-tokens",
+  "version": "0.1.0",
+  "private": false,
+  "description": "云枢中台 — 设计令牌系统，输出 CSS/SCSS/JS 多格式",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./css": "./dist/css/tokens.css",
+    "./scss": "./dist/scss/_tokens.scss",
+    "./tailwind": "./dist/tailwind/tokens.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "build:tokens": "tsx scripts/build-tokens.ts",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@yunshu/tsconfig": "workspace:*",
+    "tsup": "^8.0.0",
+    "tsx": "^4.7.0",
+    "vitest": "^1.6.0"
+  }
+}

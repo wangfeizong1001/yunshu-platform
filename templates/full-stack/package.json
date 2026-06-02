@@ -1,0 +1,18 @@
+{
+  "name": "yunshu-fullstack-template",
+  "version": "0.1.0",
+  "private": true,
+  "description": "云枢中台 — 全栈项目模板（Express + Vue 3）",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && vite",
+    "dev:backend": "cd backend && ts-node-dev --respawn --transpile-only src/app.ts",
+    "build": "cd frontend && vite build && cd ../backend && tsc",
+    "type-check": "cd frontend && vue-tsc --noEmit && cd ../backend && tsc --noEmit",
+    "lint": "cd frontend && eslint . --ext .vue,.ts --fix && cd ../backend && eslint . --fix",
+    "format": "prettier . --write"
+  },
+  "dependencies": {
+    "concurrently": "^8.0.0"
+  }
+}

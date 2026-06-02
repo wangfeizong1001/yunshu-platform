@@ -1,0 +1,13 @@
+{
+  "name": "@yunshu/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "description": "云枢中台 — 共享 TypeScript 配置",
+  "main": "tsconfig.base.json",
+  "files": [
+    "tsconfig.base.json",
+    "tsconfig.vue.json",
+    "tsconfig.node.json",
+    "tsconfig.react.json"
+  ]
+}

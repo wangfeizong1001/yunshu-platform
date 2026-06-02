@@ -1,0 +1,5 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+  - 'tools/*'
+  # templates/ 不包含在 workspace 中 — 它们是独立项目模板,通过 CLI 复制使用

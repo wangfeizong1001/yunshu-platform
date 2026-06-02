@@ -1,0 +1,32 @@
+{
+  "name": "@yunshu/shared",
+  "version": "0.1.0",
+  "private": false,
+  "description": "云枢中台 — 前后端共享类型定义和工具函数",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@yunshu/tsconfig": "workspace:*",
+    "tsup": "^8.0.0",
+    "vitest": "^1.6.0"
+  }
+}

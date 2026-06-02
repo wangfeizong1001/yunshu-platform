@@ -1,0 +1,48 @@
+{
+  "name": "@yunshu/api-client",
+  "version": "0.1.0",
+  "private": false,
+  "description": "云枢中台 — 通用 HTTP 客户端，支持请求去重、缓存、自动 Token 刷新",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./vue": {
+      "types": "./dist/vue/index.d.ts",
+      "import": "./dist/vue/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/vue/index.ts src/react/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@yunshu/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@yunshu/tsconfig": "workspace:*",
+    "tsup": "^8.0.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0",
+    "react": "^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": { "optional": true },
+    "react": { "optional": true }
+  }
+}
