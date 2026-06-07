@@ -7,7 +7,6 @@
  */
 
 import { spacing as spacingTokens, fontSize, fontWeight, borderRadius } from '../tokens/base';
-import { lightColors } from '../tokens/colors';
 
 /**
  * 生成 Tailwind CSS 主题扩展配置
@@ -25,11 +24,6 @@ import { lightColors } from '../tokens/colors';
  * ```
  */
 export function generateTailwindConfig(): Record<string, unknown> {
-  // 从间距令牌生成 Tailwind spacing 扩展
-  const spacing: Record<string, string> = {};
-  // Tailwind 默认使用 rem，这里保持 px 以便与设计令牌一致
-  // 实际使用时 Tailwind 会按 1unit = 0.25rem 转换
-
   // 颜色映射
   const colors: Record<string, Record<string, string> | string> = {
     primary: {

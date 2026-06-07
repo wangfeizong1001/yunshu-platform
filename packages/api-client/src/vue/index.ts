@@ -6,10 +6,9 @@
  * @module @yunshu/api-client/vue
  */
 
-import { ref, computed, onUnmounted, type Ref, type ComputedRef } from 'vue';
+import { ref, computed, type Ref, type ComputedRef } from 'vue';
 import type { HttpClient } from '../core/HttpClient';
-import type { BaseAPI } from '../core/BaseAPI';
-import type { ApiResponse, CacheOptions } from '../core/types';
+import type { ApiResponse } from '../core/types';
 
 // ============================================================================
 // Vue 插件
@@ -98,7 +97,7 @@ export function useApi<T>(
   }
 
   async function refresh(): Promise<T | null> {
-    return execute(...lastArgs);
+    return execute.apply(null, lastArgs as any);
   }
 
   function reset(): void {
@@ -180,7 +179,7 @@ export function useApiList<T>(
   }
 
   async function refresh(): Promise<T[] | null> {
-    return execute(...lastArgs);
+    return execute.apply(null, lastArgs as any);
   }
 
   function setPage(newPage: number): void {

@@ -12,14 +12,15 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles": "./dist/styles/main.css",
-    "./scss": "./dist/styles/main.scss"
+    "./styles": "./dist/styles/main.css"
   },
   "files": [
     "dist"
   ],
   "scripts": {
+    "prebuild": "npm run copy:styles",
     "build": "vite build",
+    "copy:styles": "mkdir -p dist/styles && cp -r src/styles/* dist/styles/ 2>/dev/null || true",
     "dev": "vite build --watch",
     "type-check": "vue-tsc --noEmit"
   },
