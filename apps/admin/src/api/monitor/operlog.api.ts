@@ -1,79 +1,82 @@
 /**
  * 操作日志 API
- *
- * @module @yunshu/admin/api/monitor
  */
 
-import { request } from '@/utils/request'
-import type {
-  IOperlog,
-  IOperlogQuery,
-} from '@yunshu/shared/types/monitor'
-import type { ApiResponse, PaginatedResponse } from '@yunshu/shared'
+import request from '@/utils/request'
 
-/** 操作日志分页响应 */
-export type OperlogPageResp = PaginatedResponse<IOperlog>
+export interface OperlogQuery {
+  pageNum?: number
+  pageSize?: number
+  title?: string
+  operName?: string
+  businessType?: string
+  status?: string
+  startTime?: string
+  endTime?: string
+}
 
-/**
- * 获取操作日志分页列表
- * @param params 查询参数
- */
-export function getOperlogPage(params: IOperlogQuery) {
-  return request<OperlogPageResp>({
+export interface OperlogInfo {
+  operId: number
+  title: string
+  businessType: string
+  method: string
+  requestMethod: string
+  operatorType: string
+  operName: string
+  deptName: string
+  operUrl: string
+  operIp: string
+  operLocation: string
+  operParam: string
+  jsonResult: string
+  status: string
+  errorMsg: string
+  operTime: string
+  costTime: number
+}
+
+export const getOperlogList = (params?: OperlogQuery) => {
+  return request({
+    url: '/monitor/operlog/list',
+    method: 'get',
+    params
+  })
+}
+
+export const getOperlogPage = (params?: OperlogQuery) => {
+  return request({
     url: '/monitor/operlog/page',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取操作日志详情
- * @param id 日志ID
- */
-export function getOperlogDetail(id: string) {
-  return request<ApiResponse<IOperlog>>({
-    url: `/monitor/operlog/${id}`,
-    method: 'get',
+export const getOperlog = (operId: number) => {
+  return request({
+    url: `/monitor/operlog/${operId}`,
+    method: 'get'
   })
 }
 
-/**
- * 删除操作日志
- * @param id 日志ID
- */
-export function deleteOperlog(id: string) {
-  return request<ApiResponse<boolean>>({
-    url: `/monitor/operlog/${id}`,
-    method: 'delete',
+export const deleteOperlog = (operId: number) => {
+  return request({
+    url: `/monitor/operlog/${operId}`,
+    method: 'delete'
   })
 }
 
-/**
- * 批量删除操作日志
- * @param ids 日志ID数组
- */
-export function batchDeleteOperlog(ids: string[]) {
-  return request<ApiResponse<number>>({
+export const batchDeleteOperlog = (operIds: number[]) => {
+  return request({
     url: '/monitor/operlog/batch',
     method: 'delete',
-    data: { ids },
+    data: operIds
   })
 }
 
-/**
- * 清空操作日志
- */
-export function cleanOperlog() {
-  return request<ApiResponse<boolean>>({
+export const cleanOperlog = () => {
+  return request({
     url: '/monitor/operlog/clean',
-    method: 'delete',
+    method: 'delete'
   })
 }
 
-/**
- * 导出操作日志
- * @param params 查询参数
- */
-export function exportOperlog(params?: IOperlogQuery) {
-  return request.download('/monitor/operlog/export', params, '操作日志.xlsx')
-}

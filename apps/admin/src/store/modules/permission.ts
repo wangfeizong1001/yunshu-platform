@@ -6,14 +6,15 @@
 import { defineStore } from 'pinia'
 import { type RouteRecordRaw } from 'vue-router'
 import { constantRoutes, asyncRoutes } from '@/router'
-import { getMenuList } from '@/api/system/menu'
-import Layout from '@/layouts/index.vue'
+import { getRoutersApi } from '@/api/auth'
+import { getMenuListApi } from '@/api/system/menu'
 
 interface PermissionState {
   routes: RouteRecordRaw[]      // 完整路由列表
   addRoutes: RouteRecordRaw[]  // 动态添加的路由
   defaultRoutes: RouteRecordRaw[]
   topbarRouters: RouteRecordRaw[]
+  cachedViews: string[]        // 缓存的视图
 }
 
 export const usePermissionStore = defineStore('permission', {
@@ -21,7 +22,8 @@ export const usePermissionStore = defineStore('permission', {
     routes: [],
     addRoutes: [],
     defaultRoutes: [],
-    topbarRouters: []
+    topbarRouters: [],
+    cachedViews: []
   }),
 
   actions: {
@@ -32,7 +34,7 @@ export const usePermissionStore = defineStore('permission', {
     async generateRoutes() {
       try {
         // 从后端获取菜单
-        const res = await getMenuList()
+        const res = await getRoutersApi()
         const menuData = res.data || []
 
         // 将菜单转换为路由
@@ -69,6 +71,24 @@ export const usePermissionStore = defineStore('permission', {
     },
 
     /**
+     * 添加缓存视图
+     */
+    addCachedView(view: string) {
+      if (this.cachedViews.includes(view)) return
+      this.cachedViews.push(view)
+    },
+
+    /**
+     * 移除缓存视图
+     */
+    removeCachedView(view: string) {
+      const index = this.cachedViews.indexOf(view)
+      if (index > -1) {
+        this.cachedViews.splice(index, 1)
+      }
+    },
+
+    /**
      * 重置路由状态
      */
     resetRoutes() {
@@ -76,6 +96,7 @@ export const usePermissionStore = defineStore('permission', {
       this.addRoutes = []
       this.defaultRoutes = []
       this.topbarRouters = []
+      this.cachedViews = []
     }
   }
 })
@@ -88,11 +109,11 @@ async function generateRoutesFromMenu(menus: any[]): Promise<RouteRecordRaw[]> {
 
   for (const menu of menus) {
     // 目录（M）
-    if (menu.menuType === 'M') {
+    if (menu.menuType === 'M' || menu.menuType === 'M') {
       const route: RouteRecordRaw = {
         path: menu.path,
         name: menu.path,
-        component: Layout,
+        component: () => import('@/views/layout/index.vue'),
         redirect: menu.children?.length ? menu.children[0].path : undefined,
         meta: {
           title: menu.menuName,
@@ -109,7 +130,7 @@ async function generateRoutesFromMenu(menus: any[]): Promise<RouteRecordRaw[]> {
       routes.push(route)
     }
     // 菜单（C）
-    else if (menu.menuType === 'C') {
+    else if (menu.menuType === 'C' || menu.menuType === 'C') {
       const route: RouteRecordRaw = {
         path: menu.path,
         name: menu.path,

@@ -1,91 +1,80 @@
 /**
  * 登录日志 API
- *
- * @module @yunshu/admin/api/monitor
  */
 
-import { request } from '@/utils/request'
-import type {
-  ILogininfor,
-  ILogininforQuery,
-} from '@yunshu/shared/types/monitor'
-import type { ApiResponse, PaginatedResponse } from '@yunshu/shared'
+import request from '@/utils/request'
 
-/** 登录日志分页响应 */
-export type LogininforPageResp = PaginatedResponse<ILogininfor>
+export interface LogininforQuery {
+  pageNum?: number
+  pageSize?: number
+  userName?: string
+  status?: string
+  startTime?: string
+  endTime?: string
+}
 
-/**
- * 获取登录日志分页列表
- * @param params 查询参数
- */
-export function getLogininforPage(params: ILogininforQuery) {
-  return request<LogininforPageResp>({
+export interface LogininforInfo {
+  infoId: number
+  userName: string
+  ipaddr: string
+  loginLocation: string
+  browser: string
+  os: string
+  status: string
+  msg: string
+  loginTime: string
+}
+
+export const getLogininforList = (params?: LogininforQuery) => {
+  return request({
+    url: '/monitor/logininfor/list',
+    method: 'get',
+    params
+  })
+}
+
+export const getLogininforPage = (params?: LogininforQuery) => {
+  return request({
     url: '/monitor/logininfor/page',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取登录日志详情
- * @param id 日志ID
- */
-export function getLogininforDetail(id: string) {
-  return request<ApiResponse<ILogininfor>>({
-    url: `/monitor/logininfor/${id}`,
-    method: 'get',
+export const getLogininfor = (infoId: number) => {
+  return request({
+    url: `/monitor/logininfor/${infoId}`,
+    method: 'get'
   })
 }
 
-/**
- * 删除登录日志
- * @param id 日志ID
- */
-export function deleteLogininfor(id: string) {
-  return request<ApiResponse<boolean>>({
-    url: `/monitor/logininfor/${id}`,
-    method: 'delete',
+export const deleteLogininfor = (infoId: number) => {
+  return request({
+    url: `/monitor/logininfor/${infoId}`,
+    method: 'delete'
   })
 }
 
-/**
- * 批量删除登录日志
- * @param ids 日志ID数组
- */
-export function batchDeleteLogininfor(ids: string[]) {
-  return request<ApiResponse<number>>({
+export const batchDeleteLogininfor = (infoIds: number[]) => {
+  return request({
     url: '/monitor/logininfor/batch',
     method: 'delete',
-    data: { ids },
+    data: infoIds
   })
 }
 
-/**
- * 清空登录日志
- */
-export function cleanLogininfor() {
-  return request<ApiResponse<boolean>>({
+export const cleanLogininfor = () => {
+  return request({
     url: '/monitor/logininfor/clean',
-    method: 'delete',
+    method: 'delete'
   })
 }
 
-/**
- * 解锁账号
- * @param loginAccount 登录账号
- */
-export function unlockAccount(loginAccount: string) {
-  return request<ApiResponse<boolean>>({
+export const unlockUser = (userName: string) => {
+  return request({
     url: '/monitor/logininfor/unlock',
     method: 'post',
-    data: { loginAccount },
+    params: { userName }
   })
 }
 
-/**
- * 导出登录日志
- * @param params 查询参数
- */
-export function exportLogininfor(params?: ILogininforQuery) {
-  return request.download('/monitor/logininfor/export', params, '登录日志.xlsx')
-}

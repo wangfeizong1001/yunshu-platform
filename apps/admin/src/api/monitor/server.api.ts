@@ -1,59 +1,56 @@
 /**
  * 服务器监控 API
- *
- * @module @yunshu/admin/api/monitor
  */
 
-import { request } from '@/utils/request'
-import type { IServer } from '@yunshu/shared/types/monitor'
-import type { ApiResponse } from '@yunshu/shared'
+import request from '@/utils/request'
 
-/**
- * 获取服务器信息
- */
-export function getServerInfo() {
-  return request<ApiResponse<IServer>>({
-    url: '/monitor/server/info',
-    method: 'get',
+export interface ServerInfo {
+  cpu: {
+    cpuNum: number
+    used: number
+    free: number
+    total: number
+    sys: number
+    user: number
+    wait: number
+  }
+  mem: {
+    total: number
+    used: number
+    free: number
+    usage: number
+  }
+  jvm: {
+    total: number
+    max: number
+    free: number
+    used: number
+    usage: number
+    version: string
+    home: string
+  }
+  sys: {
+    computerName: string
+    computerIp: string
+    osName: string
+    osArch: string
+    userDir: string
+  }
+  sysFiles: Array<{
+    dirName: string
+    sysTypeName: string
+    typeName: string
+    total: string
+    free: string
+    used: string
+    usage: number
+  }>
+}
+
+export const getServerInfo = () => {
+  return request({
+    url: '/monitor/server',
+    method: 'get'
   })
 }
 
-/**
- * 获取CPU信息
- */
-export function getCpuInfo() {
-  return request<ApiResponse<{ coreCount: number; usage: number; model: string }>>({
-    url: '/monitor/server/cpu',
-    method: 'get',
-  })
-}
-
-/**
- * 获取内存信息
- */
-export function getMemoryInfo() {
-  return request<ApiResponse<{ used: number; total: number; usage: number; unit: string }>>({
-    url: '/monitor/server/memory',
-    method: 'get',
-  })
-}
-
-/**
- * 获取磁盘信息
- */
-export function getDiskInfo() {
-  return request<ApiResponse<{ used: number; total: number; usage: number; unit: string }>>({
-    url: '/monitor/server/disk',
-    method: 'get',
-  })
-}
-
-/**
- * 获取JVM信息
- */
-export function getJvmInfo() {
-  return request<ApiResponse<{ name: string; version: string; runtime: string }>>({
-    url: '/monitor/server/jvm',
-    method: 'get',
-  })
-}

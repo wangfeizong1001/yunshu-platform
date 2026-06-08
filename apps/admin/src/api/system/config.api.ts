@@ -1,136 +1,100 @@
 /**
- * 参数配置管理 API
+ * 参数配置 API
  */
 
-import { request } from '@/utils/request'
-import type {
-  SysConfig,
-  SysConfigQuery,
-  SysConfigForm,
-  SysConfigPageResp,
-} from '@yunshu/shared/types/system'
+import request from '@/utils/request'
 
-/**
- * 获取参数配置分页列表
- * @param params 查询参数
- */
-export function getConfigPage(params: SysConfigQuery) {
-  return request<SysConfigPageResp>({
-    url: '/system/config/page',
-    method: 'get',
-    params,
-  })
+export interface ConfigQuery {
+  pageNum?: number
+  pageSize?: number
+  configName?: string
+  configKey?: string
+  status?: string
 }
 
-/**
- * 获取参数配置列表
- * @param params 查询参数
- */
-export function getConfigList(params?: SysConfigQuery) {
-  return request<SysConfig[]>({
+export interface ConfigForm {
+  configId?: number
+  configName?: string
+  configKey?: string
+  configValue?: string
+  configType?: string
+  remark?: string
+}
+
+export interface ConfigInfo {
+  configId: number
+  configName: string
+  configKey: string
+  configValue: string
+  configType: string
+  remark: string
+  createTime: string
+}
+
+export const getConfigList = (params?: ConfigQuery) => {
+  return request({
     url: '/system/config/list',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取参数配置详情
- * @param configId 参数ID
- */
-export function getConfigDetail(configId: number) {
-  return request<SysConfig>({
+export const getConfigPage = (params?: ConfigQuery) => {
+  return request({
+    url: '/system/config/page',
+    method: 'get',
+    params
+  })
+}
+
+export const getConfig = (configId: number) => {
+  return request({
     url: `/system/config/${configId}`,
-    method: 'get',
+    method: 'get'
   })
 }
 
-/**
- * 根据参数键名获取参数
- * @param configKey 参数键名
- */
-export function getConfigByKey(configKey: string) {
-  return request<SysConfig>({
+export const getConfigValue = (configKey: string) => {
+  return request({
     url: `/system/config/configKey/${configKey}`,
-    method: 'get',
+    method: 'get'
   })
 }
 
-/**
- * 新增参数配置
- * @param data 参数配置表单数据
- */
-export function addConfig(data: SysConfigForm) {
-  return request<SysConfig>({
+export const addConfig = (data: ConfigForm) => {
+  return request({
     url: '/system/config',
     method: 'post',
-    data,
+    data
   })
 }
 
-/**
- * 修改参数配置
- * @param configId 参数ID
- * @param data 参数配置表单数据
- */
-export function updateConfig(configId: number, data: SysConfigForm) {
-  return request<SysConfig>({
-    url: `/system/config/${configId}`,
+export const updateConfig = (data: ConfigForm) => {
+  return request({
+    url: '/system/config',
     method: 'put',
-    data,
+    data
   })
 }
 
-/**
- * 删除参数配置
- * @param configId 参数ID
- */
-export function deleteConfig(configId: number) {
-  return request<void>({
+export const deleteConfig = (configId: number) => {
+  return request({
     url: `/system/config/${configId}`,
-    method: 'delete',
+    method: 'delete'
   })
 }
 
-/**
- * 批量删除参数配置
- * @param configIds 参数ID数组
- */
-export function batchDeleteConfig(configIds: number[]) {
-  return request<void>({
+export const batchDeleteConfig = (configIds: number[]) => {
+  return request({
     url: '/system/config/batch',
     method: 'delete',
-    data: { configIds },
+    data: configIds
   })
 }
 
-/**
- * 修改参数配置状态
- * @param configId 参数ID
- * @param status 状态
- */
-export function changeConfigStatus(configId: number, status: '0' | '1') {
-  return request<void>({
-    url: `/system/config/${configId}/status`,
-    method: 'put',
-    data: { status },
-  })
-}
-
-/**
- * 导出参数配置
- * @param params 查询参数
- */
-export function exportConfig(params?: SysConfigQuery) {
-  return request.download('/system/config/export', params, '参数配置.xlsx')
-}
-
-/**
- * 刷新参数缓存
- */
-export function refreshConfigCache() {
-  return request<void>({
-    url: '/system/config/cache',
-    method: 'delete',
+export const refreshConfigCache = () => {
+  return request({
+    url: '/system/config/refreshCache',
+    method: 'delete'
   })
 }

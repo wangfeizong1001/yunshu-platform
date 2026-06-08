@@ -24,7 +24,7 @@ interface UserState {
 
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    token: '',
+    token: getToken() || '',
     userId: '',
     username: '',
     nickname: '',
@@ -42,7 +42,7 @@ export const useUserStore = defineStore('user', {
     /**
      * 用户登录
      */
-    async login(userInfo: { username: string; password: string }) {
+    async login(userInfo: { username: string; password: string; code?: string; uuid?: string }) {
       try {
         const res = await loginApi(userInfo)
         const data = res.data

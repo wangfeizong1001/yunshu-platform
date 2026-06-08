@@ -2,115 +2,88 @@
  * 文件管理 API
  */
 
-import { request } from '@/utils/request'
-import type { SysFile, SysFileQuery, SysFilePageResp, SysFileUploadResp } from '@yunshu/shared/types/system'
+import request from '@/utils/request'
 
-/**
- * 获取文件分页列表
- * @param params 查询参数
- */
-export function getFilePage(params: SysFileQuery) {
-  return request<SysFilePageResp>({
-    url: '/system/file/page',
-    method: 'get',
-    params,
-  })
+export interface FileQuery {
+  pageNum?: number
+  pageSize?: number
+  fileName?: string
+  fileType?: string
 }
 
-/**
- * 获取文件列表
- * @param params 查询参数
- */
-export function getFileList(params?: SysFileQuery) {
-  return request<SysFile[]>({
+export interface FileForm {
+  fileId?: number
+  fileName?: string
+  fileUrl?: string
+  fileSize?: number
+  fileType?: string
+  uploadUser?: string
+  uploadTime?: string
+}
+
+export interface FileInfo {
+  fileId: number
+  fileName: string
+  fileUrl: string
+  fileSize: number
+  fileType: string
+  uploadUser: string
+  uploadTime: string
+}
+
+export const getFileList = (params?: FileQuery) => {
+  return request({
     url: '/system/file/list',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取文件详情
- * @param fileId 文件ID
- */
-export function getFileDetail(fileId: number) {
-  return request<SysFile>({
-    url: `/system/file/${fileId}`,
+export const getFilePage = (params?: FileQuery) => {
+  return request({
+    url: '/system/file/page',
     method: 'get',
+    params
   })
 }
 
-/**
- * 上传文件
- * @param file 文件
- */
-export function uploadFile(file: File) {
+export const getFile = (fileId: number) => {
+  return request({
+    url: `/system/file/${fileId}`,
+    method: 'get'
+  })
+}
+
+export const uploadFile = (file: File) => {
   const formData = new FormData()
   formData.append('file', file)
-  return request<SysFileUploadResp>({
+  return request({
     url: '/system/file/upload',
     method: 'post',
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
 
-/**
- * 上传多个文件
- * @param files 文件列表
- */
-export function uploadMultipleFiles(files: File[]) {
-  const formData = new FormData()
-  files.forEach((file) => {
-    formData.append('files', file)
-  })
-  return request<SysFileUploadResp[]>({
-    url: '/system/file/upload/multiple',
-    method: 'post',
-    data: formData,
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })
-}
-
-/**
- * 删除文件
- * @param fileId 文件ID
- */
-export function deleteFile(fileId: number) {
-  return request<void>({
+export const deleteFile = (fileId: number) => {
+  return request({
     url: `/system/file/${fileId}`,
-    method: 'delete',
+    method: 'delete'
   })
 }
 
-/**
- * 批量删除文件
- * @param fileIds 文件ID数组
- */
-export function batchDeleteFile(fileIds: number[]) {
-  return request<void>({
+export const batchDeleteFile = (fileIds: number[]) => {
+  return request({
     url: '/system/file/batch',
     method: 'delete',
-    data: { fileIds },
+    data: fileIds
   })
 }
 
-/**
- * 下载文件
- * @param fileId 文件ID
- */
-export function downloadFile(fileId: number) {
-  return request.download(`/system/file/download/${fileId}`)
-}
-
-/**
- * 预览文件
- * @param fileId 文件ID
- * @returns 文件URL
- */
-export function previewFile(fileId: number) {
-  return request<string>({
-    url: `/system/file/preview/${fileId}`,
+export const downloadFile = (fileId: number) => {
+  return request({
+    url: `/system/file/download/${fileId}`,
     method: 'get',
+    responseType: 'blob'
   })
 }

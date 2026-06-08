@@ -1,144 +1,107 @@
 /**
- * OSS 文件存储 API
+ * OSS文件存储 API
  */
 
-import { request } from '@/utils/request'
-import type {
-  OssConfig,
-  OssFile,
-  OssFileQuery,
-  OssFilePageResp,
-  OssConfigResp,
-  OssUploadResp,
-} from '@yunshu/shared/types/oss'
+import request from '@/utils/request'
 
-/**
- * 获取文件列表
- * @param params 查询参数
- */
-export function getOssFileList(params: OssFileQuery) {
-  return request<OssFilePageResp>({
+export interface OssQuery {
+  pageNum?: number
+  pageSize?: number
+  fileName?: string
+  bucketName?: string
+}
+
+export interface OssForm {
+  ossId?: number
+  fileName?: string
+  originalName?: string
+  fileSuffix?: string
+  url?: string
+  bucketName?: string
+  fileSize?: number
+}
+
+export interface OssInfo {
+  ossId: number
+  fileName: string
+  originalName: string
+  fileSuffix: string
+  url: string
+  bucketName: string
+  fileSize: number
+  createTime: string
+}
+
+export interface OssConfig {
+  ossType: string
+  endpoint: string
+  accessKey: string
+  secretKey: string
+  bucketName: string
+  domain: string
+  region: string
+}
+
+export const getOssList = (params?: OssQuery) => {
+  return request({
     url: '/system/oss/list',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取文件分页列表
- * @param params 查询参数
- */
-export function getOssFilePage(params: OssFileQuery) {
-  return request<OssFilePageResp>({
+export const getOssPage = (params?: OssQuery) => {
+  return request({
     url: '/system/oss/page',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取文件详情
- * @param fileId 文件ID
- */
-export function getOssFileDetail(fileId: number) {
-  return request<OssFile>({
-    url: `/system/oss/${fileId}`,
-    method: 'get',
+export const getOss = (ossId: number) => {
+  return request({
+    url: `/system/oss/${ossId}`,
+    method: 'get'
   })
 }
 
-/**
- * 获取 OSS 配置
- */
-export function getOssConfig() {
-  return request<OssConfigResp>({
+export const getOssConfig = () => {
+  return request({
     url: '/system/oss/config',
-    method: 'get',
+    method: 'get'
   })
 }
 
-/**
- * 修改 OSS 配置
- * @param data 配置数据
- */
-export function updateOssConfig(data: Partial<OssConfig>) {
-  return request<void>({
-    url: '/system/oss/config',
-    method: 'put',
-    data,
-  })
-}
-
-/**
- * 上传文件
- * @param file 文件
- * @param configId 配置ID
- */
-export function uploadOssFile(file: File, configId?: number) {
+export const uploadOss = (file: File) => {
   const formData = new FormData()
   formData.append('file', file)
-  if (configId) {
-    formData.append('configId', String(configId))
-  }
-  return request<OssUploadResp>({
+  return request({
     url: '/system/oss/upload',
     method: 'post',
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
 
-/**
- * 删除文件
- * @param fileId 文件ID
- */
-export function deleteOssFile(fileId: number) {
-  return request<void>({
-    url: `/system/oss/${fileId}`,
-    method: 'delete',
+export const deleteOss = (ossId: number) => {
+  return request({
+    url: `/system/oss/${ossId}`,
+    method: 'delete'
   })
 }
 
-/**
- * 批量删除文件
- * @param fileIds 文件ID数组
- */
-export function batchDeleteOssFile(fileIds: number[]) {
-  return request<void>({
+export const batchDeleteOss = (ossIds: number[]) => {
+  return request({
     url: '/system/oss/batch',
     method: 'delete',
-    data: { fileIds },
+    data: ossIds
   })
 }
 
-/**
- * 下载文件
- * @param fileId 文件ID
- */
-export function downloadOssFile(fileId: number) {
-  return request.download(`/system/oss/download/${fileId}`)
-}
-
-/**
- * 预览文件
- * @param fileId 文件ID
- * @returns 文件URL
- */
-export function previewOssFile(fileId: number) {
-  return request<string>({
-    url: `/system/oss/preview/${fileId}`,
+export const downloadOss = (ossId: number) => {
+  return request({
+    url: `/system/oss/download/${ossId}`,
     method: 'get',
-  })
-}
-
-/**
- * 测试 OSS 连接
- * @param data 配置数据
- */
-export function testOssConnection(data: Partial<OssConfig>) {
-  return request<boolean>({
-    url: '/system/oss/test',
-    method: 'post',
-    data,
+    responseType: 'blob'
   })
 }

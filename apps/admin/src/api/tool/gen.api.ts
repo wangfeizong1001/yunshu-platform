@@ -1,157 +1,131 @@
 /**
  * 代码生成器 API
- *
- * @module @yunshu/admin/api/tool
  */
 
-import { request } from '@/utils/request'
-import type {
-  IGenTable,
-  IGenColumn,
-  IGenConfig,
-  IGenQuery,
-  IGenPreview,
-  IGenResult,
-} from '@yunshu/shared/types/gen'
-import type { ApiResponse, PaginatedResponse } from '@yunshu/shared'
+import request from '@/utils/request'
 
-/** 表分页响应 */
-export type GenTablePageResp = PaginatedResponse<IGenTable>
+export interface GenTableQuery {
+  pageNum?: number
+  pageSize?: number
+  tableName?: string
+  tableComment?: string
+}
 
-/**
- * 获取数据库表分页列表
- * @param params 查询参数
- */
-export function getGenTablePage(params: IGenQuery) {
-  return request<GenTablePageResp>({
-    url: '/gen/table/page',
+export interface GenTableInfo {
+  tableId: number
+  tableName: string
+  tableComment: string
+  subTableName?: string
+  subTableFkName?: string
+  className: string
+  tplCategory?: string
+  packageName: string
+  moduleName: string
+  businessName: string
+  functionName: string
+  functionAuthor: string
+  genType: string
+  genPath: string
+  options: string
+  createTime: string
+}
+
+export interface GenColumnInfo {
+  tableInfo: GenTableInfo
+  tables: Array<{
+    name: string
+    comment: string
+    columns: Array<{
+      name: string
+      comment: string
+      type: string
+    }>
+  }>
+}
+
+export const getGenTableList = (params?: GenTableQuery) => {
+  return request({
+    url: '/tool/gen/list',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取所有数据库表列表
- */
-export function getGenTableList() {
-  return request<ApiResponse<IGenTable[]>>({
-    url: '/gen/table/list',
+export const getGenTablePage = (params?: GenTableQuery) => {
+  return request({
+    url: '/tool/gen/page',
     method: 'get',
+    params
   })
 }
 
-/**
- * 获取表详情（包含字段信息）
- * @param tableName 表名
- */
-export function getGenTableDetail(tableName: string) {
-  return request<ApiResponse<IGenColumn[]>>({
-    url: `/gen/table/${tableName}`,
+export const getGenDbList = (params?: GenTableQuery) => {
+  return request({
+    url: '/tool/gen/db/list',
     method: 'get',
+    params
   })
 }
 
-/**
- * 获取生成配置
- * @param tableName 表名
- */
-export function getGenConfig(tableName: string) {
-  return request<ApiResponse<{ config: Partial<IGenConfig>; columns: IGenColumn[] }>>({
-    url: `/gen/config/${tableName}`,
-    method: 'get',
+export const getGenTable = (tableId: number) => {
+  return request({
+    url: `/tool/gen/${tableId}`,
+    method: 'get'
   })
 }
 
-/**
- * 保存生成配置
- * @param config 生成配置
- */
-export function saveGenConfig(config: IGenConfig) {
-  return request<ApiResponse<IGenConfig>>({
-    url: '/gen/config',
+export const importGenTable = (tableNames: string[]) => {
+  return request({
+    url: '/tool/gen/importTable',
     method: 'post',
-    data: config,
+    data: tableNames
   })
 }
 
-/**
- * 获取生成配置列表
- */
-export function getGenConfigList() {
-  return request<ApiResponse<IGenConfig[]>>({
-    url: '/gen/config/list',
-    method: 'get',
+export const updateGenTable = (data: GenTableInfo) => {
+  return request({
+    url: '/tool/gen',
+    method: 'put',
+    data
   })
 }
 
-/**
- * 删除生成配置
- * @param genId 配置ID
- */
-export function deleteGenConfig(genId: string) {
-  return request<ApiResponse<boolean>>({
-    url: `/gen/config/${genId}`,
+export const deleteGenTable = (tableIds: number[]) => {
+  return request({
+    url: '/tool/gen',
     method: 'delete',
+    data: tableIds
   })
 }
 
-/**
- * 预览生成的代码
- * @param config 生成配置
- */
-export function previewCode(config: IGenConfig) {
-  return request<ApiResponse<IGenPreview>>({
-    url: '/gen/preview',
+export const previewGen = (tableName: string) => {
+  return request({
+    url: `/tool/gen/preview/${tableName}`,
+    method: 'get'
+  })
+}
+
+export const downloadGen = (tableNames: string[]) => {
+  return request({
+    url: '/tool/gen/download',
     method: 'post',
-    data: config,
+    data: tableNames,
+    responseType: 'blob'
   })
 }
 
-/**
- * 生成代码
- * @param config 生成配置
- */
-export function generateCode(config: IGenConfig) {
-  return request<ApiResponse<IGenResult>>({
-    url: '/gen/code',
+export const genCode = (tableNames: string[]) => {
+  return request({
+    url: '/tool/gen/genCode',
     method: 'post',
-    data: config,
+    data: tableNames
   })
 }
 
-/**
- * 下载代码ZIP包
- * @param tableName 表名
- * @param config 生成配置（可选）
- */
-export function downloadCode(tableName: string, config?: Partial<IGenConfig>) {
-  const params = new URLSearchParams()
-  params.append('tableName', tableName)
-  if (config) {
-    if (config.tableComment) params.append('tableComment', config.tableComment)
-    if (config.className) params.append('className', config.className)
-    if (config.moduleName) params.append('moduleName', config.moduleName)
-    if (config.packageName) params.append('packageName', config.packageName)
-    if (config.author) params.append('author', config.author)
-    if (config.email) params.append('email', config.email)
-    if (config.generateType) params.append('generateType', config.generateType)
-    params.append('generateMenu', String(config.generateMenu !== false))
-    params.append('generateApi', String(config.generateApi !== false))
-    params.append('generateView', String(config.generateView !== false))
-    params.append('generateTypeScript', String(config.generateTypeScript !== false))
-  }
-
-  // 打开新窗口进行下载
-  window.open(`/gen/download/${tableName}?${params.toString()}`, '_blank')
-}
-
-/**
- * 同步表结构
- * @param tableName 表名
- */
-export function syncTable(tableName: string) {
-  return request<ApiResponse<IGenColumn[]>>({
-    url: `/gen/sync/${tableName}`,
-    method: 'post',
+export const syncGenDb = (tableName: string) => {
+  return request({
+    url: `/tool/gen/sync/${tableName}`,
+    method: 'post'
   })
 }
+

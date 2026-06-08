@@ -1,128 +1,174 @@
 /**
  * 定时任务 API
- *
- * @module @yunshu/admin/api/monitor
  */
 
-import { request } from '@/utils/request'
-import type {
-  IJob,
-  IJobLog,
-  IJobQuery,
-  IJobLogQuery,
-  IJobCreate,
-  IJobUpdate,
-} from '@yunshu/shared/types/monitor'
-import type { ApiResponse, PaginatedResponse } from '@yunshu/shared'
+import request from '@/utils/request'
 
-/** 定时任务分页响应 */
-export type JobPageResp = PaginatedResponse<IJob>
+export interface JobQuery {
+  pageNum?: number
+  pageSize?: number
+  jobName?: string
+  jobGroup?: string
+  status?: string
+}
 
-/** 定时任务日志分页响应 */
-export type JobLogPageResp = PaginatedResponse<IJobLog>
+export interface JobForm {
+  jobId?: number
+  jobName?: string
+  jobGroup?: string
+  jobType?: string
+  cronExpression?: string
+  targetBean?: string
+  targetMethod?: string
+  targetParams?: string
+  concurrent?: string
+  status?: string
+  remark?: string
+}
 
-/**
- * 获取定时任务分页列表
- * @param params 查询参数
- */
-export function getJobPage(params: IJobQuery) {
-  return request<JobPageResp>({
+export interface JobInfo {
+  jobId: number
+  jobName: string
+  jobGroup: string
+  jobType: string
+  cronExpression: string
+  targetBean: string
+  targetMethod: string
+  targetParams: string
+  concurrent: string
+  status: string
+  remark: string
+  createTime: string
+}
+
+export interface JobLogQuery {
+  pageNum?: number
+  pageSize?: number
+  jobName?: string
+  jobGroup?: string
+  status?: string
+  startTime?: string
+  endTime?: string
+}
+
+export interface JobLogInfo {
+  jobLogId: number
+  jobName: string
+  jobGroup: string
+  jobType: string
+  cronExpression: string
+  targetBean: string
+  targetMethod: string
+  targetParams: string
+  status: string
+  exceptionInfo: string
+  createTime: string
+}
+
+export const getJobList = (params?: JobQuery) => {
+  return request({
+    url: '/monitor/job/list',
+    method: 'get',
+    params
+  })
+}
+
+export const getJobPage = (params?: JobQuery) => {
+  return request({
     url: '/monitor/job/page',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取定时任务详情
- * @param id 任务ID
- */
-export function getJobDetail(id: string) {
-  return request<ApiResponse<IJob>>({
-    url: `/monitor/job/${id}`,
-    method: 'get',
+export const getJob = (jobId: number) => {
+  return request({
+    url: `/monitor/job/${jobId}`,
+    method: 'get'
   })
 }
 
-/**
- * 创建定时任务
- * @param data 任务表单数据
- */
-export function createJob(data: IJobCreate) {
-  return request<ApiResponse<IJob>>({
+export const addJob = (data: JobForm) => {
+  return request({
     url: '/monitor/job',
     method: 'post',
-    data,
+    data
   })
 }
 
-/**
- * 更新定时任务
- * @param id 任务ID
- * @param data 任务表单数据
- */
-export function updateJob(id: string, data: Partial<IJobUpdate>) {
-  return request<ApiResponse<IJob>>({
-    url: `/monitor/job/${id}`,
+export const updateJob = (data: JobForm) => {
+  return request({
+    url: '/monitor/job',
     method: 'put',
-    data,
+    data
   })
 }
 
-/**
- * 删除定时任务
- * @param id 任务ID
- */
-export function deleteJob(id: string) {
-  return request<ApiResponse<boolean>>({
-    url: `/monitor/job/${id}`,
+export const deleteJob = (jobId: number) => {
+  return request({
+    url: `/monitor/job/${jobId}`,
+    method: 'delete'
+  })
+}
+
+export const batchDeleteJob = (jobIds: number[]) => {
+  return request({
+    url: '/monitor/job/batch',
     method: 'delete',
+    data: jobIds
   })
 }
 
-/**
- * 执行定时任务
- * @param jobId 任务ID
- */
-export function executeJob(jobId: string) {
-  return request<ApiResponse<{ logId: string }>>({
-    url: '/monitor/job/execute',
+export const runJob = (jobId: number) => {
+  return request({
+    url: `/monitor/job/run`,
     method: 'post',
-    data: { jobId },
+    params: { jobId }
   })
 }
 
-/**
- * 更改任务状态
- * @param id 任务ID
- * @param status 状态
- */
-export function changeJobStatus(id: string, status: '0' | '1') {
-  return request<ApiResponse<IJob>>({
-    url: '/monitor/job/status',
+export const changeJobStatus = (jobId: number, status: string) => {
+  return request({
+    url: '/monitor/job/changeStatus',
     method: 'put',
-    data: { id, status },
+    params: { jobId, status }
   })
 }
 
-/**
- * 获取任务执行日志
- * @param params 查询参数
- */
-export function getJobLogPage(params: IJobLogQuery) {
-  return request<JobLogPageResp>({
+export const getJobLogList = (params?: JobLogQuery) => {
+  return request({
+    url: '/monitor/job/log/list',
+    method: 'get',
+    params
+  })
+}
+
+export const getJobLogPage = (params?: JobLogQuery) => {
+  return request({
     url: '/monitor/job/log/page',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 清空任务日志
- */
-export function cleanJobLog() {
-  return request<ApiResponse<boolean>>({
-    url: '/monitor/job/log/clean',
-    method: 'delete',
+export const getJobLog = (jobLogId: number) => {
+  return request({
+    url: `/monitor/job/log/${jobLogId}`,
+    method: 'get'
   })
 }
+
+export const deleteJobLog = (jobLogId: number) => {
+  return request({
+    url: `/monitor/job/log/${jobLogId}`,
+    method: 'delete'
+  })
+}
+
+export const cleanJobLog = () => {
+  return request({
+    url: '/monitor/job/log/clean',
+    method: 'delete'
+  })
+}
+

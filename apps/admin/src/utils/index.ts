@@ -1,1 +1,7 @@
-export * from './path'
+/**
+ * 工具函数聚合导出
+ */
+
+export * from './auth'
+export * from './permission'
+
