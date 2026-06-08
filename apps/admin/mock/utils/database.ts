@@ -175,6 +175,73 @@ interface GenTable {
   createTime: string
 }
 
+/** 表单组件 */
+interface FormComponent {
+  id: string
+  type: 'input' | 'textarea' | 'radio' | 'checkbox' | 'select' | 'date' | 'datetime' | 'time' | 'upload' | 'number' | 'switch' | 'rate' | 'slider'
+  label: string
+  field: string
+  placeholder?: string
+  required?: boolean
+  disabled?: boolean
+  defaultValue?: any
+  options?: Array<{ label: string; value: any }>
+  rules?: string[]
+  min?: number
+  max?: number
+  step?: number
+  multiple?: boolean
+  accept?: string
+  maxCount?: number
+}
+
+/** 表单信息 */
+interface Form {
+  formId: number
+  formName: string
+  formCode: string
+  description: string
+  components: FormComponent[]
+  status: '0' | '1'
+  createTime: string
+  updateTime: string
+  remark: string
+}
+
+/** 站内消息 */
+interface Message {
+  messageId: number
+  title: string
+  content: string
+  type: 'system' | 'normal' | 'reminder'
+  priority: 'high' | 'medium' | 'low'
+  status: '0' | '1'
+  senderId: number
+  senderName: string
+  receiverId: number
+  receiverName: string
+  sendTime: string
+  readTime?: string
+}
+
+/** 通知 */
+interface Notification {
+  notificationId: number
+  title: string
+  content: string
+  type: string
+  level: string
+  status: string
+  targetType: string
+  targetIds?: number[]
+  isPushed: boolean
+  pushTime?: string
+  expireTime?: string
+  createBy: string
+  createTime: string
+  updateTime?: string
+}
+
 /** 数据库存储 */
 export const db = {
   users: [
@@ -772,8 +839,266 @@ export const db = {
       engine: 'InnoDB',
       createTime: '2024-01-01 10:00:00'
     }
-  ] as GenTable[]
+  ] as GenTable[],
+
+  messages: [] as Message[],
+
+  notifications: [] as Notification[],
+
+  forms: [
+    {
+      formId: 1,
+      formName: '员工入职申请表',
+      formCode: 'EMPLOYEE_ENTRY',
+      description: '用于员工入职时填写基本信息',
+      status: '1' as const,
+      createTime: '2024-01-15 10:30:00',
+      updateTime: '2024-01-15 10:30:00',
+      remark: '',
+      components: [
+        {
+          id: '1',
+          type: 'input',
+          label: '姓名',
+          field: 'name',
+          placeholder: '请输入姓名',
+          required: true,
+          disabled: false,
+          rules: []
+        },
+        {
+          id: '2',
+          type: 'select',
+          label: '部门',
+          field: 'dept',
+          placeholder: '请选择部门',
+          required: true,
+          disabled: false,
+          options: [
+            { label: '技术部', value: 'tech' },
+            { label: '产品部', value: 'product' },
+            { label: '设计部', value: 'design' },
+            { label: '市场部', value: 'market' }
+          ]
+        },
+        {
+          id: '3',
+          type: 'date',
+          label: '入职日期',
+          field: 'entryDate',
+          placeholder: '请选择入职日期',
+          required: true,
+          disabled: false
+        },
+        {
+          id: '4',
+          type: 'input',
+          label: '联系电话',
+          field: 'phone',
+          placeholder: '请输入联系电话',
+          required: true,
+          disabled: false,
+          rules: ['phone']
+        },
+        {
+          id: '5',
+          type: 'textarea',
+          label: '备注',
+          field: 'remark',
+          placeholder: '请输入备注信息',
+          required: false,
+          disabled: false
+        }
+      ]
+    },
+    {
+      formId: 2,
+      formName: '请假申请表',
+      formCode: 'LEAVE_APPLICATION',
+      description: '用于员工请假申请',
+      status: '1' as const,
+      createTime: '2024-01-20 14:00:00',
+      updateTime: '2024-01-20 14:00:00',
+      remark: '',
+      components: [
+        {
+          id: '1',
+          type: 'select',
+          label: '请假类型',
+          field: 'leaveType',
+          placeholder: '请选择请假类型',
+          required: true,
+          disabled: false,
+          options: [
+            { label: '事假', value: 'personal' },
+            { label: '病假', value: 'sick' },
+            { label: '年假', value: 'annual' },
+            { label: '婚假', value: 'marriage' }
+          ]
+        },
+        {
+          id: '2',
+          type: 'datetime',
+          label: '开始时间',
+          field: 'startTime',
+          placeholder: '请选择开始时间',
+          required: true,
+          disabled: false
+        },
+        {
+          id: '3',
+          type: 'datetime',
+          label: '结束时间',
+          field: 'endTime',
+          placeholder: '请选择结束时间',
+          required: true,
+          disabled: false
+        },
+        {
+          id: '4',
+          type: 'textarea',
+          label: '请假理由',
+          field: 'reason',
+          placeholder: '请输入请假理由',
+          required: true,
+          disabled: false
+        }
+      ]
+    },
+    {
+      formId: 3,
+      formName: '报销申请表',
+      formCode: 'EXPENSE_APPLICATION',
+      description: '用于员工费用报销申请',
+      status: '0' as const,
+      createTime: '2024-01-25 09:00:00',
+      updateTime: '2024-01-25 09:00:00',
+      remark: '草稿状态',
+      components: [
+        {
+          id: '1',
+          type: 'input',
+          label: '报销事由',
+          field: 'reason',
+          placeholder: '请输入报销事由',
+          required: true,
+          disabled: false
+        },
+        {
+          id: '2',
+          type: 'number',
+          label: '报销金额',
+          field: 'amount',
+          placeholder: '请输入报销金额',
+          required: true,
+          disabled: false,
+          min: 0.01,
+          step: 0.01
+        },
+        {
+          id: '3',
+          type: 'date',
+          label: '消费日期',
+          field: 'expenseDate',
+          placeholder: '请选择消费日期',
+          required: true,
+          disabled: false
+        },
+        {
+          id: '4',
+          type: 'upload',
+          label: '上传凭证',
+          field: 'voucher',
+          placeholder: '',
+          required: true,
+          disabled: false,
+          accept: 'image/*',
+          maxCount: 5
+        },
+        {
+          id: '5',
+          type: 'textarea',
+          label: '备注',
+          field: 'remark',
+          placeholder: '请输入备注信息',
+          required: false,
+          disabled: false
+        }
+      ]
+    }
+  ] as Form[]
 }
+
+// 初始化消息数据
+function initMessages() {
+  const messageTypes = ['system', 'normal', 'reminder'] as const
+  const priorities = ['high', 'medium', 'low'] as const
+  const statuses = ['0', '1'] as const
+
+  for (let i = 1; i <= 20; i++) {
+    const type = messageTypes[Math.floor(Math.random() * messageTypes.length)]
+    const priority = priorities[Math.floor(Math.random() * priorities.length)]
+    const status = i <= 10 ? '0' : '1'
+    const sendTime = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000)
+
+    db.messages.push({
+      messageId: i,
+      title: i <= 3 ? `【重要】系统升级通知` : i <= 8 ? `任务提醒：您有新的待办事项` : `普通消息：会议通知`,
+      content: i <= 3
+        ? '系统将于本周末进行升级维护，请提前保存好您的工作数据。升级期间系统将无法使用，给您带来的不便敬请谅解。'
+        : i <= 8
+        ? '您有新的待办事项需要处理，请尽快完成相关工作。任务截止时间为本周五下午6点。'
+        : '本周三下午3点将在会议室A召开项目进度会议，请相关人员准时参加。',
+      type,
+      priority,
+      status,
+      senderId: 1,
+      senderName: '管理员',
+      receiverId: i % 4 === 0 ? 2 : i % 4 === 1 ? 3 : i % 4 === 2 ? 4 : 1,
+      receiverName: i % 4 === 0 ? '张三' : i % 4 === 1 ? '李四' : i % 4 === 2 ? '王五' : '管理员',
+      sendTime: sendTime.toISOString().replace('T', ' ').slice(0, 19),
+      readTime: status === '1' ? new Date(sendTime.getTime() + Math.random() * 2 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19) : undefined
+    })
+  }
+}
+
+// 初始化通知数据
+function initNotifications() {
+  const types = ['公告', '通知', '提醒']
+  const levels = ['info', 'warning', 'danger', 'success']
+  const statuses = ['0', '1']
+  const targetTypes = ['all', 'role', 'dept', 'user']
+
+  for (let i = 1; i <= 10; i++) {
+    const level = levels[Math.floor(Math.random() * levels.length)]
+    const status = i <= 5 ? '0' : '1'
+    const createTime = new Date(Date.now() - Math.random() * 14 * 24 * 60 * 60 * 1000)
+
+    db.notifications.push({
+      notificationId: i,
+      title: i <= 3 ? `系统升级公告` : i <= 6 ? `新功能上线通知` : `安全提醒`,
+      content: i <= 3
+        ? '为提升用户体验，系统将于近期进行升级，新增多项功能，欢迎体验。'
+        : i <= 6
+        ? '消息通知中心已上线，支持站内消息、邮件、短信等多种通知方式。'
+        : '请妥善保管您的账号密码，定期更换，避免账号泄露。',
+      type: types[Math.floor(Math.random() * types.length)],
+      level,
+      status,
+      targetType: targetTypes[Math.floor(Math.random() * targetTypes.length)],
+      isPushed: i <= 8,
+      pushTime: i <= 8 ? new Date(createTime.getTime() + Math.random() * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19) : undefined,
+      expireTime: new Date(createTime.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19),
+      createBy: 'admin',
+      createTime: createTime.toISOString().replace('T', ' ').slice(0, 19),
+      updateTime: status === '1' ? new Date(createTime.getTime() + Math.random() * 24 * 60 * 60 * 1000).toISOString().replace('T', ' ').slice(0, 19) : undefined
+    })
+  }
+}
+
+// 执行初始化
+initMessages()
+initNotifications()
 
 // 初始化操作日志数据
 function initOperlogs() {
@@ -899,4 +1224,4 @@ initLogininfors()
 initOnlineUsers()
 initJobLogs()
 
-export type { User, Role, Dept, Menu, Post, Operlog, Logininfor, OnlineUser, Job, JobLog, GenTable }
+export type { User, Role, Dept, Menu, Post, Operlog, Logininfor, OnlineUser, Job, JobLog, GenTable, Message, Notification, Form, FormComponent }

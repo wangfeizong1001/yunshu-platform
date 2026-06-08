@@ -6,6 +6,7 @@
 import { defineStore } from 'pinia'
 import { loginApi, logoutApi, getUserInfoApi } from '@/api/auth'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import cache, { CACHE_KEYS } from '@/utils/cache'
 
 interface UserState {
   token: string
@@ -22,23 +23,47 @@ interface UserState {
   permissions: string[]
 }
 
+interface UserInfo {
+  userId: string
+  username: string
+  nickname?: string
+  avatar?: string
+  email?: string
+  phone?: string
+  deptId?: string
+  deptName?: string
+  roleId?: number[]
+}
+
 export const useUserStore = defineStore('user', {
-  state: (): UserState => ({
-    token: getToken() || '',
-    userId: '',
-    username: '',
-    nickname: '',
-    avatar: '',
-    email: '',
-    phone: '',
-    deptId: '',
-    deptName: '',
-    roles: [],
-    roleId: [],
-    permissions: []
-  }),
+  state: (): UserState => {
+    const cachedUserInfo = cache.get<UserState>(CACHE_KEYS.USER_INFO)
+    return {
+      token: getToken() || '',
+      userId: cachedUserInfo?.userId || '',
+      username: cachedUserInfo?.username || '',
+      nickname: cachedUserInfo?.nickname || '',
+      avatar: cachedUserInfo?.avatar || '',
+      email: cachedUserInfo?.email || '',
+      phone: cachedUserInfo?.phone || '',
+      deptId: cachedUserInfo?.deptId || '',
+      deptName: cachedUserInfo?.deptName || '',
+      roles: cachedUserInfo?.roles || [],
+      roleId: cachedUserInfo?.roleId || [],
+      permissions: cachedUserInfo?.permissions || []
+    }
+  },
 
   actions: {
+    /**
+     * 保存用户信息到缓存
+     */
+    saveToCache() {
+      cache.set(CACHE_KEYS.USER_INFO, this.$state, {
+        ttl: 24 * 60 * 60 * 1000 // 24小时过期
+      })
+    },
+
     /**
      * 用户登录
      */
@@ -76,6 +101,8 @@ export const useUserStore = defineStore('user', {
         this.roleId = data.user.roleId || []
         this.permissions = data.permissions || []
 
+        this.saveToCache()
+
         return data
       } catch (error) {
         throw error
@@ -91,6 +118,7 @@ export const useUserStore = defineStore('user', {
       } finally {
         this.resetState()
         removeToken()
+        cache.remove(CACHE_KEYS.USER_INFO)
       }
     },
 

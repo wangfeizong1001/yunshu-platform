@@ -3,55 +3,31 @@
  */
 
 import request from '@/utils/request'
+import type {
+  IGenTable,
+  IGenTableFull,
+  IGenQuery,
+  IGenConfig,
+  IGenColumn,
+  IGenPreview,
+  IGenResult
+} from '@yunshu/shared/types/gen'
 
-export interface GenTableQuery {
-  pageNum?: number
-  pageSize?: number
-  tableName?: string
-  tableComment?: string
+export interface ApiResponse<T = any> {
+  success: boolean
+  data?: T
+  message?: string
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+  }
 }
 
-export interface GenTableInfo {
-  tableId: number
-  tableName: string
-  tableComment: string
-  subTableName?: string
-  subTableFkName?: string
-  className: string
-  tplCategory?: string
-  packageName: string
-  moduleName: string
-  businessName: string
-  functionName: string
-  functionAuthor: string
-  genType: string
-  genPath: string
-  options: string
-  createTime: string
-}
-
-export interface GenColumnInfo {
-  tableInfo: GenTableInfo
-  tables: Array<{
-    name: string
-    comment: string
-    columns: Array<{
-      name: string
-      comment: string
-      type: string
-    }>
-  }>
-}
-
-export const getGenTableList = (params?: GenTableQuery) => {
-  return request({
-    url: '/tool/gen/list',
-    method: 'get',
-    params
-  })
-}
-
-export const getGenTablePage = (params?: GenTableQuery) => {
+/**
+ * 获取表列表（分页）
+ */
+export const getGenTablePage = (params: IGenQuery): Promise<ApiResponse<IGenTable[]>> => {
   return request({
     url: '/tool/gen/page',
     method: 'get',
@@ -59,7 +35,10 @@ export const getGenTablePage = (params?: GenTableQuery) => {
   })
 }
 
-export const getGenDbList = (params?: GenTableQuery) => {
+/**
+ * 获取数据库表列表（未导入）
+ */
+export const getGenDbList = (params?: IGenQuery): Promise<ApiResponse<IGenTable[]>> => {
   return request({
     url: '/tool/gen/db/list',
     method: 'get',
@@ -67,64 +46,127 @@ export const getGenDbList = (params?: GenTableQuery) => {
   })
 }
 
-export const getGenTable = (tableId: number) => {
+/**
+ * 获取表详细配置
+ */
+export const getGenConfig = (tableName: string): Promise<ApiResponse<{
+  config: IGenConfig
+  columns: IGenColumn[]
+}>> => {
   return request({
-    url: `/tool/gen/${tableId}`,
+    url: `/tool/gen/config/${tableName}`,
     method: 'get'
   })
 }
 
-export const importGenTable = (tableNames: string[]) => {
+/**
+ * 保存表配置
+ */
+export const saveGenConfig = (data: IGenConfig & { columns: IGenColumn[] }): Promise<ApiResponse> => {
   return request({
-    url: '/tool/gen/importTable',
+    url: '/tool/gen/config',
     method: 'post',
-    data: tableNames
-  })
-}
-
-export const updateGenTable = (data: GenTableInfo) => {
-  return request({
-    url: '/tool/gen',
-    method: 'put',
     data
   })
 }
 
-export const deleteGenTable = (tableIds: number[]) => {
+/**
+ * 导入表
+ */
+export const importGenTable = (tableNames: string[]): Promise<ApiResponse> => {
   return request({
-    url: '/tool/gen',
-    method: 'delete',
-    data: tableIds
+    url: '/tool/gen/import',
+    method: 'post',
+    data: { tableNames }
   })
 }
 
-export const previewGen = (tableName: string) => {
+/**
+ * 同步表结构
+ */
+export const syncTable = (tableName: string): Promise<ApiResponse<IGenColumn[]>> => {
   return request({
-    url: `/tool/gen/preview/${tableName}`,
-    method: 'get'
+    url: `/tool/gen/sync/${tableName}`,
+    method: 'post'
   })
 }
 
-export const downloadGen = (tableNames: string[]) => {
+/**
+ * 预览代码
+ */
+export const previewCode = (config: IGenConfig): Promise<ApiResponse<IGenPreview>> => {
+  return request({
+    url: '/tool/gen/preview',
+    method: 'post',
+    data: config
+  })
+}
+
+/**
+ * 下载代码
+ */
+export const downloadCode = (tableName: string, config?: IGenConfig): Promise<Blob> => {
   return request({
     url: '/tool/gen/download',
     method: 'post',
-    data: tableNames,
+    data: config || { tableName },
     responseType: 'blob'
   })
 }
 
-export const genCode = (tableNames: string[]) => {
+/**
+ * 删除表配置
+ */
+export const deleteGenTable = (tableNames: string[]): Promise<ApiResponse> => {
   return request({
-    url: '/tool/gen/genCode',
-    method: 'post',
-    data: tableNames
+    url: '/tool/gen/delete',
+    method: 'delete',
+    data: { tableNames }
   })
 }
 
-export const syncGenDb = (tableName: string) => {
+/**
+ * 批量生成代码
+ */
+export const batchGenerate = (tableNames: string[]): Promise<ApiResponse<IGenResult[]>> => {
   return request({
-    url: `/tool/gen/sync/${tableName}`,
+    url: '/tool/gen/batch',
+    method: 'post',
+    data: { tableNames }
+  })
+}
+
+/**
+ * 获取模板列表
+ */
+export const getTemplateList = (): Promise<ApiResponse<{
+  templateName: string
+  templatePath: string
+  description: string
+}[]>> => {
+  return request({
+    url: '/tool/gen/templates',
+    method: 'get'
+  })
+}
+
+/**
+ * 保存自定义模板
+ */
+export const saveTemplate = (templateName: string, content: string): Promise<ApiResponse> => {
+  return request({
+    url: '/tool/gen/template',
+    method: 'post',
+    data: { templateName, content }
+  })
+}
+
+/**
+ * 重置模板为默认
+ */
+export const resetTemplate = (templateName: string): Promise<ApiResponse> => {
+  return request({
+    url: `/tool/gen/template/reset/${templateName}`,
     method: 'post'
   })
 }

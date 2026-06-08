@@ -11,7 +11,7 @@ export const LocalStorage = {
   },
   get(key: string, defaultValue?: any) {
     const value = localStorage.getItem(key)
-    if (try {
+    try {
       return JSON.parse(value!)
     } catch {
       return value || defaultValue

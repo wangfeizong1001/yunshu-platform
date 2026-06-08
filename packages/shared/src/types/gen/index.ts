@@ -68,15 +68,21 @@ export interface IGenColumn {
   /** Java 字段名 */
   javaField: string;
   /** 是否为填充字段 */
-  isFill: boolean;
-  /** 查询类型（eq/ne|like|gt|lt|-between|in） */
+  isFill?: boolean;
+  /** 查询类型（eq/ne/like/gt/lt/between/in） */
   queryType?: 'eq' | 'ne' | 'like' | 'gt' | 'lt' | 'between' | 'in';
-  /** 显示类型（input|select|checkbox|radio|date|datetime|time|textarea|editor|image|file） */
+  /** 显示类型（input/select/checkbox/radio/date/datetime/time/textarea/editor/image/file） */
   displayType?: 'input' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime' | 'time' | 'textarea' | 'editor' | 'image' | 'file';
   /** 字典类型 */
   dictType?: string;
-  /** 主键策略（NONE|AUTO|INPUT|UUID） */
+  /** 主键策略（NONE/AUTO/INPUT/UUID） */
   idType?: 'NONE' | 'AUTO' | 'INPUT' | 'UUID';
+  /** 是否在列表中显示 */
+  isDisplay?: boolean;
+  /** 是否在表单中显示 */
+  isForm?: boolean;
+  /** 是否在查询中显示 */
+  isQuery?: boolean;
 }
 
 /** 代码生成配置 */
@@ -99,13 +105,13 @@ export interface IGenConfig {
   email?: string;
   /** 生成类型 */
   generateType: GenerateType;
-  /** 生成选项 */
+  /** 生成菜单 */
   generateMenu: boolean;
-  /** 生成前端API */
+  /** 生成前端 API */
   generateApi: boolean;
   /** 生成前端页面 */
   generateView: boolean;
-  /** 生成TypeScript类型 */
+  /** 生成 TypeScript 类型 */
   generateTypeScript: boolean;
   /** 业务名称 */
   businessName?: string;
@@ -129,6 +135,8 @@ export interface IGenConfig {
   createTime?: string;
   /** 更新时间 */
   updateTime?: string;
+  /** 字段列表 */
+  columns?: IGenColumn[];
 }
 
 /** 代码生成表（数据库表） */
@@ -181,6 +189,8 @@ export interface IGenPreviewItem {
   filePath: string;
   /** 文件内容 */
   content: string;
+  /** 文件语言类型 */
+  language?: string;
 }
 
 /** 代码预览响应 */
@@ -202,3 +212,4 @@ export interface IGenResult {
   /** 下载地址 */
   downloadUrl?: string;
 }
+

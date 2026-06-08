@@ -6,6 +6,7 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElMessage, ElLoading } from 'element-plus'
+import cache, { CACHE_KEYS } from '@/utils/cache'
 
 /** 请求配置扩展 */
 export interface RequestConfig extends AxiosRequestConfig {
@@ -17,6 +18,12 @@ export interface RequestConfig extends AxiosRequestConfig {
   ignoreAuth?: boolean
   /** 自定义错误消息 */
   errorMessage?: string
+  /** 是否启用缓存 */
+  cache?: boolean
+  /** 缓存过期时间（毫秒） */
+  cacheTTL?: number
+  /** 强制刷新缓存 */
+  forceRefresh?: boolean
 }
 
 /** 响应数据结构 */
@@ -202,15 +209,44 @@ instance.interceptors.response.use(
 )
 
 /**
+ * 生成缓存键名
+ */
+function generateCacheKey(config: RequestConfig): string {
+  const { method, url, params, data } = config
+  return `${CACHE_KEYS.REQUEST}:${method?.toUpperCase() || 'GET'}:${url}:${JSON.stringify(params || {})}:${JSON.stringify(data || {})}`
+}
+
+/**
  * 发送请求
  * @param config 请求配置
  */
 export function request<T = unknown>(config: RequestConfig): Promise<T> {
+  const { cache: enableCache = false, cacheTTL, forceRefresh = false } = config
+
+  if (enableCache && (config.method?.toUpperCase() === 'GET' || !config.method)) {
+    const cacheKey = generateCacheKey(config)
+
+    if (!forceRefresh) {
+      const cachedData = cache.get<T>(cacheKey)
+      if (cachedData !== undefined) {
+        return Promise.resolve(cachedData)
+      }
+    }
+  }
+
   return instance
     .request<ApiResponse<T>>(config)
-    .then(res => res.data.data)
+    .then(res => {
+      const responseData = res.data.data
+
+      if (enableCache && (config.method?.toUpperCase() === 'GET' || !config.method)) {
+        const cacheKey = generateCacheKey(config)
+        cache.set(cacheKey, responseData, { ttl: cacheTTL })
+      }
+
+      return responseData
+    })
     .catch(error => {
-      // 如果不是忽略错误，就抛出错误
       if (!config.ignoreError) {
         throw error
       }

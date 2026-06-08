@@ -1,5 +1,5 @@
 {
-  "extends": "@yunshu/tsconfig/vue-tsc.json",
+  "extends": "@yunshu/tsconfig/tsconfig.vue.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

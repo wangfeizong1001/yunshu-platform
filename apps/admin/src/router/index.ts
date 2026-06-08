@@ -126,6 +126,18 @@ export const asyncRoutes: RouteRecordRaw[] = [
         meta: { title: '通知公告', icon: 'message' }
       },
       {
+        path: 'knowledge',
+        name: 'Knowledge',
+        component: () => import('@/views/system/knowledge/KnowledgeList.vue'),
+        meta: { title: '知识库', icon: 'document' }
+      },
+      {
+        path: 'message',
+        name: 'Message',
+        component: () => import('@/views/system/message/MessageList.vue'),
+        meta: { title: '站内消息', icon: 'chat-dot-round' }
+      },
+      {
         path: 'file',
         name: 'File',
         component: () => import('@/views/system/file/FileList.vue'),
@@ -216,6 +228,58 @@ export const asyncRoutes: RouteRecordRaw[] = [
     ]
   },
 
+  // 报表管理模块
+    {
+      path: '/report',
+      name: 'Report',
+      component: () => import('@/views/layout/index.vue'),
+      redirect: '/report/list',
+      meta: { title: '报表管理', icon: 'chart' },
+      children: [
+        {
+          path: 'list',
+          name: 'ReportList',
+          component: () => import('@/views/report/ReportList.vue'),
+          meta: { title: '报表列表', icon: 'document' }
+        },
+        {
+          path: 'design/:id',
+          name: 'ReportDesign',
+          component: () => import('@/views/report/ReportDesign.vue'),
+          meta: { title: '报表设计', icon: 'edit', hidden: true }
+        },
+        {
+          path: 'view/:id',
+          name: 'ReportView',
+          component: () => import('@/views/report/ReportView.vue'),
+          meta: { title: '报表查看', icon: 'view', hidden: true }
+        }
+      ]
+    },
+
+    // 大屏看板模块
+    {
+      path: '/dashboard-pro',
+      name: 'DashboardPro',
+      component: () => import('@/views/layout/index.vue'),
+      redirect: '/dashboard-pro/screen',
+      meta: { title: '大屏看板', icon: 'monitor' },
+      children: [
+        {
+          path: 'screen',
+          name: 'DashboardScreen',
+          component: () => import('@/views/dashboard-pro/DashboardScreen.vue'),
+          meta: { title: '企业监控大屏', icon: 'monitor' }
+        },
+        {
+          path: 'design',
+          name: 'DashboardDesign',
+          component: () => import('@/views/dashboard-pro/DashboardDesign.vue'),
+          meta: { title: '大屏设计器', icon: 'edit' }
+        }
+      ]
+    },
+
   // 个人中心
   {
     path: '/user/profile',
@@ -228,6 +292,76 @@ export const asyncRoutes: RouteRecordRaw[] = [
         name: 'ProfileIndex',
         component: () => import('@/views/user/profile/index.vue'),
         meta: { title: '个人中心', icon: 'user' }
+      }
+    ]
+  },
+
+  // 表单管理
+  {
+    path: '/system/form',
+    name: 'Form',
+    component: () => import('@/views/layout/index.vue'),
+    redirect: '/system/form/list',
+    meta: { title: '表单管理', icon: 'document' },
+    children: [
+      {
+        path: 'list',
+        name: 'FormList',
+        component: () => import('@/views/system/form-designer/FormList.vue'),
+        meta: { title: '表单列表', icon: 'list' }
+      },
+      {
+        path: 'design/:id',
+        name: 'FormDesign',
+        component: () => import('@/views/system/form-designer/FormDesign.vue'),
+        meta: { title: '表单设计', icon: 'edit', hidden: true }
+      },
+      {
+        path: 'preview/:id',
+        name: 'FormPreview',
+        component: () => import('@/views/system/form-designer/FormPreview.vue'),
+        meta: { title: '表单预览', icon: 'view', hidden: true }
+      }
+    ]
+  },
+
+  // 工作流管理
+  {
+    path: '/workflow',
+    name: 'Workflow',
+    component: () => import('@/views/layout/index.vue'),
+    redirect: '/workflow/process',
+    meta: { title: '工作流管理', icon: 'process' },
+    children: [
+      {
+        path: 'process',
+        name: 'ProcessList',
+        component: () => import('@/views/workflow/ProcessList.vue'),
+        meta: { title: '流程定义', icon: 'setting' }
+      },
+      {
+        path: 'process/design/:id',
+        name: 'ProcessDesign',
+        component: () => import('@/views/workflow/ProcessDesign.vue'),
+        meta: { title: '流程设计', icon: 'edit', hidden: true }
+      },
+      {
+        path: 'instance',
+        name: 'ProcessInstance',
+        component: () => import('@/views/workflow/ProcessInstance.vue'),
+        meta: { title: '流程实例', icon: 'list' }
+      },
+      {
+        path: 'todo',
+        name: 'TodoList',
+        component: () => import('@/views/workflow/TodoList.vue'),
+        meta: { title: '待办任务', icon: 'todo' }
+      },
+      {
+        path: 'done',
+        name: 'DoneList',
+        component: () => import('@/views/workflow/DoneList.vue'),
+        meta: { title: '已办任务', icon: 'done' }
       }
     ]
   }

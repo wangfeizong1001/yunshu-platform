@@ -15,12 +15,17 @@ import systemRole from './routes/system/role'
 import systemMenu from './routes/system/menu'
 import systemDept from './routes/system/dept'
 import systemPost from './routes/system/post'
+import systemMessage from './routes/system/message'
+import systemNotification from './routes/system/notification'
 import monitorOperlog from './routes/monitor/operlog'
 import monitorLogininfor from './routes/monitor/logininfor'
 import monitorOnline from './routes/monitor/online'
 import monitorServer from './routes/monitor/server'
 import monitorJob from './routes/monitor/job'
 import toolGen from './routes/tool/gen'
+import reportReport from './routes/report/report'
+import dashboardDashboard from './routes/dashboard/dashboard'
+import systemForm from './routes/system/form'
 
 /**
  * 合并所有 Mock API
@@ -32,12 +37,17 @@ const mockPlugins: MockMethod[] = [
   ...systemMenu,
   ...systemDept,
   ...systemPost,
+  ...systemMessage,
+  ...systemNotification,
   ...monitorOperlog,
   ...monitorLogininfor,
   ...monitorOnline,
   ...monitorServer,
   ...monitorJob,
-  ...toolGen
+  ...toolGen,
+  ...reportReport,
+  ...dashboardDashboard,
+  ...systemForm
 ]
 
 /**
