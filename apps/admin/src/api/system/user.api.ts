@@ -1,192 +1,180 @@
 /**
- * 用户管理 API
+ * 用户管理相关 API
  */
 
-import { request } from '@/utils/request'
-import type {
-  SysUser,
-  SysUserQuery,
-  SysUserForm,
-  SysUserPageResp,
-  ApiResp,
-} from '@yunshu/shared/types/system'
+import request from '@/utils/request'
 
-/**
- * 获取用户分页列表
- * @param params 查询参数
- */
-export function getUserPage(params: SysUserQuery) {
-  return request<SysUserPageResp>({
-    url: '/system/user/page',
-    method: 'get',
-    params,
-  })
+// 用户查询参数
+export interface UserQuery {
+  pageNum?: number
+  pageSize?: number
+  username?: string
+  nickname?: string
+  phone?: string
+  status?: string
+  deptId?: number
 }
 
-/**
- * 获取用户列表
- * @param params 查询参数
- */
-export function getUserList(params?: SysUserQuery) {
-  return request<SysUser[]>({
+// 用户表单
+export interface UserForm {
+  userId?: number
+  username?: string
+  nickname?: string
+  email?: string
+  phone?: string
+  sex?: string
+  avatar?: string
+  deptId?: number
+  postIds?: number[]
+  roleIds?: number[]
+  status?: string
+  remark?: string
+}
+
+// 用户信息
+export interface UserInfo {
+  userId: number
+  username: string
+  nickname: string
+  email: string
+  phone: string
+  sex: string
+  avatar: string
+  deptId: number
+  deptName: string
+  posts: string[]
+  roles: string[]
+  roleId: number[]
+  status: string
+  loginIp: string
+  loginDate: string
+  createTime: string
+  remark: string
+}
+
+// 获取用户列表
+export function getUserList(params: UserQuery) {
+  return request({
     url: '/system/user/list',
     method: 'get',
-    params,
+    params
   })
 }
 
-/**
- * 获取用户详情
- * @param userId 用户ID
- */
-export function getUserDetail(userId: number) {
-  return request<SysUser>({
-    url: `/system/user/${userId}`,
+// 获取用户分页列表
+export function getUserPage(params: UserQuery) {
+  return request({
+    url: '/system/user/page',
     method: 'get',
+    params
   })
 }
 
-/**
- * 新增用户
- * @param data 用户表单数据
- */
-export function addUser(data: SysUserForm) {
-  return request<SysUser>({
+// 获取用户详情
+export function getUser(userId: number) {
+  return request({
+    url: `/system/user/${userId}`,
+    method: 'get'
+  })
+}
+
+// 新增用户
+export function addUser(data: UserForm) {
+  return request({
     url: '/system/user',
     method: 'post',
-    data,
+    data
   })
 }
 
-/**
- * 修改用户
- * @param userId 用户ID
- * @param data 用户表单数据
- */
-export function updateUser(userId: number, data: SysUserForm) {
-  return request<SysUser>({
-    url: `/system/user/${userId}`,
+// 修改用户
+export function updateUser(data: UserForm) {
+  return request({
+    url: '/system/user',
     method: 'put',
-    data,
+    data
   })
 }
 
-/**
- * 删除用户
- * @param userId 用户ID
- */
+// 删除用户
 export function deleteUser(userId: number) {
-  return request<void>({
+  return request({
     url: `/system/user/${userId}`,
-    method: 'delete',
+    method: 'delete'
   })
 }
 
-/**
- * 批量删除用户
- * @param userIds 用户ID数组
- */
+// 批量删除用户
 export function batchDeleteUser(userIds: number[]) {
-  return request<void>({
+  return request({
     url: '/system/user/batch',
     method: 'delete',
-    data: { userIds },
+    data: userIds
   })
 }
 
-/**
- * 修改用户状态
- * @param userId 用户ID
- * @param status 状态
- */
-export function changeUserStatus(userId: number, status: '0' | '1') {
-  return request<void>({
-    url: `/system/user/${userId}/status`,
+// 修改用户状态
+export function changeUserStatus(userId: number, status: string) {
+  return request({
+    url: '/system/user/changeStatus',
     method: 'put',
-    data: { status },
+    params: { userId, status }
   })
 }
 
-/**
- * 重置用户密码
- * @param userId 用户ID
- * @param password 新密码
- */
-export function resetUserPassword(userId: number, password: string) {
-  return request<void>({
-    url: `/system/user/${userId}/password`,
+// 重置用户密码
+export function resetUserPwd(userId: number, password: string) {
+  return request({
+    url: '/system/user/resetPwd',
     method: 'put',
-    data: { password },
+    data: { userId, password }
   })
 }
 
-/**
- * 导出用户
- * @param params 查询参数
- */
-export function exportUser(params?: SysUserQuery) {
-  return request.download('/system/user/export', params, '用户列表.xlsx')
+// 导出用户
+export function exportUser(params: UserQuery) {
+  return request({
+    url: '/system/user/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
 }
 
-/**
- * 导入用户
- * @param file 导入文件
- */
-export function importUser(file: File) {
-  const formData = new FormData()
-  formData.append('file', file)
-  return request<void>({
+// 导入用户模板下载
+export function importTemplate() {
+  return request({
+    url: '/system/user/importTemplate',
+    method: 'get',
+    responseType: 'blob'
+  })
+}
+
+// 导入用户
+export function importUser(data: FormData) {
+  return request({
     url: '/system/user/import',
     method: 'post',
-    data: formData,
-    headers: { 'Content-Type': 'multipart/form-data' },
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 }
 
-/**
- * 获取用户岗位列表
- * @param userId 用户ID
- */
-export function getUserPosts(userId: number) {
-  return request<number[]>({
-    url: `/system/user/${userId}/posts`,
-    method: 'get',
+// 获取所有角色列表
+export function getAllRoles() {
+  return request({
+    url: '/system/role/list',
+    method: 'get'
   })
 }
 
-/**
- * 分配用户岗位
- * @param userId 用户ID
- * @param postIds 岗位ID数组
- */
-export function assignUserPosts(userId: number, postIds: number[]) {
-  return request<void>({
-    url: `/system/user/${userId}/posts`,
+// 分配用户角色
+export function assignUserRole(userId: number, roleIds: number[]) {
+  return request({
+    url: '/system/user/assignRole',
     method: 'put',
-    data: { postIds },
-  })
-}
-
-/**
- * 获取用户角色列表
- * @param userId 用户ID
- */
-export function getUserRoles(userId: number) {
-  return request<number[]>({
-    url: `/system/user/${userId}/roles`,
-    method: 'get',
-  })
-}
-
-/**
- * 分配用户角色
- * @param userId 用户ID
- * @param roleIds 角色ID数组
- */
-export function assignUserRoles(userId: number, roleIds: number[]) {
-  return request<void>({
-    url: `/system/user/${userId}/roles`,
-    method: 'put',
-    data: { roleIds },
+    data: { userId, roleIds }
   })
 }

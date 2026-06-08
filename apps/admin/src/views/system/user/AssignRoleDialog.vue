@@ -31,7 +31,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getAllRoles, getUserRoles, assignUserRoles } from '@/api/system/user.api'
+import { getUserRoles, assignUserRoles } from '@/api/system/user.api'
+import { getAllRoles } from '@/api/system/role.api'
 import type { SysRole } from '@yunshu/shared/types/system'
 
 interface Props {

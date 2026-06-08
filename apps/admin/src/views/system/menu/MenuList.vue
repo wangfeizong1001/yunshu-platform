@@ -4,7 +4,7 @@
       <el-form :model="queryParams" inline>
         <el-form-item label="菜单名称" prop="menuName">
           <el-input
-            v-model="queryParams.menuName"
+            v-model="queryParams.keyword"
             placeholder="请输入菜单名称"
             clearable
             @keyup.enter="handleQuery"
@@ -79,7 +79,8 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column prop="createTime" label="创建时间" width="180" />
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
             <el-button
               v-has-permi="['system:menu:add']"
@@ -133,7 +134,7 @@ const parentMenu = ref<SysMenu | null>(null)
 
 // 查询参数
 const queryParams = reactive<SysMenuQuery>({
-  menuName: '',
+  keyword: '',
   status: '',
 })
 
@@ -154,7 +155,7 @@ function handleQuery() {
 
 // 重置查询
 function resetQuery() {
-  queryParams.menuName = ''
+  queryParams.keyword = ''
   queryParams.status = ''
   handleQuery()
 }
