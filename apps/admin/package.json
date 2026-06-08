@@ -17,13 +17,20 @@
     "vue-router": "^4.2.0",
     "pinia": "^2.1.0",
     "element-plus": "^2.10.0",
+    "@element-plus/icons-vue": "^2.3.0",
     "@tanstack/vue-query": "^5.0.0",
+    "@vueuse/core": "^10.7.0",
     "@yunshu/design-tokens": "workspace:*",
     "@yunshu/ui": "workspace:*",
     "@yunshu/api-client": "workspace:*",
-    "@yunshu/shared": "workspace:*"
+    "@yunshu/shared": "workspace:*",
+    "axios": "^1.6.0",
+    "dayjs": "^1.11.0",
+    "nprogress": "^0.2.0"
   },
   "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/nprogress": "^0.2.0",
     "@vitejs/plugin-vue": "^5.0.0",
     "unplugin-auto-import": "^0.17.0",
     "unplugin-vue-components": "^0.26.0",

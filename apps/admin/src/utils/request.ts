@@ -1,18 +1,22 @@
 /**
  * HTTP 请求工具
  *
- * 基于 axios 的请求封装
+ * 基于 axios 的请求封装，提供统一的请求处理、错误处理和拦截器
  */
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 
 /** 请求配置扩展 */
 export interface RequestConfig extends AxiosRequestConfig {
+  /** 是否显示加载状态 */
+  loading?: boolean
   /** 是否忽略错误提示 */
   ignoreError?: boolean
   /** 是否忽略登录验证 */
   ignoreAuth?: boolean
+  /** 自定义错误消息 */
+  errorMessage?: string
 }
 
 /** 响应数据结构 */
@@ -22,25 +26,72 @@ export interface ApiResponse<T = unknown> {
   data: T
 }
 
+/** 分页响应数据结构 */
+export interface PageResponse<T = unknown> {
+  list: T[]
+  total: number
+  pageNum: number
+  pageSize: number
+}
+
 /** 扩展的 AxiosResponse */
 export interface HttpResponse<T = unknown> extends AxiosResponse {
   data: ApiResponse<T>
 }
 
+// 获取环境变量
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+const ENABLE_MOCK = import.meta.env.VITE_ENABLE_MOCK === 'true'
 
 /** 创建 axios 实例 */
 const instance: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 })
+
+/** 加载状态实例 */
+let loadingInstance: ReturnType<typeof ElLoading.service> | null = null
+
+/** 请求计数器 */
+let requestCount = 0
+
+/**
+ * 显示加载状态
+ */
+const showLoading = () => {
+  requestCount++
+  if (!loadingInstance) {
+    loadingInstance = ElLoading.service({
+      lock: true,
+      text: '加载中...',
+      background: 'rgba(0, 0, 0, 0.7)'
+    })
+  }
+}
+
+/**
+ * 隐藏加载状态
+ */
+const hideLoading = () => {
+  requestCount--
+  if (requestCount <= 0 && loadingInstance) {
+    loadingInstance.close()
+    loadingInstance = null
+    requestCount = 0
+  }
+}
 
 /** 请求拦截器 */
 instance.interceptors.request.use(
   config => {
+    // 显示加载状态（如果有配置）
+    if ((config as RequestConfig).loading) {
+      showLoading()
+    }
+
     // 添加 token
     const token = localStorage.getItem('token')
     if (token) {
@@ -56,6 +107,7 @@ instance.interceptors.request.use(
     return config
   },
   error => {
+    hideLoading()
     return Promise.reject(error)
   }
 )
@@ -63,6 +115,8 @@ instance.interceptors.request.use(
 /** 响应拦截器 */
 instance.interceptors.response.use(
   (response: HttpResponse) => {
+    hideLoading()
+
     const { code, msg, data } = response.data
 
     // 成功响应
@@ -70,17 +124,41 @@ instance.interceptors.response.use(
       return response
     }
 
-    // 错误提示
-    ElMessage.error(msg || '请求失败')
+    // 处理特定错误码
+    switch (code) {
+      case 401:
+        // 未授权
+        ElMessage.error('登录已过期，请重新登录')
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+        break
+      case 403:
+        ElMessage.error('没有权限访问该资源')
+        break
+      case 404:
+        ElMessage.error('请求的资源不存在')
+        break
+      case 500:
+        ElMessage.error('服务器错误')
+        break
+      default:
+        ElMessage.error(msg || '请求失败')
+    }
+
     return Promise.reject(new Error(msg || '请求失败'))
   },
   error => {
+    hideLoading()
+
     const { response } = error
 
     if (response) {
       const { status, data } = response
 
       switch (status) {
+        case 400:
+          ElMessage.error(data?.msg || '请求参数错误')
+          break
         case 401:
           // 未授权，跳转登录
           ElMessage.error('登录已过期，请重新登录')
@@ -96,11 +174,27 @@ instance.interceptors.response.use(
         case 500:
           ElMessage.error('服务器错误')
           break
+        case 502:
+          ElMessage.error('网关错误')
+          break
+        case 503:
+          ElMessage.error('服务不可用')
+          break
+        case 504:
+          ElMessage.error('网关超时')
+          break
         default:
           ElMessage.error(data?.msg || '请求失败')
       }
     } else {
-      ElMessage.error('网络错误，请检查网络连接')
+      // 网络错误
+      if (error.code === 'ECONNABORTED') {
+        ElMessage.error('请求超时，请稍后重试')
+      } else if (error.message.includes('Network Error')) {
+        ElMessage.error('网络错误，请检查网络连接')
+      } else {
+        ElMessage.error('网络错误，请检查网络连接')
+      }
     }
 
     return Promise.reject(error)
@@ -112,58 +206,68 @@ instance.interceptors.response.use(
  * @param config 请求配置
  */
 export function request<T = unknown>(config: RequestConfig): Promise<T> {
-  return instance.request<ApiResponse<T>>(config).then(res => res.data.data)
+  return instance
+    .request<ApiResponse<T>>(config)
+    .then(res => res.data.data)
+    .catch(error => {
+      // 如果不是忽略错误，就抛出错误
+      if (!config.ignoreError) {
+        throw error
+      }
+      return Promise.reject(error)
+    })
 }
 
 /**
  * GET 请求
- * @param url 请求地址
- * @param params 请求参数
  */
-export function get<T = unknown>(url: string, params?: Record<string, unknown>) {
-  return request<T>({ url, method: 'get', params })
+export function get<T = unknown>(url: string, params?: Record<string, unknown>, config?: RequestConfig) {
+  return request<T>({ url, method: 'get', params, ...config })
 }
 
 /**
  * POST 请求
- * @param url 请求地址
- * @param data 请求数据
  */
-export function post<T = unknown>(url: string, data?: unknown) {
-  return request<T>({ url, method: 'post', data })
+export function post<T = unknown>(url: string, data?: unknown, config?: RequestConfig) {
+  return request<T>({ url, method: 'post', data, ...config })
 }
 
 /**
  * PUT 请求
- * @param url 请求地址
- * @param data 请求数据
  */
-export function put<T = unknown>(url: string, data?: unknown) {
-  return request<T>({ url, method: 'put', data })
+export function put<T = unknown>(url: string, data?: unknown, config?: RequestConfig) {
+  return request<T>({ url, method: 'put', data, ...config })
 }
 
 /**
  * DELETE 请求
- * @param url 请求地址
- * @param data 请求数据
  */
-export function del<T = unknown>(url: string, data?: unknown) {
-  return request<T>({ url, method: 'delete', data })
+export function del<T = unknown>(url: string, params?: Record<string, unknown>, config?: RequestConfig) {
+  return request<T>({ url, method: 'delete', params, ...config })
 }
 
-/** 下载文件方法扩展 */
-request.download = function (url: string, params?: Record<string, unknown>, filename?: string) {
+/**
+ * PATCH 请求
+ */
+export function patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig) {
+  return request<T>({ url, method: 'patch', data, ...config })
+}
+
+/**
+ * 下载文件
+ */
+export function download(url: string, params?: Record<string, unknown>, filename?: string) {
   return instance
     .get(url, {
       params,
-      responseType: 'blob',
+      responseType: 'blob'
     })
     .then((response: AxiosResponse) => {
       const blob = new Blob([response.data])
       const downloadElement = document.createElement('a')
       const href = window.URL.createObjectURL(blob)
       downloadElement.href = href
-      downloadElement.download = filename || '下载文件.xlsx'
+      downloadElement.download = filename || '下载文件'
       document.body.appendChild(downloadElement)
       downloadElement.click()
       document.body.removeChild(downloadElement)
@@ -171,4 +275,35 @@ request.download = function (url: string, params?: Record<string, unknown>, file
     })
 }
 
+/**
+ * 上传文件
+ */
+export function upload<T = unknown>(
+  url: string,
+  file: File | FormData,
+  config?: RequestConfig
+) {
+  const formData = file instanceof File ? new FormData() : file
+  if (file instanceof File) {
+    formData.append('file', file)
+  }
+
+  return request<T>({
+    url,
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    ...config
+  })
+}
+
+/** 导出 axios 实例 */
 export { instance as axiosInstance }
+
+/** 导出 axios */
+export { default as axios }
+
+/** 导出请求配置类型 */
+export type { RequestConfig, ApiResponse, PageResponse, HttpResponse }
