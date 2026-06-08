@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 interface TagView {
   path: string
   name: string
+  title?: string
   query?: Record<string, any>
   params?: Record<string, any>
   meta?: Record<string, any>
@@ -12,6 +13,8 @@ interface TagsViewState {
   visitedViews: TagView[]
   cachedViews: string[]
 }
+
+export type { TagsViewState }
 
 export const useTagsViewStore = defineStore('tagsView', () => {
   const visitedViews = useLocalStorage<TagView[]>('visited-views', [])

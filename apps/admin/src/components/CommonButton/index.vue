@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 interface Props {
-  type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'text'
+  type?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'text' | 'default'
   size?: 'large' | 'default' | 'small'
   disabled?: boolean
   loading?: boolean

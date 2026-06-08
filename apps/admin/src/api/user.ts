@@ -1,4 +1,4 @@
-import http from './request'
+import { get, post, put, del } from '../utils/request'
 
 export interface IUser {
   id: string
@@ -11,7 +11,7 @@ export interface IUser {
   createTime: string
 }
 
-export interface IUserListParams {
+export interface IUserListParams extends Record<string, unknown> {
   page: number
   pageSize: number
   username?: string
@@ -19,25 +19,25 @@ export interface IUserListParams {
 }
 
 export const getUserListApi = (params: IUserListParams) => {
-  return http.get<{ list: IUser[]; total: number }>('/system/user/list', { params })
+  return get<{ list: IUser[]; total: number }>('/system/user/list', params)
 }
 
 export const getUserDetailApi = (id: string) => {
-  return http.get<IUser>(`/system/user/${id}`)
+  return get<IUser>(`/system/user/${id}`)
 }
 
 export const createUserApi = (data: Partial<IUser>) => {
-  return http.post('/system/user', data)
+  return post('/system/user', data)
 }
 
 export const updateUserApi = (id: string, data: Partial<IUser>) => {
-  return http.put(`/system/user/${id}`, data)
+  return put(`/system/user/${id}`, data)
 }
 
 export const deleteUserApi = (id: string) => {
-  return http.delete(`/system/user/${id}`)
+  return del(`/system/user/${id}`)
 }
 
 export const resetPasswordApi = (id: string) => {
-  return http.post(`/system/user/${id}/reset-password`)
+  return post(`/system/user/${id}/reset-password`)
 }

@@ -306,7 +306,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, View, Download, Check } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import type { IGenConfig, IGenColumn } from '@yunshu/shared/types/gen'
+import type { IGenConfig, IGenColumn } from '@yunshu/shared'
 import { getGenConfig, saveGenConfig, syncTable, previewCode, downloadCode } from '@/api/tool/gen.api'
 import GenPreview from './GenPreview.vue'
 

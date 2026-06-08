@@ -169,7 +169,7 @@ import {
   downloadFile,
   previewFile,
 } from '@/api/system/file.api'
-import type { SysFile, SysFileQuery } from '@yunshu/shared/types/system'
+import type { SysFile, SysFileQuery } from '@yunshu/shared'
 import FileUpload from './FileUpload.vue'
 
 // 状态

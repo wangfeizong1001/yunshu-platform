@@ -206,7 +206,7 @@ export function getMockKnowledgePage(params: any): { total: number; rows: Knowle
 }
 
 // 获取知识库文档列表 Mock
-export function getMockKnowledgeList(params: any): KnowledgeInfo[] {
+export function getMockKnowledgeList(_params: any): KnowledgeInfo[] {
   return mockKnowledgeList
 }
 

@@ -179,7 +179,7 @@ import {
   sendSms,
   testSmsSend,
 } from '@/api/system/sms.api'
-import type { SmsConfig, SmsTemplate, SmsTemplateQuery } from '@yunshu/shared/types/sms'
+import type { SmsConfig, SmsTemplate, SmsTemplateQuery } from '@yunshu/shared'
 
 // 配置相关
 const config = reactive<SmsConfig>({

@@ -7,7 +7,7 @@ import type {
   ThirdLoginLog,
   ThirdLoginLogPageResp,
   ThirdAuthorizeResp,
-} from '@yunshu/shared/types/third'
+} from '@yunshu/shared'
 
 // 第三方登录配置 Mock 数据
 export const mockThirdConfigList: ThirdLoginConfig[] = [
@@ -249,7 +249,7 @@ export function getMockThirdAuthorizeUrl(platform: string): ThirdAuthorizeResp {
 }
 
 // 处理第三方登录回调 Mock
-export function handleMockThirdCallback(platform: string, code: string, state?: string): { token: string; isBind: boolean } {
+export function handleMockThirdCallback(platform: string, code: string, _state?: string): { token: string; isBind: boolean } {
   if (!code) {
     throw new Error('授权码无效')
   }

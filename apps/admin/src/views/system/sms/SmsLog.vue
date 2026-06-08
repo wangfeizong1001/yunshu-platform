@@ -96,7 +96,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { getSmsLogList } from '@/api/system/sms.api'
-import type { SmsLog, SmsLogQuery } from '@yunshu/shared/types/sms'
+import type { SmsLog, SmsLogQuery } from '@yunshu/shared'
 
 // 状态
 const loading = ref(false)

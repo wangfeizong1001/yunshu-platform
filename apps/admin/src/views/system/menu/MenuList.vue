@@ -121,7 +121,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Expand, Fold } from '@element-plus/icons-vue'
 import { getMenuTree, deleteMenu } from '@/api/system/menu.api'
-import type { SysMenu, SysMenuQuery } from '@yunshu/shared/types/system'
+import type { SysMenu, SysMenuQuery } from '@yunshu/shared'
 import MenuForm from './MenuForm.vue'
 
 // 状态

@@ -122,7 +122,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getRolePage, deleteRole } from '@/api/system/role.api'
-import type { SysRole, SysRoleQuery } from '@yunshu/shared/types/system'
+import type { SysRole, SysRoleQuery } from '@yunshu/shared'
 import RoleForm from './RoleForm.vue'
 import RolePermission from './RolePermission.vue'
 

@@ -126,7 +126,7 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Tickets } from '@element-plus/icons-vue'
-import type { IGenTable, IGenQuery } from '@yunshu/shared/types/gen'
+import type { IGenTable, IGenQuery } from '@yunshu/shared'
 import { getGenDbList, importGenTable } from '@/api/tool/gen.api'
 
 const props = defineProps<{

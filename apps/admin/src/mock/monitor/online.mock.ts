@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IOnline } from '@yunshu/shared/types/monitor'
+import type { IOnline } from '@yunshu/shared'
 
 export const onlineMockData: IOnline[] = Array.from({ length: 30 }, (_, i) => {
   const isMobile = i % 5 === 0

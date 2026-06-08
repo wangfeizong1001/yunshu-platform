@@ -105,7 +105,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getDeptTree, deleteDept } from '@/api/system/dept.api'
-import type { SysDept, SysDeptQuery } from '@yunshu/shared/types/system'
+import type { SysDept, SysDeptQuery } from '@yunshu/shared'
 import DeptForm from './DeptForm.vue'
 
 // 状态

@@ -9,7 +9,7 @@ import type {
   SmsLog,
   SmsLogPageResp,
   SmsSendResp,
-} from '@yunshu/shared/types/sms'
+} from '@yunshu/shared'
 
 // 短信配置 Mock 数据
 export const mockSmsConfig: SmsConfig = {

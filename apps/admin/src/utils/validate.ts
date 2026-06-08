@@ -2,7 +2,7 @@
  * 表单验证规则
  */
 
-export const validateUsername = (rule: any, value: string, callback: any) => {
+export const validateUsername = (_rule: any, value: string, callback: any) => {
   const reg = /^[a-zA-Z0-9]{4,16}$/
   if (reg.test(value)) {
     callback()
@@ -11,7 +11,7 @@ export const validateUsername = (rule: any, value: string, callback: any) => {
   }
 }
 
-export const validatePassword = (rule: any, value: string, callback: any) => {
+export const validatePassword = (_rule: any, value: string, callback: any) => {
   if (value.length < 6) {
     callback(new Error('密码长度不能小于6位'))
   } else {
@@ -19,7 +19,7 @@ export const validatePassword = (rule: any, value: string, callback: any) => {
   }
 }
 
-export const validatePhone = (rule: any, value: string, callback: any) => {
+export const validatePhone = (_rule: any, value: string, callback: any) => {
   const reg = /^1[3-9]\d{9}$/
   if (reg.test(value)) {
     callback()
@@ -28,7 +28,7 @@ export const validatePhone = (rule: any, value: string, callback: any) => {
   }
 }
 
-export const validateEmail = (rule: any, value: string, callback: any) => {
+export const validateEmail = (_rule: any, value: string, callback: any) => {
   const reg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (reg.test(value)) {
     callback()

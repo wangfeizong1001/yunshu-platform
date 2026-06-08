@@ -43,7 +43,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import type { IOperlog } from '@yunshu/shared/types/monitor'
+import type { IOperlog } from '@yunshu/shared'
 import * as operlogApi from '@/api/monitor/operlog.api'
 
 const router = useRouter()

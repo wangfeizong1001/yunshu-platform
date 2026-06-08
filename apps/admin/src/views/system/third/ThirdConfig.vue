@@ -117,7 +117,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getThirdConfigList, updateThirdConfig, testThirdConnection, getThirdAuthorizeUrl } from '@/api/system/third.api'
-import type { ThirdLoginConfig, ThirdConfigQuery } from '@yunshu/shared/types/third'
+import type { ThirdLoginConfig, ThirdConfigQuery } from '@yunshu/shared'
 
 // 状态
 const loading = ref(false)

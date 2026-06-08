@@ -73,7 +73,7 @@
 import { ref, watch, computed, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, DocumentCopy, Download, Refresh, Files, Key } from '@element-plus/icons-vue'
-import type { IGenPreview, IGenPreviewItem, IGenConfig } from '@yunshu/shared/types/gen'
+import type { IGenPreview, IGenPreviewItem, IGenConfig } from '@yunshu/shared'
 import { previewCode, downloadCode } from '@/api/tool/gen.api'
 
 const props = defineProps<{

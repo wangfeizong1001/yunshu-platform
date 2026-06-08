@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { getTenantList } from '@/api/tenant/tenant.api'
-import type { Tenant } from '@yunshu/shared/types/tenant'
+import type { Tenant } from '@yunshu/shared'
 
 const props = withDefaults(
   defineProps<{

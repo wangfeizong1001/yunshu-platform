@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/gen
  */
 
-import type { IGenTable, IGenColumn, IGenConfig, IGenPreview } from '@yunshu/shared/types/gen'
+import type { IGenTable, IGenColumn, IGenConfig, IGenPreview } from '@yunshu/shared'
 
 /** Mock 数据库表数据 */
 export const genTableMockData: IGenTable[] = [

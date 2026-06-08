@@ -68,7 +68,7 @@ import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addDept, updateDept } from '@/api/system/dept.api'
 import { getDeptTreeSelect } from '@/api/system/dept.api'
-import type { SysDept } from '@yunshu/shared/types/system'
+import type { SysDept } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
-import { useLocale } from '@/locales'
+import useLocale from '@/locales/useLocale'
 
 const { locale, locales, changeLocale } = useLocale()
 

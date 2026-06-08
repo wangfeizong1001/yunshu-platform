@@ -70,7 +70,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.mount('#app')
 
 // 监听语言变化，更新 Element Plus 语言
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   // 从 URL 参数或路由中获取语言设置
   if (to.query.lang) {
     const newLang = to.query.lang as string

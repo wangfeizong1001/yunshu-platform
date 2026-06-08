@@ -288,6 +288,6 @@ export function getMockDoneTaskPage(params: any) {
 }
 
 // 获取流程历史记录 Mock
-export function getMockProcessHistory(processInstanceId: string) {
+export function getMockProcessHistory(_processInstanceId: string) {
   return mockProcessHistory
 }

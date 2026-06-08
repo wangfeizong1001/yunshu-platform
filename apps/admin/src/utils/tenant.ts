@@ -4,7 +4,6 @@
  */
 
 import type { AxiosRequestConfig } from 'axios'
-import { getToken } from './auth'
 
 const TenantIdKey = 'Tenant-Id'
 

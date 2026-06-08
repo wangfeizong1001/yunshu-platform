@@ -1,10 +1,8 @@
-import { useAppStore } from '@/store/modules/app'
 import { useUserStore } from '@/store/modules/user'
 import { usePermissionStore } from '@/store/modules/permission'
 import router from '@/router'
 
 export const initApp = async () => {
-  const appStore = useAppStore()
   const userStore = useUserStore()
   const permissionStore = usePermissionStore()
 

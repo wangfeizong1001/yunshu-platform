@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { usePermissionStore } from '@/store/modules/permission.store'
+import { usePermissionStore } from '@/store/modules/permission'
 
 const permissionStore = usePermissionStore()
 
@@ -13,7 +13,7 @@ onMounted(async () => {
   const token = localStorage.getItem('token')
   if (token) {
     try {
-      await permissionStore.fetchPermission()
+      await permissionStore.generateRoutes()
     } catch (error) {
       console.error('获取权限信息失败', error)
     }

@@ -72,7 +72,7 @@ import {
 } from '@/api/system/role.api'
 import { getMenuTree } from '@/api/system/menu.api'
 import { getDeptTree } from '@/api/system/dept.api'
-import type { SysMenu, SysDept } from '@yunshu/shared/types/system'
+import type { SysMenu, SysDept } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

@@ -2,7 +2,7 @@
   <div class="breadcrumb-container">
     <el-breadcrumb separator="/">
       <el-breadcrumb-item
-        v-for="(item, index) in breadcrumbs"
+        v-for="item in breadcrumbs"
         :key="item.path"
       >
         <span v-if="item.meta?.title">{{ item.meta.title }}</span>

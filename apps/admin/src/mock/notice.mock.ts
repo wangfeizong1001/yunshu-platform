@@ -2,7 +2,7 @@
  * 通知公告 Mock 数据
  */
 
-import type { SysNotice, SysNoticePageResp } from '@yunshu/shared/types/system'
+import type { SysNotice, SysNoticePageResp } from '@yunshu/shared'
 
 // 通知公告 Mock 数据
 export const mockNoticeList: SysNotice[] = [

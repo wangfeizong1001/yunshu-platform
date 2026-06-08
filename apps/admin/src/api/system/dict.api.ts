@@ -180,3 +180,10 @@ export const deleteDictData = (dictCode: number) => {
     method: 'delete'
   })
 }
+
+export const getDictDataByType = (dictType: string) => {
+  return request({
+    url: `/system/dict/data/type/${dictType}`,
+    method: 'get'
+  })
+}

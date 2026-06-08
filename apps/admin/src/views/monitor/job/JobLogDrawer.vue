@@ -84,7 +84,7 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete } from '@element-plus/icons-vue'
-import type { IJobLog, IJobLogQuery } from '@yunshu/shared/types/monitor'
+import type { IJobLog, IJobLogQuery } from '@yunshu/shared'
 import * as jobApi from '@/api/monitor/job.api'
 
 const props = defineProps<{

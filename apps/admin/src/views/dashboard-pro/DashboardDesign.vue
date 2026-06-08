@@ -12,7 +12,7 @@
       </div>
       <div class="header-right">
         <el-button :icon="RefreshLeft" @click="resetConfig">重置</el-button>
-        <el-button :icon="Preview" @click="preview">预览</el-button>
+        <el-button @click="preview">预览</el-button>
         <el-button type="primary" :icon="Check" @click="saveDashboard">保存</el-button>
       </div>
     </div>
@@ -76,20 +76,20 @@
         <div class="property-form">
           <el-form label-width="80px" size="small">
             <el-form-item label="组件名称">
-              <el-input v-model="selectedWidget.name" />
+              <el-input v-model="selectedWidget!.name" />
             </el-form-item>
             <el-form-item label="宽度">
-              <el-input-number v-model="selectedWidget.width" :min="100" :max="800" />
+              <el-input-number v-model="selectedWidget!.width" :min="100" :max="800" />
             </el-form-item>
             <el-form-item label="高度">
-              <el-input-number v-model="selectedWidget.height" :min="100" :max="600" />
+              <el-input-number v-model="selectedWidget!.height" :min="100" :max="600" />
             </el-form-item>
             <el-divider />
             <el-form-item label="背景色">
-              <el-color-picker v-model="selectedWidget.backgroundColor" />
+              <el-color-picker v-model="selectedWidget!.backgroundColor" />
             </el-form-item>
             <el-form-item label="边框颜色">
-              <el-color-picker v-model="selectedWidget.borderColor" />
+              <el-color-picker v-model="selectedWidget!.borderColor" />
             </el-form-item>
           </el-form>
         </div>
@@ -110,7 +110,6 @@ import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   RefreshLeft,
-  Preview,
   Check,
   Delete,
   Box,
@@ -158,6 +157,8 @@ const selectedWidget = computed(() => {
   }
   return null
 })
+
+
 
 const getWidgetComponent = (type: string) => {
   const components: Record<string, any> = {

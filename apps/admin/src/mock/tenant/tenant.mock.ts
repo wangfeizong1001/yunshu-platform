@@ -2,7 +2,7 @@
  * 租户管理 Mock 数据
  */
 
-import type { Tenant, TenantQuery, TenantPageResp } from '@yunshu/shared/types/tenant'
+import type { Tenant, TenantQuery, TenantPageResp } from '@yunshu/shared'
 
 /** 模拟租户数据 */
 const mockTenants: Tenant[] = [

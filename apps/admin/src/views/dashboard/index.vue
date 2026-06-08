@@ -219,7 +219,7 @@
               <div class="usage-item">
                 <div class="usage-header">
                   <span class="usage-label">
-                    <el-icon><Memory /></el-icon>
+                    <el-icon><FolderOpened /></el-icon>
                     内存使用率
                   </span>
                   <span class="usage-value">{{ serverInfo.memoryUsage }}%</span>
@@ -271,26 +271,20 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/modules/user'
 import {
-  User,
-  UserFilled,
-  Key,
-  Connection,
   Calendar,
   TrendCharts,
   Monitor,
   Cpu,
-  Memory,
   FolderOpened,
   Timer,
   ArrowRight,
-  Menu,
 } from '@element-plus/icons-vue'
 import { getServerInfo } from '@/api/monitor/server.api'
 import { getOperlogPage } from '@/api/monitor/operlog.api'
-import { getOnlineStats } from '@/api/monitor/online.api'
-import type { IServer } from '@yunshu/shared/types/monitor'
-import type { IOperlog } from '@yunshu/shared/types/monitor'
-import { formatDateTime } from '@/utils/format'
+import { getOnlineList } from '@/api/monitor/online.api'
+import type { IServer } from '@yunshu/shared'
+import type { IOperlog } from '@yunshu/shared'
+import { formatDate } from '@/utils/format'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -385,8 +379,8 @@ const formatUptime = (seconds: number) => {
 /**
  * 获取操作类型标签颜色
  */
-const getOperTypeTagType = (type: string) => {
-  const typeMap: Record<string, string> = {
+const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     查询: 'info',
     新增: 'success',
     修改: 'warning',
@@ -394,7 +388,7 @@ const getOperTypeTagType = (type: string) => {
     导出: 'primary',
     导入: 'primary',
   }
-  return typeMap[type] || 'info'
+  return typeMap[type]
 }
 
 /**
@@ -419,8 +413,9 @@ const handleQuickEntry = (path: string) => {
 const fetchServerInfo = async () => {
   try {
     const res = await getServerInfo()
-    if (res.data) {
-      serverInfo.value = res.data
+    const responseData = res as Record<string, unknown>
+    if (responseData.data) {
+      serverInfo.value = responseData.data as typeof serverInfo.value
     }
   } catch {
     // 使用默认数据
@@ -433,8 +428,9 @@ const fetchServerInfo = async () => {
 const fetchOperLogs = async () => {
   try {
     const res = await getOperlogPage({ pageNum: 1, pageSize: 10 })
-    if (res.rows) {
-      operLogs.value = res.rows
+    const responseData = res as Record<string, unknown>
+    if (responseData.rows) {
+      operLogs.value = responseData.rows as typeof operLogs.value
     }
   } catch {
     // 使用默认数据
@@ -446,9 +442,11 @@ const fetchOperLogs = async () => {
  */
 const fetchOnlineStats = async () => {
   try {
-    const res = await getOnlineStats()
-    if (res.data) {
-      stats.value.onlineCount = res.data.onlineCount || 0
+    const res = await getOnlineList()
+    const responseData = res as Record<string, unknown>
+    const data = responseData.data as Record<string, unknown> | undefined
+    if (data) {
+      stats.value.onlineCount = Number(data.onlineCount) || 0
     }
   } catch {
     // 使用默认数据

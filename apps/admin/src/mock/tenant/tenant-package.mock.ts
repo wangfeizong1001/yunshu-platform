@@ -6,7 +6,7 @@ import type {
   TenantPackage,
   TenantPackageQuery,
   TenantPackagePageResp,
-} from '@yunshu/shared/types/tenant'
+} from '@yunshu/shared'
 
 /** 模拟套餐数据 */
 const mockPackages: TenantPackage[] = [

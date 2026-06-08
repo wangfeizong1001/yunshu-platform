@@ -33,7 +33,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getUserRoles, assignUserRoles } from '@/api/system/user.api'
 import { getAllRoles } from '@/api/system/role.api'
-import type { SysRole } from '@yunshu/shared/types/system'
+import type { SysRole } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

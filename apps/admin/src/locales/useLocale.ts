@@ -35,8 +35,8 @@ export function useLocale() {
   }
 
   // 翻译函数
-  const translate = (key: string, params?: Record<string, any>) => {
-    return t(key, params)
+  const translate = (key: string, params?: Record<string, unknown>) => {
+    return params ? t(key, params) : t(key)
   }
 
   // 判断是否是当前语言

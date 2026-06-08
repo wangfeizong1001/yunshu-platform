@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   formatDate,
   formatDateTime,
@@ -12,7 +12,6 @@ import dayjs from 'dayjs'
 
 describe('date utils', () => {
   const testDate = '2024-01-15 10:30:00'
-  const testDateObj = dayjs(testDate).toDate()
 
   describe('formatDate', () => {
     it('should format date with default format', () => {

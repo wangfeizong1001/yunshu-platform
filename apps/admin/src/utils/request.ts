@@ -7,6 +7,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElMessage, ElLoading } from 'element-plus'
 import cache, { CACHE_KEYS } from '@/utils/cache'
+import type { ApiResponse } from '@yunshu/shared'
 
 /** 请求配置扩展 */
 export interface RequestConfig extends AxiosRequestConfig {
@@ -26,13 +27,6 @@ export interface RequestConfig extends AxiosRequestConfig {
   forceRefresh?: boolean
 }
 
-/** 响应数据结构 */
-export interface ApiResponse<T = unknown> {
-  code: number
-  msg: string
-  data: T
-}
-
 /** 分页响应数据结构 */
 export interface PageResponse<T = unknown> {
   list: T[]
@@ -47,8 +41,8 @@ export interface HttpResponse<T = unknown> extends AxiosResponse {
 }
 
 // 获取环境变量
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
-const ENABLE_MOCK = import.meta.env.VITE_ENABLE_MOCK === 'true'
+const env = (import.meta as unknown as { env: Record<string, string> }).env
+const BASE_URL = env.VITE_API_BASE_URL || '/api'
 
 /** 创建 axios 实例 */
 const instance: AxiosInstance = axios.create({
@@ -124,35 +118,17 @@ instance.interceptors.response.use(
   (response: HttpResponse) => {
     hideLoading()
 
-    const { code, msg, data } = response.data
+    const { success, message } = response.data
 
     // 成功响应
-    if (code === 200 || code === 0) {
+    if (success) {
       return response
     }
 
-    // 处理特定错误码
-    switch (code) {
-      case 401:
-        // 未授权
-        ElMessage.error('登录已过期，请重新登录')
-        localStorage.removeItem('token')
-        window.location.href = '/login'
-        break
-      case 403:
-        ElMessage.error('没有权限访问该资源')
-        break
-      case 404:
-        ElMessage.error('请求的资源不存在')
-        break
-      case 500:
-        ElMessage.error('服务器错误')
-        break
-      default:
-        ElMessage.error(msg || '请求失败')
-    }
+    // 处理失败情况
+    ElMessage.error(message || '请求失败')
 
-    return Promise.reject(new Error(msg || '请求失败'))
+    return Promise.reject(new Error(message || '请求失败'))
   },
   error => {
     hideLoading()
@@ -338,8 +314,7 @@ export function upload<T = unknown>(
 /** 导出 axios 实例 */
 export { instance as axiosInstance }
 
-/** 导出 axios */
-export { default as axios }
 
-/** 导出请求配置类型 */
-export type { RequestConfig, ApiResponse, PageResponse, HttpResponse }
+
+/** 默认导出 */
+export default request

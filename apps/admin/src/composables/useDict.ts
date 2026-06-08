@@ -5,7 +5,7 @@
  */
 
 import { ref, computed } from 'vue'
-import type { SysDictData } from '@yunshu/shared/types/system'
+import type { SysDictData } from '@yunshu/shared'
 import { getDictDataByType } from '@/api/system/dict.api'
 
 // 全局字典缓存
@@ -48,7 +48,7 @@ export function useDict() {
     try {
       // 从API获取
       const data = await getDictDataByType(dictType)
-      const dictData = data || []
+      const dictData = (data || []) as unknown as SysDictData[]
       dictCache.value.set(dictType, dictData)
       return dictData
     } catch (error) {

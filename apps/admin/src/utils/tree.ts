@@ -44,13 +44,13 @@ export const treeToArray = (tree: any[], childrenKey = 'children') => {
   return result
 }
 
-export const findNodeById = (tree: any[], id: any, idKey = 'id', childrenKey = 'children') => {
+export const findNodeById = <T extends Record<string, any>>(tree: T[], id: any, idKey = 'id', childrenKey = 'children'): T | null => {
   for (const node of tree) {
     if (node[idKey] === id) {
       return node
     }
     if (node[childrenKey] && node[childrenKey].length) {
-      const found = findNodeById(node[childrenKey], id, idKey, childrenKey)
+      const found = findNodeById(node[childrenKey], id, idKey, childrenKey) as T | null
       if (found) {
         return found
       }
@@ -59,7 +59,7 @@ export const findNodeById = (tree: any[], id: any, idKey = 'id', childrenKey = '
   return null
 }
 
-export const findParentIds = (tree: any[], id: any, idKey = 'id', parentKey = 'parentId', childrenKey = 'children') => {
+export const findParentIds = (tree: any[], id: any, idKey = 'id', _parentKey = 'parentId', childrenKey = 'children') => {
   const parents: any[] = []
   const traverse = (nodes: any[], parentNode?: any) => {
     for (const node of nodes) {

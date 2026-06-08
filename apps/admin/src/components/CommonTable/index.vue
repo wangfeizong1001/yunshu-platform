@@ -5,7 +5,6 @@
       :data="data"
       :stripe="stripe"
       :border="border"
-      :height="height"
       @selection-change="handleSelectionChange"
     >
       <el-table-column v-if="showSelection" type="selection" width="55" />

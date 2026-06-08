@@ -5,13 +5,12 @@
 import request from '@/utils/request'
 import type {
   IGenTable,
-  IGenTableFull,
   IGenQuery,
   IGenConfig,
   IGenColumn,
   IGenPreview,
   IGenResult
-} from '@yunshu/shared/types/gen'
+} from '@yunshu/shared'
 
 export interface ApiResponse<T = any> {
   success: boolean

@@ -76,7 +76,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import type { ElTree } from 'element-plus'
 import { addRole, updateRole, getRoleMenus } from '@/api/system/role.api'
 import { getMenuTree } from '@/api/system/menu.api'
-import type { SysRole, SysMenu } from '@yunshu/shared/types/system'
+import type { SysRole, SysMenu } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

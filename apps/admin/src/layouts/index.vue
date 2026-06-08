@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useAppStore } from '@/store/modules/app'
 import Sidebar from './components/Sidebar.vue'
 import Header from './components/Header.vue'

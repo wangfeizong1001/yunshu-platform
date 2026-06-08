@@ -112,7 +112,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getPostPage, deletePost } from '@/api/system/post.api'
-import type { SysPost, SysPostQuery } from '@yunshu/shared/types/system'
+import type { SysPost, SysPostQuery } from '@yunshu/shared'
 import PostForm from './PostForm.vue'
 
 // 状态

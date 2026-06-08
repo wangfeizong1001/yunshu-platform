@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IServer } from '@yunshu/shared/types/monitor'
+import type { IServer } from '@yunshu/shared'
 
 export const serverMockData: IServer = {
   serverName: '云枢生产服务器',

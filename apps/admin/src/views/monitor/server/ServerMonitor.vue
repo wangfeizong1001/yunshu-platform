@@ -147,7 +147,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
-import type { IServer } from '@yunshu/shared/types/monitor'
+import type { IServer } from '@yunshu/shared'
 import * as serverApi from '@/api/monitor/server.api'
 
 const serverInfo = ref<IServer>({

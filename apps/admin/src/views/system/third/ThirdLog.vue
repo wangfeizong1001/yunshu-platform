@@ -103,7 +103,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { getThirdLoginLogList } from '@/api/system/third.api'
-import type { ThirdLoginLog, ThirdLoginLogQuery } from '@yunshu/shared/types/third'
+import type { ThirdLoginLog, ThirdLoginLogQuery } from '@yunshu/shared'
 
 // 状态
 const loading = ref(false)

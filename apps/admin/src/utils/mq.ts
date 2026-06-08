@@ -188,7 +188,7 @@ class MessageQueue<T = unknown> {
 }
 
 /** 全局默认消息队列实例 */
-const defaultMQ = new MessageQueue()
+const defaultMQ = new MessageQueue<unknown>()
 
 /**
  * 创建新的消息队列实例
@@ -199,11 +199,11 @@ export function createMQ<T = unknown>(config?: MQConfig): MessageQueue<T> {
 
 /** 导出默认实例的方法 */
 export function subscribe<T = unknown>(topic: string, callback: MessageCallback<T>, once = false): string {
-  return defaultMQ.subscribe(topic, callback, once)
+  return defaultMQ.subscribe(topic, callback as MessageCallback<unknown>, once)
 }
 
 export function subscribeOnce<T = unknown>(topic: string, callback: MessageCallback<T>): string {
-  return defaultMQ.subscribeOnce(topic, callback)
+  return defaultMQ.subscribeOnce(topic, callback as MessageCallback<unknown>)
 }
 
 export function unsubscribe(topic: string, subscriberId: string): boolean {

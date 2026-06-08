@@ -114,7 +114,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, User, Monitor, Cellphone } from '@element-plus/icons-vue'
-import type { IOnline, IOnlineQuery, IOnlineStats } from '@yunshu/shared/types/monitor'
+import type { IOnline, IOnlineQuery, IOnlineStats } from '@yunshu/shared'
 import * as onlineApi from '@/api/monitor/online.api'
 
 const loading = ref(false)

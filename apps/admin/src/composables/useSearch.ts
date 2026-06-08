@@ -9,7 +9,6 @@ import {
   createSearchIndex,
   LocalSearchIndex,
   SearchDocument,
-  SearchResult,
   SearchIndexConfig
 } from '@/utils/search'
 
@@ -18,7 +17,12 @@ export interface SearchState<T extends SearchDocument = SearchDocument> {
   /** 搜索关键词 */
   query: string
   /** 搜索结果 */
-  results: SearchResult<T>[]
+  results: Array<{
+    document: T
+    score: number
+    matchedFields: string[]
+    highlights: Map<string, string>
+  }>
   /** 是否正在搜索 */
   loading: boolean
   /** 是否有搜索结果 */
@@ -171,7 +175,7 @@ export function useSearch<T extends SearchDocument = SearchDocument>(
       }
 
       const results = searchIndex.search(query, maxResults)
-      state.value.results = results
+      state.value.results = results as any
       state.value.hasResults = results.length > 0
 
       // 生成搜索建议

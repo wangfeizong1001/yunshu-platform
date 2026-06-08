@@ -1,4 +1,3 @@
-import type { DefineSetups } from 'vue'
 import common from './common'
 import layout from './layout'
 import messages from './messages'

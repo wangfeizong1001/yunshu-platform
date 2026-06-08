@@ -2,7 +2,7 @@
  * 参数配置 Mock 数据
  */
 
-import type { SysConfig, SysConfigPageResp } from '@yunshu/shared/types/system'
+import type { SysConfig, SysConfigPageResp } from '@yunshu/shared'
 
 // 参数配置 Mock 数据
 export const mockConfigList: SysConfig[] = [
@@ -98,7 +98,7 @@ export const mockConfigList: SysConfig[] = [
 
 // 获取参数配置分页列表 Mock
 export function getMockConfigPage(params: any): SysConfigPageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', configType = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', configType = '' } = params
 
   let filteredList = mockConfigList
 

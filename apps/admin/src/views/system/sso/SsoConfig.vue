@@ -203,7 +203,7 @@ import {
   getSsoAuthorizeUrl,
   testSsoConnection,
 } from '@/api/system/sso.api'
-import type { SsoConfig, SsoApplication, SsoAppQuery } from '@yunshu/shared/types/sso'
+import type { SsoConfig, SsoApplication, SsoAppQuery } from '@yunshu/shared'
 
 // 全局配置相关
 const config = reactive<SsoConfig>({

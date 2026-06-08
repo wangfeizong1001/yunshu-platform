@@ -12,7 +12,7 @@ import type {
   TenantPackageQuery,
   TenantPackageForm,
   TenantPackagePageResp,
-} from '@yunshu/shared/types/tenant'
+} from '@yunshu/shared'
 
 /**
  * 获取租户分页列表

@@ -137,7 +137,7 @@ import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
 import { getDictDataPage, deleteDictData, exportDictData } from '@/api/system/dict.api'
-import type { SysDictData, SysDictDataQuery } from '@yunshu/shared/types/system'
+import type { SysDictData, SysDictDataQuery } from '@yunshu/shared'
 import DictDataForm from './DictDataForm.vue'
 
 interface Props {

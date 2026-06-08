@@ -4,15 +4,15 @@
       <router-link
         v-for="tag in visitedViews"
         :key="tag.path"
-        :to="{ path: tag.path, query: tag.query }"
+        :to="{ path: tag.path }"
         tag="span"
         class="tags-view-item"
         :class="{ 'is-active': isActive(tag) }"
-        @click.middle="closeSelectedTag(tag)"
-        @contextmenu.prevent="openMenu(tag, $event)"
+        @click.middle="closeSelectedTag"
+        @contextmenu.prevent="openMenu"
       >
         {{ tag.meta?.title }}
-        <span v-if="!tag.meta?.affix" class="el-icon-close" @click.prevent.stop="closeTag(tag)">
+        <span v-if="!tag.meta?.affix" class="el-icon-close" @click.prevent.stop="closeTag">
           <el-icon :size="12"><Close /></el-icon>
         </span>
       </router-link>
@@ -25,9 +25,14 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Close } from '@element-plus/icons-vue'
 
+interface TagItem {
+  path: string
+  meta: { title: string; affix: boolean }
+}
+
 const route = useRoute()
 
-const visitedViews = computed(() => {
+const visitedViews = computed<TagItem[]>(() => {
   return [
     {
       path: '/',
@@ -36,19 +41,19 @@ const visitedViews = computed(() => {
   ]
 })
 
-const isActive = (tag: any) => {
+const isActive = (tag: TagItem) => {
   return tag.path === route.path
 }
 
-const closeTag = (tag: any) => {
+const closeTag = () => {
   // 关闭标签
 }
 
-const closeSelectedTag = (tag: any) => {
+const closeSelectedTag = () => {
   // 中键关闭
 }
 
-const openMenu = (tag: any, event: MouseEvent) => {
+const openMenu = () => {
   // 右键菜单
 }
 </script>

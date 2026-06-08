@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { getNoticeDetail } from '@/api/system/notice.api'
-import type { SysNotice } from '@yunshu/shared/types/system'
+import type { SysNotice } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

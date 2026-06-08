@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IServer } from '@yunshu/shared/types/monitor'
+import type { IServer } from '@yunshu/shared'
 
 interface Props {
   data: IServer

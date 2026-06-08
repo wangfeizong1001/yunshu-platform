@@ -2,7 +2,7 @@
  * 文件管理 Mock 数据
  */
 
-import type { SysFile, SysFilePageResp, SysFileUploadResp } from '@yunshu/shared/types/system'
+import type { SysFile, SysFilePageResp, SysFileUploadResp } from '@yunshu/shared'
 
 // 文件管理 Mock 数据
 export const mockFileList: SysFile[] = [

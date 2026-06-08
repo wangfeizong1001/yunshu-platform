@@ -141,7 +141,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download, Delete } from '@element-plus/icons-vue'
 import { getConfigPage, deleteConfig, batchDeleteConfig, exportConfig } from '@/api/system/config.api'
-import type { SysConfig, SysConfigQuery } from '@yunshu/shared/types/system'
+import type { SysConfig, SysConfigQuery } from '@yunshu/shared'
 import ConfigForm from './ConfigForm.vue'
 
 // 状态

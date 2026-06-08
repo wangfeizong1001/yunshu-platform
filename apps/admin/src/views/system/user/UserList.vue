@@ -165,7 +165,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue'
 import { getUserPage, deleteUser, exportUser } from '@/api/system/user.api'
 import { getDeptTreeSelect } from '@/api/system/dept.api'
-import type { SysUser, SysDept } from '@yunshu/shared/types/system'
+import type { SysUser, SysDept } from '@yunshu/shared'
 import UserForm from './UserForm.vue'
 import AssignRoleDialog from './AssignRoleDialog.vue'
 

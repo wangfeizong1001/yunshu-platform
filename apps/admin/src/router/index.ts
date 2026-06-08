@@ -369,7 +369,7 @@ export const asyncRoutes: RouteRecordRaw[] = [
 
 // 创建路由实例
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory((import.meta as unknown as { env: Record<string, string> }).env.BASE_URL),
   routes: constantRoutes,
   scrollBehavior: () => ({ left: 0, top: 0 })
 })
@@ -381,7 +381,7 @@ const whiteList = ['/login', '/404']
 let isDynamicRouteAdded = false
 
 // 路由守卫
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   // 设置页面标题
   document.title = (to.meta.title as string) || '云枢中台'
 

@@ -7,7 +7,7 @@ import type {
   SysDictTypePageResp,
   SysDictData,
   SysDictDataPageResp,
-} from '@yunshu/shared/types/system'
+} from '@yunshu/shared'
 
 // ==================== 字典类型 Mock ====================
 

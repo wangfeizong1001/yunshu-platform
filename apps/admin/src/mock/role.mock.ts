@@ -2,7 +2,7 @@
  * 角色 Mock 数据
  */
 
-import type { SysRole, SysRolePageResp } from '@yunshu/shared/types/system'
+import type { SysRole, SysRolePageResp } from '@yunshu/shared'
 
 // 生成 Mock 角色数据
 export const mockRoleList: SysRole[] = [

@@ -5,7 +5,7 @@
  */
 
 import { ref, computed, watch } from 'vue'
-import cache, { CACHE_KEYS, CacheType, CacheOptions } from '@/utils/cache'
+import cache, { CacheOptions } from '@/utils/cache'
 
 export interface UseCacheOptions extends CacheOptions {
   /** 是否在初始化时自动从缓存读取 */

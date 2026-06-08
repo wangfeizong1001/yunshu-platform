@@ -7,6 +7,8 @@ interface AppState {
   size: string
 }
 
+export type { AppState }
+
 export const useAppStore = defineStore('app', () => {
   const sidebarCollapsed = useLocalStorage('sidebar-collapsed', false)
   const language = useLocalStorage('language', 'zh-CN')

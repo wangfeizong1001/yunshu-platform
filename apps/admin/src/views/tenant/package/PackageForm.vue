@@ -127,7 +127,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addPackage, updatePackage } from '@/api/tenant/tenant.api'
-import type { TenantPackage, TenantPackageForm } from '@yunshu/shared/types/tenant'
+import type { TenantPackage, TenantPackageForm } from '@yunshu/shared'
 
 const props = defineProps<{
   modelValue: boolean

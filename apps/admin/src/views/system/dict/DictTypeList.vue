@@ -126,7 +126,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
 import { getDictTypePage, deleteDictType, exportDictType } from '@/api/system/dict.api'
-import type { SysDictType, SysDictTypeQuery } from '@yunshu/shared/types/system'
+import type { SysDictType, SysDictTypeQuery } from '@yunshu/shared'
 import DictTypeForm from './DictTypeForm.vue'
 import DictDataList from './DictDataList.vue'
 

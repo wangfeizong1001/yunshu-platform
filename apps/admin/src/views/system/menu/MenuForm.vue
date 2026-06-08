@@ -137,7 +137,7 @@ import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addMenu, updateMenu } from '@/api/system/menu.api'
 import { getMenuTreeSelect } from '@/api/system/menu.api'
-import type { SysMenu } from '@yunshu/shared/types/system'
+import type { SysMenu } from '@yunshu/shared'
 import MenuIcon from './MenuIcon.vue'
 
 interface Props {

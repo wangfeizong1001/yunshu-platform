@@ -50,7 +50,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addConfig, updateConfig } from '@/api/system/config.api'
-import type { SysConfig } from '@yunshu/shared/types/system'
+import type { SysConfig } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

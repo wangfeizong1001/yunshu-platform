@@ -134,7 +134,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
-import type { ILogininfor, ILogininforQuery } from '@yunshu/shared/types/monitor'
+import type { ILogininfor, ILogininforQuery } from '@yunshu/shared'
 import * as logininforApi from '@/api/monitor/logininfor.api'
 
 const loading = ref(false)

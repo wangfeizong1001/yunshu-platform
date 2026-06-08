@@ -37,7 +37,7 @@ import { ref, watch } from 'vue'
 
 interface Props {
   loading?: boolean
-  data?: unknown[]
+  data?: Record<string, unknown>[]
   total?: number
   page?: number
   limit?: number

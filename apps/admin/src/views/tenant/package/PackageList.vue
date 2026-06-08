@@ -130,8 +130,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getPackagePage, deletePackage } from '@/api/tenant/tenant.api'
-import type { TenantPackage, TenantPackageQuery } from '@yunshu/shared/types/tenant'
-import { PackageTypeEnum, ExpireTypeEnum } from '@yunshu/shared/types/tenant'
+import type { TenantPackage, TenantPackageQuery } from '@yunshu/shared'
+import { PackageTypeEnum, ExpireTypeEnum } from '@yunshu/shared'
 import PackageForm from './PackageForm.vue'
 
 // 状态

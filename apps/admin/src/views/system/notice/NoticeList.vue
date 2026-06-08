@@ -157,7 +157,7 @@ import {
   publishNotice,
   withdrawNotice,
 } from '@/api/system/notice.api'
-import type { SysNotice, SysNoticeQuery } from '@yunshu/shared/types/system'
+import type { SysNotice, SysNoticeQuery } from '@yunshu/shared'
 import NoticeForm from './NoticeForm.vue'
 import NoticeDetail from './NoticeDetail.vue'
 

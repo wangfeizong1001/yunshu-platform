@@ -9,7 +9,7 @@ import type {
   SsoAuthorizeResp,
   SsoTokenResp,
   SsoUserInfo,
-} from '@yunshu/shared/types/sso'
+} from '@yunshu/shared'
 
 // SSO 配置 Mock 数据
 export const mockSsoConfig: SsoConfig = {
@@ -194,7 +194,7 @@ export function getMockSsoAuthorizeUrl(appCode: string): SsoAuthorizeResp {
 }
 
 // 处理 SSO 回调 Mock
-export function handleMockSsoCallback(code: string, state?: string): SsoTokenResp {
+export function handleMockSsoCallback(code: string, _state?: string): SsoTokenResp {
   if (!code) {
     return {
       accessToken: '',
@@ -214,7 +214,7 @@ export function handleMockSsoCallback(code: string, state?: string): SsoTokenRes
 }
 
 // 获取 SSO 用户信息 Mock
-export function getMockSsoUserInfo(accessToken: string): SsoUserInfo {
+export function getMockSsoUserInfo(_accessToken: string): SsoUserInfo {
   return {
     userId: 'sso_user_001',
     username: 'sso_user',
@@ -228,7 +228,7 @@ export function getMockSsoUserInfo(accessToken: string): SsoUserInfo {
 }
 
 // 刷新 Token Mock
-export function refreshMockSsoToken(refreshToken: string): SsoTokenResp {
+export function refreshMockSsoToken(_refreshToken: string): SsoTokenResp {
   return {
     accessToken: `mock_access_token_${Date.now()}`,
     tokenType: 'Bearer',

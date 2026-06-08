@@ -46,7 +46,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addDictType, updateDictType } from '@/api/system/dict.api'
-import type { SysDictType } from '@yunshu/shared/types/system'
+import type { SysDictType } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

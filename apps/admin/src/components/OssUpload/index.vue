@@ -81,7 +81,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  'update:modelValue': [value: string]
   'success': [data: any]
   'error': [error: any]
   'progress': [event: any]
@@ -92,7 +91,8 @@ const emit = defineEmits<{
 const uploadRef = ref()
 
 const uploadUrl = computed(() => {
-  const baseUrl = import.meta.env.VITE_APP_BASE_API || ''
+  const env = (import.meta as unknown as { env: Record<string, string> }).env
+  const baseUrl = env.VITE_API_BASE_URL || ''
   return `${baseUrl}${props.action}`
 })
 

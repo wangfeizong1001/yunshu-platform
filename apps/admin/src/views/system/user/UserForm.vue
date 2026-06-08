@@ -150,7 +150,7 @@ import { addUser, updateUser } from '@/api/system/user.api'
 import { getDeptTreeSelect } from '@/api/system/dept.api'
 import { getPostSelect } from '@/api/system/post.api'
 import { getAllRoles } from '@/api/system/role.api'
-import type { SysUser, SysDept, SysPost, SysRole } from '@yunshu/shared/types/system'
+import type { SysUser, SysDept, SysPost, SysRole } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

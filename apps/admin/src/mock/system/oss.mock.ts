@@ -8,7 +8,7 @@ import type {
   OssFilePageResp,
   OssConfigResp,
   OssUploadResp,
-} from '@yunshu/shared/types/oss'
+} from '@yunshu/shared'
 
 // OSS 配置 Mock 数据
 export const mockOssConfig: OssConfig = {

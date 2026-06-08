@@ -5,8 +5,8 @@
 /** 角色状态 */
 export type RoleStatus = '0' | '1'
 
-/** 数据权限范围 */
-export type DataScope = '1' | '2' | '3' | '4' | '5'
+/** 角色数据权限范围 */
+export type RoleDataScope = '1' | '2' | '3' | '4' | '5'
 /**
  * 1=全部数据权限
  * 2=自定数据权限
@@ -26,7 +26,7 @@ export interface SysRole {
   /** 显示顺序 */
   roleSort: number
   /** 数据权限范围 */
-  dataScope: DataScope
+  dataScope: RoleDataScope
   /** 菜单树选择范围是否关联显示 */
   menuCheckStrictly: boolean
   /** 部门树选择范围是否关联显示 */
@@ -70,7 +70,7 @@ export interface SysRoleForm {
   /** 显示顺序 */
   roleSort: number
   /** 数据权限范围 */
-  dataScope?: DataScope
+  dataScope?: RoleDataScope
   /** 菜单树选择范围是否关联显示 */
   menuCheckStrictly?: boolean
   /** 部门树选择范围是否关联显示 */
@@ -104,7 +104,7 @@ export interface SysRoleDataScope {
   /** 角色ID */
   roleId: number
   /** 数据权限范围 */
-  dataScope: DataScope
+  dataScope: RoleDataScope
   /** 部门ID列表 */
   deptIds?: number[]
 }

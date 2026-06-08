@@ -8,7 +8,7 @@
       </div>
       <div class="header-right">
         <el-button class="refresh-btn" :icon="Refresh" @click="refreshData" circle />
-        <el-button class="fullscreen-btn" :icon="isFullscreen ? FullScreenExit : FullScreen" @click="toggleFullscreen" circle />
+        <el-button class="fullscreen-btn" :icon="FullScreen" @click="toggleFullscreen" circle />
       </div>
     </div>
 
@@ -36,7 +36,7 @@
             <div class="metric-value">{{ metric.value }}</div>
             <div class="metric-label">{{ metric.label }}</div>
             <div class="metric-trend" :class="metric.trend > 0 ? 'up' : 'down'">
-              <el-icon><component :is="metric.trend > 0 ? TrendCharts : ArrowDown" /></el-icon>
+              <el-icon><component :is="metric.trend > 0 ? ArrowDown : ArrowDown" /></el-icon>
               <span>{{ Math.abs(metric.trend) }}%</span>
             </div>
           </div>
@@ -100,8 +100,6 @@ import { ElMessage } from 'element-plus'
 import {
   Refresh,
   FullScreen,
-  FullScreenExit,
-  TrendCharts,
   ArrowDown
 } from '@element-plus/icons-vue'
 import {
@@ -438,8 +436,9 @@ const updateTime = () => {
 const fetchStats = async () => {
   try {
     const res = await getDashboardStats()
-    if (res.data) {
-      stats.value = res.data
+    const responseData = res as Record<string, unknown>
+    if (responseData.data) {
+      stats.value = responseData.data as typeof stats.value
     }
   } catch (error) {
     console.error('获取统计数据失败:', error)
@@ -449,8 +448,9 @@ const fetchStats = async () => {
 const fetchSalesTrend = async () => {
   try {
     const res = await getSalesTrendData()
-    if (res.data) {
-      salesTrendData.value = res.data
+    const responseData = res as Record<string, unknown>
+    if (responseData.data) {
+      salesTrendData.value = responseData.data as typeof salesTrendData.value
     }
   } catch (error) {
     console.error('获取销售趋势数据失败:', error)
@@ -460,8 +460,9 @@ const fetchSalesTrend = async () => {
 const fetchRegionSales = async () => {
   try {
     const res = await getRegionSalesData()
-    if (res.data) {
-      regionSalesData.value = res.data
+    const responseData = res as Record<string, unknown>
+    if (responseData.data) {
+      regionSalesData.value = responseData.data as typeof regionSalesData.value
     }
   } catch (error) {
     console.error('获取区域销售数据失败:', error)
@@ -471,8 +472,9 @@ const fetchRegionSales = async () => {
 const fetchCategoryData = async () => {
   try {
     const res = await getCategoryData()
-    if (res.data) {
-      categoryData.value = res.data
+    const responseData = res as Record<string, unknown>
+    if (responseData.data) {
+      categoryData.value = responseData.data as typeof categoryData.value
     }
   } catch (error) {
     console.error('获取分类数据失败:', error)
@@ -482,8 +484,10 @@ const fetchCategoryData = async () => {
 const fetchRealtimeData = async () => {
   try {
     const res = await getRealTimeData()
-    if (res.data?.data) {
-      realtimeData.value = res.data.data
+    const responseData = res as Record<string, unknown>
+    const data = responseData.data as Record<string, unknown> | undefined
+    if (data?.data) {
+      realtimeData.value = data.data as typeof realtimeData.value
     }
   } catch (error) {
     console.error('获取实时数据失败:', error)

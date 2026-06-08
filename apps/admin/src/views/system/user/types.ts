@@ -2,11 +2,11 @@
  * 用户类型定义
  */
 
-import type { SysUser, SysUserQuery } from '@yunshu/shared/types/system'
+import type { SysUser, SysUserQuery } from '@yunshu/shared'
 
 export { SysUser, SysUserQuery }
 
-export type { SysUserForm } from '@yunshu/shared/types/system'
+export type { SysUserForm } from '@yunshu/shared'
 
 /** 用户状态枚举 */
 export const UserStatusOptions = [

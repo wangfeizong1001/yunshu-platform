@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@yunshu/shared": ["../packages/shared/src"]
+      "@yunshu/shared": ["../packages/shared/src"],
+      "@yunshu/shared/types/*": ["../packages/shared/src/types/*"]
     },
     "types": ["element-plus/global"]
   },

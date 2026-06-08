@@ -2,7 +2,7 @@
  * 用户 Mock 数据
  */
 
-import type { SysUser, SysUserPageResp } from '@yunshu/shared/types/system'
+import type { SysUser, SysUserPageResp } from '@yunshu/shared'
 
 // 生成 Mock 用户数据
 export const mockUserList: SysUser[] = [

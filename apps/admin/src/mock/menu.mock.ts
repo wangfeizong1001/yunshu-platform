@@ -2,7 +2,7 @@
  * 菜单 Mock 数据
  */
 
-import type { SysMenu } from '@yunshu/shared/types/system'
+import type { SysMenu } from '@yunshu/shared'
 
 // 生成 Mock 菜单数据
 export const mockMenuList: SysMenu[] = [

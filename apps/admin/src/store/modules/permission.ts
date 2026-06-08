@@ -4,10 +4,9 @@
  */
 
 import { defineStore } from 'pinia'
-import { type RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import { constantRoutes, asyncRoutes } from '@/router'
 import { getRoutersApi } from '@/api/auth'
-import { getMenuListApi } from '@/api/system/menu'
 
 interface PermissionState {
   routes: RouteRecordRaw[]      // 完整路由列表
@@ -35,7 +34,7 @@ export const usePermissionStore = defineStore('permission', {
       try {
         // 从后端获取菜单
         const res = await getRoutersApi()
-        const menuData = res.data || []
+        const menuData = ((res as Record<string, unknown>).data as unknown[]) || []
 
         // 将菜单转换为路由
         const accessedRoutes = await generateRoutesFromMenu(menuData)

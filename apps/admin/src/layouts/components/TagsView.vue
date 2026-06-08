@@ -27,9 +27,9 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, computed, ref, watch } from 'vue'
 import { useTagsViewStore } from '@/store/modules/tagsView'
 import { usePermissionStore } from '@/store/modules/permission'
-import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const tagsViewStore = useTagsViewStore()
@@ -42,8 +42,7 @@ const left = ref(0)
 const top = ref(0)
 const selectedTag = ref<any>({})
 
-const visitedViews = computed(() => tagsViewStore.visitedViews)
-const affixTags = computed(() => permissionStore.affixTags)
+const visitedViews = computed(() => tagsViewStore.visitedViews.value)
 
 const isActive = (tag: any) => {
   return tag.path === route.path
@@ -83,7 +82,7 @@ const initTags = () => {
 
 const addTags = () => {
   const { name } = route
-  if (name) {
+  if (name && typeof name === 'string') {
     tagsViewStore.addVisitedView({
       path: route.path,
       name: name,
@@ -103,7 +102,7 @@ const openMenu = (tag: any, event: MouseEvent) => {
 const closeSelectedTag = (tag: any) => {
   tagsViewStore.delVisitedView(tag)
   if (isActive(tag)) {
-    const latestView = visitedViews.value.slice(-1)[0]
+    const latestView = visitedViews.value.slice(-1)[0] as { path: string } | undefined
     if (latestView) {
       router.push(latestView.path)
     } else {

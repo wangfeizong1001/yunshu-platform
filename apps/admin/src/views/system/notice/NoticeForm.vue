@@ -58,7 +58,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addNotice, updateNotice } from '@/api/system/notice.api'
-import type { SysNotice } from '@yunshu/shared/types/system'
+import type { SysNotice } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

@@ -125,7 +125,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Plus } from '@element-plus/icons-vue'
-import type { IJob, IJobQuery } from '@yunshu/shared/types/monitor'
+import type { IJob, IJobQuery } from '@yunshu/shared'
 import * as jobApi from '@/api/monitor/job.api'
 import JobForm from './JobForm.vue'
 import JobLogDrawer from './JobLogDrawer.vue'

@@ -23,7 +23,7 @@ interface UserState {
   permissions: string[]
 }
 
-interface UserInfo {
+export interface UserInfo {
   userId: string
   username: string
   nickname?: string
@@ -70,10 +70,10 @@ export const useUserStore = defineStore('user', {
     async login(userInfo: { username: string; password: string; code?: string; uuid?: string }) {
       try {
         const res = await loginApi(userInfo)
-        const data = res.data
+        const data = (res as Record<string, unknown>).data as Record<string, unknown>
 
-        this.token = data.token
-        setToken(data.token)
+        this.token = String(data.token || '')
+        setToken(String(data.token || ''))
 
         return data
       } catch (error) {
@@ -87,19 +87,20 @@ export const useUserStore = defineStore('user', {
     async getUserInfo() {
       try {
         const res = await getUserInfoApi()
-        const data = res.data
+        const data = (res as Record<string, unknown>).data as Record<string, unknown>
+        const user = data.user as Record<string, unknown> || {}
 
-        this.userId = data.user.userId
-        this.username = data.user.username
-        this.nickname = data.user.nickname || data.user.username
-        this.avatar = data.user.avatar || ''
-        this.email = data.user.email || ''
-        this.phone = data.user.phone || ''
-        this.deptId = data.user.deptId || ''
-        this.deptName = data.user.deptName || ''
-        this.roles = data.roles || []
-        this.roleId = data.user.roleId || []
-        this.permissions = data.permissions || []
+        this.userId = String(user.userId || '')
+        this.username = String(user.username || '')
+        this.nickname = String(user.nickname || user.username || '')
+        this.avatar = String(user.avatar || '')
+        this.email = String(user.email || '')
+        this.phone = String(user.phone || '')
+        this.deptId = String(user.deptId || '')
+        this.deptName = String(user.deptName || '')
+        this.roles = (data.roles as string[]) || []
+        this.roleId = ((user.roleId as number[]) || []).map(Number)
+        this.permissions = (data.permissions as string[]) || []
 
         this.saveToCache()
 

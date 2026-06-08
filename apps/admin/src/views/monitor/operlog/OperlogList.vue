@@ -164,7 +164,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
-import type { IOperlog, IOperlogQuery } from '@yunshu/shared/types/monitor'
+import type { IOperlog, IOperlogQuery } from '@yunshu/shared'
 import * as operlogApi from '@/api/monitor/operlog.api'
 
 const loading = ref(false)

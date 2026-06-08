@@ -50,7 +50,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addPost, updatePost } from '@/api/system/post.api'
-import type { SysPost } from '@yunshu/shared/types/system'
+import type { SysPost } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

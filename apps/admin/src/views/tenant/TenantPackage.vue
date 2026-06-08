@@ -69,7 +69,7 @@ import {
   assignTenantPackage,
   updateTenant,
 } from '@/api/tenant/tenant.api'
-import type { Tenant, TenantPackage } from '@yunshu/shared/types/tenant'
+import type { Tenant, TenantPackage } from '@yunshu/shared'
 
 const props = defineProps<{
   modelValue: boolean

@@ -57,7 +57,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import type { IJob, IJobCreate, IJobUpdate } from '@yunshu/shared/types/monitor'
+import type { IJob } from '@yunshu/shared'
+import type { JobForm } from '@/api/monitor/job.api'
 import * as jobApi from '@/api/monitor/job.api'
 
 const props = defineProps<{
@@ -80,12 +81,10 @@ const visible = computed({
 
 const isEdit = computed(() => !!props.jobData)
 
-const formData = ref<IJobCreate>({
+const formData = ref<JobForm>({
   jobName: '',
   jobGroup: 'default',
-  invokeTarget: '',
   cronExpression: '',
-  misfirePolicy: '0',
   concurrent: '0',
   status: '0',
   remark: '',
@@ -103,11 +102,10 @@ watch(
   (val) => {
     if (val) {
       formData.value = {
+        jobId: Number(val.jobId),
         jobName: val.jobName,
         jobGroup: val.jobGroup,
-        invokeTarget: val.invokeTarget,
         cronExpression: val.cronExpression,
-        misfirePolicy: val.misfirePolicy,
         concurrent: val.concurrent,
         status: val.status,
         remark: val.remark || '',
@@ -116,9 +114,7 @@ watch(
       formData.value = {
         jobName: '',
         jobGroup: 'default',
-        invokeTarget: '',
         cronExpression: '',
-        misfirePolicy: '0',
         concurrent: '0',
         status: '0',
         remark: '',
@@ -138,15 +134,11 @@ const handleSubmit = async () => {
     await formRef.value?.validate()
     submitLoading.value = true
 
-    if (isEdit.value && props.jobData) {
-      const updateData: IJobUpdate = {
-        jobId: props.jobData.jobId,
-        ...formData.value,
-      }
-      await jobApi.updateJob(props.jobData.jobId, updateData)
+    if (isEdit.value) {
+      await jobApi.updateJob(formData.value)
       ElMessage.success('更新成功')
     } else {
-      await jobApi.createJob(formData.value)
+      await jobApi.addJob(formData.value)
       ElMessage.success('创建成功')
     }
 

@@ -58,8 +58,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { getTenantDetail } from '@/api/tenant/tenant.api'
-import type { Tenant } from '@yunshu/shared/types/tenant'
-import { TenantStatusEnum } from '@yunshu/shared/types/tenant'
+import type { Tenant } from '@yunshu/shared'
+import { TenantStatusEnum } from '@yunshu/shared'
 
 const props = defineProps<{
   modelValue: boolean

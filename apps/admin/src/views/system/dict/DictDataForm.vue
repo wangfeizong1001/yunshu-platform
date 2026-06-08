@@ -72,7 +72,7 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addDictData, updateDictData } from '@/api/system/dict.api'
-import type { SysDictData } from '@yunshu/shared/types/system'
+import type { SysDictData } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean

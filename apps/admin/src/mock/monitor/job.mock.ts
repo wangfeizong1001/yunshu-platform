@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IJob, IJobLog } from '@yunshu/shared/types/monitor'
+import type { IJob, IJobLog } from '@yunshu/shared'
 
 export const jobMockData: IJob[] = [
   {

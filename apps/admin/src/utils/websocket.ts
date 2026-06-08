@@ -155,7 +155,7 @@ class WebSocketClient {
     return this.ws?.readyState === WebSocket.OPEN
   }
 
-  private handleOpen(event: Event): void {
+  private handleOpen(_event: Event): void {
     console.log('WebSocket 连接成功')
     this.reconnectAttempts = 0
     this.startHeartbeat()
