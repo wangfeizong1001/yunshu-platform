@@ -1,0 +1,81 @@
+/**
+ * {{className}}服务接口
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+package {{packageName}}.service;
+
+import {{packageName}}.dto.{{className}}DTO;
+import {{packageName}}.entity.{{className}};
+import {{packageName}}.vo.{{className}}VO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
+
+/**
+ * {{functionName}}服务接口
+ *
+ * @author {{author}}
+ */
+public interface I{{className}}Service extends IService<{{className}}> {
+
+    /**
+     * 分页查询
+     *
+     * @param dto 查询条件
+     * @param page 页码
+     * @param limit 每页数量
+     * @return 分页结果
+     */
+    IPage<{{className}}> selectPage({{className}}DTO dto, Integer page, Integer limit);
+
+    /**
+     * 列表查询
+     *
+     * @param dto 查询条件
+     * @return 列表结果
+     */
+    List<{{className}}VO> selectList({{className}}DTO dto);
+
+    /**
+     * 根据ID查询
+     *
+     * @param {{javaField}} ID
+     * @return 详情
+     */
+    {{className}}VO selectById({{columns.[0].javaType}} {{javaField}});
+
+    /**
+     * 创建
+     *
+     * @param dto 创建数据
+     * @return 是否成功
+     */
+    boolean create({{className}}DTO dto);
+
+    /**
+     * 更新
+     *
+     * @param dto 更新数据
+     * @return 是否成功
+     */
+    boolean update({{className}}DTO dto);
+
+    /**
+     * 删除
+     *
+     * @param {{javaField}} ID
+     * @return 是否成功
+     */
+    boolean delete({{columns.[0].javaType}} {{javaField}});
+
+    /**
+     * 批量删除
+     *
+     * @param ids ID列表
+     * @return 删除数量
+     */
+    int deleteBatch(List<{{columns.[0].javaType}}> ids);
+}

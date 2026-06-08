@@ -1,0 +1,64 @@
+/**
+ * {{className}}实体
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+package {{packageName}}.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import java.io.Serializable;
+{{#if hasTree}}
+import java.util.List;
+{{/if}}
+{{#if hasMasterDetail}}
+import java.util.List;
+{{/if}}
+
+/**
+ * {{functionName}}实体
+ *
+ * @author {{author}}
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("{{tableName}}")
+public class {{className}} extends Model<{{className}}> {
+
+    private static final long serialVersionUID = 1L;
+
+{{#each columns}}
+    /** {{columnComment}} */
+{{#if isFill}}
+    @TableField(fill = FieldFill.INSERT)
+{{/if}}
+{{#if isPK}}
+    @TableId(type = IdType.{{idType}})
+{{/if}}
+    private {{javaType}} {{javaField}};
+{{/each}}
+
+{{#if hasTree}}
+    /** 子部门列表 */
+    @TableField(exist = false)
+    private List<{{className}}> children;
+{{/if}}
+
+{{#if hasMasterDetail}}
+    /** 子表列表 */
+    @TableField(exist = false)
+    private List<{{toPascalCase detailTableName}}> {{toCamelCase detailTableName}}List;
+{{/if}}
+
+    @Override
+    public Serializable pkVal() {
+{{#each columns}}
+{{#if isPK}}
+        return this.{{javaField}};
+{{/if}}
+{{/each}}
+    }
+}

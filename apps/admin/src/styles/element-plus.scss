@@ -1,0 +1,67 @@
+// Element Plus 自定义主题覆盖
+
+// 主色调
+$--colors: (
+  'primary': (
+    'base': #409eff
+  ),
+  'success': (
+    'base': #67c23a
+  ),
+  'warning': (
+    'base': #e6a23c
+  ),
+  'danger': (
+    'base': #f56c6c
+  ),
+  'info': (
+    'base': #909399
+  )
+);
+
+// 全局覆盖
+@forward 'element-plus/theme-chalk/src/common/var.scss' with (
+  $colors: $--colors
+);
+
+// 按钮圆角
+.el-button {
+  border-radius: 4px;
+}
+
+// 输入框圆角
+.el-input__wrapper {
+  border-radius: 4px;
+}
+
+// 卡片样式
+.el-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
+}
+
+// 表格样式
+.el-table {
+  border-radius: 8px;
+
+  th.el-table__cell {
+    background-color: #f5f7fa;
+    color: $color-text-primary;
+    font-weight: 600;
+  }
+}
+
+// 对话框样式
+.el-dialog {
+  border-radius: 8px;
+}
+
+// 菜单样式
+.el-menu {
+  border-right: none;
+}
+
+// 标签页样式
+.el-tabs__nav-wrap::after {
+  height: 1px;
+}

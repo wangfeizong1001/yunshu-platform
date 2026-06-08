@@ -1,0 +1,47 @@
+/**
+ * {{className}} 类型定义
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+
+{{#each columns}}
+{{#ifCond dataType '==' 'bigint'}}
+{{#if isPK}}
+/** {{className}}主键类型 */
+export type T{{className}}Id = number;
+{{/if}}
+{{/ifCond}}
+{{/each}}
+
+/** {{functionName}}查询参数 */
+export interface I{{className}}Query {
+  /** 页码 */
+  page?: number;
+  /** 每页数量 */
+  limit?: number;
+  /** 排序字段 */
+  sort?: string;
+  /** 排序方向 */
+  order?: 'asc' | 'desc';
+{{#each columns}}
+{{#if queryType}}
+  /** {{columnComment}} */
+  {{javaField}}?: {{javaType}};
+{{/if}}
+{{/each}}
+}
+
+/** {{functionName}}实体 */
+export interface I{{className}} {
+{{#each columns}}
+  /** {{columnComment}} */
+  {{javaField}}: {{javaType}};
+{{/each}}
+}
+
+/** {{functionName}}创建参数 */
+export type T{{className}}Create = Partial<I{{className}}>;
+
+/** {{functionName}}更新参数 */
+export type T{{className}}Update = Partial<I{{className}}>;

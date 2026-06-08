@@ -1,0 +1,13 @@
+{
+  "extends": "@yunshu/tsconfig/vue-tsc.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@yunshu/shared": ["../packages/shared/src"]
+    },
+    "types": ["element-plus/global"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "exclude": ["node_modules", "dist"]
+}

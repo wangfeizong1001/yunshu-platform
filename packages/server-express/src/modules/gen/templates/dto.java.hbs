@@ -1,0 +1,36 @@
+/**
+ * {{className}} DTO
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+package {{packageName}}.dto;
+
+import lombok.Data;
+import java.io.Serializable;
+{{#if hasTree}}
+import java.util.List;
+{{/if}}
+
+/**
+ * {{functionName}}数据传输对象
+ *
+ * @author {{author}}
+ */
+@Data
+public class {{className}}DTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+{{#each columns}}
+{{#unless isFill}}
+    /** {{columnComment}} */
+    private {{javaType}} {{javaField}};
+{{/unless}}
+{{/each}}
+
+{{#if hasTree}}
+    /** 子部门列表 */
+    private List<{{className}}DTO> children;
+{{/if}}
+}
