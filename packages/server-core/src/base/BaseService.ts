@@ -2,7 +2,8 @@
  * 后端核心 — BaseService 抽象类
  *
  * 提供通用 CRUD 操作的完整实现，支持：
- * - MongoDB Mongoose 集成（默认）
+ * - 多数据库适配器（通过 IRepository 接口）
+ * - PostgreSQL（默认）、MongoDB 等
  * - 软删除
  * - 分页查询
  * - 统一错误处理
@@ -17,7 +18,12 @@ import type {
   PaginatedResult,
 } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult } from '@yunshu/shared';
-import { BusinessError, ErrorCode } from '../errors/BusinessError';
+import type {
+  IRepository,
+  IEntity,
+  QueryCondition,
+} from '../repositories/IRepository';
+import { ErrorCode } from '../errors/BusinessError';
 
 // ============================================================================
 // 类型定义
@@ -48,7 +54,7 @@ export interface PaginateConfig<T = unknown> {
   /** 需要填充的关联字段 */
   populate?: string | string[];
   /** 字段选择 */
-  select?: string;
+  select?: string[];
   /** 是否包含已软删除的记录 */
   includeDeleted?: boolean;
 }
@@ -70,148 +76,93 @@ const DEFAULT_CONFIG: Required<BaseServiceConfig> = {
 /**
  * 基础服务抽象类
  *
- * @template TModel — Mongoose Model 类型
- * @template TDocument — Mongoose Document 类型
- * @template TCreateDTO — 创建 DTO 类型
- * @template TUpdateDTO — 更新 DTO 类型
+ * 基于 IRepository 接口，支持多种数据库适配器。
+ * 业务层只需继承此类即可获得完整的 CRUD 能力。
+ *
+ * @template T - 实体类型
+ * @template TId - 主键类型
  *
  * @example
  * ```typescript
- * class UserService extends BaseService<UserModel, IUser, CreateUserDTO, UpdateUserDTO> {
- *   constructor() {
- *     super(UserModel, { entityName: '用户', softDelete: true });
+ * // 定义实体接口
+ * interface IUser extends IEntity {
+ *   name: string;
+ *   email: string;
+ * }
+ *
+ * // 创建用户服务
+ * class UserService extends BaseService<IUser, string> {
+ *   constructor(repository: IRepository<IUser, string>) {
+ *     super(repository, { entityName: '用户', softDelete: true });
  *   }
  *
  *   // 自定义业务方法
- *   async findByEmail(email: string): Promise<ServiceResult<IUser>> {
- *     return this.findOne({ email });
+ *   async findByEmail(email: string): Promise<ServiceResult<IUser | null>> {
+ *     return this.repository.findOne([
+ *       { field: 'email', operator: 'eq', value: email }
+ *     ]);
  *   }
  * }
  * ```
  */
 export abstract class BaseService<
-  TModel = unknown,
-  TDocument = unknown,
-  TCreateDTO = Partial<TDocument>,
-  TUpdateDTO = Partial<TDocument>,
+  T extends IEntity = IEntity,
+  TId = string,
 > {
-  protected readonly model: TModel;
+  protected readonly repository: IRepository<T, TId>;
   protected readonly config: Required<BaseServiceConfig>;
 
-  constructor(model: TModel, config: BaseServiceConfig) {
-    this.model = model;
+  constructor(repository: IRepository<T, TId>, config: BaseServiceConfig) {
+    this.repository = repository;
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
   // ==========================================================================
-  // 抽象方法（子类必须实现）
-  // ==========================================================================
-
-  /**
-   * 构建包含软删除过滤的基础查询条件
-   */
-  protected buildBaseFilter(query: Record<string, unknown>): Record<string, unknown> {
-    if (!this.config.softDelete) return query;
-    return { ...query, [this.config.deletedAtField]: { $exists: false } };
-  }
-
-  // ==========================================================================
-  // CRUD 标准实现
+  // 便捷方法（代理到 Repository）
   // ==========================================================================
 
   /**
    * 根据 ID 查找
    */
-  async findById(id: string): Promise<ServiceResult<TDocument>> {
-    try {
-      const filter = this.buildBaseFilter({ _id: id });
-      const doc = await (this.model as any).findOne(filter);
-
-      if (!doc) {
-        return createErrorResult(
-          ErrorCode.NOT_FOUND,
-          `${this.config.entityName}不存在`,
-        );
-      }
-
-      return createSuccessResult(doc as TDocument);
-    } catch (error) {
-      return this.handleError(error);
-    }
+  async findById(id: TId): Promise<ServiceResult<T | null>> {
+    return this.repository.findById(id);
   }
 
   /**
    * 查找全部
    */
-  async findAll(query: Record<string, unknown> = {}): Promise<ServiceResult<TDocument[]>> {
-    try {
-      const filter = this.buildBaseFilter(query);
-      const docs = await (this.model as any).find(filter);
-      return createSuccessResult(docs as TDocument[]);
-    } catch (error) {
-      return this.handleError(error);
-    }
+  async findAll(
+    query: Record<string, unknown> = {},
+  ): Promise<ServiceResult<T[]>> {
+    const conditions = this.buildConditions(query);
+    return this.repository.findAll({
+      where: conditions,
+      useSoftDeleteFilter: this.config.softDelete,
+    });
   }
 
   /**
    * 创建
    */
-  async create(data: TCreateDTO): Promise<ServiceResult<TDocument>> {
-    try {
-      const doc = await (this.model as any).create(data);
-      return createSuccessResult(doc as TDocument, `${this.config.entityName}创建成功`);
-    } catch (error) {
-      return this.handleError(error);
-    }
+  async create(data: Partial<T>): Promise<ServiceResult<T>> {
+    return this.repository.create(data);
   }
 
   /**
    * 更新
    */
-  async update(id: string, data: TUpdateDTO): Promise<ServiceResult<TDocument>> {
-    try {
-      const filter = this.buildBaseFilter({ _id: id });
-      const doc = await (this.model as any).findOneAndUpdate(filter, data, {
-        new: true,
-        runValidators: true,
-      });
-
-      if (!doc) {
-        return createErrorResult(
-          ErrorCode.NOT_FOUND,
-          `${this.config.entityName}不存在`,
-        );
-      }
-
-      return createSuccessResult(doc as TDocument, `${this.config.entityName}更新成功`);
-    } catch (error) {
-      return this.handleError(error);
-    }
+  async update(id: TId, data: Partial<T>): Promise<ServiceResult<T>> {
+    return this.repository.update(id, data);
   }
 
   /**
-   * 删除（支持软删除）
+   * 删除（根据配置决定硬删除或软删除）
    */
-  async delete(id: string): Promise<ServiceResult<boolean>> {
-    try {
-      if (this.config.softDelete) {
-        return this.softDeleteById(id);
-      }
-
-      const filter = this.buildBaseFilter({ _id: id });
-      const result = await (this.model as any).deleteOne(filter);
-
-      if (result.deletedCount === 0) {
-        return createErrorResult(
-          ErrorCode.NOT_FOUND,
-          `${this.config.entityName}不存在`,
-        );
-      }
-
-      return createSuccessResult(true, `${this.config.entityName}删除成功`);
-    } catch (error) {
-      return this.handleError(error);
+  async delete(id: TId): Promise<ServiceResult<boolean>> {
+    if (this.config.softDelete) {
+      return this.repository.softDelete(id);
     }
+    return this.repository.delete(id);
   }
 
   // ==========================================================================
@@ -221,40 +172,28 @@ export abstract class BaseService<
   /**
    * 根据条件查找单个
    */
-  async findOne(query: Record<string, unknown>): Promise<ServiceResult<TDocument | null>> {
-    try {
-      const filter = this.buildBaseFilter(query);
-      const doc = await (this.model as any).findOne(filter);
-      return createSuccessResult(doc as TDocument | null);
-    } catch (error) {
-      return this.handleError(error);
-    }
+  async findOne(
+    query: Record<string, unknown>,
+  ): Promise<ServiceResult<T | null>> {
+    const conditions = this.buildConditions(query);
+    return this.repository.findOne(conditions);
   }
 
   /**
    * 统计数量
    */
   async count(query: Record<string, unknown> = {}): Promise<ServiceResult<number>> {
-    try {
-      const filter = this.buildBaseFilter(query);
-      const count = await (this.model as any).countDocuments(filter);
-      return createSuccessResult(count);
-    } catch (error) {
-      return this.handleError(error);
-    }
+    const conditions = this.buildConditions(query);
+    return this.repository.count(conditions, {
+      includeDeleted: false,
+    });
   }
 
   /**
    * 检查是否存在
    */
-  async exists(id: string): Promise<ServiceResult<boolean>> {
-    try {
-      const filter = this.buildBaseFilter({ _id: id });
-      const result = await (this.model as any).exists(filter);
-      return createSuccessResult(!!result);
-    } catch (error) {
-      return this.handleError(error);
-    }
+  async exists(id: TId): Promise<ServiceResult<boolean>> {
+    return this.repository.exists(id);
   }
 
   /**
@@ -262,71 +201,49 @@ export abstract class BaseService<
    */
   async findWithPagination(
     params: PaginationParams,
-    config: PaginateConfig<TDocument> = {},
-  ): Promise<ServiceResult<PaginatedResult<TDocument>>> {
-    try {
-      const {
-        filter = {},
-        allowedSortFields = ['createdAt', 'updatedAt'],
-        defaultSort = 'createdAt',
-        populate,
-        select,
-        includeDeleted = false,
-      } = config;
+    config: PaginateConfig<T> = {},
+  ): Promise<ServiceResult<PaginatedResult<T>>> {
+    const {
+      filter = {},
+      allowedSortFields = ['createdAt', 'updatedAt'],
+      defaultSort = 'createdAt',
+      populate,
+      select,
+      includeDeleted = false,
+    } = config;
 
-      const page = params.page ?? 1;
-      const limit = Math.min(params.limit ?? 10, 100);
-      const skip = (page - 1) * limit;
+    // 构建查询条件
+    const conditions = this.buildConditions(filter);
 
-      // 构建查询条件
-      const queryFilter = includeDeleted
-        ? filter
-        : { ...filter, ...(this.config.softDelete ? { [this.config.deletedAtField]: { $exists: false } } : {}) };
+    // 安全排序（白名单）
+    const sortField = params.sort && allowedSortFields.includes(params.sort)
+      ? params.sort
+      : defaultSort;
 
-      // 安全排序（白名单）
-      const sortField = params.sort && allowedSortFields.includes(params.sort)
-        ? params.sort
-        : defaultSort;
-      const sortOrder = params.order === 'asc' ? 1 : -1;
-      const sort = { [sortField]: sortOrder };
+    // 转换排序字段为数据库字段名
+    const dbSortField = this.toDbFieldName(sortField);
 
-      // 并行查询
-      let queryChain = (this.model as any)
-        .find(queryFilter)
-        .skip(skip)
-        .limit(limit)
-        .sort(sort);
+    // 转换关联查询配置
+    const populateConfigs = populate
+      ? this.buildPopulateConfigs(populate)
+      : undefined;
 
-      if (select) queryChain = queryChain.select(select);
-      if (populate) {
-        if (Array.isArray(populate)) {
-          for (const p of populate) queryChain = queryChain.populate(p);
-        } else {
-          queryChain = queryChain.populate(populate);
-        }
-      }
+    // 转换字段选择
+    const selectFields = select
+      ? select.map((f) => this.toDbFieldName(f))
+      : undefined;
 
-      const [data, total] = await Promise.all([
-        queryChain.exec(),
-        (this.model as any).countDocuments(queryFilter),
-      ]);
-
-      const totalPages = Math.ceil(total / limit) || 1;
-
-      return createSuccessResult({
-        data: data as TDocument[],
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasPrev: page > 1,
-          hasNext: page < totalPages,
-        },
-      });
-    } catch (error) {
-      return this.handleError(error);
-    }
+    return this.repository.findWithPagination(params, {
+      where: conditions,
+      orderBy: {
+        field: dbSortField,
+        order: params.order === 'asc' ? 'asc' : 'desc',
+      },
+      populate: populateConfigs,
+      select: selectFields,
+      includeDeleted,
+      useSoftDeleteFilter: this.config.softDelete,
+    });
   }
 
   // ==========================================================================
@@ -336,95 +253,154 @@ export abstract class BaseService<
   /**
    * 软删除
    */
-  private async softDeleteById(id: string): Promise<ServiceResult<boolean>> {
-    const filter = this.buildBaseFilter({ _id: id });
-    const updateData = { [this.config.deletedAtField]: new Date() };
-
-    const result = await (this.model as any).updateOne(filter, updateData);
-
-    if (result.matchedCount === 0) {
-      return createErrorResult(ErrorCode.NOT_FOUND, `${this.config.entityName}不存在`);
-    }
-
-    return createSuccessResult(true, `${this.config.entityName}已删除`);
+  async softDelete(id: TId): Promise<ServiceResult<boolean>> {
+    return this.repository.softDelete(id);
   }
 
   /**
    * 恢复软删除
    */
-  async restore(id: string): Promise<ServiceResult<TDocument>> {
-    try {
-      const updateData = { $unset: { [this.config.deletedAtField]: 1 } };
-      const doc = await (this.model as any).findByIdAndUpdate(id, updateData, { new: true });
-
-      if (!doc) {
-        return createErrorResult(ErrorCode.NOT_FOUND, `${this.config.entityName}不存在`);
-      }
-
-      return createSuccessResult(doc as TDocument, `${this.config.entityName}已恢复`);
-    } catch (error) {
-      return this.handleError(error);
-    }
+  async restore(id: TId): Promise<ServiceResult<T>> {
+    return this.repository.restore(id);
   }
 
   // ==========================================================================
-  // 错误处理
+  // 批量操作
   // ==========================================================================
 
   /**
-   * 统一错误处理 — 将各种错误转为 ServiceResult 格式
+   * 批量创建
+   */
+  async createMany(data: Partial<T>[]): Promise<ServiceResult<T[]>> {
+    return this.repository.createMany(data);
+  }
+
+  /**
+   * 批量更新
+   */
+  async updateMany(
+    filter: Record<string, unknown>,
+    data: Partial<T>,
+  ): Promise<ServiceResult<number>> {
+    const conditions = this.buildConditions(filter);
+    return this.repository.updateMany(conditions, data);
+  }
+
+  /**
+   * 批量删除
+   */
+  async deleteMany(ids: TId[]): Promise<ServiceResult<number>> {
+    if (this.config.softDelete) {
+      let count = 0;
+      for (const id of ids) {
+        const result = await this.repository.softDelete(id);
+        if (result.success && result.data) count++;
+      }
+      return createSuccessResult(count);
+    }
+    return this.repository.deleteMany(ids);
+  }
+
+  // ==========================================================================
+  // 辅助方法
+  // ==========================================================================
+
+  /**
+   * 将查询对象转换为条件数组
+   */
+  protected buildConditions(
+    query: Record<string, unknown>,
+  ): QueryCondition[] {
+    const conditions: QueryCondition[] = [];
+
+    for (const [key, value] of Object.entries(query)) {
+      // 跳过特殊字段
+      if (key.startsWith('$')) continue;
+
+      if (value === null) {
+        conditions.push({
+          field: key,
+          operator: 'isNull',
+          value: null,
+        });
+      } else if (Array.isArray(value)) {
+        conditions.push({
+          field: key,
+          operator: 'in',
+          value,
+        });
+      } else {
+        conditions.push({
+          field: key,
+          operator: 'eq',
+          value,
+        });
+      }
+    }
+
+    return conditions;
+  }
+
+  /**
+   * 转换字段名为数据库格式
+   *
+   * 默认将 camelCase 转换为 snake_case，
+   * 子类可覆盖此方法以适应特定数据库。
+   */
+  protected toDbFieldName(field: string): string {
+    return field.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+  }
+
+  /**
+   * 转换数据库字段名为实体格式
+   */
+  protected toEntityFieldName(field: string): string {
+    return field.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
+  /**
+   * 构建关联查询配置
+   */
+  protected buildPopulateConfigs(
+    populate: string | string[],
+  ): { path: string; select?: string }[] {
+    const paths = Array.isArray(populate) ? populate : [populate];
+    return paths.map((path) => ({
+      path,
+      // 默认选择所有字段，子类可自定义
+      select: undefined,
+    }));
+  }
+
+  /**
+   * 获取实体名称
+   */
+  protected getEntityName(): string {
+    return this.config.entityName;
+  }
+
+  /**
+   * 统一错误处理
+   *
+   * 将各种错误转为 ServiceResult 格式。
+   * 子类可覆盖此方法以处理特定错误。
    */
   protected handleError<T>(error: unknown): ServiceResult<T> {
-    if (error instanceof BusinessError) {
-      return {
-        success: false,
-        error: { code: error.code, message: error.message, details: error.details },
-        message: error.message,
-      };
-    }
-
     if (error instanceof Error) {
-      // Mongoose ValidationError
-      if (error.name === 'ValidationError') {
-        return {
-          success: false,
-          error: {
-            code: ErrorCode.VALIDATION_ERROR,
-            message: `数据校验失败: ${error.message}`,
-          },
-          message: '数据校验失败',
-        };
+      // 唯一性约束冲突
+      if ('code' in error) {
+        const pgError = error as { code: string };
+        if (pgError.code === '23505') {
+          return createErrorResult(
+            ErrorCode.CONFLICT,
+            `${this.config.entityName}已存在`,
+          );
+        }
       }
 
-      // Mongoose CastError（无效 ID 等）
-      if (error.name === 'CastError') {
-        return {
-          success: false,
-          error: {
-            code: ErrorCode.VALIDATION_ERROR,
-            message: `参数格式错误: ${error.message}`,
-          },
-          message: '参数格式错误',
-        };
-      }
-
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.UNKNOWN_ERROR,
-          message: error.message,
-        },
-        message: error.message,
-      };
+      return createErrorResult(ErrorCode.UNKNOWN_ERROR, error.message);
     }
 
-    return {
-      success: false,
-      error: {
-        code: ErrorCode.UNKNOWN_ERROR,
-        message: '未知错误',
-      },
-      message: '未知错误',
-    };
+    return createErrorResult(ErrorCode.UNKNOWN_ERROR, '未知错误');
   }
 }

@@ -2,6 +2,7 @@
  * 云枢中台 — 后端核心基础设施
  *
  * 框架无关的后端公共层，可与 Express、NestJS、Fastify 等任意框架配合。
+ * 默认使用 PostgreSQL 作为数据库，通过 IRepository 接口支持多种数据库适配器。
  *
  * @module @yunshu/server-core
  */
@@ -11,6 +12,50 @@
 // ============================================================================
 
 export { BusinessError, ErrorCode, getStatusCodeByErrorCode } from './errors/BusinessError';
+
+// ============================================================================
+// 数据访问层
+// ============================================================================
+
+// 接口定义
+export type {
+  IEntity,
+  ISoftDelete,
+  QueryOperator,
+  QueryCondition,
+  SortConfig,
+  PopulateConfig,
+  QueryConfig,
+  IRepository,
+  IRepositoryFactory,
+  IQueryBuilder,
+} from './repositories/IRepository';
+
+// PostgreSQL 实现
+export { PostgresRepository } from './repositories/PostgresRepository';
+export type { PostgresRepositoryConfig } from './repositories/PostgresRepository';
+
+export { PostgresQueryBuilder } from './repositories/PostgresQueryBuilder';
+export type { PostgresQueryBuilderConfig } from './repositories/PostgresQueryBuilder';
+
+// ============================================================================
+// 数据库连接
+// ============================================================================
+
+export {
+  PostgresClientManager,
+  getPostgresPool,
+  isPostgresAvailable,
+  initPostgres,
+  closePostgres,
+  withTransaction,
+} from './database/PostgresClient';
+
+export type {
+  PostgresConfig,
+  PostgresHealthCheckResult,
+  TransactionOptions,
+} from './database/PostgresClient';
 
 // ============================================================================
 // BaseService
