@@ -8,10 +8,6 @@ import type { IOperlog, IOperlogQuery, IOperlogCreate } from '@yunshu/shared';
 import type { ServiceResult, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult, createPaginatedResult } from '@yunshu/shared';
 import { ErrorCode } from '../../errors/BusinessError';
-import { BaseService } from '../../base/BaseService';
-
-interface OperlogModel {
-}
 
 function createInitialData(): IOperlog[] {
   const data: IOperlog[] = [];
@@ -47,11 +43,10 @@ function compareValues(aVal: unknown, bVal: unknown, sortOrder: number): number 
   return 0;
 }
 
-export class OperlogService extends BaseService<OperlogModel, IOperlog, IOperlogCreate, Partial<IOperlog>> {
+export class OperlogService {
   private mockData: IOperlog[];
 
   constructor() {
-    super({} as OperlogModel, { entityName: '操作日志', softDelete: false });
     this.mockData = createInitialData();
   }
 

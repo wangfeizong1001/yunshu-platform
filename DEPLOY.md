@@ -97,6 +97,36 @@ apps/
 | 生产 | `.env.production` | 生产环境专用 |
 | 本地覆盖 | `.env.production.local` | 本地生产环境覆盖（不提交到版本控制） |
 
+### 数据库与缓存环境变量
+
+项目采用 **PostgreSQL 16 + Redis 7** 架构，在 `packages/server-express/.env.production` 中配置：
+
+```bash
+# ============================================================
+# PostgreSQL 配置
+# ============================================================
+DB_HOST=your-db-host
+DB_PORT=5432
+DB_NAME=yunshu
+DB_USER=yunshu
+DB_PASSWORD=your-secure-password
+DB_POOL_MIN=2
+DB_POOL_MAX=20
+DB_CONNECTION_TIMEOUT=30000
+DB_IDLE_TIMEOUT=30000
+
+# ============================================================
+# Redis 配置
+# ============================================================
+REDIS_HOST=your-redis-host
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+REDIS_MAX_RETRIES=3
+REDIS_RETRY_DELAY_MS=1000
+REDIS_TTL_SECONDS=300
+```
+
 ### 生产环境变量（admin 应用）
 
 创建 `apps/admin/.env.production`：
@@ -136,6 +166,9 @@ VITE_PUBLIC_PATH=/
 | `VITE_SENTRY_DSN` | Sentry DSN | `https://xxx@sentry.io/xxx` |
 | `VITE_SENTRY_ENVIRONMENT` | Sentry 环境 | `production` |
 | `VITE_PUBLIC_PATH` | 公共资源路径 | `/` 或 `/admin/` |
+| `DB_HOST` | PostgreSQL 主机 | `postgres`（Docker 内部） |
+| `DB_NAME` | PostgreSQL 数据库名 | `yunshu` |
+| `REDIS_HOST` | Redis 主机 | `redis`（Docker 内部） |
 
 ## 构建流程
 
@@ -463,315 +496,204 @@ netlify deploy --prod
 
 ## 容器化部署
 
+项目已内置 `docker-compose.yml`，包含完整的 PostgreSQL 16 + Redis 7 + Backend + Admin 服务编排，无需手动配置即可启动。
+
 ### Docker Compose 部署
 
-#### 1. 完整 docker-compose.yml
+#### 1. 项目内置的 docker-compose.yml
 
-创建项目根目录下的 `docker-compose.yml`：
+项目根目录下 `docker-compose.yml` 包含 4 个服务：
+
+| 服务 | 镜像 | 端口 | 说明 |
+|------|------|------|------|
+| postgres | `postgres:16-alpine` | `5432:5432` | 主数据库，含健康检查 |
+| redis | `redis:7-alpine` | `6379:6379` | 缓存与分布式锁，含健康检查 |
+| backend | 本地 Dockerfile 构建 | `8080:8080` | Express API 服务 |
+| admin | 本地 Dockerfile 构建 | `80:80` | 管理前端 |
+
+#### 2. 服务编排说明
 
 ```yaml
-# docker-compose.yml
-version: '3.8'
+# postgres：业务数据持久化
+postgres:
+  image: postgres:16-alpine
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U yunshu -d yunshu"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
 
-services:
-  # 前端应用
-  admin:
-    build:
-      context: .
-      dockerfile: Dockerfile.admin
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - api
-    networks:
-      - yunshu-network
-    restart: unless-stopped
+# redis：缓存与分布式锁
+redis:
+  image: redis:7-alpine
+  healthcheck:
+    test: ["CMD", "redis-cli", "ping"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
 
-  # API 服务
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgres://yunshu:yunshupassword@db:5432/yunshu
-      - REDIS_URL=redis://cache:6379
-    depends_on:
-      db:
-        condition: service_healthy
-      cache:
-        condition: service_started
-    networks:
-      - yunshu-network
-    restart: unless-stopped
+# backend：依赖 PostgreSQL 与 Redis 健康检查通过后才启动
+backend:
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 40s
 
-  # 数据库
-  db:
-    image: postgres:16-alpine
-    environment:
-      - POSTGRES_DB=yunshu
-      - POSTGRES_USER=${POSTGRES_USER:-yunshu}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-yunshupassword}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    ports:
-      - "5432:5432"
-    networks:
-      - yunshu-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U yunshu -d yunshu"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # Redis 缓存
-  cache:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - yunshu-network
-    command: redis-server --appendonly yes
-    restart: unless-stopped
-
-  # Nginx 反向代理
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "8080:80"
-      - "8443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - admin
-      - api
-    networks:
-      - yunshu-network
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
-  redis_data:
-
-networks:
-  yunshu-network:
-    driver: bridge
+# admin：依赖 backend 健康检查通过后才启动
+admin:
+  depends_on:
+    backend:
+      condition: service_healthy
 ```
 
-#### 2. Dockerfile.admin（前端应用）
-
-```dockerfile
-# Dockerfile.admin
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-# 安装 pnpm
-npm install -g pnpm
-
-# 复制依赖文件
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-
-# 复制源码
-COPY . .
-
-# 构建应用
-RUN pnpm build --filter=@yunshu/admin
-
-# 生产镜像
-FROM nginx:alpine
-
-# 复制构建产物
-COPY --from=builder /app/apps/admin/dist /usr/share/nginx/html
-
-# 复制 Nginx 配置
-COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
-
-# 暴露端口
-EXPOSE 80 443
-
-# 启动 Nginx
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-#### 3. Dockerfile.api（API 服务）
-
-```dockerfile
-# Dockerfile.api
-FROM node:20-alpine
-
-WORKDIR /app
-
-# 创建非 root 用户
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-
-# 安装依赖
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
-
-# 复制源码
-COPY . .
-
-# 设置用户
-RUN chown -R nodejs:nodejs /app
-
-USER nodejs
-
-# 暴露端口
-EXPOSE 3000
-
-# 启动服务
-CMD ["node", "server/index.js"]
-```
-
-#### 4. nginx.conf（反向代理配置）
-
-```nginx
-# nginx.conf
-events {
-    worker_connections 1024;
-}
-
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
-
-    # 日志格式
-    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-                    '$status $body_bytes_sent "$http_referer" '
-                    '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log /var/log/nginx/access.log main;
-    error_log /var/log/nginx/error.log warn;
-
-    # 性能优化
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    keepalive_timeout 65;
-    types_hash_max_size 2048;
-
-    # Gzip 压缩
-    gzip on;
-    gzip_vary on;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript
-               application/json application/javascript application/xml+rss;
-
-    # 上游服务
-    upstream admin {
-        server admin:80;
-    }
-
-    upstream api {
-        server api:3000;
-    }
-
-    server {
-        listen 80;
-        server_name localhost;
-
-        # 前端应用
-        location / {
-            proxy_pass http://admin;
-            proxy_http_version 1.1;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        # API 服务
-        location /api {
-            proxy_pass http://api;
-            proxy_http_version 1.1;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-
-            # 超时设置
-            proxy_connect_timeout 60s;
-            proxy_send_timeout 60s;
-            proxy_read_timeout 60s;
-        }
-
-        # WebSocket
-        location /ws {
-            proxy_pass http://api;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-            proxy_set_header Host $host;
-        }
-    }
-}
-```
-
-#### 5. 环境变量文件
-
-创建 `.env` 文件：
+#### 3. 快速启动
 
 ```bash
-# 数据库
-POSTGRES_USER=yunshu
-POSTGRES_PASSWORD=your_password
-POSTGRES_DB=yunshu
+# 克隆项目
+git clone https://github.com/wangfeizong1001/yunshu-platform.git
+cd yunshu-platform
 
-# Redis
-REDIS_PASSWORD=your_redis_password
-
-# API
-NODE_ENV=production
-DATABASE_URL=postgres://yunshu:your_password@db:5432/yunshu
-```
-
-#### 6. 启动和管理
-
-```bash
-# 启动所有服务
+# 使用 Docker Compose 一键启动
 docker-compose up -d
-
-# 带日志启动
-docker-compose up -d
-
-# 查看日志
-docker-compose logs -f
-docker-compose logs -f admin
 
 # 查看服务状态
 docker-compose ps
 
-# 停止服务
+# 查看日志
+docker-compose logs -f
+
+# 停止并清理
 docker-compose down
-
-# 停止并删除数据卷
-docker-compose down -v
-
-# 重启服务
-docker-compose restart
-docker-compose restart admin
-
-# 重新构建
-docker-compose build --no-cache
-docker-compose up -d
-
-# 进入容器调试
-docker-compose exec admin sh
-docker-compose exec api sh
 ```
+
+#### 4. 访问地址
+
+| 服务 | 地址 |
+|------|------|
+| 管理后台 | http://localhost |
+| API 服务 | http://localhost:8080 |
+| PostgreSQL | `localhost:5432`（仅开发，生产不建议暴露） |
+| Redis | `localhost:6379`（仅开发，生产不建议暴露） |
+
+#### 5. 生产环境建议配置
+
+将 `docker-compose.yml` 中以下内容替换为生产安全配置：
+
+```yaml
+# 移除端口暴露（仅通过 admin/反向代理访问）
+# ports:
+#   - "5432:5432"   ← 注释掉
+
+# 使用环境变量文件（不写在 docker-compose.yml 中）
+environment:
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}   # 从 .env 文件读取
+
+# 使用外部持久卷
+volumes:
+  - /data/yunshu-postgres:/var/lib/postgresql/data
+  - /data/yunshu-redis:/data
+```
+
+### Dockerfile 说明
+
+#### 后端服务 Dockerfile
+
+项目根目录 `Dockerfile` 用于构建 backend 服务：
+
+```dockerfile
+# 多阶段构建，从源码构建生产镜像
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production=false && npm run build:server
+
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+EXPOSE 8080
+CMD ["node", "dist/server.js"]
+```
+
+#### 管理前端 Dockerfile
+
+`apps/admin/Dockerfile` 用于构建 admin 服务：
+
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY apps/admin/package*.json ./
+RUN npm install
+COPY apps/admin .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+### 数据库初始化
+
+#### 使用模板生成初始化脚本
+
+```bash
+# 使用代码生成器生成建表 SQL
+cd packages/server-express
+pnpm gen:sql
+
+# 将生成的 SQL 复制到初始化目录
+cp src/modules/gen/output/init.sql docker/postgres/init/
+
+# 重启 postgres 服务以自动执行初始化
+docker-compose restart postgres
+```
+
+#### 手动初始化
+
+```bash
+# 连接到 PostgreSQL 容器
+docker exec -it yunshu-postgres psql -U yunshu -d yunshu
+
+# 执行 SQL
+\i /docker-entrypoint-initdb.d/init.sql
+```
+
+### Redis 配置优化
+
+生产环境建议对 Redis 做以下配置：
+
+```bash
+# 在 docker-compose.yml 的 redis 服务中
+command: >
+  redis-server
+  --appendonly yes
+  --maxmemory 1gb
+  --maxmemory-policy allkeys-lru
+  --requirepass ${REDIS_PASSWORD}
+```
+
+## 部署前检查清单
+
+| 阶段 | 检查项 | 命令 |
+|------|--------|------|
+| 依赖 | pnpm 版本 >= 9 | `pnpm -v` |
+| 依赖 | Node.js 版本 >= 20 | `node -v` |
+| 数据库 | PostgreSQL 16 可用 | `psql --version` |
+| 数据库 | PostgreSQL 可访问 | `pg_isready -U yunshu -d yunshu` |
+| 缓存 | Redis 7 可用 | `redis-cli ping` |
+| 环境变量 | 所有必需变量已设置 | `env \| grep -E "DB_\|REDIS_"` |
+| 构建 | 构建成功无错误 | `pnpm build` |
+| 测试 | 单元测试通过 | `pnpm test` |
+| 健康检查 | 服务健康端点 | `curl http://localhost:8080/health` |
 
 ## 持续集成/部署
 

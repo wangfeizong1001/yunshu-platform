@@ -626,6 +626,246 @@ const router = createRouter({
 export default router;
 ```
 
+## 数据库开发
+
+### 数据库架构
+
+项目采用 **PostgreSQL 16** + **Redis 7** 的数据架构：
+
+| 组件 | 版本 | 用途 |
+|------|------|------|
+| PostgreSQL | 16.x | 主数据库，存储业务数据、权限配置、日志等 |
+| Redis | 7.x | 二级缓存、分布式锁、会话缓存、布隆过滤器 |
+
+### 环境变量配置
+
+在 packages/server-express/.env.production 或 .env.development 中配置：
+
+```bash
+# PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=yunshu
+DB_USER=yunshu
+DB_PASSWORD=yunshupassword
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+REDIS_MAX_RETRIES=3
+REDIS_RETRY_DELAY_MS=1000
+```
+
+### PostgreSQL 开发规范
+
+#### 连接管理
+
+`PostgresClientManager` 提供单例连接池管理，推荐使用统一入口：
+
+```typescript
+import { PostgresClientManager } from '@yunshu/server-core';
+
+const pool = PostgresClientManager.getInstance().getPool();
+const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+```
+
+#### Repository 模式
+
+数据访问通过 `IRepository` 接口，PostgreSQL 具体实现由 `PostgresRepository` 提供：
+
+```typescript
+interface IRepository<T, TId> {
+  findById(id: TId): Promise<T | null>;
+  findAll(filter?: Record<string, unknown>): Promise<T[]>;
+  create(entity: Omit<T, 'id'>): Promise<T>;
+  update(id: TId, data: Partial<T>): Promise<T>;
+  delete(id: TId): Promise<boolean>;
+}
+```
+
+#### BaseService 基础服务
+
+所有业务服务继承自 `BaseService<T, TId>`，获得通用 CRUD 能力：
+
+```typescript
+import { BaseService } from '@yunshu/server-core';
+import { PostgresRepository } from '@yunshu/server-core/repositories/PostgresRepository';
+
+class UserService extends BaseService<IUser, string> {
+  constructor() {
+    super('users', new PostgresRepository(pool, 'users'));
+  }
+
+  async findByUsername(username: string): Promise<IUser | null> {
+    return this.repository.findOne({ username });
+  }
+}
+```
+
+#### 错误处理
+
+`errorHandler` 中间件统一处理 PostgreSQL 错误，自动识别：
+
+| 错误码 | 场景 | HTTP 状态码 |
+|--------|------|------------|
+| 23505 | 唯一键冲突（字段重复） | 409 |
+| 23503 | 外键约束（关联数据不存在） | 409 |
+| 23502 | 非空约束（必填字段为空） | 400 |
+| 22P02 | 类型转换错误 | 400 |
+| 42P01 | 表不存在 | 500 |
+| 28P01 | 认证失败 | 500 |
+
+在 Controller 层无需手动捕获，只需抛出业务错误：
+
+```typescript
+import { AppError, errorHandler } from '@yunshu/server-express/middlewares/errorHandler';
+
+try {
+  await userService.create(data);
+} catch (err) {
+  // 统一交由 errorHandler 处理
+  throw new AppError('业务逻辑错误', 400);
+}
+```
+
+### 代码生成器
+
+项目内置基于模板的代码生成器，可一键生成 PostgreSQL 表结构：
+
+```bash
+# 生成数据库表 SQL + 前后端代码
+pnpm gen
+
+# 仅生成 SQL
+pnpm gen:sql
+```
+
+模板定义位于 `packages/server-express/src/modules/gen/templates/sql.hbs`，支持：
+
+- 主键定义（`id` + `PRIMARY KEY`）
+- 索引创建（`CREATE INDEX`）
+- 注释（`COMMENT ON`）
+- 字段类型推断（从 JSON 配置映射到 PostgreSQL 类型）
+
+### SQL 编写规范
+
+1. **标识符使用双引号**：`"user"`、`"username"`
+2. **字符串使用单引号**：`'text value'`
+3. **命名规范**：小写 + 下划线（snake_case），如 `user_login_log`
+4. **必填字段**：`id`、`created_at`、`updated_at`、`is_deleted`
+5. **软删除**：使用 `is_deleted` 标志，避免真实删除
+
+### Redis 缓存开发
+
+#### Redis 连接管理器
+
+使用单例 `RedisClientManager` 管理连接：
+
+```typescript
+import { RedisClientManager, getRedisClient } from '@yunshu/server-core/cache/RedisClient';
+
+// 健康检查
+const health = RedisClientManager.getInstance().healthCheck();
+console.log('Redis 状态:', health.status, '响应时间(ms):', health.latency);
+
+// 获取原生客户端
+const redis = getRedisClient();
+await redis.set('key', 'value', 'EX', 3600);
+```
+
+#### 二级缓存装饰器
+
+在 Service 层使用 `cacheable` 装饰器声明缓存策略：
+
+```typescript
+import { cacheable } from '@yunshu/server-core/cache/CacheDecorator';
+
+class UserService extends BaseService<IUser, string> {
+  // 启用二级缓存，L1 30s / L2 300s / 布隆过滤器防穿透
+  @cacheable({
+    keyPrefix: 'user:byId',
+    ttl: 300,
+    ttlJitter: 30,
+    enableL1: true,
+    l1Ttl: 30,
+    enableBloomFilter: true,
+    cacheNull: true,
+  })
+  async findById(id: string): Promise<IUser | null> {
+    return super.findById(id);
+  }
+}
+```
+
+#### 缓存统计与监控
+
+```typescript
+import { getCacheReport } from '@yunshu/server-core/cache/CacheDecorator';
+
+const report = getCacheReport('user:byId');
+console.log('缓存命中率:', report.hitRate);
+console.log('L1 命中数:', report.stats.l1Hits);
+console.log('L2 命中数:', report.stats.l2Hits);
+console.log('布隆过滤命中数:', report.stats.bloomFiltered);
+```
+
+#### 分布式锁
+
+使用 Redis 分布式锁保护热点数据更新：
+
+```typescript
+import { acquireLock } from '@yunshu/server-core/cache/DistributedLock';
+
+const lock = await acquireLock('user:balance:update:123', {
+  ttl: 5000,      // 锁有效期 5s
+  retries: 3,     // 重试 3 次
+  retryDelay: 100,// 每次间隔 100ms
+});
+
+if (lock) {
+  try {
+    // 业务操作...
+  } finally {
+    await lock.release();
+  }
+}
+```
+
+#### 缓存预热
+
+在服务启动阶段通过 `WarmupManager` 预加载热点数据到缓存：
+
+```typescript
+import { WarmupManager } from '@yunshu/server-core/cache/CacheWarmup';
+
+const manager = new WarmupManager({ autoStart: true, startupDelay: 1000 });
+
+manager.register({
+  name: 'hot-users',
+  handler: async () => {
+    const users = await userService.findHotUsers(100);
+    // 写入缓存...
+  },
+  priority: 1,
+  interval: 60000, // 每分钟刷新
+});
+
+await manager.start();
+```
+
+## 缓存开发最佳实践
+
+| 场景 | 推荐策略 |
+|------|---------|
+| 高频读 + 低频写 | 启用 L1 + L2 双层缓存 |
+| 热点键并发更新 | 分布式锁 + 热点键保护（hotKeyThreshold） |
+| 防止缓存穿透 | 布隆过滤器 + null 缓存 |
+| 防止缓存雪崩 | TtlJitter 随机化过期时间 |
+| 冷启动场景 | WarmupManager 预热热点数据 |
+| 短周期临时缓存 | 直接操作 Redis 原生客户端 |
+
 ## 组件开发
 
 ### Element Plus 组件使用规范

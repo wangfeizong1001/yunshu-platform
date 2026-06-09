@@ -30,7 +30,7 @@ export async function acquireLock(
   key: string,
   options: LockOptions = {},
 ): Promise<LockInstance | null> {
-  const { ttl = 30000, retries = 0, retryDelay = 100, reentrant = false } = options;
+  const { ttl = 30000, retries = 0, retryDelay = 100 } = options;
 
   if (!isRedisAvailable()) {
     // 降级：返回本地锁

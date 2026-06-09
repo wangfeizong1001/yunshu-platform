@@ -5,13 +5,9 @@
  */
 
 import os from 'os';
-import type { IServer } from '@yunshu/shared';
+import type { IServer, IJvmInfo, ICpuInfo, IMemoryInfo, IDiskInfo } from '@yunshu/shared';
 import type { ServiceResult } from '@yunshu/shared';
 import { createSuccessResult } from '@yunshu/shared';
-import { BaseService } from '../../base/BaseService';
-
-interface ServerModel {
-}
 
 /**
  * 获取服务器监控信息
@@ -50,27 +46,25 @@ function getServerInfo(): IServer {
     diskUsage: Math.round(diskUsage * 100) / 100,
     bootTime: new Date(Date.now() - uptime * 1000).toISOString(),
     uptime: Math.round(uptime),
-    jvm: 'OpenJDK 17.0.9',
-    javaVersion: '17.0.9',
-    database: 'PostgreSQL 16.1',
-    databaseVersion: '16.1',
+    jvm: 'Node.js ' + process.versions.node,
+    javaVersion: process.versions.node,
+    database: 'PostgreSQL 16',
+    databaseVersion: '16',
     projectPath: '/app/yunshu-platform',
     hostName: os.hostname(),
     collectTime: new Date().toISOString(),
   };
 }
 
-export class ServerService extends BaseService<ServerModel, IServer, Partial<IServer>, Partial<IServer>> {
-  constructor() {
-    super({} as ServerModel, { entityName: '服务器监控', softDelete: false });
-  }
+export class ServerService {
+  constructor() {}
 
   async getServerInfo(): Promise<ServiceResult<IServer>> {
     const info = getServerInfo();
     return createSuccessResult(info);
   }
 
-  async getCpuInfo(): Promise<ServiceResult<{ coreCount: number; usage: number; model: string }>> {
+  async getCpuInfo(): Promise<ServiceResult<ICpuInfo>> {
     const info = getServerInfo();
     const cpus = os.cpus();
     return createSuccessResult({
@@ -80,7 +74,7 @@ export class ServerService extends BaseService<ServerModel, IServer, Partial<ISe
     });
   }
 
-  async getMemoryInfo(): Promise<ServiceResult<{ used: number; total: number; usage: number; unit: string }>> {
+  async getMemoryInfo(): Promise<ServiceResult<IMemoryInfo>> {
     const info = getServerInfo();
     return createSuccessResult({
       used: info.memoryUsed,
@@ -90,7 +84,7 @@ export class ServerService extends BaseService<ServerModel, IServer, Partial<ISe
     });
   }
 
-  async getDiskInfo(): Promise<ServiceResult<{ used: number; total: number; usage: number; unit: string }>> {
+  async getDiskInfo(): Promise<ServiceResult<IDiskInfo>> {
     const info = getServerInfo();
     return createSuccessResult({
       used: info.diskUsed,
@@ -100,12 +94,14 @@ export class ServerService extends BaseService<ServerModel, IServer, Partial<ISe
     });
   }
 
-  async getJvmInfo(): Promise<ServiceResult<{ name: string; version: string; runtime: string }>> {
+  async getJvmInfo(): Promise<ServiceResult<IJvmInfo>> {
     const info = getServerInfo();
     return createSuccessResult({
       name: info.jvm,
       version: info.javaVersion,
-      runtime: 'Java HotSpot(TM) 64-Bit Server VM',
+      runtime: 'V8 (Node.js)',
+      startTime: info.bootTime,
+      uptime: info.uptime,
     });
   }
 }

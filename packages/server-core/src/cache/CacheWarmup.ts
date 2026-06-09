@@ -4,7 +4,7 @@
  * @module @yunshu/server-core/cache/CacheWarmup
  */
 
-import { warmupCache } from './CacheDecorator';
+
 
 export interface WarmupTask {
   name: string;
@@ -47,7 +47,7 @@ export class CacheWarmupManager {
       maxConcurrency: config.maxConcurrency ?? 3,
       autoStart: config.autoStart ?? false,
       startupDelay: config.startupDelay ?? 1000,
-      onError: config.onError,
+      onError: config.onError ?? (() => {}),
     };
   }
 
