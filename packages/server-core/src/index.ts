@@ -20,16 +20,78 @@ export { BaseService } from './base/BaseService';
 export type { BaseServiceConfig, PaginateConfig } from './base/BaseService';
 
 // ============================================================================
-// 装饰器
+// 装饰器（日志、性能监控）
 // ============================================================================
 
 export {
-  withCache,
   withLog,
   withPerformance,
+} from './decorators/index';
+
+export type { LogOptions, PerformanceOptions } from './decorators/index';
+
+// ============================================================================
+// 缓存模块（Redis + 二级缓存 + 分布式锁 + 预热）
+// ============================================================================
+
+// Redis 客户端
+export {
+  RedisClientManager,
+  getRedisClient,
+  isRedisAvailable,
+  initRedis,
+  closeRedis,
+} from './cache/RedisClient';
+
+export type {
+  RedisConfig,
+  RedisClientStatus,
+  RedisHealthCheckResult,
+} from './cache/RedisClient';
+
+// 二级缓存装饰器
+export {
+  withCache,
   invalidateCache,
   invalidateCacheByPrefix,
   getCacheStats,
-} from './decorators/index';
+  resetCacheStats,
+  clearL1Cache,
+  getL1CacheSize,
+  warmupCache,
+} from './cache/CacheDecorator';
 
-export type { CacheOptions, LogOptions, PerformanceOptions } from './decorators/index';
+export type { CacheOptions } from './cache/CacheDecorator';
+
+// 分布式锁
+export {
+  acquireLock,
+  withLock,
+  tryWithLock,
+  isLocked,
+  forceReleaseLock,
+  getLockStats,
+  resetLockStats,
+} from './cache/DistributedLock';
+
+export type {
+  LockOptions,
+  LockInstance,
+} from './cache/DistributedLock';
+
+// 缓存预热
+export {
+  CacheWarmupManager,
+  getWarmupManager,
+  resetWarmupManager,
+  registerWarmupTask,
+  executeWarmup,
+  startWarmupManager,
+  stopWarmupManager,
+} from './cache/CacheWarmup';
+
+export type {
+  WarmupTask,
+  WarmupTaskStatus,
+  WarmupManagerConfig,
+} from './cache/CacheWarmup';
