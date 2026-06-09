@@ -7,13 +7,13 @@
  *
  * @module @yunshu/cli
  */
-import { Command } from 'commander';
-import chalk from 'chalk';
-import { createCommand } from './commands/create';
-import { generateCommand } from './commands/generate';
-import { themeCommand } from './commands/theme';
+import { Command } from 'commander'
+import chalk from 'chalk'
+import { createCommand } from './commands/create'
+import { generateCommand } from './commands/generate'
+import { themeCommand } from './commands/theme'
 
-const program = new Command();
+const program = new Command()
 
 program
   .name('yunshu')
@@ -28,18 +28,18 @@ ${chalk.dim('示例:')}
 
 ${chalk.dim('更多信息:')}
   ${chalk.underline('https://docs.yunshu.dev')}
-  `);
+  `)
 
 // ============================================================================
 // 注册命令
 // ============================================================================
 
-program.addCommand(createCommand());
-program.addCommand(generateCommand());
-program.addCommand(themeCommand());
+program.addCommand(createCommand())
+program.addCommand(generateCommand())
+program.addCommand(themeCommand())
 
 // ============================================================================
 // 启动
 // ============================================================================
 
-program.parse(process.argv);
+program.parse(process.argv)

@@ -1,0 +1,7 @@
+<template>
+  <div class="about" style="padding: 40px; max-width: 800px; margin: 0 auto;">
+    <h1 style="color: var(--primary);">关于</h1>
+    <p>这是一个使用云枢中台模板创建的全栈应用。</p>
+    <p>技术栈: Vue 3 + TypeScript + Express</p>
+  </div>
+</template>

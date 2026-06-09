@@ -1,0 +1,59 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+
+interface User { id: number; name: string; email: string }
+
+const users = ref<User[]>([])
+const loading = ref(false)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const res = await axios.get('/api/users')
+    users.value = res.data.data
+  } finally {
+    loading.value = false
+  }
+})
+</script>
+
+<template>
+  <div class="home">
+    <h1>☁️ {{name}}</h1>
+    <p>全栈应用 — Vue 3 + Express</p>
+    <div class="user-list" v-if="!loading">
+      <div v-for="user in users" :key="user.id" class="user-card">
+        <strong>{{ user.name }}</strong>
+        <span>{{ user.email }}</span>
+      </div>
+    </div>
+    <div v-else>加载中...</div>
+  </div>
+</template>
+
+<style scoped>
+.home {
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h1 { color: var(--primary); }
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.user-card {
+  padding: 16px;
+  background: var(--surface-1);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+}
+</style>

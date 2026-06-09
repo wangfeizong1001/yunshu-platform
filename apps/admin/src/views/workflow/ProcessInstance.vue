@@ -344,8 +344,8 @@ function loadInstanceDetail(row: ProcessInstance) {
   ]
 }
 
-function getActionType(action: string): string {
-  const typeMap: Record<string, string> = {
+function getActionType(action: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     start: 'success',
     approve: 'primary',
     reject: 'danger',

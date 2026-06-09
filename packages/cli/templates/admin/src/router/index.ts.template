@@ -1,0 +1,53 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/login/index.vue'),
+    meta: { title: '登录' }
+  },
+  {
+    path: '/',
+    component: () => import('@/layouts/default.vue'),
+    redirect: '/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/index.vue'),
+        meta: { title: '仪表盘', icon: 'Odometer' }
+      },
+      {
+        path: 'user',
+        name: 'User',
+        component: () => import('@/views/user/index.vue'),
+        meta: { title: '用户管理', icon: 'User' }
+      },
+      {
+        path: 'about',
+        name: 'About',
+        component: () => import('@/views/about/index.vue'),
+        meta: { title: '关于', icon: 'InfoFilled' }
+      }
+    ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/error/404.vue')
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+router.beforeEach((to, _from, next) => {
+  document.title = `${to.meta.title || '{{name}}'} — 管理后台`
+  next()
+})
+
+export default router

@@ -1,0 +1,10 @@
+<script setup lang="ts">
+</script>
+
+<template>
+  <el-card>
+    <h2>关于 {{name}}</h2>
+    <p>这是一个基于云枢中台模板创建的管理后台应用。</p>
+    <p>技术栈: Vue 3 + TypeScript + Element Plus + Pinia + Vue Router</p>
+  </el-card>
+</template>

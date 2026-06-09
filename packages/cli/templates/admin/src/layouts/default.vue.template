@@ -1,0 +1,100 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+const isCollapse = ref(false)
+
+const menuItems = computed(() => {
+  const routes = router.options.routes.find(r => r.path === '/')?.children || []
+  return routes.filter(r => r.meta && r.meta.title).map(r => ({
+    path: r.path,
+    title: r.meta?.title as string,
+    icon: r.meta?.icon as string || 'Setting'
+  }))
+})
+</script>
+
+<template>
+  <el-container class="layout">
+    <el-aside :width="isCollapse ? '64px' : '200px'" class="aside">
+      <div class="logo">
+        <span v-if="!isCollapse">☁️ {{name}}</span>
+        <span v-else>☁️</span>
+      </div>
+      <el-menu :default-active="route.path" :collapse="isCollapse" router>
+        <el-menu-item
+          v-for="item in menuItems"
+          :key="item.path"
+          :index="item.path"
+        >
+          <el-icon><component :is="item.icon" /></el-icon>
+          <template #title>{{ item.title }}</template>
+        </el-menu-item>
+      </el-menu>
+    </el-aside>
+
+    <el-container>
+      <el-header class="header">
+        <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
+          <Fold v-if="!isCollapse" />
+          <Expand v-else />
+        </el-icon>
+        <div class="header-right">
+          <el-dropdown>
+            <span>管理员 <el-icon><ArrowDown /></el-icon></span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="router.push('/login')">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </el-header>
+      <el-main class="main">
+        <RouterView />
+      </el-main>
+    </el-container>
+  </el-container>
+</template>
+
+<style scoped lang="scss">
+.layout {
+  height: 100vh;
+}
+
+.aside {
+  background: var(--surface-1);
+  border-right: 1px solid var(--border-light);
+}
+
+.logo {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 var(--spacing-lg);
+}
+
+.collapse-btn {
+  cursor: pointer;
+  font-size: var(--font-size-xl);
+}
+
+.main {
+  background: var(--background);
+}
+</style>

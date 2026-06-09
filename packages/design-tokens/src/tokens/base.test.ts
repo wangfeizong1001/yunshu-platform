@@ -35,13 +35,12 @@ describe('间距系统', () => {
   });
 
   it('所有间距值应为 4 的倍数', () => {
-    for (const [key, value] of Object.entries(spacing)) {
+    for (const value of Object.values(spacing)) {
       expect(value % 4).toBe(0);
     }
   });
 
   it('间距值应按 key 递增', () => {
-    const keys = Object.keys(spacing).map(Number);
     const values = Object.values(spacing);
     for (let i = 1; i < values.length; i++) {
       expect(values[i]).toBeGreaterThan(values[i - 1]!);
@@ -82,7 +81,7 @@ describe('字体系统', () => {
   });
 
   it('字号应是有效的 px 值', () => {
-    for (const [key, value] of Object.entries(fontSize)) {
+    for (const value of Object.values(fontSize)) {
       const num = parseInt(value, 10);
       expect(num).toBeGreaterThan(0);
       expect(num).toBeLessThan(100);

@@ -1,0 +1,97 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+const stats = ref([
+  { label: '总用户数', value: '1,234', icon: 'User', color: '#409EFF' },
+  { label: '今日访问', value: '567', icon: 'View', color: '#67C23A' },
+  { label: '订单数', value: '89', icon: 'ShoppingCart', color: '#E6A23C' },
+  { label: '消息', value: '23', icon: 'Message', color: '#F56C6C' }
+])
+
+const tableData = ref([])
+
+onMounted(() => {
+  setTimeout(() => {
+    tableData.value = [
+      { id: 1, name: '张三', email: 'zhangsan@example.com', status: '活跃', date: '2026-06-01' },
+      { id: 2, name: '李四', email: 'lisi@example.com', status: '活跃', date: '2026-06-02' },
+      { id: 3, name: '王五', email: 'wangwu@example.com', status: '禁用', date: '2026-06-03' },
+      { id: 4, name: '赵六', email: 'zhaoliu@example.com', status: '活跃', date: '2026-06-04' },
+      { id: 5, name: '钱七', email: 'qianqi@example.com', status: '活跃', date: '2026-06-05' }
+    ]
+  }, 300)
+})
+</script>
+
+<template>
+  <div class="dashboard">
+    <el-row :gutter="16" class="stats-row">
+      <el-col v-for="stat in stats" :key="stat.label" :xs="12" :sm="12" :md="6">
+        <el-card class="stat-card">
+          <div class="stat-icon" :style="{ background: stat.color + '20', color: stat.color }">
+            <el-icon :size="24"><component :is="stat.icon" /></el-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <el-card class="table-card">
+      <template #header>最近活动</template>
+      <el-table :data="tableData" style="width: 100%" v-loading="tableData.length === 0">
+        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="name" label="姓名" />
+        <el-table-column prop="email" label="邮箱" />
+        <el-table-column prop="status" label="状态">
+          <template #default="scope">
+            <el-tag :type="scope.row.status === '活跃' ? 'success' : 'danger'">
+              {{ scope.row.status }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="date" label="日期" width="120" />
+      </el-table>
+    </el-card>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.stats-row {
+  margin-bottom: 0;
+}
+</style>
