@@ -4,7 +4,7 @@
  * 定义统一的数据访问契约，支持多数据库适配器实现。
  * 设计目标：
  * - 抽象数据访问细节，业务层无需关心具体数据库
- * - 支持 PostgreSQL、MongoDB 等多种数据库
+ * - 当前使用 PostgreSQL，可扩展支持其他数据库
  * - 提供一致的 CRUD、分页、软删除等能力
  *
  * @module @yunshu/server-core/repositories/IRepository

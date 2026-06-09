@@ -2,7 +2,7 @@
   "name": "@yunshu/server-core",
   "version": "0.1.0",
   "private": false,
-  "description": "云枢中台 — 后端核心基础设施，框架无关的 Service 层，支持 PostgreSQL/MongoDB 多数据库",
+  "description": "云枢中台 — 后端核心基础设施，框架无关的 Service 层，基于 PostgreSQL 构建",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -35,12 +35,7 @@
     "tsup": "^8.0.0",
     "vitest": "^1.0.0"
   },
-  "peerDependencies": {
-    "mongoose": "^8.0.0"
-  },
   "peerDependenciesMeta": {
-    "mongoose": { "optional": true },
-    "pg": { "optional": false },
     "ioredis": { "optional": true }
   }
 }

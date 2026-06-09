@@ -3,7 +3,7 @@
  *
  * 提供通用 CRUD 操作的完整实现，支持：
  * - 多数据库适配器（通过 IRepository 接口）
- * - PostgreSQL（默认）、MongoDB 等
+ * - PostgreSQL（默认数据库）
  * - 软删除
  * - 分页查询
  * - 统一错误处理

@@ -463,7 +463,7 @@ function stopWatchdog(key: string): void {
  * ```typescript
  * const updateUserWithLock = withLock(
  *   async (userId: string, data: UpdateDTO) => {
- *     return await User.findByIdAndUpdate(userId, data);
+ *     return await userService.update(userId, data);
  *   },
  *   (userId) => `user:${userId}:update`,
  *   { ttl: 10000 }
