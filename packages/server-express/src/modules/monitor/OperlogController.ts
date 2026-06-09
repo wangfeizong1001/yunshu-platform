@@ -5,92 +5,96 @@
  */
 
 import type { Request, Response } from 'express';
-import type { IOperlogQuery } from '@yunshu/shared';
 import { BaseController } from '../../controller/BaseController';
-import { operlogService } from '@yunshu/server-core/modules/monitor';
+
+interface OperLog {
+  operId: number;
+  title: string;
+  businessType: number;
+  method: string;
+  requestMethod: string;
+  operatorType: number;
+  operName: string;
+  deptName: string;
+  operUrl: string;
+  operIp: string;
+  operLocation: string;
+  operParam: string;
+  jsonResult: string;
+  status: number;
+  errorMsg: string;
+  operTime: string;
+  costTime: number;
+}
+
+const mockOperLogs: OperLog[] = [
+  {
+    operId: 1,
+    title: '用户管理',
+    businessType: 0,
+    method: 'com.yunshu.system.controller.SysUserController.list()',
+    requestMethod: 'GET',
+    operatorType: 1,
+    operName: 'admin',
+    deptName: '研发部门',
+    operUrl: '/system/user/list',
+    operIp: '192.168.1.100',
+    operLocation: '内网IP',
+    operParam: '{"pageNum":1,"pageSize":10}',
+    jsonResult: '{"code":200,"message":"操作成功"}',
+    status: 0,
+    errorMsg: '',
+    operTime: '2024-06-10 10:30:00',
+    costTime: 45,
+  },
+  {
+    operId: 2,
+    title: '角色管理',
+    businessType: 1,
+    method: 'com.yunshu.system.controller.SysRoleController.add()',
+    requestMethod: 'POST',
+    operatorType: 1,
+    operName: 'admin',
+    deptName: '研发部门',
+    operUrl: '/system/role',
+    operIp: '192.168.1.100',
+    operLocation: '内网IP',
+    operParam: '{"roleName":"测试角色","roleKey":"TEST"}',
+    jsonResult: '{"code":200,"message":"操作成功"}',
+    status: 0,
+    errorMsg: '',
+    operTime: '2024-06-10 11:00:00',
+    costTime: 120,
+  },
+];
 
 export class OperlogController extends BaseController {
   /**
-   * 获取操作日志分页列表
+   * 获取操作日志列表
    */
-  async list(req: Request, res: Response): Promise<Response> {
-    const params: IOperlogQuery = {
-      search: req.query.search as string,
-      operName: req.query.operName as string,
-      operType: req.query.operType as IOperlogQuery['operType'],
-      operModule: req.query.operModule as string,
-      status: req.query.status as IOperlogQuery['status'],
-      beginTime: req.query.beginTime as string,
-      endTime: req.query.endTime as string,
-      page: Number(req.query.page) || 1,
-      limit: Number(req.query.limit) || 10,
-      sort: req.query.sort as string,
-      order: req.query.order as 'asc' | 'desc',
-    };
-
-    const result = await operlogService.findWithPagination(params);
-    return this.handleResult(res, result);
-  }
-
-  /**
-   * 获取操作日志详情
-   */
-  async getById(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params;
-    const result = await operlogService.findById(id);
-    return this.handleResult(res, result);
+  async list(_req: Request, res: Response): Promise<Response> {
+    return this.success(res, { total: mockOperLogs.length, rows: mockOperLogs });
   }
 
   /**
    * 删除操作日志
    */
-  async delete(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params;
-    const result = await operlogService.delete(id);
-    return this.handleResult(res, result);
-  }
-
-  /**
-   * 批量删除操作日志
-   */
-  async deleteBatch(req: Request, res: Response): Promise<Response> {
-    const { ids } = req.body as { ids: string[] };
-    if (!ids || !Array.isArray(ids) || ids.length === 0) {
-      return this.badRequest(res, '请选择要删除的日志');
+  async remove(req: Request, res: Response): Promise<Response> {
+    const { operId } = req.params;
+    const index = mockOperLogs.findIndex(l => l.operId === Number(operId));
+    if (index === -1) {
+      return this.notFound(res, '操作日志不存在');
     }
-    const result = await operlogService.deleteBatch(ids);
-    return this.handleResult(res, result);
+    mockOperLogs.splice(index, 1);
+    return this.success(res, null);
   }
 
   /**
    * 清空操作日志
    */
-  async clean(req: Request, res: Response): Promise<Response> {
-    const result = await operlogService.clean();
-    return this.handleResult(res, result);
-  }
-
-  /**
-   * 导出操作日志
-   */
-  async export(req: Request, res: Response): Promise<Response> {
-    const params: IOperlogQuery = {
-      search: req.query.search as string,
-      operName: req.query.operName as string,
-      operType: req.query.operType as IOperlogQuery['operType'],
-      status: req.query.status as IOperlogQuery['status'],
-      beginTime: req.query.beginTime as string,
-      endTime: req.query.endTime as string,
-      page: 1,
-      limit: 10000,
-    };
-
-    const result = await operlogService.findWithPagination(params);
-    if (!result.success) {
-      return this.handleResult(res, result);
-    }
-
-    return this.success(res, result.data?.data || [], '导出成功');
+  async clean(_req: Request, res: Response): Promise<Response> {
+    mockOperLogs.length = 0;
+    return this.success(res, null);
   }
 }
 

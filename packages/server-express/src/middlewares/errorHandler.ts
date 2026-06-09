@@ -8,7 +8,49 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { BusinessError } from '@yunshu/server-core';
+
+// ============================================================================
+// 业务错误类（独立实现，不依赖 server-core）
+// ============================================================================
+
+/**
+ * 业务错误类
+ * 用于抛出可预期的业务级错误，统一错误处理格式。
+ */
+export class BusinessError extends Error {
+  /** HTTP 状态码 */
+  statusCode: number;
+  /** 错误码（业务级） */
+  code?: string | number;
+  /** 错误详情 */
+  details?: unknown;
+  /** 是否为运行期错误（非程序 bug） */
+  isOperational: boolean;
+
+  constructor(
+    message: string,
+    statusCode: number = 400,
+    options?: { code?: string | number; details?: unknown },
+  ) {
+    super(message);
+    this.name = 'BusinessError';
+    this.statusCode = statusCode;
+    this.code = options?.code;
+    this.details = options?.details;
+    this.isOperational = true;
+    // 保持堆栈追踪
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+}
+
+/** 工厂：业务错误快捷方式 */
+export const createBusinessError = (
+  message: string,
+  statusCode = 400,
+  code?: string | number,
+): BusinessError => new BusinessError(message, statusCode, { code });
 
 // ============================================================================
 // 类型定义

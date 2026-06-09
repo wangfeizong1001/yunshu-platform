@@ -103,8 +103,10 @@ export class FileController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const filePage = params.pageNum ?? 1;
+    const fileSize = params.pageSize ?? 10;
+    const start = (filePage - 1) * fileSize;
+    const end = start + fileSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -128,7 +130,7 @@ export class FileController extends BaseController {
    * 上传文件
    */
   async upload(req: Request, res: Response): Promise<Response> {
-    const file = req.file;
+    const file = (req as unknown as { file?: { originalname: string; size: number; path?: string } }).file;
 
     if (!file) {
       return this.badRequest(res, '请选择要上传的文件');
@@ -234,7 +236,7 @@ export class FileController extends BaseController {
   /**
    * 获取存储使用统计
    */
-  async getStorageStats(req: Request, res: Response): Promise<Response> {
+  async getStorageStats(_req: Request, res: Response): Promise<Response> {
     const stats = {
       totalFiles: mockFiles.length,
       totalSize: mockFiles.reduce((sum, f) => sum + f.fileSize, 0),
@@ -257,7 +259,7 @@ export class FileController extends BaseController {
   /**
    * 导出文件列表
    */
-  async export(req: Request, res: Response): Promise<Response> {
+  async export(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockFiles);
   }
 }

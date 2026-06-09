@@ -99,7 +99,7 @@ export class OssController extends BaseController {
   /**
    * 获取OSS配置列表
    */
-  async listConfigs(req: Request, res: Response): Promise<Response> {
+  async listConfigs(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockOssConfigs);
   }
 
@@ -120,7 +120,7 @@ export class OssController extends BaseController {
   /**
    * 获取当前使用的OSS配置
    */
-  async getCurrentConfig(req: Request, res: Response): Promise<Response> {
+  async getCurrentConfig(_req: Request, res: Response): Promise<Response> {
     const current = mockOssConfigs.find(c => c.status === '1');
 
     return this.success(res, current || null);
@@ -265,8 +265,10 @@ export class OssController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const ossPage = params.pageNum ?? 1;
+    const ossSize = params.pageSize ?? 10;
+    const start = (ossPage - 1) * ossSize;
+    const end = start + ossSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -290,7 +292,7 @@ export class OssController extends BaseController {
    * 上传文件到OSS
    */
   async uploadFile(req: Request, res: Response): Promise<Response> {
-    const file = req.file;
+    const file = (req as unknown as { file?: { originalname: string; size: number; path?: string } }).file;
 
     if (!file) {
       return this.badRequest(res, '请选择要上传的文件');
@@ -363,7 +365,7 @@ export class OssController extends BaseController {
   /**
    * 获取存储统计
    */
-  async getStorageStats(req: Request, res: Response): Promise<Response> {
+  async getStorageStats(_req: Request, res: Response): Promise<Response> {
     const stats = {
       totalFiles: mockOssFiles.length,
       totalSize: mockOssFiles.reduce((sum, f) => sum + f.fileSize, 0),
@@ -381,7 +383,7 @@ export class OssController extends BaseController {
   /**
    * 导出OSS文件列表
    */
-  async exportFiles(req: Request, res: Response): Promise<Response> {
+  async exportFiles(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockOssFiles);
   }
 }

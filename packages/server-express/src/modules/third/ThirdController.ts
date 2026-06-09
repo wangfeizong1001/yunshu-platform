@@ -191,7 +191,7 @@ export class ThirdController extends BaseController {
   /**
    * 获取所有启用的第三方登录配置
    */
-  async getEnabledConfigs(req: Request, res: Response): Promise<Response> {
+  async getEnabledConfigs(_req: Request, res: Response): Promise<Response> {
     const configs = mockThirdConfigs.filter(c => c.status === '1');
     return this.success(res, configs);
   }
@@ -461,7 +461,7 @@ export class ThirdController extends BaseController {
     }
 
     if (params.username) {
-      filtered = filtered.filter(l => l.username?.toLowerCase().includes(params.username.toLowerCase()));
+      filtered = filtered.filter(l => l.username?.toLowerCase().includes((params.username ?? '').toLowerCase()));
     }
 
     if (params.status) {
@@ -469,16 +469,18 @@ export class ThirdController extends BaseController {
     }
 
     if (params.startDate) {
-      filtered = filtered.filter(l => l.loginTime >= params.startDate);
+      filtered = filtered.filter(l => l.loginTime >= (params.startDate ?? ''));
     }
 
     if (params.endDate) {
-      filtered = filtered.filter(l => l.loginTime <= params.endDate);
+      filtered = filtered.filter(l => l.loginTime <= (params.endDate ?? ''));
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const pageNum = params.pageNum ?? 1;
+    const pageSize = params.pageSize ?? 10;
+    const start = (pageNum - 1) * pageSize;
+    const end = start + pageSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -501,7 +503,7 @@ export class ThirdController extends BaseController {
   /**
    * 获取登录统计数据
    */
-  async getLoginStats(req: Request, res: Response): Promise<Response> {
+  async getLoginStats(_req: Request, res: Response): Promise<Response> {
     const stats = {
       total: mockThirdLogs.length,
       success: mockThirdLogs.filter(l => l.status === '1').length,
@@ -525,7 +527,7 @@ export class ThirdController extends BaseController {
   /**
    * 导出登录日志
    */
-  async exportLogs(req: Request, res: Response): Promise<Response> {
+  async exportLogs(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockThirdLogs);
   }
 }

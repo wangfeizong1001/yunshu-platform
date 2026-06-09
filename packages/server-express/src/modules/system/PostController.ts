@@ -74,8 +74,10 @@ export class PostController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const postPage = params.pageNum ?? 1;
+    const postSize = params.pageSize ?? 10;
+    const start = (postPage - 1) * postSize;
+    const end = start + postSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -98,7 +100,7 @@ export class PostController extends BaseController {
   /**
    * 获取所有岗位
    */
-  async getAll(req: Request, res: Response): Promise<Response> {
+  async getAll(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockPosts.filter(p => p.status === '0'));
   }
 
@@ -195,7 +197,7 @@ export class PostController extends BaseController {
   /**
    * 导出岗位
    */
-  async export(req: Request, res: Response): Promise<Response> {
+  async export(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockPosts);
   }
 }

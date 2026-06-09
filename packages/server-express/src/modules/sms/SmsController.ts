@@ -135,7 +135,7 @@ export class SmsController extends BaseController {
   /**
    * 获取短信配置列表
    */
-  async listConfigs(req: Request, res: Response): Promise<Response> {
+  async listConfigs(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockSmsConfigs);
   }
 
@@ -156,7 +156,7 @@ export class SmsController extends BaseController {
   /**
    * 获取当前使用的短信配置
    */
-  async getCurrentConfig(req: Request, res: Response): Promise<Response> {
+  async getCurrentConfig(_req: Request, res: Response): Promise<Response> {
     const current = mockSmsConfigs.find(c => c.status === '1');
     return this.success(res, current || null);
   }
@@ -292,8 +292,10 @@ export class SmsController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const tplPage = params.pageNum ?? 1;
+    const tplSize = params.pageSize ?? 10;
+    const start = (tplPage - 1) * tplSize;
+    const end = start + tplSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -472,7 +474,7 @@ export class SmsController extends BaseController {
     let filtered = [...mockSmsLogs];
 
     if (params.mobile) {
-      filtered = filtered.filter(l => l.mobile.includes(params.mobile));
+      filtered = filtered.filter(l => l.mobile.includes(params.mobile as string));
     }
 
     if (params.templateCode) {
@@ -484,8 +486,10 @@ export class SmsController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const logPage = params.pageNum ?? 1;
+    const logSize = params.pageSize ?? 10;
+    const start = (logPage - 1) * logSize;
+    const end = start + logSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -508,7 +512,7 @@ export class SmsController extends BaseController {
   /**
    * 导出短信日志
    */
-  async exportLogs(req: Request, res: Response): Promise<Response> {
+  async exportLogs(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockSmsLogs);
   }
 }

@@ -145,7 +145,7 @@ export interface IJobCreate {
 
 /** 任务更新参数 */
 export interface IJobUpdate {
-  jobId: string;
+  jobId?: string;
   jobName?: string;
   jobGroup?: JobGroup;
   invokeTarget?: string;

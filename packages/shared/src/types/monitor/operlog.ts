@@ -87,4 +87,5 @@ export interface IOperlogCreate {
   operLocation?: string;
   operParam?: string;
   jsonResult?: string;
+  operTime?: string;
 }

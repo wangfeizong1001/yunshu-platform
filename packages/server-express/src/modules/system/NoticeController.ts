@@ -81,8 +81,10 @@ export class NoticeController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const noticePage = params.pageNum ?? 1;
+    const noticeSize = params.pageSize ?? 10;
+    const start = (noticePage - 1) * noticeSize;
+    const end = start + noticeSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -204,7 +206,7 @@ export class NoticeController extends BaseController {
   /**
    * 导出通知公告
    */
-  async export(req: Request, res: Response): Promise<Response> {
+  async export(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockNotices);
   }
 }

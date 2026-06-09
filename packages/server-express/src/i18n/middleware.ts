@@ -14,7 +14,7 @@ declare global {
 }
 
 // 国际化中间件
-export function i18nMiddleware(req: Request, res: Response, next: NextFunction) {
+export function i18nMiddleware(req: Request, _res: Response, next: NextFunction) {
   // 获取当前语言
   const locale = getLocale(req)
 

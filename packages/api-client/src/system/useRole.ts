@@ -4,9 +4,12 @@
  * 提供角色列表、详情、新增、编辑、删除、权限分配等操作
  */
 
-import { ref, Ref } from 'vue'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { HttpClient } from '../core/HttpClient'
-import type { SysRole, SysRoleQuery, SysRoleForm, SysRolePageResp } from '@yunshu/shared/types/system'
+import type { SysRole, SysRoleQuery, SysRoleForm, PageResp } from '@yunshu/shared'
+
+type SysRolePageResp = PageResp<SysRole>
 
 /** 角色列表 Hook 选项 */
 export interface UseRoleListOptions {
@@ -76,9 +79,7 @@ export function useRoleList(options: UseRoleListOptions = {}): UseRoleListReturn
   async function fetchList() {
     loading.value = true
     try {
-      const resp = await roleAPI.get<SysRolePageResp>('/list', {
-        params: queryParams.value,
-      })
+      const resp = await roleAPI.get<SysRolePageResp>('/list', queryParams.value)
       list.value = resp.data.rows
       total.value = resp.data.total
     } finally {

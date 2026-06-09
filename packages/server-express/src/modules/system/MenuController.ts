@@ -15,7 +15,7 @@ const mockMenus: SysMenu[] = [
     menuName: '系统管理',
     parentId: 0,
     path: '/system',
-    component: null,
+    component: undefined,
     isFrame: true,
     isCache: false,
     menuType: 'M',
@@ -80,7 +80,7 @@ const mockMenus: SysMenu[] = [
     menuName: '系统监控',
     parentId: 0,
     path: '/monitor',
-    component: null,
+    component: undefined,
     isFrame: true,
     isCache: false,
     menuType: 'M',
@@ -229,7 +229,7 @@ export class MenuController extends BaseController {
   /**
    * 获取路由列表
    */
-  async getRoutes(req: Request, res: Response): Promise<Response> {
+  async getRoutes(_req: Request, res: Response): Promise<Response> {
     const buildMenuTree = (menus: SysMenu[], parentId: number): SysMenu[] => {
       return menus
         .filter(m => m.parentId === parentId && m.status === '0')
@@ -391,7 +391,7 @@ export class MenuController extends BaseController {
   /**
    * 导出菜单
    */
-  async export(req: Request, res: Response): Promise<Response> {
+  async export(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockMenus);
   }
 }

@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends Record<string, unknown>">
+<script setup lang="ts">
 /**
  * YunDataTable — 通用数据表格组件
  *
@@ -22,7 +22,7 @@ export interface TableColumn {
   align?: 'left' | 'center' | 'right';
 }
 
-export interface DataTableProps {
+export interface DataTableProps<T = Record<string, unknown>> {
   columns: TableColumn[];
   /** 数据获取函数 */
   fetchFn: (params: {
@@ -46,11 +46,11 @@ const props = withDefaults(defineProps<DataTableProps>(), {
 });
 
 const emit = defineEmits<{
-  selectionChange: [rows: T[]];
-  rowClick: [row: T, index: number];
+  (e: 'selectionChange', rows: Record<string, unknown>[]): void;
+  (e: 'rowClick', row: Record<string, unknown>, index: number): void;
 }>();
 
-const data = ref<T[]>([]);
+const data = ref<Record<string, unknown>[]>([]);
 const total = ref(0);
 const loading = ref(false);
 const currentPage = ref(1);
@@ -91,7 +91,7 @@ function handlePageChange(page: number) {
   loadData();
 }
 
-function handleSelect(row: T) {
+function handleSelect(row: Record<string, unknown>) {
   const key = String(row[props.rowKey]);
   if (selectedKeys.value.has(key)) {
     selectedKeys.value.delete(key);
@@ -102,14 +102,22 @@ function handleSelect(row: T) {
   emit('selectionChange', selected);
 }
 
+function handleSelectAll(e: Event) {
+  const checked = (e.target as HTMLInputElement).checked;
+  selectedKeys.value = new Set(checked ? data.value.map(r => String(r[props.rowKey])) : []);
+  emit('selectionChange', checked ? [...data.value] : []);
+}
+
+function handleRowClick(row: Record<string, unknown>, index: number) {
+  emit('rowClick', row, index);
+}
+
 function getSortIcon(col: TableColumn): string {
   if (sortField.value !== col.key) return '↕';
   return sortOrder.value === 'asc' ? '↑' : '↓';
 }
 
 onMounted(loadData);
-
-const totalPages = ref(0);
 </script>
 
 <template>
@@ -119,11 +127,7 @@ const totalPages = ref(0);
         <thead>
           <tr>
             <th v-if="selectable" class="yun-data-table__check-cell" style="width:40px">
-              <input type="checkbox" @change="(e) => {
-                const checked = (e.target as HTMLInputElement).checked;
-                selectedKeys = new Set(checked ? data.map(r => String(r[rowKey])) : []);
-                emit('selectionChange', checked ? [...data] : []);
-              }">
+              <input type="checkbox" @change="handleSelectAll">
             </th>
             <th
               v-for="col in columns"
@@ -151,7 +155,7 @@ const totalPages = ref(0);
               v-for="(row, idx) in data"
               :key="String(row[rowKey])"
               :class="{ 'is-selected': selectedKeys.has(String(row[rowKey])) }"
-              @click="emit('rowClick', row, idx)"
+              @click="handleRowClick(row, idx)"
             >
               <td v-if="selectable" class="yun-data-table__check-cell">
                 <input

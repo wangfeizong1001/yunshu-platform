@@ -18,7 +18,7 @@ import type {
   DedupConfig,
   ApiResponse,
 } from './types';
-import { RequestError } from './types';
+import { FetchAdapter } from '../adapters/fetch/FetchAdapter';
 
 // ============================================================================
 // 内存缓存实现
@@ -110,21 +110,34 @@ export class HttpClient {
   private readonly dedupCache = new Map<string, Promise<HttpResponse>>();
   private readonly pendingRequests = new Map<string, AbortController>();
 
-  constructor(adapter: IHttpAdapter, options: HttpClientOptions = {}) {
-    this.adapter = adapter;
-    this.options = {
-      baseURL: options.baseURL ?? '',
-      timeout: options.timeout ?? 15000,
-      headers: options.headers ?? {},
-      dedup: {
-        window: options.dedup?.window ?? 1000,
-      },
-      cache: {
-        enabled: options.cache?.enabled ?? false,
-        ttl: options.cache?.ttl ?? 5 * 60 * 1000,
-        key: options.cache?.key,
-      },
-    };
+  constructor(adapterOrOptions: IHttpAdapter | HttpClientOptions = {}) {
+    const isAdapter = (obj: IHttpAdapter | HttpClientOptions): obj is IHttpAdapter =>
+      typeof (obj as IHttpAdapter).request === 'function';
+
+    if (isAdapter(adapterOrOptions)) {
+      this.adapter = adapterOrOptions;
+      this.options = {
+        baseURL: '',
+        timeout: 15000,
+        headers: {},
+        dedup: { window: 1000 },
+        cache: { enabled: false, ttl: 5 * 60 * 1000 },
+      };
+    } else {
+      const options = adapterOrOptions as HttpClientOptions;
+      this.adapter = new FetchAdapter({ baseURL: options.baseURL, timeout: options.timeout });
+      this.options = {
+        baseURL: options.baseURL ?? '',
+        timeout: options.timeout ?? 15000,
+        headers: options.headers ?? {},
+        dedup: { window: options.dedup?.window ?? 1000 },
+        cache: {
+          enabled: options.cache?.enabled ?? false,
+          ttl: options.cache?.ttl ?? 5 * 60 * 1000,
+          key: options.cache?.key,
+        },
+      };
+    }
   }
 
   // ========================================================================
@@ -163,10 +176,10 @@ export class HttpClient {
    */
   async get<T = unknown>(
     url: string,
-    params?: Record<string, unknown>,
+    params?: object,
     cacheOptions?: CacheOptions,
   ): Promise<ApiResponse<T>> {
-    const config: RequestConfig = { method: 'GET', url, params };
+    const config: RequestConfig = { method: 'GET', url, params: params as Record<string, unknown> | undefined };
     const requestKey = cacheOptions?.key ?? this.generateRequestKey(config);
 
     // 1. 检查内存缓存
@@ -204,33 +217,100 @@ export class HttpClient {
   /**
    * POST 请求
    */
-  async post<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({ method: 'POST', url, data });
+  async post<T = unknown>(
+    url: string,
+    data?: object,
+    extra?: { headers?: Record<string, string>; params?: object },
+  ): Promise<ApiResponse<T>> {
+    const response = await this.request<T>({
+      method: 'POST',
+      url,
+      data,
+      headers: extra?.headers,
+      params: extra?.params as Record<string, unknown> | undefined,
+    });
     return response.data;
   }
 
   /**
    * PUT 请求
    */
-  async put<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({ method: 'PUT', url, data });
+  async put<T = unknown>(
+    url: string,
+    data?: object,
+    extra?: { headers?: Record<string, string>; params?: object },
+  ): Promise<ApiResponse<T>> {
+    const response = await this.request<T>({
+      method: 'PUT',
+      url,
+      data,
+      headers: extra?.headers,
+      params: extra?.params as Record<string, unknown> | undefined,
+    });
     return response.data;
   }
 
   /**
    * PATCH 请求
    */
-  async patch<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({ method: 'PATCH', url, data });
+  async patch<T = unknown>(
+    url: string,
+    data?: object,
+    extra?: { headers?: Record<string, string>; params?: object },
+  ): Promise<ApiResponse<T>> {
+    const response = await this.request<T>({
+      method: 'PATCH',
+      url,
+      data,
+      headers: extra?.headers,
+      params: extra?.params as Record<string, unknown> | undefined,
+    });
     return response.data;
   }
 
   /**
    * DELETE 请求
    */
-  async delete<T = unknown>(url: string): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({ method: 'DELETE', url });
+  async delete<T = unknown>(
+    url: string,
+    extra?: {
+      data?: object;
+      headers?: Record<string, string>;
+      params?: object;
+    },
+  ): Promise<ApiResponse<T>> {
+    const response = await this.request<T>({
+      method: 'DELETE',
+      url,
+      data: extra?.data,
+      headers: extra?.headers,
+      params: extra?.params as Record<string, unknown> | undefined,
+    });
     return response.data;
+  }
+
+  /**
+   * 文件下载
+   */
+  async download(
+    url: string,
+    params?: object,
+    filename?: string,
+  ): Promise<void> {
+    const queryString = params
+      ? '?' +
+        Object.entries(params as Record<string, unknown>)
+          .filter(([, v]) => v !== undefined && v !== null)
+          .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+          .join('&')
+      : '';
+    const fullUrl = (this.options.baseURL + url + queryString);
+    const a = document.createElement('a');
+    a.href = fullUrl;
+    if (filename) a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   // ========================================================================
@@ -301,7 +381,7 @@ export class HttpClient {
 
   /** 取消所有待处理请求 */
   cancelAllRequests(): void {
-    for (const [id, controller] of this.pendingRequests) {
+    for (const [, controller] of this.pendingRequests) {
       controller.abort();
     }
     this.pendingRequests.clear();

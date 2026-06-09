@@ -85,7 +85,7 @@ export function useApi<T>(
     lastArgs = args;
 
     try {
-      const response = await fn(...args);
+      const response = await (fn as (...a: unknown[]) => Promise<ApiResponse<T>>)(...args);
       data.value = response.data;
       return response.data;
     } catch (err) {
@@ -165,7 +165,7 @@ export function useApiList<T>(
     lastArgs = args;
 
     try {
-      const response = await fn(...args);
+      const response = await (fn as (...a: unknown[]) => Promise<ApiResponse<{ list?: T[]; items?: T[]; total: number }>>)(...args);
       const items = response.data?.list ?? response.data?.items ?? [];
       data.value = items;
       total.value = response.data?.total ?? 0;

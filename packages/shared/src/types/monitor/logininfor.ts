@@ -69,10 +69,11 @@ export interface ILogininforCreate {
   userName: string;
   loginAccount: string;
   status: LogininforStatus;
-  loginLocation: string;
+  loginLocation?: string;
   operationType: LogininforOperationType;
   os?: string;
   browser?: string;
   msg?: string;
   ip: string;
+  loginTime?: string;
 }

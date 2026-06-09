@@ -126,8 +126,10 @@ export class DictController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const pageNum = params.pageNum ?? 1;
+    const pageSize = params.pageSize ?? 10;
+    const start = (pageNum - 1) * pageSize;
+    const end = start + pageSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -150,7 +152,7 @@ export class DictController extends BaseController {
   /**
    * 获取所有字典类型
    */
-  async getAllTypes(req: Request, res: Response): Promise<Response> {
+  async getAllTypes(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockDictTypes);
   }
 
@@ -251,9 +253,11 @@ export class DictController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
-    const rows = filtered.slice(start, end);
+    const pageNum2 = params.pageNum ?? 1;
+    const pageSize2 = params.pageSize ?? 10;
+    const start2 = (pageNum2 - 1) * pageSize2;
+    const end2 = start2 + pageSize2;
+    const rows = filtered.slice(start2, end2);
 
     return this.success(res, { total, rows });
   }
@@ -358,14 +362,14 @@ export class DictController extends BaseController {
   /**
    * 刷新字典缓存
    */
-  async refreshCache(req: Request, res: Response): Promise<Response> {
+  async refreshCache(_req: Request, res: Response): Promise<Response> {
     return this.success(res, null, '字典缓存刷新成功');
   }
 
   /**
    * 导出字典数据
    */
-  async export(req: Request, res: Response): Promise<Response> {
+  async export(_req: Request, res: Response): Promise<Response> {
     return this.success(res, { types: mockDictTypes, data: mockDictData });
   }
 }

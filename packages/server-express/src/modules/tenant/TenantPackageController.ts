@@ -2,7 +2,8 @@
  * 租户套餐控制器
  */
 
-import { BaseController } from '../controller/BaseController'
+import type { Request, Response } from 'express';
+import { BaseController } from '../../controller/BaseController';
 
 /** 套餐数据 */
 interface TenantPackage {
@@ -94,13 +95,17 @@ export class TenantPackageController extends BaseController {
   /**
    * 获取套餐分页列表
    */
-  async getPackagePage() {
-    const { keyword, status, packageType, pageNum = 1, pageSize = 10 } = this.query
+  async getPackagePage(req: Request, res: Response): Promise<Response> {
+    const keyword = req.query.keyword as string
+    const status = req.query.status as string
+    const packageType = req.query.packageType as string
+    const pageNum = Number(req.query.pageNum) || 1
+    const pageSize = Number(req.query.pageSize) || 10
 
     let filtered = [...mockPackages]
 
     if (keyword) {
-      const kw = (keyword as string).toLowerCase()
+      const kw = keyword.toLowerCase()
       filtered = filtered.filter(
         p =>
           p.packageName.toLowerCase().includes(kw) ||
@@ -117,18 +122,18 @@ export class TenantPackageController extends BaseController {
     }
 
     const total = filtered.length
-    const start = ((pageNum as number) - 1) * (pageSize as number)
-    const end = start + (pageSize as number)
+    const start = (pageNum - 1) * pageSize
+    const end = start + pageSize
     const rows = filtered.slice(start, end)
 
-    this.success({ total, rows })
+    return this.success(res, { total, rows })
   }
 
   /**
    * 获取套餐列表
    */
-  async getPackageList() {
-    const { status } = this.query
+  async getPackageList(req: Request, res: Response): Promise<Response> {
+    const status = req.query.status as string
     let filtered = [...mockPackages]
 
     if (status) {
@@ -137,29 +142,28 @@ export class TenantPackageController extends BaseController {
       filtered = filtered.filter(p => p.status === '0')
     }
 
-    this.success(filtered)
+    return this.success(res, filtered)
   }
 
   /**
    * 获取套餐详情
    */
-  async getPackageById() {
-    const { packageId } = this.params
+  async getPackageById(req: Request, res: Response): Promise<Response> {
+    const { packageId } = req.params
     const pkg = mockPackages.find(p => p.packageId === Number(packageId))
 
     if (!pkg) {
-      this.fail('套餐不存在', 404)
-      return
+      return this.notFound(res, '套餐不存在')
     }
 
-    this.success(pkg)
+    return this.success(res, pkg)
   }
 
   /**
    * 新增套餐
    */
-  async createPackage() {
-    const data = this.body
+  async createPackage(req: Request, res: Response): Promise<Response> {
+    const data = req.body
 
     const newPackage: TenantPackage = {
       ...data,
@@ -170,20 +174,19 @@ export class TenantPackageController extends BaseController {
     }
 
     mockPackages.push(newPackage)
-    this.success(newPackage)
+    return this.created(res, newPackage)
   }
 
   /**
    * 更新套餐
    */
-  async updatePackage() {
-    const { packageId } = this.params
-    const data = this.body
+  async updatePackage(req: Request, res: Response): Promise<Response> {
+    const { packageId } = req.params
+    const data = req.body
     const index = mockPackages.findIndex(p => p.packageId === Number(packageId))
 
     if (index === -1) {
-      this.fail('套餐不存在', 404)
-      return
+      return this.notFound(res, '套餐不存在')
     }
 
     mockPackages[index] = {
@@ -192,22 +195,23 @@ export class TenantPackageController extends BaseController {
       updateTime: new Date().toLocaleString('zh-CN'),
     }
 
-    this.success(mockPackages[index])
+    return this.success(res, mockPackages[index])
   }
 
   /**
    * 删除套餐
    */
-  async deletePackage() {
-    const { packageId } = this.params
+  async deletePackage(req: Request, res: Response): Promise<Response> {
+    const { packageId } = req.params
     const index = mockPackages.findIndex(p => p.packageId === Number(packageId))
 
     if (index === -1) {
-      this.fail('套餐不存在', 404)
-      return
+      return this.notFound(res, '套餐不存在')
     }
 
     mockPackages.splice(index, 1)
-    this.success(null)
+    return this.success(res, null)
   }
 }
+
+export const tenantPackageController = new TenantPackageController()

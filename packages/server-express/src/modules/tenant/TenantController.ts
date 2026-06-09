@@ -2,8 +2,9 @@
  * 租户管理控制器
  */
 
-import { BaseController } from '../controller/BaseController'
-import { tenantContext, getCurrentTenantId } from '../middlewares/tenant'
+import type { Request, Response } from 'express';
+import { BaseController } from '../../controller/BaseController';
+import { getCurrentTenantId } from '../../middlewares/tenant';
 
 /** 租户数据 */
 interface Tenant {
@@ -69,13 +70,16 @@ export class TenantController extends BaseController {
   /**
    * 获取租户分页列表
    */
-  async getTenantPage() {
-    const { keyword, status, pageNum = 1, pageSize = 10 } = this.query
+  async getTenantPage(req: Request, res: Response): Promise<Response> {
+    const keyword = req.query.keyword as string
+    const status = req.query.status as string
+    const pageNum = Number(req.query.pageNum) || 1
+    const pageSize = Number(req.query.pageSize) || 10
 
     let filtered = [...mockTenants]
 
     if (keyword) {
-      const kw = (keyword as string).toLowerCase()
+      const kw = keyword.toLowerCase()
       filtered = filtered.filter(
         t =>
           t.tenantName.toLowerCase().includes(kw) ||
@@ -88,49 +92,47 @@ export class TenantController extends BaseController {
     }
 
     const total = filtered.length
-    const start = ((pageNum as number) - 1) * (pageSize as number)
-    const end = start + (pageSize as number)
+    const start = (pageNum - 1) * pageSize
+    const end = start + pageSize
     const rows = filtered.slice(start, end)
 
-    this.success({ total, rows })
+    return this.success(res, { total, rows })
   }
 
   /**
    * 获取租户列表
    */
-  async getTenantList() {
+  async getTenantList(_req: Request, res: Response): Promise<Response> {
     const tenantId = getCurrentTenantId()
 
     // 如果有租户上下文，只返回当前租户的数据
     if (tenantId) {
       const tenant = mockTenants.find(t => t.tenantId === Number(tenantId))
-      this.success(tenant ? [tenant] : [])
-      return
+      return this.success(res, tenant ? [tenant] : [])
     }
 
-    this.success(mockTenants)
+    return this.success(res, mockTenants)
   }
 
   /**
    * 获取租户详情
    */
-  async getTenantById() {
-    const { tenantId } = this.params
+  async getTenantById(req: Request, res: Response): Promise<Response> {
+    const { tenantId } = req.params
     const tenant = mockTenants.find(t => t.tenantId === Number(tenantId))
 
     if (!tenant) {
-      this.fail('租户不存在', 404)
-      return
+      return this.notFound(res, '租户不存在')
     }
 
-    this.success(tenant)
+    return this.success(res, tenant)
   }
 
   /**
    * 新增租户
    */
-  async createTenant() {
-    const data = this.body
+  async createTenant(req: Request, res: Response): Promise<Response> {
+    const data = req.body
 
     const newTenant: Tenant = {
       ...data,
@@ -142,20 +144,19 @@ export class TenantController extends BaseController {
     }
 
     mockTenants.push(newTenant)
-    this.success(newTenant)
+    return this.created(res, newTenant)
   }
 
   /**
    * 更新租户
    */
-  async updateTenant() {
-    const { tenantId } = this.params
-    const data = this.body
+  async updateTenant(req: Request, res: Response): Promise<Response> {
+    const { tenantId } = req.params
+    const data = req.body
     const index = mockTenants.findIndex(t => t.tenantId === Number(tenantId))
 
     if (index === -1) {
-      this.fail('租户不存在', 404)
-      return
+      return this.notFound(res, '租户不存在')
     }
 
     mockTenants[index] = {
@@ -164,39 +165,39 @@ export class TenantController extends BaseController {
       updateTime: new Date().toLocaleString('zh-CN'),
     }
 
-    this.success(mockTenants[index])
+    return this.success(res, mockTenants[index])
   }
 
   /**
    * 删除租户
    */
-  async deleteTenant() {
-    const { tenantId } = this.params
+  async deleteTenant(req: Request, res: Response): Promise<Response> {
+    const { tenantId } = req.params
     const index = mockTenants.findIndex(t => t.tenantId === Number(tenantId))
 
     if (index === -1) {
-      this.fail('租户不存在', 404)
-      return
+      return this.notFound(res, '租户不存在')
     }
 
     mockTenants.splice(index, 1)
-    this.success(null)
+    return this.success(res, null)
   }
 
   /**
    * 修改租户状态
    */
-  async changeTenantStatus() {
-    const { tenantId, status } = this.body
+  async changeTenantStatus(req: Request, res: Response): Promise<Response> {
+    const { tenantId, status } = req.body
     const tenant = mockTenants.find(t => t.tenantId === Number(tenantId))
 
     if (!tenant) {
-      this.fail('租户不存在', 404)
-      return
+      return this.notFound(res, '租户不存在')
     }
 
     tenant.status = status
     tenant.updateTime = new Date().toLocaleString('zh-CN')
-    this.success(null)
+    return this.success(res, null)
   }
 }
+
+export const tenantController = new TenantController()

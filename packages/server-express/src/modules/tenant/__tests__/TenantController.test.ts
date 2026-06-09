@@ -131,7 +131,7 @@ describe('TenantController', () => {
       const ctx = createMockContext();
       ctx.query = { keyword: '云枢', pageNum: 1, pageSize: 10 };
 
-      const { keyword, status, pageNum = 1, pageSize = 10 } = ctx.query;
+      const { keyword, status } = ctx.query;
       let filtered = [...mockTenants];
 
       if (keyword) {
@@ -165,7 +165,7 @@ describe('TenantController', () => {
       const ctx = createMockContext();
       ctx.query = { status: '0', pageNum: 1, pageSize: 10 };
 
-      const { keyword, status, pageNum = 1, pageSize = 10 } = ctx.query;
+      const { keyword, status } = ctx.query;
       let filtered = [...mockTenants];
 
       if (keyword) {

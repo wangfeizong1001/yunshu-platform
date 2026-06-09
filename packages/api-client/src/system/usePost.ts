@@ -4,9 +4,12 @@
  * 提供岗位列表、详情、新增、编辑、删除等操作
  */
 
-import { ref, Ref } from 'vue'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { HttpClient } from '../core/HttpClient'
-import type { SysPost, SysPostQuery, SysPostForm, SysPostPageResp } from '@yunshu/shared/types/system'
+import type { SysPost, SysPostQuery, SysPostForm, PageResp } from '@yunshu/shared'
+
+type SysPostPageResp = PageResp<SysPost>
 
 /** 岗位列表 Hook 选项 */
 export interface UsePostListOptions {
@@ -67,9 +70,7 @@ export function usePostList(options: UsePostListOptions = {}): UsePostListReturn
   async function fetchList() {
     loading.value = true
     try {
-      const resp = await postAPI.get<SysPostPageResp>('/list', {
-        params: queryParams.value,
-      })
+      const resp = await postAPI.get<SysPostPageResp>('/list', queryParams.value)
       list.value = resp.data.rows
       total.value = resp.data.total
     } finally {

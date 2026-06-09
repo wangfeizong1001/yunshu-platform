@@ -152,7 +152,7 @@ describe('TenantPackageController', () => {
       const ctx = createMockContext();
       ctx.query = { keyword: '基础', pageNum: 1, pageSize: 10 };
 
-      const { keyword, status, packageType, pageNum = 1, pageSize = 10 } = ctx.query;
+      const { keyword, status, packageType } = ctx.query;
       let filtered = [...mockPackages];
 
       if (keyword) {
@@ -189,7 +189,7 @@ describe('TenantPackageController', () => {
       const ctx = createMockContext();
       ctx.query = { status: '0', pageNum: 1, pageSize: 10 };
 
-      const { keyword, status, packageType, pageNum = 1, pageSize = 10 } = ctx.query;
+      const { keyword, status, packageType } = ctx.query;
       let filtered = [...mockPackages];
 
       if (keyword) {
@@ -226,7 +226,7 @@ describe('TenantPackageController', () => {
       const ctx = createMockContext();
       ctx.query = { packageType: '0', pageNum: 1, pageSize: 10 };
 
-      const { keyword, status, packageType, pageNum = 1, pageSize = 10 } = ctx.query;
+      const { keyword, status, packageType } = ctx.query;
       let filtered = [...mockPackages];
 
       if (keyword) {

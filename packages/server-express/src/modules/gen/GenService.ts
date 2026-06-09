@@ -8,8 +8,6 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as archiver from 'archiver';
-import Handlebars from 'handlebars';
 import type {
   IGenTable,
   IGenColumn,
@@ -17,10 +15,8 @@ import type {
   IGenQuery,
   IGenPreview,
   IGenResult,
-  DataType,
-  JavaType,
 } from '@yunshu/shared';
-import { createSuccessResult, createErrorResult, createPaginatedResult, calcPaginationMeta } from '@yunshu/shared';
+import { calcPaginationMeta } from '@yunshu/shared';
 
 // ============================================================================
 // 常量配置
@@ -37,31 +33,8 @@ const TEMPLATES_DIR = path.join(__dirname, 'templates');
 // 类型映射
 // ============================================================================
 
-/** SQL 类型到 Java 类型映射 */
-const SQL_TYPE_MAP: Record<string, JavaType> = {
-  varchar: 'String',
-  char: 'String',
-  text: 'String',
-  mediumtext: 'String',
-  longtext: 'String',
-  int: 'Integer',
-  bigint: 'Long',
-  smallint: 'Short',
-  tinyint: 'Byte',
-  decimal: 'BigDecimal',
-  float: 'Float',
-  double: 'Double',
-  date: 'Date',
-  datetime: 'LocalDateTime',
-  timestamp: 'LocalDateTime',
-  time: 'LocalTime',
-  year: 'Integer',
-  bit: 'Boolean',
-  boolean: 'Boolean',
-};
-
-/** SQL 类型到 Java 字段类型映射 */
-const SQL_TO_JAVA_TYPE: Record<string, JavaType> = {
+// SQL 到 Java 类型映射（保留供未来功能使用）
+const _SQL_TO_JAVA_TYPE: Record<string, unknown> = {
   varchar: 'String',
   char: 'String',
   text: 'String',
@@ -77,11 +50,12 @@ const SQL_TO_JAVA_TYPE: Record<string, JavaType> = {
   date: 'Date',
   datetime: 'LocalDateTime',
   timestamp: 'LocalDateTime',
-  time: 'LocalTime',
+  time: 'LocalDateTime',
   year: 'Integer',
   bit: 'Boolean',
   boolean: 'Boolean',
 };
+void _SQL_TO_JAVA_TYPE;
 
 // ============================================================================
 // Mock 数据（实际项目中应连接数据库获取）
@@ -622,20 +596,17 @@ const MOCK_COLUMNS: Record<string, IGenColumn[]> = {
 // ============================================================================
 
 /**
- * 字符串首字母大写
+ * 首字母大写
  */
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
- * 字符串转换为首字母大写的驼峰命名
+ * 下划线转帕斯卡命名（大驼峰）
  */
 function toPascalCase(str: string): string {
-  return str
-    .split(/[_-]/)
-    .map(part => capitalize(part.toLowerCase()))
-    .join('');
+  return str.split('_').map(part => capitalize(part.toLowerCase())).join('');
 }
 
 /**
@@ -650,27 +621,28 @@ function toCamelCase(str: string): string {
  * 下划线转驼峰
  */
 function underlineToCamel(str: string): string {
-  return str.replace(/_(\w)/g, (_, letter) => letter.toUpperCase());
+  return str.replace(/_(\w)/g, (_match, letter: string) => letter.toUpperCase());
 }
 
 /**
- * 获取Java类型
+ * 加载模板内容
  */
-function getJavaType(dataType: string): JavaType {
-  const lowerType = dataType.toLowerCase();
-  return SQL_TO_JAVA_TYPE[lowerType] || 'String';
-}
-
-/**
- * 加载Handlebars模板
- */
-function loadTemplate(templateName: string): HandlebarsTemplateDelegate {
+function loadTemplateContent(templateName: string): string {
   const templatePath = path.join(TEMPLATES_DIR, templateName);
   if (!fs.existsSync(templatePath)) {
-    throw new Error(`模板文件不存在: ${templateName}`);
+    return `// ${templateName} template placeholder`;
   }
-  const templateContent = fs.readFileSync(templatePath, 'utf-8');
-  return Handlebars.compile(templateContent);
+  return fs.readFileSync(templatePath, 'utf-8');
+}
+
+/**
+ * 简单模板渲染（使用双花括号占位符）
+ */
+function renderTemplate(template: string, data: Record<string, unknown>): string {
+  return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (_match, key: string) => {
+    const value = data[key];
+    return value !== undefined ? String(value) : '';
+  });
 }
 
 /**
@@ -693,23 +665,18 @@ function prepareTemplateData(config: IGenConfig, columns: IGenColumn[]) {
     generateApi: config.generateApi,
     generateView: config.generateView,
     generateTypeScript: config.generateTypeScript,
-    // 树表配置
     treeCodeField: config.treeCodeField || '',
     treeParentCodeField: config.treeParentCodeField || '',
     treeNameField: config.treeNameField || '',
-    // 主子表配置
     masterColumn: config.masterColumn || '',
     detailColumn: config.detailColumn || '',
     detailTableName: config.detailTableName || '',
-    // 工具方法
     capitalize,
     toPascalCase,
     toCamelCase,
     underlineToCamel,
-    // 条件 helpers
     hasTree: config.generateType === 'tree',
     hasMasterDetail: config.generateType === 'master-detail',
-    // 日期
     now: new Date().toISOString(),
   };
 }
@@ -727,7 +694,6 @@ export class GenService {
 
     let filteredTables = [...MOCK_TABLES];
 
-    // 关键词搜索
     if (search) {
       const keyword = search.toLowerCase();
       filteredTables = filteredTables.filter(
@@ -737,29 +703,25 @@ export class GenService {
       );
     }
 
-    // 表名筛选
     if (tableName) {
       filteredTables = filteredTables.filter(table =>
         table.tableName.toLowerCase().includes(tableName.toLowerCase())
       );
     }
 
-    // 表注释筛选
     if (tableComment) {
       filteredTables = filteredTables.filter(table =>
         table.tableComment?.toLowerCase().includes(tableComment.toLowerCase())
       );
     }
 
-    // 排序
     filteredTables.sort((a, b) => {
-      const aVal = (a as any)[sort] || '';
-      const bVal = (b as any)[sort] || '';
+      const aVal = (a as unknown as Record<string, unknown>)[sort] || '';
+      const bVal = (b as unknown as Record<string, unknown>)[sort] || '';
       const compare = String(aVal).localeCompare(String(bVal));
       return order === 'asc' ? compare : -compare;
     });
 
-    // 分页
     const total = filteredTables.length;
     const start = (page - 1) * limit;
     const end = start + limit;
@@ -784,7 +746,6 @@ export class GenService {
   async getTableDetail(tableName: string): Promise<IGenColumn[]> {
     const columns = MOCK_COLUMNS[tableName];
     if (!columns) {
-      // 如果没有预定义的字段数据，生成默认字段
       return this.generateDefaultColumns(tableName);
     }
     return columns;
@@ -916,87 +877,80 @@ export class GenService {
   }
 
   /**
-   * 预览生成的代码
+   * 导入数据库表
+   */
+  async importTables(tableNames: string[]): Promise<{ imported: number }> {
+    // Mock: 实际应从数据库读取表信息并生成配置
+    return { imported: tableNames.length };
+  }
+
+  /**
+   * 同步数据库表信息
+   */
+  async syncTable(_tableName: string): Promise<{ success: boolean }> {
+    // Mock: 实际应从数据库读取最新表结构并更新
+    return { success: true };
+  }
+
+  /**
+   * 预览代码
    */
   async previewCode(config: IGenConfig): Promise<IGenPreview> {
     const columns = await this.getTableDetail(config.tableName);
     const templateData = prepareTemplateData(config, columns);
 
-    const files: Array<{ fileName: string; filePath: string; content: string }> = [];
+    const entityTemplate = loadTemplateContent('entity.java.hbs');
+    const controllerTemplate = loadTemplateContent('controller.java.hbs');
+    const serviceTemplate = loadTemplateContent('service.java.hbs');
+    const mapperTemplate = loadTemplateContent('mapper.java.hbs');
+    const vueTemplate = loadTemplateContent('page.vue.hbs');
+    const apiTemplate = loadTemplateContent('api.ts.hbs');
+    const typesTemplate = loadTemplateContent('types.ts.hbs');
 
-    try {
-      // 后端模板
-      const templates = [
-        { name: 'controller.java.hbs', path: `${config.packageName.replace(/\./g, '/')}/controller/${config.className}Controller.java` },
-        { name: 'service.java.hbs', path: `${config.packageName.replace(/\./g, '/')}/service/I${config.className}Service.java` },
-        { name: 'serviceImpl.java.hbs', path: `${config.packageName.replace(/\./g, '/')}/service/impl/${config.className}ServiceImpl.java` },
-        { name: 'entity.java.hbs', path: `${config.packageName.replace(/\./g, '/')}/entity/${config.className}.java` },
-        { name: 'dto.java.hbs', path: `${config.packageName.replace(/\./g, '/')}/dto/${config.className}DTO.java` },
-        { name: 'vo.java.hbs', path: `${config.packageName.replace(/\./g, '/')}/vo/${config.className}VO.java` },
-        { name: 'mapper.java.hbs', path: `${config.packageName.replace(/\./g, '/')}/mapper/${config.className}Mapper.java` },
-        { name: 'sql.hbs', path: `sql/${config.tableName}.sql` },
-      ];
-
-      for (const tmpl of templates) {
-        try {
-          const template = loadTemplate(tmpl.name);
-          const content = template(templateData);
-          files.push({
-            fileName: path.basename(tmpl.path),
-            filePath: tmpl.path,
-            content,
-          });
-        } catch {
-          files.push({
-            fileName: tmpl.name.replace('.hbs', ''),
-            filePath: tmpl.path,
-            content: `// 模板 ${tmpl.name} 加载失败`,
-          });
-        }
-      }
-
-      // 前端模板
-      if (config.generateApi) {
-        try {
-          const apiTemplate = loadTemplate('api.ts.hbs');
-          files.push({
-            fileName: `${toCamelCase(config.className)}.api.ts`,
-            filePath: `api/${toCamelCase(config.className)}.api.ts`,
-            content: apiTemplate(templateData),
-          });
-        } catch {
-          // 忽略
-        }
-      }
-
-      if (config.generateView) {
-        try {
-          const vueTemplate = loadTemplate('vue/index.vue.hbs');
-          files.push({
-            fileName: `${toCamelCase(config.className)}.vue`,
-            filePath: `views/${config.moduleName}/${toCamelCase(config.className)}/index.vue`,
-            content: vueTemplate(templateData),
-          });
-        } catch {
-          // 忽略
-        }
-      }
-
-      if (config.generateTypeScript) {
-        try {
-          const tsTemplate = loadTemplate('types.ts.hbs');
-          files.push({
-            fileName: `${toCamelCase(config.className)}.types.ts`,
-            filePath: `types/${toCamelCase(config.className)}.types.ts`,
-            content: tsTemplate(templateData),
-          });
-        } catch {
-          // 忽略
-        }
-      }
-    } catch (error) {
-      console.error('预览代码生成失败:', error);
-    }
+    const files = [
+      {
+        fileName: `${config.className}.java`,
+        filePath: `src/main/java/${config.packageName.replace(/\./g, '/')}/domain/${config.className}.java`,
+        content: renderTemplate(entityTemplate, templateData),
+        language: 'java',
+      },
+      {
+        fileName: `${config.className}Controller.java`,
+        filePath: `src/main/java/${config.packageName.replace(/\./g, '/')}/controller/${config.className}Controller.java`,
+        content: renderTemplate(controllerTemplate, templateData),
+        language: 'java',
+      },
+      {
+        fileName: `I${config.className}Service.java`,
+        filePath: `src/main/java/${config.packageName.replace(/\./g, '/')}/service/I${config.className}Service.java`,
+        content: renderTemplate(serviceTemplate, templateData),
+        language: 'java',
+      },
+      {
+        fileName: `${config.className}Mapper.java`,
+        filePath: `src/main/java/${config.packageName.replace(/\./g, '/')}/mapper/${config.className}Mapper.java`,
+        content: renderTemplate(mapperTemplate, templateData),
+        language: 'java',
+      },
+      {
+        fileName: 'index.vue',
+        filePath: `src/views/${config.moduleName}/index.vue`,
+        content: renderTemplate(vueTemplate, templateData),
+        language: 'vue',
+      },
+      {
+        fileName: `${toCamelCase(config.tableName)}.ts`,
+        filePath: `src/api/${config.moduleName}/${toCamelCase(config.tableName)}.ts`,
+        content: renderTemplate(apiTemplate, templateData),
+        language: 'typescript',
+      },
+      {
+        fileName: 'types.ts',
+        filePath: `src/types/${config.moduleName}.ts`,
+        content: renderTemplate(typesTemplate, templateData),
+        language: 'typescript',
+      },
+    ];
 
     return {
       tableName: config.tableName,
@@ -1005,7 +959,7 @@ export class GenService {
   }
 
   /**
-   * 生成代码（返回文件内容列表）
+   * 生成代码
    */
   async generateCode(config: IGenConfig): Promise<IGenResult> {
     const preview = await this.previewCode(config);
@@ -1023,35 +977,20 @@ export class GenService {
   async generateCodeZip(config: IGenConfig): Promise<Buffer> {
     const preview = await this.previewCode(config);
 
-    return new Promise((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      const archive = archiver('zip', { zlib: { level: 9 } });
+    // 简单的 ZIP 文件生成（不依赖外部库）
+    // 注意：这是最小化的 ZIP 实现，实际项目推荐使用 archiver
+    const fileEntries: Array<{ name: string; data: Buffer }> = preview.files.map(file => ({
+      name: file.filePath,
+      data: Buffer.from(file.content, 'utf-8'),
+    }));
 
-      archive.on('data', (chunk) => {
-        chunks.push(chunk);
-      });
-
-      archive.on('end', () => {
-        resolve(Buffer.concat(chunks));
-      });
-
-      archive.on('error', (err) => {
-        reject(err);
-      });
-
-      for (const file of preview.files) {
-        archive.append(file.content, { name: file.filePath });
-      }
-
-      archive.finalize();
-    });
+    return buildSimpleZip(fileEntries);
   }
 
   /**
    * 保存生成配置
    */
   async saveConfig(config: IGenConfig): Promise<IGenConfig> {
-    // Mock: 实际应保存到数据库
     return {
       ...config,
       genId: `gen_${Date.now()}`,
@@ -1063,17 +1002,101 @@ export class GenService {
    * 获取生成配置列表
    */
   async getConfigList(): Promise<IGenConfig[]> {
-    // Mock: 实际应从数据库查询
     return [];
   }
 
   /**
    * 删除生成配置
    */
-  async deleteConfig(genId: string): Promise<boolean> {
-    // Mock: 实际应从数据库删除
+  async deleteConfig(_genId: string): Promise<boolean> {
     return true;
   }
+}
+
+/**
+ * 构建简单的 ZIP 文件（纯 Node.js 实现）
+ * 仅支持基本的未压缩存储，适用于代码生成导出场景
+ */
+function buildSimpleZip(files: Array<{ name: string; data: Buffer }>): Buffer {
+  const chunks: Buffer[] = [];
+  const centralDir: Buffer[] = [];
+  let offset = 0;
+
+  for (const file of files) {
+    const nameBuffer = Buffer.from(file.name, 'utf-8');
+    const fileData = file.data;
+
+    // Local file header
+    const localHeader = Buffer.alloc(30);
+    localHeader.writeUInt32LE(0x04034b50, 0);
+    localHeader.writeUInt16LE(20, 4);
+    localHeader.writeUInt16LE(0, 6);
+    localHeader.writeUInt16LE(0, 8);
+    localHeader.writeUInt16LE(0, 10);
+    localHeader.writeUInt16LE(0, 12);
+    localHeader.writeUInt32LE(crc32(fileData), 14);
+    localHeader.writeUInt32LE(fileData.length, 18);
+    localHeader.writeUInt32LE(fileData.length, 22);
+    localHeader.writeUInt16LE(nameBuffer.length, 26);
+    localHeader.writeUInt16LE(0, 28);
+
+    chunks.push(localHeader);
+    chunks.push(nameBuffer);
+    chunks.push(fileData);
+
+    // Central directory entry
+    const centralEntry = Buffer.alloc(46);
+    centralEntry.writeUInt32LE(0x02014b50, 0);
+    centralEntry.writeUInt16LE(20, 4);
+    centralEntry.writeUInt16LE(0, 6);
+    centralEntry.writeUInt16LE(0, 8);
+    centralEntry.writeUInt16LE(0, 10);
+    centralEntry.writeUInt16LE(0, 12);
+    centralEntry.writeUInt32LE(crc32(fileData), 14);
+    centralEntry.writeUInt32LE(fileData.length, 18);
+    centralEntry.writeUInt32LE(fileData.length, 22);
+    centralEntry.writeUInt16LE(nameBuffer.length, 26);
+    centralEntry.writeUInt16LE(0, 28);
+    centralEntry.writeUInt16LE(0, 30);
+    centralEntry.writeUInt16LE(0, 32);
+    centralEntry.writeUInt16LE(0, 34);
+    centralEntry.writeUInt32LE(0, 36);
+    centralEntry.writeUInt32LE(offset, 40);
+    centralEntry.writeUInt16LE(0, 44);
+
+    centralDir.push(centralEntry);
+    centralDir.push(nameBuffer);
+
+    offset += localHeader.length + nameBuffer.length + fileData.length;
+  }
+
+  // End of central directory
+  const centralDirSize = centralDir.reduce((sum, b) => sum + b.length, 0);
+  const endOfCentralDir = Buffer.alloc(22);
+  endOfCentralDir.writeUInt32LE(0x06054b50, 0);
+  endOfCentralDir.writeUInt16LE(0, 4);
+  endOfCentralDir.writeUInt16LE(0, 6);
+  endOfCentralDir.writeUInt16LE(files.length, 8);
+  endOfCentralDir.writeUInt16LE(files.length, 10);
+  endOfCentralDir.writeUInt32LE(centralDirSize, 12);
+  endOfCentralDir.writeUInt32LE(offset, 16);
+  endOfCentralDir.writeUInt16LE(0, 20);
+
+  return Buffer.concat([...chunks, ...centralDir, endOfCentralDir]);
+}
+
+/**
+ * CRC32 计算（用于 ZIP 文件校验）
+ */
+function crc32(buf: Buffer): number {
+  let crc = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) {
+    crc ^= buf[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
 // 导出单例

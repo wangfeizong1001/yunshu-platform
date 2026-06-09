@@ -133,8 +133,10 @@ export class SsoController extends BaseController {
     }
 
     const total = filtered.length;
-    const start = (params.pageNum - 1) * params.pageSize;
-    const end = start + params.pageSize;
+    const ssoPage = params.pageNum ?? 1;
+    const ssoSize = params.pageSize ?? 10;
+    const start = (ssoPage - 1) * ssoSize;
+    const end = start + ssoSize;
     const rows = filtered.slice(start, end);
 
     return this.success(res, { total, rows });
@@ -157,7 +159,7 @@ export class SsoController extends BaseController {
   /**
    * 获取所有启用的SSO应用
    */
-  async getEnabledApps(req: Request, res: Response): Promise<Response> {
+  async getEnabledApps(_req: Request, res: Response): Promise<Response> {
     const apps = mockSsoApps.filter(app => app.status === '1');
     return this.success(res, apps);
   }
@@ -265,7 +267,7 @@ export class SsoController extends BaseController {
   /**
    * 获取SSO配置
    */
-  async getConfig(req: Request, res: Response): Promise<Response> {
+  async getConfig(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockSsoConfig);
   }
 
@@ -317,7 +319,7 @@ export class SsoController extends BaseController {
    * 处理授权回调
    */
   async handleCallback(req: Request, res: Response): Promise<Response> {
-    const { code, state, appCode } = req.query;
+    const { code, appCode } = req.query;
 
     const app = mockSsoApps.find(a => a.appCode === appCode);
     if (!app) {
@@ -401,7 +403,7 @@ export class SsoController extends BaseController {
   /**
    * 导出SSO应用
    */
-  async exportApps(req: Request, res: Response): Promise<Response> {
+  async exportApps(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockSsoApps);
   }
 }

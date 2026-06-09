@@ -4,9 +4,10 @@
  * 提供部门树、详情、新增、编辑、删除等操作
  */
 
-import { ref, Ref } from 'vue'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { HttpClient } from '../core/HttpClient'
-import type { SysDept, SysDeptQuery, SysDeptForm } from '@yunshu/shared/types/system'
+import type { SysDept, SysDeptQuery, SysDeptForm } from '@yunshu/shared'
 
 /** 部门列表 Hook 选项 */
 export interface UseDeptListOptions {
@@ -58,9 +59,7 @@ export function useDeptList(options: UseDeptListOptions = {}): UseDeptListReturn
   async function fetchTree() {
     loading.value = true
     try {
-      const resp = await deptAPI.get<SysDept[]>('/tree', {
-        params: queryParams.value,
-      })
+      const resp = await deptAPI.get<SysDept[]>('/tree', queryParams.value)
       tree.value = resp.data
     } finally {
       loading.value = false
@@ -92,9 +91,7 @@ export function useDeptList(options: UseDeptListOptions = {}): UseDeptListReturn
   }
 
   async function getDeptTreeSelectIncludeDisabled(): Promise<SysDept[]> {
-    const resp = await deptAPI.get<SysDept[]>('/treeSelect', {
-      params: { includeDisabled: true },
-    })
+    const resp = await deptAPI.get<SysDept[]>('/treeSelect', { includeDisabled: true })
     return resp.data
   }
 

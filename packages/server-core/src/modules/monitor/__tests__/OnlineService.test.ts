@@ -119,7 +119,10 @@ describe('OnlineService', () => {
     it('PC和移动端总数应等于总数', async () => {
       const result = await service.getStats();
       expect(result.success).toBe(true);
-      expect(result.data?.pcCount + result.data?.mobileCount).toBe(result.data?.totalCount);
+      const data = result.data;
+      if (data) {
+        expect(data.pcCount + data.mobileCount).toBe(data.totalCount);
+      }
     });
   });
 

@@ -4,9 +4,10 @@
  * 提供菜单树、详情、新增、编辑、删除等操作
  */
 
-import { ref, Ref } from 'vue'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { HttpClient } from '../core/HttpClient'
-import type { SysMenu, SysMenuQuery, SysMenuForm } from '@yunshu/shared/types/system'
+import type { SysMenu, SysMenuQuery, SysMenuForm } from '@yunshu/shared'
 
 /** 菜单列表 Hook 选项 */
 export interface UseMenuListOptions {
@@ -58,9 +59,7 @@ export function useMenuList(options: UseMenuListOptions = {}): UseMenuListReturn
   async function fetchTree() {
     loading.value = true
     try {
-      const resp = await menuAPI.get<SysMenu[]>('/tree', {
-        params: queryParams.value,
-      })
+      const resp = await menuAPI.get<SysMenu[]>('/tree', queryParams.value)
       tree.value = resp.data
     } finally {
       loading.value = false

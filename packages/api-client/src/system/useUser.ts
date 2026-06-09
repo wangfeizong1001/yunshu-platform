@@ -4,16 +4,12 @@
  * 提供用户列表、详情、新增、编辑、删除等操作
  */
 
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import type { Ref } from 'vue'
 import { HttpClient } from '../core/HttpClient'
-import type { PaginationParams, ListResponse } from '../core/BaseAPI'
-import type {
-  SysUser,
-  SysUserQuery,
-  SysUserForm,
-  SysUserPageResp,
-} from '@yunshu/shared/types/system'
+import type { SysUser, SysUserQuery, SysUserForm, PageResp } from '@yunshu/shared'
+
+type SysUserPageResp = PageResp<SysUser>
 
 /** 用户列表 Hook 选项 */
 export interface UseUserListOptions {
@@ -102,9 +98,7 @@ export function useUserList(options: UseUserListOptions = {}): UseUserListReturn
   async function fetchList() {
     loading.value = true
     try {
-      const resp = await userAPI.get<SysUserPageResp>('/list', {
-        params: queryParams.value,
-      })
+      const resp = await userAPI.get<SysUserPageResp>('/list', queryParams.value)
       list.value = resp.data.rows
       total.value = resp.data.total
     } finally {

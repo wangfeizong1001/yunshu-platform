@@ -5,59 +5,61 @@
  */
 
 import type { Request, Response } from 'express';
-import type { IOnlineQuery } from '@yunshu/shared';
 import { BaseController } from '../../controller/BaseController';
-import { onlineService } from '@yunshu/server-core/modules/monitor';
+
+interface OnlineUser {
+  tokenId: string;
+  userName: string;
+  deptName: string;
+  ipaddr: string;
+  loginLocation: string;
+  browser: string;
+  os: string;
+  loginTime: string;
+}
+
+const mockOnlineUsers: OnlineUser[] = [
+  {
+    tokenId: 'abc123',
+    userName: 'admin',
+    deptName: '研发部门',
+    ipaddr: '192.168.1.100',
+    loginLocation: '内网IP',
+    browser: 'Chrome 120',
+    os: 'Windows 10',
+    loginTime: '2024-06-10 08:30:00',
+  },
+  {
+    tokenId: 'def456',
+    userName: 'user001',
+    deptName: '测试部门',
+    ipaddr: '192.168.1.101',
+    loginLocation: '内网IP',
+    browser: 'Firefox 115',
+    os: 'Ubuntu 22.04',
+    loginTime: '2024-06-10 09:15:00',
+  },
+];
 
 export class OnlineController extends BaseController {
   /**
-   * 获取在线用户分页列表
+   * 获取在线用户列表
    */
-  async list(req: Request, res: Response): Promise<Response> {
-    const params: IOnlineQuery = {
-      search: req.query.search as string,
-      userName: req.query.userName as string,
-      loginAccount: req.query.loginAccount as string,
-      page: Number(req.query.page) || 1,
-      limit: Number(req.query.limit) || 10,
-      sort: req.query.sort as string,
-      order: req.query.order as 'asc' | 'desc',
-    };
-
-    const result = await onlineService.findWithPagination(params);
-    return this.handleResult(res, result);
+  async list(_req: Request, res: Response): Promise<Response> {
+    return this.success(res, { total: mockOnlineUsers.length, rows: mockOnlineUsers });
   }
 
   /**
-   * 获取在线用户统计
-   */
-  async stats(req: Request, res: Response): Promise<Response> {
-    const result = await onlineService.getStats();
-    return this.handleResult(res, result);
-  }
-
-  /**
-   * 强制用户下线
+   * 强制用户退出
    */
   async forceLogout(req: Request, res: Response): Promise<Response> {
-    const { sessionId } = req.body as { sessionId: string };
-    if (!sessionId) {
-      return this.badRequest(res, '请提供会话编号');
+    const { tokenId } = req.params;
+    const index = mockOnlineUsers.findIndex(u => u.tokenId === tokenId);
+    if (index === -1) {
+      return this.notFound(res, '用户会话不存在或已过期');
     }
-    const result = await onlineService.forceLogout(sessionId);
-    return this.handleResult(res, result);
-  }
-
-  /**
-   * 批量强制用户下线
-   */
-  async forceLogoutBatch(req: Request, res: Response): Promise<Response> {
-    const { sessionIds } = req.body as { sessionIds: string[] };
-    if (!sessionIds || !Array.isArray(sessionIds) || sessionIds.length === 0) {
-      return this.badRequest(res, '请选择要下线的用户');
-    }
-    const result = await onlineService.forceLogoutBatch(sessionIds);
-    return this.handleResult(res, result);
+    mockOnlineUsers.splice(index, 1);
+    return this.success(res, null);
   }
 }
 

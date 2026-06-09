@@ -143,7 +143,7 @@ export class MessageController extends BaseController {
   /**
    * 获取未读消息数量
    */
-  async getUnreadCount(req: Request, res: Response): Promise<Response> {
+  async getUnreadCount(_req: Request, res: Response): Promise<Response> {
     const count = mockMessages.filter(m => m.status === 'unread').length
     return this.success(res, { count })
   }
@@ -191,7 +191,7 @@ export class MessageController extends BaseController {
   /**
    * 标记所有消息为已读
    */
-  async markAllRead(req: Request, res: Response): Promise<Response> {
+  async markAllRead(_req: Request, res: Response): Promise<Response> {
     const now = new Date().toLocaleString('zh-CN')
     mockMessages.forEach(m => {
       if (m.status === 'unread') {
@@ -265,7 +265,7 @@ export class MessageController extends BaseController {
   /**
    * 导出消息
    */
-  async export(req: Request, res: Response): Promise<Response> {
+  async export(_req: Request, res: Response): Promise<Response> {
     return this.success(res, mockMessages)
   }
 }

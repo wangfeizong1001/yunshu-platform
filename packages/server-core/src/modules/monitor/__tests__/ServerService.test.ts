@@ -21,21 +21,27 @@ vi.mock('../../base/BaseService', () => ({
   BaseService: vi.fn().mockImplementation(() => ({})),
 }));
 
-// Mock os module
-vi.mock('os', () => ({
-  platform: vi.fn(() => 'linux'),
-  arch: vi.fn(() => 'x64'),
-  totalmem: vi.fn(() => 16 * 1024 * 1024 * 1024), // 16GB
-  freemem: vi.fn(() => 4 * 1024 * 1024 * 1024), // 4GB
-  cpus: vi.fn(() => [
-    { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
-    { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
-    { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
-    { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
-  ]),
-  uptime: vi.fn(() => 864000), // 10 days
-  hostname: vi.fn(() => 'test-server'),
-}));
+// Mock os module - 使用命名导出配合 default，兼容 import os from 'os'
+vi.mock('os', () => {
+  const mockOs = {
+    platform: vi.fn(() => 'linux'),
+    arch: vi.fn(() => 'x64'),
+    totalmem: vi.fn(() => 16 * 1024 * 1024 * 1024), // 16GB
+    freemem: vi.fn(() => 4 * 1024 * 1024 * 1024), // 4GB
+    cpus: vi.fn(() => [
+      { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
+      { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
+      { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
+      { model: 'Intel Xeon E5-2680 v4 @ 2.40GHz' },
+    ]),
+    uptime: vi.fn(() => 864000), // 10 days
+    hostname: vi.fn(() => 'test-server'),
+  };
+  return {
+    default: mockOs,
+    ...mockOs,
+  };
+});
 
 describe('ServerService', () => {
   let service: ServerService;
