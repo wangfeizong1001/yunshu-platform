@@ -8,10 +8,6 @@ import type { IJob, IJobLog, IJobQuery, IJobLogQuery, IJobCreate, IJobUpdate, IJ
 import type { ServiceResult, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult, createPaginatedResult } from '@yunshu/shared';
 import { ErrorCode } from '../../errors/BusinessError';
-import { BaseService } from '../../base/BaseService';
-
-interface JobModel {
-}
 
 function createInitialJobs(): IJob[] {
   return [
@@ -170,12 +166,11 @@ function compareValues(aVal: unknown, bVal: unknown, sortOrder: number): number 
   return 0;
 }
 
-export class JobService extends BaseService<JobModel, IJob, IJobCreate, IJobUpdate> {
+export class JobService {
   private mockJobs: IJob[];
   private mockJobLogs: IJobLog[];
 
   constructor() {
-    super({} as JobModel, { entityName: '定时任务', softDelete: false });
     this.mockJobs = createInitialJobs();
     this.mockJobLogs = createInitialJobLogs();
   }

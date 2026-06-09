@@ -8,10 +8,6 @@ import type { IOnline, IOnlineQuery, IOnlineStats } from '@yunshu/shared';
 import type { ServiceResult, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult, createPaginatedResult } from '@yunshu/shared';
 import { ErrorCode } from '../../errors/BusinessError';
-import { BaseService } from '../../base/BaseService';
-
-interface OnlineModel {
-}
 
 function createInitialData(): IOnline[] {
   const data: IOnline[] = [];
@@ -45,11 +41,10 @@ function compareValues(aVal: unknown, bVal: unknown, sortOrder: number): number 
   return 0;
 }
 
-export class OnlineService extends BaseService<OnlineModel, IOnline, Partial<IOnline>, Partial<IOnline>> {
+export class OnlineService {
   private mockData: IOnline[];
 
   constructor() {
-    super({} as OnlineModel, { entityName: '在线用户', softDelete: false });
     this.mockData = createInitialData();
   }
 

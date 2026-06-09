@@ -8,10 +8,6 @@ import type { ILogininfor, ILogininforQuery, ILogininforCreate } from '@yunshu/s
 import type { ServiceResult, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult, createPaginatedResult } from '@yunshu/shared';
 import { ErrorCode } from '../../errors/BusinessError';
-import { BaseService } from '../../base/BaseService';
-
-interface LogininforModel {
-}
 
 function createInitialData(): ILogininfor[] {
   const data: ILogininfor[] = [];
@@ -58,11 +54,10 @@ function compareValues(aVal: unknown, bVal: unknown, sortOrder: number): number 
   return 0;
 }
 
-export class LogininforService extends BaseService<LogininforModel, ILogininfor, ILogininforCreate, Partial<ILogininfor>> {
+export class LogininforService {
   private mockData: ILogininfor[];
 
   constructor() {
-    super({} as LogininforModel, { entityName: '登录日志', softDelete: false });
     this.mockData = createInitialData();
   }
 

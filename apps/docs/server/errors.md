@@ -28,7 +28,7 @@ throw new BusinessError(ErrorCode.NOT_FOUND, '用户不存在');
 
 `globalErrorHandler()` 自动处理：
 - BusinessError → 对应 HTTP 状态码
-- MongoDB (E11000/Validation/Cast) → 友好提示
+- PostgreSQL (23505/23503/23502/22P02/Validation) → 友好提示
 - JWT (过期/无效) → 401
 - 文件上传 (Multer) → 413/400
 - 未知错误 → 500 (生产环境脱敏)

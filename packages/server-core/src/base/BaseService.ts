@@ -17,7 +17,7 @@ export interface BaseServiceConfig {
   deletedAtField?: string;
 }
 
-export interface PaginateConfig<T = unknown> {
+export interface PaginateConfig {
   filter?: Record<string, unknown>;
   allowedSortFields?: string[];
   defaultSort?: string;

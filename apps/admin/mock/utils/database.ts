@@ -1292,11 +1292,11 @@ export const db = {
   jobLogs: [] as JobLog[],
 
   genTables: [
-    { tableName: 'sys_user', tableComment: '用户表', tableSchema: 'yunshu', engine: 'InnoDB', createTime: '2024-01-01 10:00:00' },
-    { tableName: 'sys_role', tableComment: '角色表', tableSchema: 'yunshu', engine: 'InnoDB', createTime: '2024-01-01 10:00:00' },
-    { tableName: 'sys_menu', tableComment: '菜单表', tableSchema: 'yunshu', engine: 'InnoDB', createTime: '2024-01-01 10:00:00' },
-    { tableName: 'sys_dept', tableComment: '部门表', tableSchema: 'yunshu', engine: 'InnoDB', createTime: '2024-01-01 10:00:00' },
-    { tableName: 'sys_post', tableComment: '岗位表', tableSchema: 'yunshu', engine: 'InnoDB', createTime: '2024-01-01 10:00:00' }
+    { tableName: 'sys_user', tableComment: '用户表', tableSchema: 'yunshu', engine: 'PostgreSQL', createTime: '2024-01-01 10:00:00' },
+    { tableName: 'sys_role', tableComment: '角色表', tableSchema: 'yunshu', engine: 'PostgreSQL', createTime: '2024-01-01 10:00:00' },
+    { tableName: 'sys_menu', tableComment: '菜单表', tableSchema: 'yunshu', engine: 'PostgreSQL', createTime: '2024-01-01 10:00:00' },
+    { tableName: 'sys_dept', tableComment: '部门表', tableSchema: 'yunshu', engine: 'PostgreSQL', createTime: '2024-01-01 10:00:00' },
+    { tableName: 'sys_post', tableComment: '岗位表', tableSchema: 'yunshu', engine: 'PostgreSQL', createTime: '2024-01-01 10:00:00' }
   ] as GenTable[],
 
   messages: [] as Message[],
