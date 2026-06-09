@@ -1,17 +1,17 @@
 /**
- * 二级缓存装饰器模块
+ * 二级缓存装饰器模块（增强版）
  *
- * 实现 Redis + 内存二级缓存架构，支持：
- * - L1 缓存（内存）：快速访问，容量有限
- * - L2 缓存（Redis）：分布式共享，持久化
- * - 自动降级：Redis 不可用时降级到内存缓存
- * - 缓存穿透防护：空值缓存
- * - 缓存击穿防护：热点 key 互斥锁
+ * 实现 L1（内存） + L2（Redis）二级缓存架构，提供完整缓存防护：
+ * - 缓存雪崩防护：TTL 随机抖动
+ * - 缓存击穿防护：热点 Key 互斥锁
+ * - 缓存穿透防护：空值缓存 + 布隆过滤器
+ * - 完善的监控统计：命中率、响应时间、层级占比
  *
  * @module @yunshu/server-core/cache/CacheDecorator
  */
 
 import { getRedisClient, isRedisAvailable } from './RedisClient';
+import { bloomMightContain, bloomCheckAndAdd } from './BloomFilter';
 
 // ============================================================================
 // 类型定义
@@ -33,6 +33,8 @@ export interface CacheOptions {
   keyPrefix: string;
   /** 过期时间（秒），默认 300 */
   ttl?: number;
+  /** TTL 抖动范围（±百分比，0-0.5），默认 0.1 (±10%)。0 表示禁用 */
+  ttlJitter?: number;
   /** 自定义键生成函数 */
   keyGenerator?: (...args: unknown[]) => string;
   /** 是否缓存空值（防止缓存穿透），默认 true */
@@ -45,6 +47,8 @@ export interface CacheOptions {
   l1Ttl?: number;
   /** 是否启用 L2 缓存（Redis），默认 true */
   enableL2?: boolean;
+  /** 是否启用布隆过滤器（缓存穿透防护），默认 false */
+  enableBloomFilter?: boolean;
   /** 热点 key 保护阈值（并发请求数），默认 5 */
   hotKeyThreshold?: number;
   /** 热点 key 锁等待超时（毫秒），默认 5000 */
@@ -52,15 +56,65 @@ export interface CacheOptions {
 }
 
 /**
- * 缓存统计
+ * 缓存统计（详细版）
  */
-interface CacheStatistics {
+export interface CacheStatistics {
+  /** 总请求数 */
+  total: number;
+  /** 总命中数 */
   hits: number;
+  /** 总未命中数 */
   misses: number;
+  /** L1 内存命中数 */
   l1Hits: number;
+  /** L2 Redis 命中数 */
   l2Hits: number;
+  /** 空值命中数 */
   nullHits: number;
+  /** 布隆过滤器拦截数（一定不存在） */
+  bloomFiltered: number;
+  /** 布隆过滤器放行后实际不存在数 */
+  bloomFalsePositives: number;
+  /** 热点 key 保护触发次数 */
+  hotKeyProtected: number;
+  /** 错误数 */
   errors: number;
+  /** 总响应时间（毫秒） */
+  totalLatencyMs: number;
+  /** L1 命中平均响应时间（毫秒） */
+  l1LatencyMs: number;
+  /** L2 命中平均响应时间（毫秒） */
+  l2LatencyMs: number;
+  /** 未命中时平均响应时间（毫秒，含数据库查询） */
+  missLatencyMs: number;
+}
+
+/**
+ * 缓存监控报告
+ */
+export interface CacheReport {
+  /** 总命中率 */
+  hitRate: number;
+  /** L1 命中率 */
+  l1HitRate: number;
+  /** L2 命中率（当 L1 未命中时） */
+  l2HitRate: number;
+  /** 各级缓存占比 */
+  layerDistribution: {
+    l1: number;
+    l2: number;
+    miss: number;
+    bloomFiltered: number;
+  };
+  /** 平均响应时间（毫秒） */
+  avgLatency: {
+    l1: number;
+    l2: number;
+    miss: number;
+    overall: number;
+  };
+  /** 原始统计 */
+  stats: CacheStatistics;
 }
 
 // ============================================================================
@@ -124,6 +178,28 @@ class MemoryLRUCache {
 }
 
 // ============================================================================
+// TTL 抖动
+// ============================================================================
+
+/**
+ * 计算带随机抖动的 TTL
+ *
+ * 在基础 TTL 上添加 ±jitter 比例的随机抖动，
+ * 避免大量缓存同时过期导致的缓存雪崩。
+ *
+ * @param baseTtl 基础 TTL（秒）
+ * @param jitter 抖动比例（0-0.5）
+ * @returns 抖动后的 TTL（秒，整数）
+ */
+function applyTtlJitter(baseTtl: number, jitter: number = 0.1): number {
+  if (jitter <= 0) return baseTtl;
+  const safeJitter = Math.min(jitter, 0.5);
+  const delta = baseTtl * safeJitter * (Math.random() * 2 - 1);
+  const result = baseTtl + delta;
+  return Math.max(1, Math.round(result));
+}
+
+// ============================================================================
 // 热点 Key 保护
 // ============================================================================
 
@@ -166,32 +242,57 @@ function clearHotKeyCounter(key: string): void {
 // ============================================================================
 
 const globalMemoryCache = new MemoryLRUCache();
+const NULL_MARKER = '__NULL__';
+
+/**
+ * 全局缓存统计
+ */
 const cacheStats: CacheStatistics = {
+  total: 0,
   hits: 0,
   misses: 0,
   l1Hits: 0,
   l2Hits: 0,
   nullHits: 0,
+  bloomFiltered: 0,
+  bloomFalsePositives: 0,
+  hotKeyProtected: 0,
   errors: 0,
+  totalLatencyMs: 0,
+  l1LatencyMs: 0,
+  l2LatencyMs: 0,
+  missLatencyMs: 0,
 };
 
-// 空值标记
-const NULL_MARKER = '__NULL__';
+/**
+ * 各层级请求计数，用于计算平均响应时间
+ */
+const latencyCounter = {
+  l1Count: 0,
+  l2Count: 0,
+  missCount: 0,
+};
 
 // ============================================================================
 // 缓存装饰器
 // ============================================================================
 
 /**
- * 缓存装饰器 — 二级缓存架构
+ * 缓存装饰器 — 二级缓存架构（增强版）
  *
- * 优先使用 L1（内存）-> L2（Redis）-> 原函数
+ * 查询路径: L1（内存） -> L2（Redis） -> 原函数 -> 缓存回填
+ * 防护措施: 布隆过滤器（穿透）、TTL 抖动（雪崩）、热点 Key 锁（击穿）
  *
  * @example
  * ```typescript
  * const cachedGetUser = withCache(
- *   async (id: string) => await User.findById(id),
- *   { keyPrefix: 'user', ttl: 300 }
+ *   async (id: string) => await userService.findById(id),
+ *   {
+ *     keyPrefix: 'user',
+ *     ttl: 300,
+ *     ttlJitter: 0.1,
+ *     enableBloomFilter: true,
+ *   }
  * );
  *
  * const user = await cachedGetUser('user-123');
@@ -204,12 +305,14 @@ export function withCache<TArgs extends unknown[], TResult>(
   const {
     keyPrefix,
     ttl = 300,
+    ttlJitter = 0.1,
     keyGenerator,
     cacheNull = true,
     nullTtl = 60,
     enableL1 = true,
     l1Ttl = 60,
     enableL2 = true,
+    enableBloomFilter = false,
     hotKeyThreshold = 5,
     hotKeyLockTimeout = 5000,
   } = options;
@@ -227,11 +330,24 @@ export function withCache<TArgs extends unknown[], TResult>(
 
   return async (...args: TArgs): Promise<TResult> => {
     const cacheKey = generateKey(...args);
+    const startTime = Date.now();
+    cacheStats.total++;
 
-    // 热点 Key 保护：如果正在有请求在处理，等待其结果
+    // 布隆过滤器：快速判断一定不存在
+    if (enableBloomFilter) {
+      if (!bloomMightContain(cacheKey)) {
+        cacheStats.bloomFiltered++;
+        const latency = Date.now() - startTime;
+        cacheStats.totalLatencyMs += latency;
+        return null as TResult;
+      }
+    }
+
+    // 热点 Key 保护：如果有请求正在处理，等待其结果
     if (isHotKey(cacheKey, hotKeyThreshold)) {
       const waiter = hotKeyWaiters.get(cacheKey);
       if (waiter) {
+        cacheStats.hotKeyProtected++;
         try {
           const result = await Promise.race([
             waiter as Promise<TResult>,
@@ -239,6 +355,8 @@ export function withCache<TArgs extends unknown[], TResult>(
               setTimeout(() => reject(new Error('热点 Key 等待超时')), hotKeyLockTimeout),
             ),
           ]);
+          const latency = Date.now() - startTime;
+          cacheStats.totalLatencyMs += latency;
           return result;
         } catch {
           // 等待超时，继续正常处理
@@ -249,17 +367,21 @@ export function withCache<TArgs extends unknown[], TResult>(
     // 创建处理 Promise 用于热点 Key 共享
     const processPromise = doProcess(fn, args, cacheKey, {
       ttl,
+      ttlJitter,
       cacheNull,
       nullTtl,
       enableL1,
       l1Ttl,
       enableL2,
+      enableBloomFilter,
     });
 
     hotKeyWaiters.set(cacheKey, processPromise);
 
     try {
       const result = await processPromise;
+      const latency = Date.now() - startTime;
+      cacheStats.totalLatencyMs += latency;
       return result;
     } finally {
       clearHotKeyCounter(cacheKey);
@@ -267,30 +389,55 @@ export function withCache<TArgs extends unknown[], TResult>(
   };
 }
 
-/**
- * 执行缓存处理逻辑
- */
+// ============================================================================
+// 缓存处理逻辑
+// ============================================================================
+
 async function doProcess<TArgs extends unknown[], TResult>(
   fn: (...args: TArgs) => Promise<TResult>,
   args: TArgs,
   cacheKey: string,
   config: {
     ttl: number;
+    ttlJitter: number;
     cacheNull: boolean;
     nullTtl: number;
     enableL1: boolean;
     l1Ttl: number;
     enableL2: boolean;
+    enableBloomFilter: boolean;
   },
 ): Promise<TResult> {
-  const { ttl, cacheNull, nullTtl, enableL1, l1Ttl, enableL2 } = config;
+  const {
+    ttl,
+    ttlJitter,
+    cacheNull,
+    nullTtl,
+    enableL1,
+    l1Ttl,
+    enableL2,
+    enableBloomFilter,
+  } = config;
 
-  // 1. 尝试 L1 缓存
+  // TTL 抖动：防止缓存雪崩
+  const effectiveTtl = applyTtlJitter(ttl, ttlJitter);
+  const effectiveL1Ttl = applyTtlJitter(l1Ttl, ttlJitter);
+  const effectiveNullTtl = applyTtlJitter(nullTtl, ttlJitter);
+
+  // 1. 尝试 L1 缓存（内存）
   if (enableL1) {
+    const l1Start = Date.now();
     const l1Result = globalMemoryCache.get<TResult>(cacheKey);
     if (l1Result !== null) {
       cacheStats.hits++;
       cacheStats.l1Hits++;
+      const l1Latency = Date.now() - l1Start;
+
+      // 更新 L1 平均响应时间
+      latencyCounter.l1Count++;
+      cacheStats.l1LatencyMs = cacheStats.l1LatencyMs +
+        (l1Latency - cacheStats.l1LatencyMs) / latencyCounter.l1Count;
+
       // 检查是否为空值标记
       if (l1Result === NULL_MARKER as unknown as TResult) {
         cacheStats.nullHits++;
@@ -305,17 +452,21 @@ async function doProcess<TArgs extends unknown[], TResult>(
     try {
       const redis = getRedisClient();
       if (redis) {
+        const l2Start = Date.now();
         const l2Result = await redis.get(cacheKey);
         if (l2Result !== null) {
           cacheStats.hits++;
           cacheStats.l2Hits++;
+          const l2Latency = Date.now() - l2Start;
+          latencyCounter.l2Count++;
+          cacheStats.l2LatencyMs = cacheStats.l2LatencyMs +
+            (l2Latency - cacheStats.l2LatencyMs) / latencyCounter.l2Count;
 
           // 检查是否为空值标记
           if (l2Result === NULL_MARKER) {
             cacheStats.nullHits++;
-            // 回填 L1
             if (enableL1) {
-              globalMemoryCache.set(cacheKey, NULL_MARKER as unknown as TResult, l1Ttl);
+              globalMemoryCache.set(cacheKey, NULL_MARKER as unknown as TResult, effectiveL1Ttl);
             }
             return null as TResult;
           }
@@ -325,14 +476,14 @@ async function doProcess<TArgs extends unknown[], TResult>(
             const parsed = JSON.parse(l2Result) as TResult;
             // 回填 L1
             if (enableL1) {
-              globalMemoryCache.set(cacheKey, parsed, l1Ttl);
+              globalMemoryCache.set(cacheKey, parsed, effectiveL1Ttl);
             }
             return parsed;
           } catch {
             // 非 JSON，直接返回
             const value = l2Result as unknown as TResult;
             if (enableL1) {
-              globalMemoryCache.set(cacheKey, value, l1Ttl);
+              globalMemoryCache.set(cacheKey, value, effectiveL1Ttl);
             }
             return value;
           }
@@ -341,30 +492,38 @@ async function doProcess<TArgs extends unknown[], TResult>(
     } catch (error) {
       cacheStats.errors++;
       console.error('[Cache] Redis 读取失败:', error);
-      // 继续执行原函数
     }
   }
 
   // 3. 缓存未命中，执行原函数
   cacheStats.misses++;
+  const missStart = Date.now();
 
   try {
     const result = await fn(...args);
+    const missLatency = Date.now() - missStart;
+    latencyCounter.missCount++;
+    cacheStats.missLatencyMs = cacheStats.missLatencyMs +
+      (missLatency - cacheStats.missLatencyMs) / latencyCounter.missCount;
 
     // 4. 缓存结果
     const isNull = result === null || result === undefined;
-    const effectiveTtl = isNull && cacheNull ? nullTtl : ttl;
+
+    // 更新布隆过滤器（如果启用）
+    if (enableBloomFilter && !isNull) {
+      bloomCheckAndAdd(cacheKey);
+    }
 
     // 缓存空值（防止穿透）
     if (isNull && cacheNull) {
       if (enableL1) {
-        globalMemoryCache.set(cacheKey, NULL_MARKER as unknown as TResult, l1Ttl);
+        globalMemoryCache.set(cacheKey, NULL_MARKER as unknown as TResult, effectiveNullTtl);
       }
       if (enableL2 && isRedisAvailable()) {
         try {
           const redis = getRedisClient();
           if (redis) {
-            await redis.setex(cacheKey, effectiveTtl, NULL_MARKER);
+            await redis.setex(cacheKey, effectiveNullTtl, NULL_MARKER);
           }
         } catch (error) {
           cacheStats.errors++;
@@ -374,7 +533,7 @@ async function doProcess<TArgs extends unknown[], TResult>(
     } else if (!isNull) {
       // 缓存有效值
       if (enableL1) {
-        globalMemoryCache.set(cacheKey, result, l1Ttl);
+        globalMemoryCache.set(cacheKey, result, effectiveL1Ttl);
       }
       if (enableL2 && isRedisAvailable()) {
         try {
@@ -419,6 +578,7 @@ export async function invalidateCache(key: string): Promise<boolean> {
         l2Deleted = result > 0;
       }
     } catch (error) {
+      cacheStats.errors++;
       console.error('[Cache] Redis 删除失败:', error);
     }
   }
@@ -455,6 +615,7 @@ export async function invalidateCacheByPrefix(prefix: string): Promise<number> {
         }
       }
     } catch (error) {
+      cacheStats.errors++;
       console.error('[Cache] Redis 批量删除失败:', error);
     }
   }
@@ -462,10 +623,54 @@ export async function invalidateCacheByPrefix(prefix: string): Promise<number> {
   return count;
 }
 
+// ============================================================================
+// 统计与监控 API
+// ============================================================================
+
 /**
  * 获取缓存统计
  */
-export function getCacheStats(): CacheStatistics & { hitRate: number } {
+export function getCacheStats(): CacheReport {
+  const { total, hits, misses, l1Hits, l2Hits, nullHits, bloomFiltered, hotKeyProtected, errors,
+    totalLatencyMs, l1LatencyMs, l2LatencyMs, missLatencyMs } = cacheStats;
+
+  const hitRate = total > 0 ? hits / total : 0;
+  const l1HitRate = total > 0 ? l1Hits / total : 0;
+
+  // L2 命中率：当 L1 未命中后，L2 命中的比例
+  const l2Opportunities = total - l1Hits - bloomFiltered;
+  const l2HitRate = l2Opportunities > 0 ? l2Hits / l2Opportunities : 0;
+
+  // 各级缓存占比
+  const layerDistribution = {
+    l1: total > 0 ? l1Hits / total : 0,
+    l2: total > 0 ? l2Hits / total : 0,
+    miss: total > 0 ? misses / total : 0,
+    bloomFiltered: total > 0 ? bloomFiltered / total : 0,
+  };
+
+  // 平均响应时间
+  const avgLatency = {
+    l1: l1LatencyMs,
+    l2: l2LatencyMs,
+    miss: missLatencyMs,
+    overall: total > 0 ? totalLatencyMs / total : 0,
+  };
+
+  return {
+    hitRate,
+    l1HitRate,
+    l2HitRate,
+    layerDistribution,
+    avgLatency,
+    stats: { ...cacheStats },
+  };
+}
+
+/**
+ * 获取简化统计（保持向后兼容）
+ */
+export function getCacheSimpleStats(): CacheStatistics & { hitRate: number } {
   const total = cacheStats.hits + cacheStats.misses;
   return {
     ...cacheStats,
@@ -477,12 +682,23 @@ export function getCacheStats(): CacheStatistics & { hitRate: number } {
  * 重置缓存统计
  */
 export function resetCacheStats(): void {
+  cacheStats.total = 0;
   cacheStats.hits = 0;
   cacheStats.misses = 0;
   cacheStats.l1Hits = 0;
   cacheStats.l2Hits = 0;
   cacheStats.nullHits = 0;
+  cacheStats.bloomFiltered = 0;
+  cacheStats.bloomFalsePositives = 0;
+  cacheStats.hotKeyProtected = 0;
   cacheStats.errors = 0;
+  cacheStats.totalLatencyMs = 0;
+  cacheStats.l1LatencyMs = 0;
+  cacheStats.l2LatencyMs = 0;
+  cacheStats.missLatencyMs = 0;
+  latencyCounter.l1Count = 0;
+  latencyCounter.l2Count = 0;
+  latencyCounter.missCount = 0;
 }
 
 /**
@@ -500,6 +716,62 @@ export function getL1CacheSize(): number {
 }
 
 /**
+ * 生成缓存监控报告（格式化输出）
+ */
+export function getCacheReport(format: 'json' | 'text' = 'text'): string {
+  const report = getCacheStats();
+
+  if (format === 'json') {
+    return JSON.stringify(report, null, 2);
+  }
+
+  const pct = (v: number) => `${(v * 100).toFixed(2)}%`;
+  const ms = (v: number) => `${v.toFixed(2)}ms`;
+
+  return `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       缓存监控报告
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+总请求数: ${report.stats.total}
+总命中率: ${pct(report.hitRate)}
+
+┌─────────────────────────────────────┐
+│ 层级分布                             │
+├─────────────────────────────────────┤
+│ L1 (内存)    : ${pct(report.layerDistribution.l1).padEnd(10)} (${report.stats.l1Hits} 次)
+│ L2 (Redis)   : ${pct(report.layerDistribution.l2).padEnd(10)} (${report.stats.l2Hits} 次)
+│ 未命中        : ${pct(report.layerDistribution.miss).padEnd(10)} (${report.stats.misses} 次)
+│ 布隆过滤      : ${pct(report.layerDistribution.bloomFiltered).padEnd(10)} (${report.stats.bloomFiltered} 次)
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│ 平均响应时间                         │
+├─────────────────────────────────────┤
+│ L1 命中      : ${ms(report.avgLatency.l1)}
+│ L2 命中      : ${ms(report.avgLatency.l2)}
+│ 未命中查询   : ${ms(report.avgLatency.miss)}
+│ 总体平均     : ${ms(report.avgLatency.overall)}
+└─────────────────────────────────────┘
+
+┌─────────────────────────────────────┐
+│ 其他指标                             │
+├─────────────────────────────────────┤
+│ 空值命中      : ${report.stats.nullHits} 次
+│ 热点 Key 保护 : ${report.stats.hotKeyProtected} 次
+│ 错误数        : ${report.stats.errors} 次
+│ L1 缓存大小   : ${getL1CacheSize()} 项
+└─────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`.trim();
+}
+
+// ============================================================================
+// 缓存预热
+// ============================================================================
+
+/**
  * 批量预热缓存
  *
  * @param items 预热项列表
@@ -507,16 +779,18 @@ export function getL1CacheSize(): number {
  */
 export async function warmupCache<T>(
   items: Array<{ key: string; value: T; ttl?: number }>,
-  options: { enableL1?: boolean; l1Ttl?: number; enableL2?: boolean } = {},
+  options: { enableL1?: boolean; l1Ttl?: number; enableL2?: boolean; ttlJitter?: number } = {},
 ): Promise<void> {
-  const { enableL1 = true, l1Ttl = 60, enableL2 = true } = options;
+  const { enableL1 = true, l1Ttl = 60, enableL2 = true, ttlJitter = 0.1 } = options;
 
   for (const item of items) {
-    const ttl = item.ttl ?? 300;
+    const baseTtl = item.ttl ?? 300;
+    const effectiveTtl = applyTtlJitter(baseTtl, ttlJitter);
+    const effectiveL1Ttl = applyTtlJitter(l1Ttl, ttlJitter);
 
     // L1
     if (enableL1) {
-      globalMemoryCache.set(item.key, item.value, l1Ttl);
+      globalMemoryCache.set(item.key, item.value, effectiveL1Ttl);
     }
 
     // L2
@@ -524,11 +798,14 @@ export async function warmupCache<T>(
       try {
         const redis = getRedisClient();
         if (redis) {
-          const serialized = typeof item.value === 'string' ? item.value : JSON.stringify(item.value);
-          await redis.setex(item.key, ttl, serialized);
+          const serialized = typeof item.value === 'string'
+            ? item.value
+            : JSON.stringify(item.value);
+          await redis.setex(item.key, effectiveTtl, serialized);
         }
       } catch (error) {
-        console.error('[Cache] 预热写入 Redis 失败:', error);
+        cacheStats.errors++;
+        console.error('[Cache] 预热失败:', error);
       }
     }
   }

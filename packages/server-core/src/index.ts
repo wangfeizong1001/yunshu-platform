@@ -100,13 +100,30 @@ export {
   invalidateCache,
   invalidateCacheByPrefix,
   getCacheStats,
+  getCacheSimpleStats,
   resetCacheStats,
   clearL1Cache,
   getL1CacheSize,
   warmupCache,
+  getCacheReport,
 } from './cache/CacheDecorator';
 
-export type { CacheOptions } from './cache/CacheDecorator';
+export type { CacheOptions, CacheReport, CacheStatistics } from './cache/CacheDecorator';
+
+// 布隆过滤器（缓存穿透防护）
+export {
+  initBloomFilter,
+  createBloomFilter,
+  createRedisBloomFilter,
+  bloomAdd,
+  bloomAddAll,
+  bloomMightContain,
+  bloomCheckAndAdd,
+  bloomClear,
+  bloomGetStats,
+} from './cache/BloomFilter';
+
+export type { BloomFilterStats } from './cache/BloomFilter';
 
 // 分布式锁
 export {
