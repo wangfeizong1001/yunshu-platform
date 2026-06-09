@@ -499,7 +499,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=mysql://user:pass@db:3306/yunshu
+      - DATABASE_URL=postgres://yunshu:yunshupassword@db:5432/yunshu
       - REDIS_URL=redis://cache:6379
     depends_on:
       db:
@@ -512,21 +512,20 @@ services:
 
   # 数据库
   db:
-    image: mysql:8.0
+    image: postgres:16-alpine
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=yunshu
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - POSTGRES_DB=yunshu
+      - POSTGRES_USER=${POSTGRES_USER:-yunshu}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-yunshupassword}
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "3306:3306"
+      - "5432:5432"
     networks:
       - yunshu-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "pg_isready -U yunshu -d yunshu"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -561,7 +560,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  mysql_data:
+  postgres_data:
   redis_data:
 
 networks:
@@ -727,17 +726,16 @@ http {
 
 ```bash
 # 数据库
-MYSQL_ROOT_PASSWORD=your_root_password
-MYSQL_DATABASE=yunshu
-MYSQL_USER=yunshu_user
-MYSQL_PASSWORD=your_password
+POSTGRES_USER=yunshu
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=yunshu
 
 # Redis
 REDIS_PASSWORD=your_redis_password
 
 # API
 NODE_ENV=production
-DATABASE_URL=mysql://yunshu_user:your_password@db:3306/yunshu
+DATABASE_URL=postgres://yunshu:your_password@db:5432/yunshu
 ```
 
 #### 6. 启动和管理
