@@ -4,7 +4,7 @@
  * @module @yunshu/server-core/cache/CacheWarmup
  */
 
-import { warmupCache } from './CacheDecorator';
+
 
 export interface WarmupTask {
   name: string;

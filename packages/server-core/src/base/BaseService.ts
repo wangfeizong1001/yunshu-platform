@@ -17,7 +17,7 @@ export interface BaseServiceConfig {
   deletedAtField?: string;
 }
 
-export interface PaginateConfig {
+export interface PaginateConfig<_T = unknown> {
   filter?: Record<string, unknown>;
   allowedSortFields?: string[];
   defaultSort?: string;
@@ -99,7 +99,7 @@ export abstract class BaseService<T extends IEntity = IEntity, TId = string> {
     const sortField = params.sort && allowedSortFields.includes(params.sort) ? params.sort : defaultSort;
     const dbSortField = this.toDbFieldName(sortField);
     const populateConfigs = populate ? this.buildPopulateConfigs(populate) : undefined;
-    const selectFields = select ? select.map((f) => this.toDbFieldName(f)) : undefined;
+    const selectFields = select ? select.map((f: string) => this.toDbFieldName(f)) : undefined;
 
     return this.repository.findWithPagination(params, {
       where: conditions,

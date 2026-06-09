@@ -8,7 +8,6 @@
 
 import type { Pool } from 'pg';
 import type { IRepository, IEntity, QueryCondition, QueryConfig } from './IRepository';
-import type { PostgresQueryBuilderConfig } from './PostgresQueryBuilder';
 import type { ServiceResult, PaginationParams, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult } from '@yunshu/shared';
 import { ErrorCode } from '../errors/BusinessError';

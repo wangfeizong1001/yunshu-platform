@@ -124,9 +124,12 @@ export class RedisClientManager {
         db: this.config.db,
         password: this.config.password,
         maxRetriesPerRequest: this.config.maxRetries ?? 3,
-        retryDelay: this.config.retryDelayMs ?? 1000,
         enableReadyCheck: true,
         lazyConnect: false,
+        retryStrategy: (times: number) => {
+          const delay = this.config.retryDelayMs ?? 1000;
+          return Math.min(times * delay, 10000);
+        },
       };
 
       this.client = new RedisCtor(options) as Redis;
