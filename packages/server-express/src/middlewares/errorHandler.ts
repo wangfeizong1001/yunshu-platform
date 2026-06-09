@@ -1,7 +1,7 @@
 /**
  * Express 适配器 — 全局错误处理中间件
  *
- * 全类型错误处理，覆盖 MongoDB、JWT、文件上传、网络错误等场景。
+ * 全类型错误处理，覆盖 PostgreSQL、JWT、文件上传、网络错误等场景。
  * 支持 BusinessError 和普通 Error，生产环境自动隐藏内部错误详情。
  *
  * @module @yunshu/server-express/middlewares/errorHandler
@@ -18,10 +18,10 @@ interface AppError extends Error {
   statusCode: number;
   isOperational: boolean;
   code?: string;
-  path?: string;
-  value?: unknown;
-  keyValue?: Record<string, unknown>;
-  errors?: Record<string, { message: string }>;
+  column?: string;
+  constraint?: string;
+  table?: string;
+  detail?: string;
 }
 
 // ============================================================================
@@ -29,47 +29,93 @@ interface AppError extends Error {
 // ============================================================================
 
 /**
- * 处理 MongoDB 相关错误
+ * 处理 PostgreSQL 相关错误
+ *
+ * PostgreSQL 错误码参考:
+ * - 23505: unique_violation (唯一约束冲突)
+ * - 23503: foreign_key_violation (外键约束冲突)
+ * - 23502: not_null_violation (非空约束冲突)
+ * - 23514: check_violation (检查约束失败)
+ * - 42P01: undefined_table (表不存在)
+ * - 42703: undefined_column (列不存在)
+ * - 22P02: invalid_text_representation (无效文本格式)
+ * - 22001: string_data_right_truncation (字符串过长)
  */
-function handleMongoError(error: unknown): AppError {
+function handlePostgresError(error: unknown): AppError {
   const err = error as Error & {
-    code?: number | string;
-    keyValue?: Record<string, unknown>;
-    errors?: Record<string, { message: string }>;
-    path?: string;
-    value?: unknown;
+    code?: string;
+    column?: string;
+    constraint?: string;
+    table?: string;
+    detail?: string;
   };
 
   let message = '数据库操作失败';
   let statusCode = 500;
 
-  // 重复键 E11000
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue ?? {})[0];
+  const code = err.code ?? '';
+
+  // 23505 — 唯一约束冲突（例如重复用户名）
+  if (code === '23505') {
+    const field = err.column
+      ?? ((err.constraint ?? '').replace(/.*_(.*)_key/, '$1') || '字段');
     const fieldNames: Record<string, string> = {
       email: '邮箱', username: '用户名', phone: '手机号',
-      title: '标题', name: '名称',
+      title: '标题', name: '名称', code: '编码',
     };
-    const fieldName = fieldNames[field ?? ''] ?? field;
+    const fieldName = fieldNames[field] ?? field;
     message = `${fieldName}已存在`;
     statusCode = 409;
   }
-  // 验证错误
-  else if (err.name === 'ValidationError') {
-    const errors = Object.values(err.errors ?? {}).map((v) => v.message);
-    message = `数据验证失败: ${errors.join(', ')}`;
+  // 23503 — 外键约束冲突（例如引用不存在的记录）
+  else if (code === '23503') {
+    const tableName = err.table ?? '关联记录';
+    message = `${tableName}关联数据不存在，无法完成操作`;
+    statusCode = 409;
+  }
+  // 23502 — 非空约束冲突
+  else if (code === '23502') {
+    const field = err.column ?? '字段';
+    message = `${field}不能为空`;
     statusCode = 400;
   }
-  // 类型转换错误
-  else if (err.name === 'CastError') {
-    const fieldNames: Record<string, string> = {
-      _id: 'ID', userId: '用户ID', categoryId: '分类ID',
-    };
-    message = `无效的${fieldNames[err.path ?? ''] ?? err.path}`;
+  // 23514 — 检查约束失败
+  else if (code === '23514') {
+    message = '数据不满足约束条件';
     statusCode = 400;
+  }
+  // 42P01 — 表不存在
+  else if (code === '42P01') {
+    message = `数据表${err.table ?? ''}不存在，请联系管理员`;
+    statusCode = 500;
+  }
+  // 42703 — 列不存在
+  else if (code === '42703') {
+    message = `字段${err.column ?? ''}不存在`;
+    statusCode = 400;
+  }
+  // 22P02 — 无效文本格式（例如 UUID 格式错误）
+  else if (code === '22P02') {
+    message = '数据格式无效';
+    statusCode = 400;
+  }
+  // 22001 — 字符串过长
+  else if (code === '22001') {
+    message = '数据长度超出限制';
+    statusCode = 400;
+  }
+  // 其他 23 类完整性约束错误
+  else if (code.startsWith('23')) {
+    message = '数据完整性约束冲突';
+    statusCode = 400;
+  }
+  // 42 类语法错误
+  else if (code.startsWith('42')) {
+    message = '数据库查询语法错误';
+    statusCode = 500;
   }
 
-  return { ...new Error(message), statusCode, isOperational: true, name: 'MongoError' };
+  return { ...new Error(message), statusCode, isOperational: true, name: 'PostgresError' };
 }
 
 /**
@@ -157,9 +203,20 @@ export function globalErrorHandler() {
     // 2. 处理各类错误
     let processed: AppError;
 
-    if (err.name?.includes('Mongo') || err.name === 'ValidationError' || (typeof (err as any).code === 'number' && (err as any).code === 11000)) {
-      processed = handleMongoError(error);
-    } else if (err.name?.includes('JsonWebToken') || err.name?.includes('Token')) {
+    const errCode = (error as Error & { code?: string })?.code;
+
+    if (
+      // PostgreSQL 标准错误码 (2 位类别 + 3 位子类别)
+      (typeof errCode === 'string' && /^[0-9]{5}$/.test(errCode)) ||
+      // 常见驱动名称
+      err.name === 'PostgresError' ||
+      err.name === 'DatabaseError' ||
+      // pg 库抛出的错误名称
+      err.name?.includes('Postgres') ||
+      err.name?.includes('postgres')
+    ) {
+      processed = handlePostgresError(error);
+    } else if (err.name?.includes('JsonWebToken') || err.name?.includes('Token') || err.name?.includes('NotBefore')) {
       processed = handleJWTError(error);
     } else if ((err as any).code?.startsWith?.('LIMIT_') || err.message?.includes('Multer')) {
       processed = handleUploadError(error);
