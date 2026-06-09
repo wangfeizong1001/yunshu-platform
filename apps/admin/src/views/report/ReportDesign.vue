@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ArrowLeft, View, Check, Plus, Delete, Upload } from '@element-plus/icons-vue'
@@ -485,12 +485,21 @@ watch(
 )
 
 // 窗口大小变化时重绘图表
+function handleResize() {
+  chartInstance?.resize()
+}
+
 onMounted(() => {
   loadReport()
-  
-  window.addEventListener('resize', () => {
-    chartInstance?.resize()
-  })
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  if (chartInstance) {
+    chartInstance.dispose()
+    chartInstance = null
+  }
 })
 </script>
 

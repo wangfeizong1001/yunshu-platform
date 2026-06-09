@@ -164,11 +164,12 @@
                   placeholder="请选择审批人"
                   style="width: 100%"
                 >
-                  <el-option label="管理员" value="1" />
-                  <el-option label="张三" value="2" />
-                  <el-option label="李四" value="3" />
-                  <el-option label="王五" value="4" />
-                  <el-option label="赵六" value="5" />
+                  <el-option
+                    v-for="opt in approverOptions"
+                    :key="opt.value"
+                    :label="opt.label"
+                    :value="opt.value"
+                  />
                 </el-select>
               </el-form-item>
               <el-form-item label="或选择角色">
@@ -223,11 +224,12 @@
                   placeholder="请选择抄送人"
                   style="width: 100%"
                 >
-                  <el-option label="管理员" value="1" />
-                  <el-option label="张三" value="2" />
-                  <el-option label="李四" value="3" />
-                  <el-option label="王五" value="4" />
-                  <el-option label="赵六" value="5" />
+                  <el-option
+                    v-for="opt in copyUserOptions"
+                    :key="opt.value"
+                    :label="opt.label"
+                    :value="opt.value"
+                  />
                 </el-select>
               </el-form-item>
               <el-form-item label="或选择角色">
@@ -342,35 +344,45 @@ const viewMode = ref('design')
 const canvasWidth = 800
 const canvasHeight = 600
 
+const VALID_NODE_TYPES = ['start', 'end', 'task', 'approval', 'copy', 'gateway', 'condition', 'subtask'] as const
+type ValidNodeType = typeof VALID_NODE_TYPES[number]
+
+const approverOptions = ref([
+  { label: '管理员', value: '1' },
+  { label: '张三', value: '2' },
+  { label: '李四', value: '3' },
+  { label: '王五', value: '4' },
+  { label: '赵六', value: '5' },
+])
+
+const copyUserOptions = ref([
+  { label: '管理员', value: '1' },
+  { label: '张三', value: '2' },
+  { label: '李四', value: '3' },
+  { label: '王五', value: '4' },
+  { label: '赵六', value: '5' },
+])
+
 interface FlowNode {
   id: string
-  type: 'start' | 'end' | 'task' | 'gateway' | 'approval' | 'copy' | 'condition' | 'subtask'
+  type: ValidNodeType
   x: number
   y: number
   label: string
   description?: string
   assignee?: string
   taskType?: string
-  // 审批相关配置
   approvers?: string[]
   approvalType?: 'single' | 'multi'
-  // 抄送相关配置
   copyUsers?: string[]
   copyTypes?: string[]
-  // 条件分支配置
   conditions?: Condition[]
-  // 网关配置
   gatewayType?: 'parallel' | 'exclusive' | 'inclusive'
-  // 表单配置
   formKey?: string
-  // 期限配置
   dueDateHours?: number
   overdueAction?: string
-  // 委托配置
   delegatable?: boolean
-  // 子任务配置
   subtaskTemplate?: string
-  // 高级配置
   nodeKey?: string
   priority?: number
   remark?: string
@@ -388,29 +400,45 @@ interface Connection {
   to: { nodeId: string; port: string }
 }
 
-const nodes = ref<FlowNode[]>([
+const initialNodes: FlowNode[] = [
   { id: 'start', type: 'start', x: 370, y: 50, label: '开始' },
   { id: 'task1', type: 'approval', x: 340, y: 150, label: '发起申请', description: '员工发起请假申请', approvalType: 'single' },
   { id: 'gateway1', type: 'condition', x: 340, y: 260, label: '审批条件', conditions: [] },
   { id: 'task2', type: 'approval', x: 200, y: 380, label: '部门经理审批', description: '部门经理进行审批', approvalType: 'multi' },
   { id: 'task3', type: 'copy', x: 480, y: 380, label: 'HR抄送', copyUsers: [] },
   { id: 'end', type: 'end', x: 370, y: 500, label: '结束' },
-])
+]
 
-const connections = ref<Connection[]>([
+const initialConnections: Connection[] = [
   { from: { nodeId: 'start', port: 'bottom' }, to: { nodeId: 'task1', port: 'top' } },
   { from: { nodeId: 'task1', port: 'bottom' }, to: { nodeId: 'gateway1', port: 'top' } },
   { from: { nodeId: 'gateway1', port: 'bottom' }, to: { nodeId: 'task2', port: 'top' } },
   { from: { nodeId: 'gateway1', port: 'bottom' }, to: { nodeId: 'task3', port: 'top' } },
   { from: { nodeId: 'task2', port: 'bottom' }, to: { nodeId: 'end', port: 'top' } },
   { from: { nodeId: 'task3', port: 'bottom' }, to: { nodeId: 'end', port: 'top' } },
-])
+]
+
+const nodes = ref<FlowNode[]>(JSON.parse(JSON.stringify(initialNodes)))
+const connections = ref<Connection[]>(JSON.parse(JSON.stringify(initialConnections)))
+
+const history = ref<Array<{ nodes: FlowNode[]; connections: Connection[] }>>([])
+const historyIndex = ref(-1)
+const canUndo = ref(false)
+const canRedo = ref(false)
+
+const pushHistory = () => {
+  history.value = history.value.slice(0, historyIndex.value + 1)
+  history.value.push({
+    nodes: JSON.parse(JSON.stringify(nodes.value)),
+    connections: JSON.parse(JSON.stringify(connections.value)),
+  })
+  historyIndex.value++
+  canUndo.value = historyIndex.value > 0
+  canRedo.value = historyIndex.value < history.value.length - 1
+}
 
 const selectedNodeId = ref<string>('')
 const selectedNode = ref<FlowNode | null>(null)
-
-const canUndo = ref(false)
-const canRedo = ref(false)
 
 let nodeIdCounter = 100
 let isDragging = false
@@ -419,6 +447,8 @@ let dragOffsetX = 0
 let dragOffsetY = 0
 let isConnecting = false
 let connectingFrom: { nodeId: string; port: string } | null = null
+
+pushHistory()
 
 function getNodeIcon(type: string) {
   const iconMap: Record<string, string> = {
@@ -447,11 +477,31 @@ function handleDeploy() {
 }
 
 function handleUndo() {
-  ElMessage.info('撤销')
+  if (historyIndex.value <= 0) {
+    ElMessage.info('已到最早操作')
+    return
+  }
+  historyIndex.value--
+  const snapshot = history.value[historyIndex.value]
+  nodes.value = JSON.parse(JSON.stringify(snapshot.nodes))
+  connections.value = JSON.parse(JSON.stringify(snapshot.connections))
+  canUndo.value = historyIndex.value > 0
+  canRedo.value = true
+  ElMessage.info('已撤销')
 }
 
 function handleRedo() {
-  ElMessage.info('重做')
+  if (historyIndex.value >= history.value.length - 1) {
+    ElMessage.info('已是最新操作')
+    return
+  }
+  historyIndex.value++
+  const snapshot = history.value[historyIndex.value]
+  nodes.value = JSON.parse(JSON.stringify(snapshot.nodes))
+  connections.value = JSON.parse(JSON.stringify(snapshot.connections))
+  canRedo.value = historyIndex.value < history.value.length - 1
+  canUndo.value = true
+  ElMessage.info('已重做')
 }
 
 function handleDragStart(e: DragEvent, type: string) {
@@ -462,18 +512,23 @@ function handleDrop(e: DragEvent) {
   const nodeType = e.dataTransfer?.getData('nodeType')
   if (!nodeType || !canvasRef.value) return
 
+  const validType = (VALID_NODE_TYPES as readonly string[]).includes(nodeType)
+    ? (nodeType as ValidNodeType)
+    : 'task'
+
   const rect = canvasRef.value.getBoundingClientRect()
   const x = e.clientX - rect.left - 60
   const y = e.clientY - rect.top - 30
 
   const newNode: FlowNode = {
     id: `node-${++nodeIdCounter}`,
-    type: nodeType as any,
+    type: validType,
     x,
     y,
-    label: getDefaultLabel(nodeType),
+    label: getDefaultLabel(validType),
   }
   nodes.value.push(newNode)
+  pushHistory()
 }
 
 function getDefaultLabel(type: string) {
@@ -561,21 +616,32 @@ function getLinePath(conn: Connection) {
   const toNode = nodes.value.find((n) => n.id === conn.to.nodeId)
   if (!fromNode || !toNode) return ''
 
-  let x1 = fromNode.x + 60
-  let y1 = fromNode.y + 60
-  let x2 = toNode.x + 60
-  let y2 = toNode.y
+  let x1: number, y1: number, x2: number, y2: number
 
-  if (conn.from.port === 'bottom') {
-    y1 = fromNode.y + 60
-  } else {
-    y1 = fromNode.y
+  switch (conn.from.port) {
+    case 'bottom':
+      x1 = fromNode.x + 60; y1 = fromNode.y + 60; break
+    case 'top':
+      x1 = fromNode.x + 60; y1 = fromNode.y; break
+    case 'left':
+      x1 = fromNode.x; y1 = fromNode.y + 30; break
+    case 'right':
+      x1 = fromNode.x + 120; y1 = fromNode.y + 30; break
+    default:
+      x1 = fromNode.x + 60; y1 = fromNode.y + 60
   }
 
-  if (conn.to.port === 'top') {
-    y2 = toNode.y
-  } else {
-    y2 = toNode.y + 60
+  switch (conn.to.port) {
+    case 'top':
+      x2 = toNode.x + 60; y2 = toNode.y; break
+    case 'bottom':
+      x2 = toNode.x + 60; y2 = toNode.y + 60; break
+    case 'left':
+      x2 = toNode.x; y2 = toNode.y + 30; break
+    case 'right':
+      x2 = toNode.x + 120; y2 = toNode.y + 30; break
+    default:
+      x2 = toNode.x + 60; y2 = toNode.y
   }
 
   const midY = (y1 + y2) / 2
@@ -603,6 +669,7 @@ function handleRemoveNode(node: FlowNode) {
       selectedNodeId.value = ''
       selectedNode.value = null
     }
+    pushHistory()
   }
 }
 

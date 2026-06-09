@@ -160,6 +160,30 @@ const selectedWidget = computed(() => {
 
 
 
+const LineChartWidget = {
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00d4ff;">折线图</div>'
+}
+
+const BarChartWidget = {
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ffd700;">柱状图</div>'
+}
+
+const PieChartWidget = {
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00ff88;">饼图</div>'
+}
+
+const TableWidget = {
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#a855f7;">数据表格</div>'
+}
+
+const NumberWidget = {
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ff6b6b;">数字卡片</div>'
+}
+
+const GaugeWidget = {
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#6366f1;">仪表盘</div>'
+}
+
 const getWidgetComponent = (type: string) => {
   const components: Record<string, any> = {
     line: LineChartWidget,
@@ -236,31 +260,6 @@ const saveDashboard = () => {
     name: dashboardName.value,
     widgets: canvasWidgets.value
   })
-}
-
-// 简单的组件占位符
-const LineChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00d4ff;">折线图</div>'
-}
-
-const BarChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ffd700;">柱状图</div>'
-}
-
-const PieChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00ff88;">饼图</div>'
-}
-
-const TableWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#a855f7;">数据表格</div>'
-}
-
-const NumberWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ff6b6b;">数字卡片</div>'
-}
-
-const GaugeWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#6366f1;">仪表盘</div>'
 }
 </script>
 
