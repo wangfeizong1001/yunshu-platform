@@ -184,8 +184,8 @@ describe('ServerService', () => {
 
     it('应返回正确的JVM版本', async () => {
       const result = await service.getJvmInfo();
-      expect(result.data?.name).toBe('OpenJDK 17.0.9');
-      expect(result.data?.version).toBe('17.0.9');
+      expect(result.data?.name).toBe(`Node.js ${process.versions.node}`);
+      expect(result.data?.version).toBe(process.versions.node);
     });
   });
 });
