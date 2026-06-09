@@ -1318,7 +1318,7 @@ ls -la /etc/nginx/ssl/
 docker-compose ps db
 
 # 测试数据库连接
-docker-compose exec db mysql -u user -p
+docker-compose exec db psql -U yunshu -d yunshu
 
 # 检查连接字符串
 echo $DATABASE_URL

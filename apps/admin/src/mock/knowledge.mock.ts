@@ -151,7 +151,7 @@ export const mockKnowledgeList: KnowledgeInfo[] = [
     title: '系统架构设计文档',
     categoryId: 1,
     categoryName: '技术文档',
-    content: '<h2>系统架构概览</h2><p>本系统采用微服务架构，前后端分离设计。</p><h3>技术栈</h3><p>前端：Vue 3 + Element Plus</p><p>后端：Spring Boot + MyBatis Plus</p><p>数据库：MySQL 8.0</p>',
+    content: '<h2>系统架构概览</h2><p>本系统采用前后端分离架构设计。</p><h3>技术栈</h3><p>前端：Vue 3 + Element Plus</p><p>后端：Node.js + Express + @yunshu/server-core</p><p>数据库：PostgreSQL 16</p><p>缓存：Redis 7</p>',
     summary: '系统整体架构设计说明',
     coverUrl: '',
     tags: '架构,技术文档,系统设计',

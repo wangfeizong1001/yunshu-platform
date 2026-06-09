@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
   splitting: false,
   sourcemap: true,
-  external: ['@yunshu/shared', 'ioredis', 'mongoose'],
+  external: ['@yunshu/shared', 'ioredis', 'pg'],
 });

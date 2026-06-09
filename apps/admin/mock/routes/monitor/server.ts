@@ -33,8 +33,8 @@ export default [
         uptime: Math.floor(Date.now() / 1000) - 1704067200,
         jvm: 'OpenJDK 17.0.9',
         javaVersion: '17.0.9',
-        database: 'MySQL',
-        databaseVersion: '8.0.35',
+        database: 'PostgreSQL',
+        databaseVersion: '16.0',
         projectPath: '/opt/yunshu/server',
         hostName: 'yunshu-server-01',
         collectTime: new Date().toISOString().replace('T', ' ').slice(0, 19)
