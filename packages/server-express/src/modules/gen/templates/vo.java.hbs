@@ -1,0 +1,42 @@
+/**
+ * {{className}} VO
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+package {{packageName}}.vo;
+
+import lombok.Data;
+import java.io.Serializable;
+{{#if hasTree}}
+import java.util.List;
+{{/if}}
+{{#if hasMasterDetail}}
+import java.util.List;
+{{/if}}
+
+/**
+ * {{functionName}}视图对象
+ *
+ * @author {{author}}
+ */
+@Data
+public class {{className}}VO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+{{#each columns}}
+    /** {{columnComment}} */
+    private {{javaType}} {{javaField}};
+{{/each}}
+
+{{#if hasTree}}
+    /** 子部门列表 */
+    private List<{{className}}VO> children;
+{{/if}}
+
+{{#if hasMasterDetail}}
+    /** 子表列表 */
+    private List<{{toPascalCase detailTableName}}VO> {{toCamelCase detailTableName}}List;
+{{/if}}
+}

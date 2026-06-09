@@ -38,7 +38,7 @@ export interface BaseServiceConfig {
 /**
  * 分页查询配置
  */
-export interface PaginateConfig<T = unknown> {
+export interface PaginateConfig {
   /** 查询过滤条件 */
   filter?: Record<string, unknown>;
   /** 允许排序的字段白名单（安全考虑，防注入） */
@@ -262,7 +262,7 @@ export abstract class BaseService<
    */
   async findWithPagination(
     params: PaginationParams,
-    config: PaginateConfig<TDocument> = {},
+    config: PaginateConfig = {},
   ): Promise<ServiceResult<PaginatedResult<TDocument>>> {
     try {
       const {

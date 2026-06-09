@@ -1,0 +1,103 @@
+/**
+ * 定时任务 Mock 数据
+ *
+ * @module @yunshu/admin/mock/monitor
+ */
+
+import type { IJob, IJobLog } from '@yunshu/shared'
+
+export const jobMockData: IJob[] = [
+  {
+    jobId: '1',
+    jobName: '数据备份',
+    jobGroup: 'system',
+    invokeTarget: 'backupJob.execute',
+    cronExpression: '0 0 2 * * ?',
+    misfirePolicy: '1',
+    concurrent: '1',
+    status: '0',
+    createTime: '2024-01-15T08:00:00Z',
+    nextValidTime: new Date(Date.now() + 18 * 3600000).toISOString(),
+    lastRunTime: new Date(Date.now() - 18 * 3600000).toISOString(),
+    runCount: 30,
+    remark: '每日凌晨2点执行数据备份',
+  },
+  {
+    jobId: '2',
+    jobName: '日志清理',
+    jobGroup: 'system',
+    invokeTarget: 'logCleanJob.execute',
+    cronExpression: '0 0 3 * * ?',
+    misfirePolicy: '1',
+    concurrent: '1',
+    status: '0',
+    createTime: '2024-01-10T10:00:00Z',
+    nextValidTime: new Date(Date.now() + 17 * 3600000).toISOString(),
+    lastRunTime: new Date(Date.now() - 17 * 3600000).toISOString(),
+    runCount: 45,
+    remark: '每日凌晨3点清理30天前的日志',
+  },
+  {
+    jobId: '3',
+    jobName: '缓存预热',
+    jobGroup: 'system',
+    invokeTarget: 'cacheWarmupJob.execute',
+    cronExpression: '0 0/30 * * * ?',
+    misfirePolicy: '0',
+    concurrent: '0',
+    status: '0',
+    createTime: '2024-02-01T09:00:00Z',
+    nextValidTime: new Date(Date.now() + 30 * 60000).toISOString(),
+    lastRunTime: new Date(Date.now() - 30 * 60000).toISOString(),
+    runCount: 120,
+    remark: '每30分钟预热热门数据缓存',
+  },
+  {
+    jobId: '4',
+    jobName: '报表生成',
+    jobGroup: 'default',
+    invokeTarget: 'reportGenerateJob.execute',
+    cronExpression: '0 0 8 * * ?',
+    misfirePolicy: '1',
+    concurrent: '1',
+    status: '1',
+    createTime: '2024-02-15T14:00:00Z',
+    nextValidTime: new Date(Date.now() + 26 * 3600000).toISOString(),
+    lastRunTime: new Date(Date.now() - 2 * 3600000).toISOString(),
+    runCount: 15,
+    remark: '每天早上8点生成日报报表',
+  },
+  {
+    jobId: '5',
+    jobName: '订单超时处理',
+    jobGroup: 'default',
+    invokeTarget: 'orderTimeoutJob.execute',
+    cronExpression: '0 0/5 * * * ?',
+    misfirePolicy: '0',
+    concurrent: '0',
+    status: '0',
+    createTime: '2024-03-01T11:00:00Z',
+    nextValidTime: new Date(Date.now() + 5 * 60000).toISOString(),
+    lastRunTime: new Date(Date.now() - 5 * 60000).toISOString(),
+    runCount: 500,
+    remark: '每5分钟检查并处理超时订单',
+  },
+]
+
+export const jobLogMockData: IJobLog[] = Array.from({ length: 30 }, (_, i) => {
+  const job = jobMockData[i % jobMockData.length]
+  const status = i % 10 === 0 ? '1' : '0'
+  return {
+    logId: String(i + 1),
+    jobId: job.jobId,
+    jobName: job.jobName,
+    jobGroup: job.jobGroup,
+    invokeTarget: job.invokeTarget,
+    status,
+    executeTime: new Date(Date.now() - i * 3600000).toISOString(),
+    costTime: Math.floor(Math.random() * 5000) + 100,
+    message: status === '0' ? '任务执行成功' : '任务执行失败',
+    error: status === '0' ? undefined : 'Connection timeout',
+    createTime: new Date(Date.now() - i * 3600000).toISOString(),
+  }
+})

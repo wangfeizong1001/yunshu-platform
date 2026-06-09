@@ -1,0 +1,102 @@
+/**
+ * {{className}} 控制器
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+package {{packageName}}.controller;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import {{packageName}}.dto.{{className}}DTO;
+import {{packageName}}.entity.{{className}};
+import {{packageName}}.service.I{{className}}Service;
+import {{packageName}}.vo.{{className}}VO;
+import com.yunshu.core.response.ApiResponse;
+import com.yunshu.core.response.PagedResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * {{functionName}}控制器
+ *
+ * @author {{author}}
+ */
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/{{moduleName}}/{{underlineToCamel className}}")
+public class {{className}}Controller {
+
+    private final I{{className}}Service {{toCamelCase className}}Service;
+
+    /**
+     * 获取{{functionName}}分页列表
+     */
+    @GetMapping("/page")
+    public PagedResponse<{{className}}VO> getPage(
+            {{className}}DTO dto,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer limit) {
+        IPage<{{className}}> result = {{toCamelCase className}}Service.selectPage(dto, page, limit);
+        return PagedResponse.ok(result);
+    }
+
+    /**
+     * 获取{{functionName}}列表
+     */
+    @GetMapping("/list")
+    public ApiResponse<List<{{className}}VO>> getList({{className}}DTO dto) {
+        List<{{className}}VO> list = {{toCamelCase className}}Service.selectList(dto);
+        return ApiResponse.ok(list);
+    }
+
+    /**
+     * 获取{{functionName}}详情
+     */
+    @GetMapping("/{${javaField}}}")
+    public ApiResponse<{{className}}VO> getDetail(@PathVariable("{{javaField}}") {{columns.[0].javaType}} {{javaField}}) {
+        {{className}}VO vo = {{toCamelCase className}}Service.selectById({{javaField}});
+        return ApiResponse.ok(vo);
+    }
+
+    /**
+     * 创建{{functionName}}
+     */
+    @PostMapping
+    public ApiResponse<Boolean> create(@RequestBody {{className}}DTO dto) {
+        boolean result = {{toCamelCase className}}Service.create(dto);
+        return ApiResponse.ok(result);
+    }
+
+    /**
+     * 更新{{functionName}}
+     */
+    @PutMapping("/{${javaField}}}")
+    public ApiResponse<Boolean> update(
+            @PathVariable("{{javaField}}") {{columns.[0].javaType}} {{javaField}},
+            @RequestBody {{className}}DTO dto) {
+        dto.set{{capitalize javaField}}({{javaField}});
+        boolean result = {{toCamelCase className}}Service.update(dto);
+        return ApiResponse.ok(result);
+    }
+
+    /**
+     * 删除{{functionName}}
+     */
+    @DeleteMapping("/{${javaField}}}")
+    public ApiResponse<Boolean> delete(@PathVariable("{{javaField}}") {{columns.[0].javaType}} {{javaField}}) {
+        boolean result = {{toCamelCase className}}Service.delete({{javaField}});
+        return ApiResponse.ok(result);
+    }
+
+    /**
+     * 批量删除{{functionName}}
+     */
+    @DeleteMapping("/batch")
+    public ApiResponse<Integer> deleteBatch(@RequestBody List<{{columns.[0].javaType}}> ids) {
+        int result = {{toCamelCase className}}Service.deleteBatch(ids);
+        return ApiResponse.ok(result);
+    }
+}

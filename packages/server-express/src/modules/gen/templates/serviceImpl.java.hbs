@@ -1,0 +1,131 @@
+/**
+ * {{className}}服务实现类
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+package {{packageName}}.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import {{packageName}}.dto.{{className}}DTO;
+import {{packageName}}.entity.{{className}};
+import {{packageName}}.mapper.{{className}}Mapper;
+import {{packageName}}.service.I{{className}}Service;
+import {{packageName}}.vo.{{className}}VO;
+import com.yunshu.core.utils.BeanCopyUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * {{functionName}}服务实现类
+ *
+ * @author {{author}}
+ */
+@Service
+@RequiredArgsConstructor
+public class {{className}}ServiceImpl
+        extends ServiceImpl<{{className}}Mapper, {{className}}>
+        implements I{{className}}Service {
+
+    private final {{className}}Mapper {{toCamelCase className}}Mapper;
+
+    @Override
+    public IPage<{{className}}> selectPage({{className}}DTO dto, Integer page, Integer limit) {
+        LambdaQueryWrapper<{{className}}> wrapper = buildQueryWrapper(dto);
+        Page<{{className}}> pageParam = new Page<>(page, limit);
+        return page(pageParam, wrapper);
+    }
+
+    @Override
+    public List<{{className}}VO> selectList({{className}}DTO dto) {
+        LambdaQueryWrapper<{{className}}> wrapper = buildQueryWrapper(dto);
+        List<{{className}}> list = list(wrapper);
+        return list.stream().map(this::toVO).collect(Collectors.toList());
+    }
+
+    @Override
+    public {{className}}VO selectById({{columns.[0].javaType}} {{javaField}}) {
+        {{className}} entity = getById({{javaField}});
+        return toVO(entity);
+    }
+
+    @Override
+    public boolean create({{className}}DTO dto) {
+        {{className}} entity = toEntity(dto);
+        return save(entity);
+    }
+
+    @Override
+    public boolean update({{className}}DTO dto) {
+        {{className}} entity = toEntity(dto);
+        return updateById(entity);
+    }
+
+    @Override
+    public boolean delete({{columns.[0].javaType}} {{javaField}}) {
+        return removeById({{javaField}});
+    }
+
+    @Override
+    public int deleteBatch(List<{{columns.[0].javaType}}> ids) {
+        return removeByIds(ids) ? ids.size() : 0;
+    }
+
+    /**
+     * 构建查询条件
+     */
+    private LambdaQueryWrapper<{{className}}> buildQueryWrapper({{className}}DTO dto) {
+        LambdaQueryWrapper<{{className}}> wrapper = new LambdaQueryWrapper<>();
+{{#each columns}}
+{{#if queryType}}
+        {{#ifCond queryType '==' 'eq'}}
+        if ({{../javaField}} != null) {
+            wrapper.eq({{../className}}::get{{capitalize javaField}}, dto.get{{capitalize javaField}}());
+        }
+        {{/ifCond}}
+        {{#ifCond queryType '==' 'like'}}
+        if (StringUtils.hasText(dto.get{{capitalize javaField}}())) {
+            wrapper.like({{../className}}::get{{capitalize javaField}}, dto.get{{capitalize javaField}}());
+        }
+        {{/ifCond}}
+        {{#ifCond queryType '==' 'gt'}}
+        if (dto.get{{capitalize javaField}}() != null) {
+            wrapper.gt({{../className}}::get{{capitalize javaField}}, dto.get{{capitalize javaField}}());
+        }
+        {{/ifCond}}
+        {{#ifCond queryType '==' 'lt'}}
+        if (dto.get{{capitalize javaField}}() != null) {
+            wrapper.lt({{../className}}::get{{capitalize javaField}}, dto.get{{capitalize javaField}}());
+        }
+        {{/ifCond}}
+        {{#ifCond queryType '==' 'in'}}
+        if (dto.get{{capitalize javaField}}() != null && !dto.get{{capitalize javaField}}().isEmpty()) {
+            wrapper.in({{../className}}::get{{capitalize javaField}}, dto.get{{capitalize javaField}}());
+        }
+        {{/ifCond}}
+{{/if}}
+{{/each}}
+        return wrapper;
+    }
+
+    /**
+     * DTO转实体
+     */
+    private {{className}} toEntity({{className}}DTO dto) {
+        return BeanCopyUtils.copy(dto, {{className}}.class);
+    }
+
+    /**
+     * 实体转VO
+     */
+    private {{className}}VO toVO({{className}} entity) {
+        return BeanCopyUtils.copy(entity, {{className}}VO.class);
+    }
+}

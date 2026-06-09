@@ -1,0 +1,99 @@
+/**
+ * {{className}} API
+ *
+ * @author {{author}}
+ * @date {{now}}
+ */
+
+import { request } from '@/utils/request'
+import type { ApiResponse, PaginatedResponse } from '@yunshu/shared'
+
+{{#if generateTypeScript}}
+import type { I{{className}}, I{{className}}Query } from '@/types/{{toCamelCase className}}.types'
+{{/if}}
+
+/** {{functionName}}分页响应 */
+export type {{className}}PageResp = PaginatedResponse<I{{className}}>
+
+/**
+ * 获取{{functionName}}分页列表
+ * @param params 查询参数
+ */
+export function get{{className}}Page(params: I{{className}}Query) {
+  return request<{{className}}PageResp>({
+    url: '/{{moduleName}}/{{toCamelCase className}}/page',
+    method: 'get',
+    params,
+  })
+}
+
+/**
+ * 获取{{functionName}}列表
+ * @param params 查询参数
+ */
+export function get{{className}}List(params?: I{{className}}Query) {
+  return request<ApiResponse<I{{className}}[]>>({
+    url: '/{{moduleName}}/{{toCamelCase className}}/list',
+    method: 'get',
+    params,
+  })
+}
+
+/**
+ * 获取{{functionName}}详情
+ * @param {{javaField}} ID
+ */
+export function get{{className}}Detail({{javaField}}: {{columns.[0].javaType}}) {
+  return request<ApiResponse<I{{className}}>>({
+    url: `/{{moduleName}}/{{toCamelCase className}}/{{javaField}}`,
+    method: 'get',
+  })
+}
+
+/**
+ * 创建{{functionName}}
+ * @param data 表单数据
+ */
+export function create{{className}}(data: Partial<I{{className}}>) {
+  return request<ApiResponse<boolean>>({
+    url: '/{{moduleName}}/{{toCamelCase className}}',
+    method: 'post',
+    data,
+  })
+}
+
+/**
+ * 更新{{functionName}}
+ * @param {{javaField}} ID
+ * @param data 表单数据
+ */
+export function update{{className}}({{javaField}}: {{columns.[0].javaType}}, data: Partial<I{{className}}>) {
+  return request<ApiResponse<boolean>>({
+    url: `/{{moduleName}}/{{toCamelCase className}}/{{javaField}}`,
+    method: 'put',
+    data,
+  })
+}
+
+/**
+ * 删除{{functionName}}
+ * @param {{javaField}} ID
+ */
+export function delete{{className}}({{javaField}}: {{columns.[0].javaType}}) {
+  return request<ApiResponse<boolean>>({
+    url: `/{{moduleName}}/{{toCamelCase className}}/{{javaField}}`,
+    method: 'delete',
+  })
+}
+
+/**
+ * 批量删除{{functionName}}
+ * @param ids ID列表
+ */
+export function delete{{className}}Batch(ids: {{columns.[0].javaType}}[]) {
+  return request<ApiResponse<number>>({
+    url: `/{{moduleName}}/{{toCamelCase className}}/batch`,
+    method: 'delete',
+    data: ids,
+  })
+}

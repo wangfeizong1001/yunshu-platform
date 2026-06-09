@@ -1,0 +1,73 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@@/*": ["packages/*"],
+      "@yunshu/ui": ["packages/ui/src"],
+      "@yunshu/ui/*": ["packages/ui/src/*"],
+      "@yunshu/shared": ["packages/shared/src"],
+      "@yunshu/shared/*": ["packages/shared/src/*"],
+      "@yunshu/design-tokens": ["packages/design-tokens/src"],
+      "@yunshu/design-tokens/*": ["packages/design-tokens/src/*"],
+      "@yunshu/api-client": ["packages/api-client/src"],
+      "@yunshu/api-client/*": ["packages/api-client/src/*"]
+    },
+
+    /* Types */
+    "types": ["vite/client", "element-plus/global"],
+
+    /* Source maps */
+    "sourceMap": true,
+    "inlineSources": true,
+
+    /* Decorators */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "packages/**/*.ts",
+    "packages/**/*.d.ts",
+    "packages/**/*.vue",
+    "tools/**/*.ts",
+    "*.ts"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.js",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+
+  "references": [
+    { "path": "./tsconfig.node.json" }
+  ]
+}

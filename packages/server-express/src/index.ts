@@ -37,4 +37,11 @@ export {
   requireAdmin,
 } from './middlewares/auth';
 
+export {
+  tenantMiddleware,
+  tenantContext,
+  getCurrentTenantId,
+  clearTenantContext,
+} from './middlewares/tenant';
+
 export type { ITokenVerifier, IUserLookup } from './middlewares/auth';

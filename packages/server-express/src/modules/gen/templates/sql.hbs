@@ -1,0 +1,32 @@
+-- ----------------------------
+-- {{tableComment}}表结构
+-- ----------------------------
+DROP TABLE IF EXISTS `{{tableName}}`;
+CREATE TABLE `{{tableName}}` (
+{{#each columns}}
+  `{{columnName}}` {{dataType}}{{#ifCond dataType '==' 'varchar'}}({{columnLength}}){{/ifCond}}{{#ifCond dataType '==' 'char'}}({{columnLength}}){{/ifCond}}{{#ifCond dataType '==' 'decimal'}}({{numericPrecision}},{{numericScale}}){{/ifCond}} {{#ifCond isNullable '==' 'NO'}}NOT NULL{{else}}DEFAULT {{#if columnDefault}}{{columnDefault}}{{else}}NULL{{/if}}{{/ifCond}} COMMENT '{{columnComment}}',
+{{/each}}
+  PRIMARY KEY ({{#each columns}}{{#if isPK}}{{columnName}}{{/if}}{{/each}})
+{{#if hasTree}}
+  USING BTREE
+{{/if}}
+) ENGINE={{engine}} DEFAULT CHARSET=utf8mb4 COMMENT='{{tableComment}}';
+
+-- ----------------------------
+-- 表格索引
+-- ----------------------------
+{{#each columns}}
+{{#if queryType}}
+{{#ifCond queryType '==' 'eq'}}
+CREATE INDEX idx_{{-underlineToCamel javaField}} ON `{{../tableName}}`(`{{columnName}}`);
+{{/ifCond}}
+{{#ifCond queryType '==' 'like'}}
+CREATE INDEX idx_{{-underlineToCamel javaField}} ON `{{../tableName}}`(`{{columnName}}`);
+{{/ifCond}}
+{{/if}}
+{{/each}}
+
+-- ----------------------------
+-- 表格注释
+-- ----------------------------
+ALTER TABLE `{{tableName}}` COMMENT = '{{tableComment}}';

@@ -1,0 +1,233 @@
+<template>
+  <div class="page-container">
+    <!-- 搜索表单 -->
+    <el-card class="search-card">
+      <el-form :model="queryParams" inline>
+{{#each columns}}
+{{#if queryType}}
+        <el-form-item label="{{columnComment}}">
+{{#ifCond displayType '==' 'select'}}
+          <el-select v-model="queryParams.{{javaField}}" placeholder="请选择" clearable style="width: 150px">
+            <el-option label="启用" value="0" />
+            <el-option label="停用" value="1" />
+          </el-select>
+{{else}}
+          <el-input v-model="queryParams.{{javaField}}" placeholder="请输入{{columnComment}}" clearable style="width: 150px" />
+{{/ifCond}}
+        </el-form-item>
+{{/if}}
+{{/each}}
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- 工具栏 -->
+    <el-card class="toolbar-card">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <el-button type="primary" :icon="Plus" @click="handleAdd">新增</el-button>
+          <el-button type="danger" :icon="Delete" :disabled="selectedIds.length === 0" @click="handleBatchDelete">
+            批量删除
+          </el-button>
+        </div>
+        <div class="toolbar-right">
+          <el-button :icon="Refresh" circle @click="handleRefresh" />
+        </div>
+      </div>
+    </el-card>
+
+    <!-- 数据表格 -->
+    <el-card class="table-card">
+      <el-table v-loading="loading" :data="tableData" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" align="center" />
+{{#each columns}}
+{{#if isPK}}
+        <el-table-column label="{{columnComment}}" prop="{{javaField}}" width="100" align="center" />
+{{/if}}
+{{/each}}
+{{#each columns}}
+{{#unless isPK}}
+{{#ifCond displayType '==' 'radio'}}
+        <el-table-column label="{{columnComment}}" prop="{{javaField}}" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.{{javaField}} === '0' ? 'success' : 'danger'">
+              {{ "{{" }} row.{{javaField}} === '0' ? '正常' : '停用' {{ "}}" }}
+            </el-tag>
+          </template>
+        </el-table-column>
+{{else ifCond displayType '==' 'select'}}
+        <el-table-column label="{{columnComment}}" prop="{{javaField}}" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag>{{ "{{" }} get{{capitalize javaField}}Name(row.{{javaField}}) {{ "}}" }}</el-tag>
+          </template>
+        </el-table-column>
+{{else ifCond displayType '==' 'image'}}
+        <el-table-column label="{{columnComment}}" prop="{{javaField}}" width="120" align="center">
+          <template #default="{ row }">
+            <el-avatar v-if="row.{{javaField}}" :src="row.{{javaField}}" :size="40" />
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+{{else}}
+        <el-table-column label="{{columnComment}}" prop="{{javaField}}" min-width="120" show-overflow-tooltip />
+{{/ifCond}}
+{{/unless}}
+{{/each}}
+        <el-table-column label="操作" width="180" align="center" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="queryParams.page"
+          v-model:page-size="queryParams.limit"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleQuery"
+          @current-change="handleQuery"
+        />
+      </div>
+    </el-card>
+
+    <!-- 表单弹窗 -->
+    <{{className}}Form v-model="formVisible" :form-data="currentData" @success="handleQuery" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Search, Refresh, Delete, Plus } from '@element-plus/icons-vue'
+{{#if generateTypeScript}}
+import type { I{{className}}, I{{className}}Query } from '@/types/{{toCamelCase className}}.types'
+import * as {{toCamelCase className}}Api from '@/api/{{toCamelCase className}}.api'
+{{else}}
+import * as {{toCamelCase className}}Api from '@/api/{{toCamelCase className}}.api'
+{{/if}}
+import {{className}}Form from './components/{{className}}Form.vue'
+
+const loading = ref(false)
+const tableData = ref<I{{className}}[]>([])
+const total = ref(0)
+const selectedIds = ref<{{columns.[0].javaType}}[]>([])
+const formVisible = ref(false)
+const currentData = ref<I{{className}} | null>(null)
+
+const queryParams = reactive<I{{className}}Query>({
+  page: 1,
+  limit: 10,
+})
+
+{{#each columns}}
+{{#ifCond displayType '==' 'select'}}
+const get{{capitalize javaField}}Name = (value: string) => {
+  const map: Record<string, string> = { '0': '正常', '1': '停用' }
+  return map[value] || value
+}
+{{/ifCond}}
+{{/each}}
+
+const handleQuery = async () => {
+  loading.value = true
+  try {
+    const res = await {{toCamelCase className}}Api.get{{className}}Page(queryParams)
+    if (res.success) {
+      tableData.value = res.data
+      total.value = res.pagination.total
+    }
+  } catch {
+    ElMessage.error('获取{{functionName}}列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleReset = () => {
+  queryParams.page = 1
+  queryParams.limit = 10
+  handleQuery()
+}
+
+const handleRefresh = () => {
+  handleQuery()
+}
+
+const handleSelectionChange = (selection: I{{className}}[]) {
+  selectedIds.value = selection.map((item) => item.{{javaField}})
+}
+
+const handleAdd = () => {
+  currentData.value = null
+  formVisible.value = true
+}
+
+const handleEdit = (row: I{{className}}) => {
+  currentData.value = { ...row }
+  formVisible.value = true
+}
+
+const handleDelete = async (row: I{{className}}) => {
+  try {
+    await ElMessageBox.confirm('确认删除该{{functionName}}吗？', '提示', { type: 'warning' })
+    await {{toCamelCase className}}Api.delete{{className}}(row.{{javaField}})
+    ElMessage.success('删除成功')
+    handleQuery()
+  } catch {
+    // 用户取消
+  }
+}
+
+const handleBatchDelete = async () => {
+  try {
+    await ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 个{{functionName}}吗？`, '提示', { type: 'warning' })
+    await {{toCamelCase className}}Api.delete{{className}}Batch(selectedIds.value)
+    ElMessage.success('删除成功')
+    handleQuery()
+  } catch {
+    // 用户取消
+  }
+}
+
+onMounted(() => {
+  handleQuery()
+})
+</script>
+
+<style lang="scss" scoped>
+.page-container {
+  .search-card {
+    margin-bottom: 16px;
+  }
+
+  .toolbar-card {
+    margin-bottom: 16px;
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .toolbar-left {
+        display: flex;
+        gap: 12px;
+      }
+    }
+  }
+
+  .table-card {
+    .pagination-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+  }
+}
+</style>

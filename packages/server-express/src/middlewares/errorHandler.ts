@@ -230,7 +230,7 @@ export function notFoundHandler() {
  * 速率限制处理中间件
  */
 export function rateLimitHandler() {
-  return (req: Request, res: Response) => {
+  return (_req: Request, res: Response) => {
     res.status(429).json({
       success: false,
       message: '请求过于频繁，请稍后再试',
