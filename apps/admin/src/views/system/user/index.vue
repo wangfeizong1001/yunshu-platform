@@ -21,7 +21,7 @@
           <el-tree-select
             v-model="queryParams.deptId"
             :data="deptTree"
-            :props="{ value: 'deptId', label: 'deptName', children: 'children' }"
+            :props="{ label: 'deptName', children: 'children' }"
             placeholder="请选择部门"
             check-strictly
             filterable
@@ -194,7 +194,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus'
 import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue'
-import { getUserPage, deleteUser, exportUser, resetUserPassword } from '@/api/system/user.api'
+import { getUserPage, deleteUser, exportUser, resetUserPwd } from '@/api/system/user.api'
 import { getDeptTreeSelect } from '@/api/system/dept.api'
 import type { SysUser, SysDept } from '@yunshu/shared'
 import UserForm from './UserForm.vue'
@@ -252,7 +252,7 @@ const queryParams = reactive({
 async function fetchUserList() {
   loading.value = true
   try {
-    const res = await getUserPage(queryParams)
+    const res = await getUserPage(queryParams) as any
     userList.value = res.rows
     total.value = res.total
   } finally {
@@ -263,7 +263,7 @@ async function fetchUserList() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = await getDeptTreeSelect()
+    deptTree.value = (await getDeptTreeSelect()) as any
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -296,13 +296,13 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: SysUser) {
+function handleEdit(row: any) {
   currentUser.value = { ...row }
   formVisible.value = true
 }
 
 // 删除
-async function handleDelete(row: SysUser) {
+async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
       type: 'warning',
@@ -318,7 +318,7 @@ async function handleDelete(row: SysUser) {
 }
 
 // 重置密码
-function handleResetPassword(row: SysUser) {
+function handleResetPassword(row: any) {
   currentUserId.value = row.userId
   resetPwdForm.password = ''
   resetPwdForm.confirmPassword = ''
@@ -331,7 +331,7 @@ async function handleResetPwdSubmit() {
     await resetPwdFormRef.value?.validate()
     if (!currentUserId.value) return
     resetting.value = true
-    await resetUserPassword(currentUserId.value, resetPwdForm.password)
+    await resetUserPwd(currentUserId.value, resetPwdForm.password)
     ElMessage.success('密码重置成功')
     resetPwdVisible.value = false
   } catch (error) {
@@ -342,7 +342,7 @@ async function handleResetPwdSubmit() {
 }
 
 // 分配角色
-function handleAssignRole(row: SysUser) {
+function handleAssignRole(row: any) {
   currentUserId.value = row.userId
   assignRoleVisible.value = true
 }

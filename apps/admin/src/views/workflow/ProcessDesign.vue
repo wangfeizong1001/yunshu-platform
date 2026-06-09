@@ -154,8 +154,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   ArrowLeft,
@@ -165,10 +165,8 @@ import {
   RefreshRight,
 } from '@element-plus/icons-vue'
 
-const route = useRoute()
 const router = useRouter()
 
-const processId = route.params.id as string
 const canvasRef = ref<HTMLElement>()
 const svgRef = ref<SVGSVGElement>()
 
@@ -308,7 +306,7 @@ function handleMouseUp() {
   document.removeEventListener('mouseup', handleMouseUp)
 }
 
-function handlePortMouseDown(e: MouseEvent, node: FlowNode, port: string) {
+function handlePortMouseDown(_e: MouseEvent, node: FlowNode, port: string) {
   isConnecting = true
   connectingFrom = { nodeId: node.id, port }
 

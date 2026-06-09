@@ -83,7 +83,7 @@
               v-has-permi="['system:notice:edit']"
               link
               type="primary"
-              @click="handleEdit(row)"
+              @click="handleEdit(row as SysNotice)"
             >
               编辑
             </el-button>
@@ -91,7 +91,7 @@
               v-has-permi="['system:notice:query']"
               link
               type="success"
-              @click="handleView(row)"
+              @click="handleView(row as SysNotice)"
             >
               查看
             </el-button>
@@ -100,7 +100,7 @@
               v-has-permi="['system:notice:publish']"
               link
               type="warning"
-              @click="handlePublish(row)"
+              @click="handlePublish(row as SysNotice)"
             >
               发布
             </el-button>
@@ -109,7 +109,7 @@
               v-has-permi="['system:notice:withdraw']"
               link
               type="warning"
-              @click="handleWithdraw(row)"
+              @click="handleWithdraw(row as SysNotice)"
             >
               撤回
             </el-button>
@@ -117,7 +117,7 @@
               v-has-permi="['system:notice:remove']"
               link
               type="danger"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as SysNotice)"
             >
               删除
             </el-button>
@@ -174,8 +174,8 @@ const currentNoticeId = ref<number>()
 // 查询参数
 const queryParams = reactive<SysNoticeQuery>({
   keyword: '',
-  noticeType: '',
-  status: '',
+  noticeType: undefined,
+  status: undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -184,7 +184,7 @@ const queryParams = reactive<SysNoticeQuery>({
 async function fetchNoticeList() {
   loading.value = true
   try {
-    const res = await getNoticePage(queryParams)
+    const res = await getNoticePage(queryParams) as { rows: SysNotice[]; total: number }
     noticeList.value = res.rows
     total.value = res.total
   } finally {
@@ -201,8 +201,8 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.noticeType = ''
-  queryParams.status = ''
+  queryParams.noticeType = undefined
+  queryParams.status = undefined
   queryParams.pageNum = 1
   handleQuery()
 }

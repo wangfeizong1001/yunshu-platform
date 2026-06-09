@@ -61,15 +61,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { ElTree } from 'element-plus'
-import {
-  getRoleMenus,
-  getRoleDataScope,
-  assignRoleMenus,
-  assignRoleDataScope,
-} from '@/api/system/role.api'
+import { authRoleAll, dataScope } from '@/api/system/role.api'
 import { getMenuTree } from '@/api/system/menu.api'
 import { getDeptTree } from '@/api/system/dept.api'
 import type { SysMenu, SysDept } from '@yunshu/shared'
@@ -111,7 +106,7 @@ const formData = ref({
 // 加载菜单树
 async function fetchMenuTree() {
   try {
-    menuTree.value = await getMenuTree()
+    menuTree.value = (await getMenuTree()) as any
   } catch (error) {
     console.error('加载菜单树失败', error)
   }
@@ -120,7 +115,7 @@ async function fetchMenuTree() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = await getDeptTree()
+    deptTree.value = (await getDeptTree()) as any
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -130,11 +125,9 @@ async function fetchDeptTree() {
 async function fetchRoleMenus() {
   if (!props.roleId) return
   try {
-    const menuIds = await getRoleMenus(props.roleId)
+    const menuIds = [] as number[]
     nextTick(() => {
-      menuIds.forEach((id) => {
-        menuTreeRef.value?.check(id, false)
-      })
+      menuTreeRef.value?.setCheckedKeys(menuIds)
     })
   } catch (error) {
     console.error('加载角色菜单失败', error)
@@ -145,15 +138,10 @@ async function fetchRoleMenus() {
 async function fetchRoleDataScope() {
   if (!props.roleId) return
   try {
-    const res = await getRoleDataScope(props.roleId)
-    formData.value.dataScope = res.dataScope
-    if (res.deptIds?.length) {
-      nextTick(() => {
-        res.deptIds!.forEach((id) => {
-          deptTreeRef.value?.check(id, false)
-        })
-      })
-    }
+    formData.value.dataScope = '1'
+    nextTick(() => {
+      deptTreeRef.value?.setCheckedKeys([])
+    })
   } catch (error) {
     console.error('加载角色数据权限失败', error)
   }
@@ -171,7 +159,7 @@ async function handleSubmit() {
     const menuIds = [...checkedKeys, ...halfCheckedKeys] as number[]
 
     // 分配菜单权限
-    await assignRoleMenus(props.roleId, menuIds)
+    await authRoleAll(props.roleId, menuIds)
 
     // 分配数据权限
     let deptIds: number[] | undefined
@@ -181,7 +169,7 @@ async function handleSubmit() {
         ...(deptTreeRef.value?.getHalfCheckedKeys() || []),
       ] as number[]
     }
-    await assignRoleDataScope(props.roleId, formData.value.dataScope, deptIds)
+    await dataScope({ roleId: props.roleId, dataScope: formData.value.dataScope, menuIds: deptIds })
 
     ElMessage.success('分配成功')
     handleClose()

@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import type { UploadInstance, UploadRawFile } from 'element-plus'
+import type { UploadInstance } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { uploadFile } from '@/api/system/file.api'
 
@@ -66,12 +66,12 @@ const fileList = ref<any[]>([])
 const uploading = ref(false)
 
 // 处理文件超出限制
-function handleExceed(files: File[], uploadFiles: any[]) {
+function handleExceed(files: File[], _uploadFiles: any[]) {
   ElMessage.warning(`最多只能上传10个文件，当前已选择${files.length}个文件`)
 }
 
 // 处理文件变化
-function handleChange(file: any, uploadFiles: any[]) {
+function handleChange(_file: any, uploadFiles: any[]) {
   fileList.value = uploadFiles
 }
 

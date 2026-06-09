@@ -118,7 +118,7 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateDictType(props.dictTypeData!.dictId, formData.value as any)
+      await updateDictType({ dictId: props.dictTypeData!.dictId, ...formData.value } as any)
       ElMessage.success('修改成功')
     } else {
       await addDictType(formData.value as any)

@@ -146,7 +146,7 @@ async function fetchLogList() {
       queryParams.endDate = ''
     }
 
-    const res = await getThirdLoginLogList(queryParams)
+    const res = await getThirdLoginLogList(queryParams) as { rows: ThirdLoginLog[]; total: number }
     logList.value = res.rows
     total.value = res.total
   } finally {

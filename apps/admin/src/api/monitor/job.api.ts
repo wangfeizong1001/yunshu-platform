@@ -21,6 +21,8 @@ export interface JobForm {
   targetBean?: string
   targetMethod?: string
   targetParams?: string
+  invokeTarget?: string
+  misfirePolicy?: string
   concurrent?: string
   status?: string
   remark?: string
@@ -35,6 +37,8 @@ export interface JobInfo {
   targetBean: string
   targetMethod: string
   targetParams: string
+  invokeTarget: string
+  misfirePolicy: string
   concurrent: string
   status: string
   remark: string

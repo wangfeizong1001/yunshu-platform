@@ -73,3 +73,12 @@ export const unbindThirdAccount = (thirdType: string) => {
     method: 'post'
   })
 }
+
+// 获取第三方登录日志列表
+export const getThirdLoginLogList = (params?: any) => {
+  return request({
+    url: '/system/third/log/page',
+    method: 'get',
+    params
+  })
+}

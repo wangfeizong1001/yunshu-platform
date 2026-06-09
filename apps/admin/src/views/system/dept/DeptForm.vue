@@ -16,7 +16,7 @@
         <el-tree-select
           v-model="formData.parentId"
           :data="deptTree"
-          :props="{ value: 'deptId', label: 'deptName', children: 'children' }"
+          :props="{ value: 'deptId', label: 'deptName', children: 'children' } as any"
           placeholder="请选择上级部门"
           check-strictly
           filterable
@@ -121,7 +121,8 @@ const rules: FormRules = {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = await getDeptTreeSelect()
+    const res = await getDeptTreeSelect() as SysDept[]
+    deptTree.value = res
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -171,7 +172,7 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateDept(props.deptData!.deptId, formData.value as any)
+      await updateDept({ deptId: props.deptData!.deptId, ...formData.value } as any)
       ElMessage.success('修改成功')
     } else {
       await addDept(formData.value as any)

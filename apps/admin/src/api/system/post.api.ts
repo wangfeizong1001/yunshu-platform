@@ -92,3 +92,10 @@ export const changePostStatus = (postId: number, status: string) => {
     params: { postId, status }
   })
 }
+
+export const getPostSelect = () => {
+  return request({
+    url: '/system/post/select',
+    method: 'get'
+  })
+}

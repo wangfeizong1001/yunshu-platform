@@ -72,7 +72,7 @@
                 value: 'deptId',
                 label: 'deptName',
                 children: 'children',
-              }"
+              } as TreeOptionProps"
               placeholder="请选择部门"
               check-strictly
               filterable
@@ -145,11 +145,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
-import { addUser, updateUser } from '@/api/system/user.api'
+import type { FormInstance, FormRules, TreeOptionProps } from 'element-plus'
+import { addUser, updateUser, getAllRoles } from '@/api/system/user.api'
 import { getDeptTreeSelect } from '@/api/system/dept.api'
 import { getPostSelect } from '@/api/system/post.api'
-import { getAllRoles } from '@/api/system/role.api'
 import type { SysUser, SysDept, SysPost, SysRole } from '@yunshu/shared'
 
 interface Props {
@@ -213,7 +212,8 @@ const rules: FormRules = {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = await getDeptTreeSelect()
+    const res = await getDeptTreeSelect() as SysDept[]
+    deptTree.value = res
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -222,7 +222,8 @@ async function fetchDeptTree() {
 // 加载岗位列表
 async function fetchPostList() {
   try {
-    postList.value = await getPostSelect()
+    const res = await getPostSelect() as SysPost[]
+    postList.value = res
   } catch (error) {
     console.error('加载岗位列表失败', error)
   }
@@ -231,7 +232,8 @@ async function fetchPostList() {
 // 加载角色列表
 async function fetchRoleList() {
   try {
-    roleList.value = await getAllRoles()
+    const res = await getAllRoles() as SysRole[]
+    roleList.value = res
   } catch (error) {
     console.error('加载角色列表失败', error)
   }
@@ -277,7 +279,7 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateUser(props.userData!.userId, formData.value as any)
+      await updateUser({ userId: props.userData!.userId, ...formData.value } as any)
       ElMessage.success('修改成功')
     } else {
       await addUser(formData.value as any)

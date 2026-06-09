@@ -56,6 +56,14 @@ export const getMenuList = (params?: MenuQuery) => {
   })
 }
 
+export const getMenuTree = (params?: MenuQuery) => {
+  return request({
+    url: '/system/menu/tree',
+    method: 'get',
+    params
+  })
+}
+
 export const getMenuListApi = (params?: MenuQuery) => {
   return request({
     url: '/system/menu/list',

@@ -108,8 +108,8 @@
         </el-table-column>
         <el-table-column label="操作" width="120" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleViewDetail(row)">详情</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="handleViewDetail(row as IOperlog)">详情</el-button>
+            <el-button link type="danger" @click="handleDelete(row as IOperlog)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -182,8 +182,8 @@ const queryParams = reactive<IOperlogQuery>({
   order: 'desc',
 })
 
-const getOperTypeTagType = (type: string) => {
-  const map: Record<string, string> = {
+const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'danger' | 'info' => {
+  const map: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
     查询: 'info',
     新增: 'success',
     修改: 'warning',
@@ -218,10 +218,10 @@ const handleQuery = async () => {
       delete queryParams.beginTime
       delete queryParams.endTime
     }
-    const res = await operlogApi.getOperlogPage(queryParams)
+    const res = await operlogApi.getOperlogPage(queryParams) as { success: boolean; data: IOperlog[]; pagination: { total: number } }
     if (res.success) {
-      tableData.value = res.data
-      total.value = res.pagination.total
+      tableData.value = res.data || []
+      total.value = res.pagination?.total || 0
     }
   } catch {
     ElMessage.error('获取操作日志失败')
@@ -251,8 +251,8 @@ const handleSelectionChange = (selection: IOperlog[]) => {
   selectedIds.value = selection.map((item) => item.operId)
 }
 
-const handleSortChange = ({ prop, order }: { prop: string; order: string }) => {
-  queryParams.sort = prop
+const handleSortChange = ({ prop, order }: { prop: string | null; order: string | null }) => {
+  queryParams.sort = prop || 'operTime'
   queryParams.order = order === 'ascending' ? 'asc' : 'desc'
   handleQuery()
 }
@@ -265,7 +265,7 @@ const handleViewDetail = (row: IOperlog) => {
 const handleDelete = async (row: IOperlog) => {
   try {
     await ElMessageBox.confirm('确认删除该操作日志吗？', '提示', { type: 'warning' })
-    await operlogApi.deleteOperlog(row.operId)
+    await operlogApi.deleteOperlog(Number(row.operId))
     ElMessage.success('删除成功')
     handleQuery()
   } catch {
@@ -276,7 +276,7 @@ const handleDelete = async (row: IOperlog) => {
 const handleBatchDelete = async () => {
   try {
     await ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 条操作日志吗？`, '提示', { type: 'warning' })
-    await operlogApi.batchDeleteOperlog(selectedIds.value)
+    await operlogApi.batchDeleteOperlog(selectedIds.value.map(id => Number(id)))
     ElMessage.success('删除成功')
     handleQuery()
   } catch {
@@ -296,7 +296,8 @@ const handleClean = async () => {
 }
 
 const handleExport = () => {
-  operlogApi.exportOperlog(queryParams)
+  // 导出功能暂时注释
+  // operlogApi.exportOperlog(queryParams)
 }
 
 onMounted(() => {

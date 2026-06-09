@@ -100,7 +100,7 @@
               v-has-permi="['system:config:edit']"
               link
               type="primary"
-              @click="handleEdit(row)"
+              @click="handleEdit(row as SysConfig)"
             >
               编辑
             </el-button>
@@ -109,7 +109,7 @@
               link
               type="danger"
               :disabled="row.configType === 'Y'"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as SysConfig)"
             >
               删除
             </el-button>
@@ -155,7 +155,7 @@ const currentConfig = ref<SysConfig | null>(null)
 // 查询参数
 const queryParams = reactive<SysConfigQuery>({
   keyword: '',
-  configType: '',
+  configType: undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -164,7 +164,7 @@ const queryParams = reactive<SysConfigQuery>({
 async function fetchConfigList() {
   loading.value = true
   try {
-    const res = await getConfigPage(queryParams)
+    const res = await getConfigPage(queryParams) as { rows: SysConfig[]; total: number }
     configList.value = res.rows
     total.value = res.total
   } finally {
@@ -181,7 +181,7 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.configType = ''
+  queryParams.configType = undefined
   queryParams.pageNum = 1
   handleQuery()
 }

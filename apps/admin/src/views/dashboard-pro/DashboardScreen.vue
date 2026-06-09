@@ -36,7 +36,7 @@
             <div class="metric-value">{{ metric.value }}</div>
             <div class="metric-label">{{ metric.label }}</div>
             <div class="metric-trend" :class="metric.trend > 0 ? 'up' : 'down'">
-              <el-icon><component :is="metric.trend > 0 ? ArrowDown : ArrowDown" /></el-icon>
+              <el-icon><ArrowDown /></el-icon>
               <span>{{ Math.abs(metric.trend) }}%</span>
             </div>
           </div>

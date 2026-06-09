@@ -275,7 +275,7 @@
                 <el-input v-model="row.dictType" size="small" placeholder="字典类型" />
               </template>
             </el-table-column>
-            <el-table-column label="主键策略" width="100" align="center" v-if="row.isPK">
+            <el-table-column v-if="columns.some(c => c.isPK)" label="主键策略" width="100" align="center">
               <template #default="{ row }">
                 <el-select v-model="row.idType" size="small" style="width: 100%">
                   <el-option label="自增" value="AUTO" />
@@ -301,13 +301,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, View, Download, Check } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { IGenConfig, IGenColumn } from '@yunshu/shared'
-import { getGenConfig, saveGenConfig, syncTable, previewCode, downloadCode } from '@/api/tool/gen.api'
+import { getGenConfig, saveGenConfig, syncTable, downloadCode } from '@/api/tool/gen.api'
 import GenPreview from './GenPreview.vue'
 
 const route = useRoute()
@@ -356,10 +356,6 @@ const baseRules: FormRules = {
   functionName: [{ required: true, message: '请输入功能名称', trigger: 'blur' }]
 }
 
-const formatJavaField = (columnName: string): string => {
-  return columnName.replace(/_(\w)/g, (_, letter) => letter.toUpperCase())
-}
-
 const formatClassName = (tableName: string): string => {
   return tableName
     .replace(/^sys_|^biz_|^t_/, '')
@@ -384,11 +380,11 @@ const loadConfig = async () => {
   }
 
   try {
-    const res = await getGenConfig(tableName)
+    const res = await getGenConfig(tableName) as { success: boolean; data: { config: IGenConfig; columns: IGenColumn[] } | null }
     if (res.success && res.data) {
-      const { config, cols } = res.data
+      const { config, columns: colsData } = res.data
       Object.assign(formData, config)
-      columns.value = cols.map(col => ({
+      columns.value = colsData.map((col: IGenColumn) => ({
         ...col,
         isQuery: !!col.queryType,
         isDisplay: !col.isPK,
@@ -435,7 +431,7 @@ const handleSyncTable = async () => {
 
     const res = await syncTable(formData.tableName)
     if (res.success && res.data) {
-      columns.value = res.data.map(col => ({
+      columns.value = res.data.map((col: IGenColumn) => ({
         ...col,
         isQuery: !!col.queryType,
         isDisplay: !col.isPK,

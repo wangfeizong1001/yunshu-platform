@@ -135,7 +135,7 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateNotice(props.noticeData!.noticeId, formData.value as any)
+      await updateNotice({ noticeId: props.noticeData!.noticeId, ...formData.value } as any)
       ElMessage.success('修改成功')
     } else {
       await addNotice(formData.value as any)

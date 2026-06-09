@@ -25,7 +25,7 @@
           :on-success="handleSuccess"
           :on-error="handleError"
           :on-progress="handleProgress"
-          :drag
+          drag
           :show-file-list="false"
           accept="*"
         >
@@ -51,7 +51,6 @@ import { ref, reactive, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { getToken } from '@/utils/auth'
-import { uploadOssFile } from '@/api/system/oss.api'
 
 interface Props {
   modelValue: boolean
@@ -78,7 +77,7 @@ const form = reactive({
 const uploadProgress = ref(0)
 
 const uploadUrl = computed(() => {
-  const baseUrl = import.meta.env.VITE_APP_BASE_API || ''
+  const baseUrl = (import.meta as any).env.VITE_APP_BASE_API || ''
   return `${baseUrl}/api/system/oss/upload`
 })
 

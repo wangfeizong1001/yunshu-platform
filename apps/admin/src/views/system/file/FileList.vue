@@ -98,7 +98,7 @@
               v-has-permi="['system:file:preview']"
               link
               type="primary"
-              @click="handlePreview(row)"
+              @click="handlePreview(row as SysFile)"
             >
               预览
             </el-button>
@@ -106,7 +106,7 @@
               v-has-permi="['system:file:download']"
               link
               type="success"
-              @click="handleDownload(row)"
+              @click="handleDownload(row as SysFile)"
             >
               下载
             </el-button>
@@ -114,7 +114,7 @@
               v-has-permi="['system:file:remove']"
               link
               type="danger"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as SysFile)"
             >
               删除
             </el-button>
@@ -167,7 +167,7 @@ import {
   deleteFile,
   batchDeleteFile,
   downloadFile,
-  previewFile,
+  previewFile as previewFileApi,
 } from '@/api/system/file.api'
 import type { SysFile, SysFileQuery } from '@yunshu/shared'
 import FileUpload from './FileUpload.vue'
@@ -185,7 +185,7 @@ const previewUrl = ref('')
 // 查询参数
 const queryParams = reactive<SysFileQuery>({
   keyword: '',
-  storageType: '',
+  storageType: undefined,
   fileType: '',
   pageNum: 1,
   pageSize: 10,
@@ -211,8 +211,8 @@ function getStorageTypeName(type: string): string {
 }
 
 // 获取存储类型标签类型
-function getStorageTypeTag(type: string): string {
-  const typeMap: Record<string, string> = {
+function getStorageTypeTag(type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     local: 'info',
     oss: 'success',
     cos: 'warning',
@@ -221,7 +221,8 @@ function getStorageTypeTag(type: string): string {
 }
 
 // 判断是否为图片文件
-function isImageFile(fileType: string): boolean {
+function isImageFile(fileType: string | undefined): boolean {
+  if (!fileType) return false
   return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileType.toLowerCase())
 }
 
@@ -229,7 +230,7 @@ function isImageFile(fileType: string): boolean {
 async function fetchFileList() {
   loading.value = true
   try {
-    const res = await getFilePage(queryParams)
+    const res = await getFilePage(queryParams) as { rows: SysFile[]; total: number }
     fileList.value = res.rows
     total.value = res.total
   } finally {
@@ -246,7 +247,7 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.storageType = ''
+  queryParams.storageType = undefined
   queryParams.fileType = ''
   queryParams.pageNum = 1
   handleQuery()
@@ -267,7 +268,7 @@ async function handlePreview(row: SysFile) {
   previewFile.value = row
   if (isImageFile(row.fileType)) {
     try {
-      previewUrl.value = await previewFile(row.fileId)
+      previewUrl.value = await previewFileApi(row.fileId) as string
       previewVisible.value = true
     } catch (error) {
       ElMessage.error('预览失败')

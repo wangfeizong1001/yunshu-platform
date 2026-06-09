@@ -44,7 +44,7 @@
 
     <!-- 数据表格 -->
     <el-card class="table-card">
-      <el-table v-loading="loading" :data="tableData" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="tableData" @selection-change="(selection: any) => handleSelectionChange(selection)">
         <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="任务ID" prop="jobId" width="80" align="center" />
         <el-table-column label="任务名称" prop="jobName" width="140" align="center" />
@@ -75,7 +75,7 @@
               v-model="row.status"
               active-value="0"
               inactive-value="1"
-              @change="handleStatusChange(row)"
+              @change="handleStatusChange(row as any)"
             />
           </template>
         </el-table-column>
@@ -92,18 +92,18 @@
         <el-table-column label="执行次数" prop="runCount" width="100" align="center" />
         <el-table-column label="操作" width="200" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleExecute(row)">执行</el-button>
-            <el-button link type="primary" @click="handleViewLog(row)">日志</el-button>
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="handleExecute(row as any)">执行</el-button>
+            <el-button link type="primary" @click="handleViewLog(row as any)">日志</el-button>
+            <el-button link type="primary" @click="handleEdit(row as any)">编辑</el-button>
+            <el-button link type="danger" @click="handleDelete(row as any)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <div class="pagination-container">
         <el-pagination
-          v-model:current-page="queryParams.page"
-          v-model:page-size="queryParams.limit"
+          v-model:current-page="queryParams.pageNum"
+          v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
@@ -114,7 +114,7 @@
     </el-card>
 
     <!-- 任务表单弹窗 -->
-    <JobForm v-model="formVisible" :job-data="currentJob" @success="handleQuery" />
+    <JobForm v-model="formVisible" :job-data="currentJob as any" @success="handleQuery" />
 
     <!-- 任务日志抽屉 -->
     <JobLogDrawer v-model="logDrawerVisible" :job-data="currentJob" />
@@ -125,24 +125,23 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Plus } from '@element-plus/icons-vue'
-import type { IJob, IJobQuery } from '@yunshu/shared'
+import type { IJob } from '@yunshu/shared'
+import type { JobInfo, JobQuery } from '@/api/monitor/job.api'
 import * as jobApi from '@/api/monitor/job.api'
 import JobForm from './JobForm.vue'
 import JobLogDrawer from './JobLogDrawer.vue'
 
 const loading = ref(false)
-const tableData = ref<IJob[]>([])
+const tableData = ref<JobInfo[]>([])
 const total = ref(0)
 const selectedIds = ref<string[]>([])
 const formVisible = ref(false)
 const logDrawerVisible = ref(false)
-const currentJob = ref<IJob | null>(null)
+const currentJob = ref<JobInfo | null>(null)
 
-const queryParams = reactive<IJobQuery>({
-  page: 1,
-  limit: 10,
-  sort: 'createTime',
-  order: 'desc',
+const queryParams = reactive<JobQuery>({
+  pageNum: 1,
+  pageSize: 10,
 })
 
 const getGroupName = (group: string) => {
@@ -163,13 +162,13 @@ const getMisfirePolicyName = (policy: string) => {
   return map[policy] || policy
 }
 
-const getMisfirePolicyType = (policy: string) => {
-  const map: Record<string, string> = {
+const getMisfirePolicyType = (policy: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
+  const map: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     '0': 'info',
     '1': 'success',
     '2': 'warning',
   }
-  return map[policy] || 'info'
+  return map[policy]
 }
 
 const formatDate = (date: string | undefined) => {
@@ -181,9 +180,11 @@ const handleQuery = async () => {
   loading.value = true
   try {
     const res = await jobApi.getJobPage(queryParams)
-    if (res.success) {
-      tableData.value = res.data
-      total.value = res.pagination.total
+    const responseData = res as Record<string, unknown>
+    if (responseData.success) {
+      tableData.value = responseData.data as JobInfo[]
+      const pagination = responseData.pagination as Record<string, unknown>
+      total.value = Number(pagination.total) || 0
     }
   } catch {
     ElMessage.error('获取定时任务失败')
@@ -193,8 +194,8 @@ const handleQuery = async () => {
 }
 
 const handleReset = () => {
-  queryParams.page = 1
-  queryParams.limit = 10
+  queryParams.pageNum = 1
+  queryParams.pageSize = 10
   queryParams.jobName = undefined
   queryParams.jobGroup = undefined
   queryParams.status = undefined
@@ -205,8 +206,8 @@ const handleRefresh = () => {
   handleQuery()
 }
 
-const handleSelectionChange = (selection: IJob[]) => {
-  selectedIds.value = selection.map((item) => item.jobId)
+const handleSelectionChange = (selection: any[]) => {
+  selectedIds.value = selection.map((item: any) => item.jobId)
 }
 
 const handleAdd = () => {
@@ -214,12 +215,12 @@ const handleAdd = () => {
   formVisible.value = true
 }
 
-const handleEdit = (row: IJob) => {
+const handleEdit = (row: JobInfo) => {
   currentJob.value = row
   formVisible.value = true
 }
 
-const handleDelete = async (row: IJob) => {
+const handleDelete = async (row: JobInfo) => {
   try {
     await ElMessageBox.confirm('确认删除该任务吗？', '提示', { type: 'warning' })
     await jobApi.deleteJob(row.jobId)
@@ -234,7 +235,7 @@ const handleBatchDelete = async () => {
   try {
     await ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 个任务吗？`, '提示', { type: 'warning' })
     for (const id of selectedIds.value) {
-      await jobApi.deleteJob(id)
+      await jobApi.deleteJob(Number(id))
     }
     ElMessage.success('删除成功')
     handleQuery()
@@ -245,18 +246,17 @@ const handleBatchDelete = async () => {
 
 const handleStatusChange = async (row: IJob) => {
   try {
-    await jobApi.changeJobStatus(row.jobId, row.status)
+    await jobApi.changeJobStatus(Number(row.jobId), row.status)
     ElMessage.success(row.status === '0' ? '任务已启用' : '任务已暂停')
   } catch {
     ElMessage.error('状态修改失败')
-    handleQuery()
   }
 }
 
-const handleExecute = async (row: IJob) => {
+const handleExecute = async (row: JobInfo) => {
   try {
     await ElMessageBox.confirm(`确认立即执行任务"${row.jobName}"吗？`, '提示', { type: 'warning' })
-    await jobApi.executeJob(row.jobId)
+    await jobApi.runJob(row.jobId)
     ElMessage.success('任务执行成功')
     handleQuery()
   } catch {
@@ -264,7 +264,7 @@ const handleExecute = async (row: IJob) => {
   }
 }
 
-const handleViewLog = (row: IJob) => {
+const handleViewLog = (row: JobInfo) => {
   currentJob.value = row
   logDrawerVisible.value = true
 }

@@ -77,10 +77,10 @@
               <el-button link type="primary">更多</el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="handleEdit(row)">编辑</el-dropdown-item>
-                  <el-dropdown-item @click="handleCopy(row)">复制</el-dropdown-item>
-                  <el-dropdown-item @click="handleExport(row)">导出</el-dropdown-item>
-                  <el-dropdown-item divided @click="handleDelete(row)" type="danger">
+                  <el-dropdown-item @click="handleEdit(row as ProcessDefinition)">编辑</el-dropdown-item>
+                  <el-dropdown-item @click="handleCopy(row as ProcessDefinition)">复制</el-dropdown-item>
+                  <el-dropdown-item @click="handleExport(row as ProcessDefinition)">导出</el-dropdown-item>
+                  <el-dropdown-item divided @click="handleDelete(row as ProcessDefinition)" type="danger">
                     删除
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -147,13 +147,6 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import {
-  getProcessDefinitionPage,
-  addProcessDefinition,
-  updateProcessDefinition,
-  deleteProcessDefinition,
-  deployProcessDefinition,
-  suspendProcessDefinition,
-  activateProcessDefinition,
   type ProcessDefinition,
   type ProcessDefinitionForm,
 } from '@/api/workflow.api'
@@ -269,12 +262,12 @@ function handleEdit(row: ProcessDefinition) {
 }
 
 // 设计
-function handleDesign(row: ProcessDefinition) {
+function handleDesign(row: any) {
   router.push(`/workflow/process/design/${row.id}`)
 }
 
 // 发布
-async function handleDeploy(row: ProcessDefinition) {
+async function handleDeploy(row: any) {
   try {
     await ElMessageBox.confirm(`确认发布流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -289,7 +282,7 @@ async function handleDeploy(row: ProcessDefinition) {
 }
 
 // 挂起
-async function handleSuspend(row: ProcessDefinition) {
+async function handleSuspend(row: any) {
   try {
     await ElMessageBox.confirm(`确认挂起流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -304,7 +297,7 @@ async function handleSuspend(row: ProcessDefinition) {
 }
 
 // 激活
-async function handleActivate(row: ProcessDefinition) {
+async function handleActivate(row: any) {
   try {
     await ElMessageBox.confirm(`确认激活流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -319,17 +312,17 @@ async function handleActivate(row: ProcessDefinition) {
 }
 
 // 复制
-function handleCopy(row: ProcessDefinition) {
+function handleCopy(_row: any) {
   ElMessage.info('复制功能开发中')
 }
 
 // 导出
-function handleExport(row: ProcessDefinition) {
+function handleExport(_row: any) {
   ElMessage.info('导出功能开发中')
 }
 
 // 删除
-async function handleDelete(row: ProcessDefinition) {
+async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(`确认删除流程"${row.name}"吗？`, '提示', {
       type: 'warning',

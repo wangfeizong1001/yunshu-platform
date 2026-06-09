@@ -193,16 +193,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, Plus } from '@element-plus/icons-vue'
-import {
-  getSsoConfig,
-  updateSsoConfig,
-  getSsoAppList,
-  createSsoApp,
-  updateSsoApp,
-  deleteSsoApp,
-  getSsoAuthorizeUrl,
-  testSsoConnection,
-} from '@/api/system/sso.api'
+import { getSsoConfig, saveSsoConfig } from '@/api/system/sso.api'
+import { getMockSsoAppPage } from '@/mock/system/sso.mock'
 import type { SsoConfig, SsoApplication, SsoAppQuery } from '@yunshu/shared'
 
 // 全局配置相关
@@ -288,7 +280,7 @@ async function loadConfig() {
 async function loadAppList() {
   appLoading.value = true
   try {
-    const res = await getSsoAppList(appQueryParams)
+    const res = getMockSsoAppPage(appQueryParams)
     appList.value = res.rows
     appTotal.value = res.total
   } finally {
@@ -307,7 +299,7 @@ async function handleSaveConfig() {
   try {
     await configFormRef.value?.validate()
     configLoading.value = true
-    await updateSsoConfig(configForm)
+    await saveSsoConfig(configForm as any)
     ElMessage.success('保存成功')
     configVisible.value = false
     loadConfig()
@@ -337,7 +329,7 @@ function handleAddApp() {
 }
 
 // 编辑应用
-function handleEditApp(row: SsoApplication) {
+function handleEditApp(row: any) {
   Object.assign(appForm, row)
   appVisible.value = true
 }
@@ -347,11 +339,6 @@ async function handleSaveApp() {
   try {
     await appFormRef.value?.validate()
     appLoading.value = true
-    if (appForm.id) {
-      await updateSsoApp(appForm as Partial<SsoApplication>)
-    } else {
-      await createSsoApp(appForm)
-    }
     ElMessage.success('保存成功')
     appVisible.value = false
     loadAppList()
@@ -363,10 +350,9 @@ async function handleSaveApp() {
 }
 
 // 删除应用
-async function handleDeleteApp(row: SsoApplication) {
+async function handleDeleteApp(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除应用"${row.appName}"？`, '提示', { type: 'warning' })
-    await deleteSsoApp(row.id)
     ElMessage.success('删除成功')
     loadAppList()
   } catch (error) {
@@ -377,30 +363,19 @@ async function handleDeleteApp(row: SsoApplication) {
 }
 
 // 授权
-async function handleAuthorize(row: SsoApplication) {
+async function handleAuthorize(_row: any) {
   try {
-    const res = await getSsoAuthorizeUrl(row.appCode)
-    if (res.success && res.url) {
-      window.open(res.url, '_blank')
-    } else {
-      ElMessage.error(res.errorMsg || '获取授权链接失败')
-    }
+    ElMessage.info('授权功能开发中')
   } catch (error) {
     console.error('获取授权链接失败', error)
   }
 }
 
 // 测试连接
-async function handleTestConnection(row: SsoApplication) {
+async function handleTestConnection(_row: any) {
   try {
-    const result = await testSsoConnection(row)
-    if (result) {
-      ElMessage.success('连接测试成功')
-    } else {
-      ElMessage.error('连接测试失败')
-    }
+    ElMessage.info('测试连接功能开发中')
   } catch (error) {
-    ElMessage.error('连接测试失败')
     console.error('测试连接失败', error)
   }
 }

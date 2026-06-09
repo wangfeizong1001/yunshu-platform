@@ -86,13 +86,13 @@ function getStatusLabel(status?: string) {
 }
 
 // 获取状态类型
-function getStatusType(status?: string) {
-  const typeMap: Record<string, string> = {
+function getStatusType(status?: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     '0': 'success',
     '1': 'danger',
     '2': 'warning',
   }
-  return typeMap[status || ''] || 'info'
+  return typeMap[status || '']
 }
 
 // 加载租户详情

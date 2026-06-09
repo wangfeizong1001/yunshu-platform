@@ -88,7 +88,7 @@
               v-has-permi="['system:menu:add']"
               link
               type="primary"
-              @click="handleAddSub(row)"
+              @click="handleAddSub(row as SysMenu)"
             >
               新增
             </el-button>
@@ -96,7 +96,7 @@
               v-has-permi="['system:menu:edit']"
               link
               type="primary"
-              @click="handleEdit(row)"
+              @click="handleEdit(row as SysMenu)"
             >
               编辑
             </el-button>
@@ -104,7 +104,7 @@
               v-has-permi="['system:menu:delete']"
               link
               type="danger"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as SysMenu)"
             >
               删除
             </el-button>
@@ -142,14 +142,15 @@ const parentMenu = ref<SysMenu | null>(null)
 // 查询参数
 const queryParams = reactive<SysMenuQuery>({
   keyword: '',
-  status: '',
+  status: undefined,
 })
 
 // 加载菜单树
 async function fetchMenuList() {
   loading.value = true
   try {
-    menuList.value = await getMenuTree(queryParams)
+    const res = await getMenuTree(queryParams) as SysMenu[]
+    menuList.value = res
   } finally {
     loading.value = false
   }
@@ -163,7 +164,7 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = ''
+  queryParams.status = undefined
   handleQuery()
 }
 

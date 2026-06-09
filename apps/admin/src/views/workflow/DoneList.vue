@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button link @click="handleView(row)">查看</el-button>
+            <el-button link @click="handleView(row as Task)">查看</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -127,7 +127,7 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateConfig(props.configData!.configId, formData.value as any)
+      await updateConfig({ configId: props.configData!.configId, ...formData.value } as any)
       ElMessage.success('修改成功')
     } else {
       await addConfig(formData.value as any)

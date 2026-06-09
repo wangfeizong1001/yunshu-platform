@@ -70,7 +70,8 @@ async function fetchMessageDetail() {
 
   loading.value = true
   try {
-    messageInfo.value = await getMessage(props.messageId)
+    const res = await getMessage(props.messageId) as { data: MessageInfo | null }
+    messageInfo.value = res.data
   } catch (error) {
     console.error('获取消息详情失败:', error)
   } finally {

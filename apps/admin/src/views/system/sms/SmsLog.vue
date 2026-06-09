@@ -128,7 +128,7 @@ async function fetchLogList() {
       queryParams.endDate = ''
     }
 
-    const res = await getSmsLogList(queryParams)
+    const res = await getSmsLogList(queryParams) as { rows: SmsLog[]; total: number }
     logList.value = res.rows
     total.value = res.total
   } finally {

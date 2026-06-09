@@ -4,7 +4,7 @@
  * 提供响应式的缓存管理能力
  */
 
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
 import cache, { CacheOptions } from '@/utils/cache'
 
 export interface UseCacheOptions extends CacheOptions {
@@ -14,11 +14,20 @@ export interface UseCacheOptions extends CacheOptions {
   autoSave?: boolean
 }
 
+export interface UseCacheReturn<T> {
+  data: Ref<any>
+  hasCache: ComputedRef<any>
+  set: (value: T, newOptions?: CacheOptions) => void
+  get: () => T | undefined
+  remove: () => void
+  refresh: () => void
+}
+
 export function useCache<T = any>(
   key: string,
   defaultValue?: T,
   options: UseCacheOptions = {}
-) {
+): UseCacheReturn<T> {
   const { autoLoad = true, autoSave = true, ...cacheOptions } = options
 
   const data = ref<T | undefined>(autoLoad ? cache.get<T>(key, defaultValue, cacheOptions) : defaultValue)

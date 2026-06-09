@@ -67,7 +67,8 @@ async function fetchNoticeDetail() {
 
   loading.value = true
   try {
-    noticeData.value = await getNoticeDetail(props.noticeId)
+    const res = await getNoticeDetail(props.noticeId) as { data: SysNotice }
+    noticeData.value = res.data
   } catch (error) {
     console.error('加载公告详情失败', error)
   } finally {

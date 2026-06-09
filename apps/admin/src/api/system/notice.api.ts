@@ -84,3 +84,24 @@ export const batchDeleteNotice = (noticeIds: number[]) => {
     data: noticeIds
   })
 }
+
+export const publishNotice = (noticeId: number) => {
+  return request({
+    url: `/system/notice/publish/${noticeId}`,
+    method: 'put'
+  })
+}
+
+export const withdrawNotice = (noticeId: number) => {
+  return request({
+    url: `/system/notice/withdraw/${noticeId}`,
+    method: 'put'
+  })
+}
+
+export const getNoticeDetail = (noticeId: number) => {
+  return request({
+    url: `/system/notice/${noticeId}`,
+    method: 'get'
+  })
+}

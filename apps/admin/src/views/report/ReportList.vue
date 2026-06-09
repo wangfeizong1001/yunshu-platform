@@ -286,7 +286,7 @@ const formRules: FormRules = {
 async function fetchReportList() {
   loading.value = true
   try {
-    const res = await getReportPage(queryParams)
+    const res = await getReportPage(queryParams) as { rows: any[]; total: number }
     reportList.value = res.rows
     total.value = res.total
   } finally {
@@ -389,7 +389,7 @@ async function handleConfirmExport() {
   exportLoading.value = true
   try {
     // 获取报表数据
-    const dataRes = await getReportData({ reportId: currentReport.value.reportId })
+    const dataRes = await getReportData({ reportId: currentReport.value.reportId }) as { data: any }
     const reportData = dataRes.data
     
     if (reportData && reportData.data) {

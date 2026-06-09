@@ -31,8 +31,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getUserRoles, assignUserRoles } from '@/api/system/user.api'
-import { getAllRoles } from '@/api/system/role.api'
+import { getUserRoles, assignUserRole } from '@/api/system/user.api'
+import { getAllRoles } from '@/api/system/user.api'
 import type { SysRole } from '@yunshu/shared'
 
 interface Props {
@@ -62,7 +62,8 @@ const submitting = ref(false)
 // 加载角色列表
 async function fetchRoleList() {
   try {
-    roleList.value = await getAllRoles()
+    const res = await getAllRoles() as SysRole[]
+    roleList.value = res
   } catch (error) {
     console.error('加载角色列表失败', error)
   }
@@ -72,7 +73,8 @@ async function fetchRoleList() {
 async function fetchUserRoles() {
   if (!props.userId) return
   try {
-    selectedRoleIds.value = await getUserRoles(props.userId)
+    const res = await getUserRoles(props.userId) as number[]
+    selectedRoleIds.value = res
   } catch (error) {
     console.error('加载用户角色失败', error)
   }
@@ -83,7 +85,7 @@ async function handleSubmit() {
   if (!props.userId) return
   try {
     submitting.value = true
-    await assignUserRoles(props.userId, selectedRoleIds.value)
+    await assignUserRole(props.userId, selectedRoleIds.value)
     ElMessage.success('分配成功')
     emit('refresh')
     handleClose()

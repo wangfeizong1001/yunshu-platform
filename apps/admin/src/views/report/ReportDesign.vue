@@ -7,7 +7,7 @@
         <span class="title">{{ reportInfo?.reportName || '报表设计' }}</span>
       </div>
       <div class="toolbar-right">
-        <el-button :icon="Preview" @click="handlePreview">预览</el-button>
+        <el-button :icon="View" @click="handlePreview">预览</el-button>
         <el-button type="primary" :icon="Check" @click="handleSave">保存</el-button>
       </div>
     </div>
@@ -117,7 +117,7 @@
               <div class="data-editor">
                 <textarea
                   v-model="dataJson"
-                  placeholder="请输入JSON格式的数据，例如：&#10;[&#10;  {\"name\": \"产品A\", \"value\": 100},&#10;  {\"name\": \"产品B\", \"value\": 200}&#10;]"
+                  placeholder="请输入JSON格式的数据"
                 />
               </div>
               <el-button type="primary" size="small" @click="parseData">解析数据</el-button>
@@ -168,7 +168,7 @@
 import { ref, reactive, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowLeft, Preview, Check, Plus, Delete, Upload } from '@element-plus/icons-vue'
+import { ArrowLeft, View, Check, Plus, Delete, Upload } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import type { EChartsOption } from 'echarts'
 import { getReport, updateReport, type ReportForm } from '@/api/report.api'
@@ -428,7 +428,7 @@ async function loadReport() {
   
   loading.value = true
   try {
-    const res = await getReport(reportId.value)
+    const res = await getReport(reportId.value) as any
     reportInfo.value = res.data
     
     // 设置基础信息

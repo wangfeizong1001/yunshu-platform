@@ -43,9 +43,6 @@
         <el-form-item label="用户名称">
           <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 140px" />
         </el-form-item>
-        <el-form-item label="登录账号">
-          <el-input v-model="queryParams.loginAccount" placeholder="请输入登录账号" clearable style="width: 140px" />
-        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleQuery">搜索</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
@@ -71,13 +68,12 @@
     <el-card class="table-card">
       <el-table v-loading="loading" :data="tableData" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" align="center" />
-        <el-table-column label="会话编号" prop="sessionId" width="200" show-overflow-tooltip />
+        <el-table-column label="会话编号" prop="tokenId" width="200" show-overflow-tooltip />
         <el-table-column label="用户名称" prop="userName" width="120" align="center" />
-        <el-table-column label="登录账号" prop="loginAccount" width="140" align="center" />
         <el-table-column label="部门名称" prop="deptName" width="120" align="center" />
         <el-table-column label="浏览器" prop="browser" width="120" align="center" show-overflow-tooltip />
         <el-table-column label="操作系统" prop="os" width="120" align="center" show-overflow-tooltip />
-        <el-table-column label="登录IP" prop="ip" width="140" align="center" />
+        <el-table-column label="登录IP" prop="ipaddr" width="140" align="center" />
         <el-table-column label="登录时间" prop="loginTime" width="180" align="center">
           <template #default="{ row }">
             {{ formatDate(row.loginTime) }}
@@ -90,15 +86,15 @@
         </el-table-column>
         <el-table-column label="操作" width="120" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleForceLogout(row)">强制下线</el-button>
+            <el-button link type="primary" @click="handleForceLogout(row as any)">强制下线</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <div class="pagination-container">
         <el-pagination
-          v-model:current-page="queryParams.page"
-          v-model:page-size="queryParams.limit"
+          v-model:current-page="queryParams.pageNum"
+          v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
@@ -114,24 +110,29 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, User, Monitor, Cellphone } from '@element-plus/icons-vue'
-import type { IOnline, IOnlineQuery, IOnlineStats } from '@yunshu/shared'
+import type { OnlineInfo, OnlineQuery } from '@/api/monitor/online.api'
 import * as onlineApi from '@/api/monitor/online.api'
 
+interface OnlineStats {
+  totalCount: number
+  pcCount: number
+  mobileCount: number
+  onlineCount?: number
+}
+
 const loading = ref(false)
-const tableData = ref<IOnline[]>([])
+const tableData = ref<OnlineInfo[]>([])
 const total = ref(0)
 const selectedIds = ref<string[]>([])
-const stats = ref<IOnlineStats>({
+const stats = ref<OnlineStats>({
   totalCount: 0,
   pcCount: 0,
   mobileCount: 0,
 })
 
-const queryParams = reactive<IOnlineQuery>({
-  page: 1,
-  limit: 10,
-  sort: 'loginTime',
-  order: 'desc',
+const queryParams = reactive<OnlineQuery>({
+  pageNum: 1,
+  pageSize: 10,
 })
 
 const formatDate = (date: string | undefined) => {
@@ -141,9 +142,11 @@ const formatDate = (date: string | undefined) => {
 
 const loadStats = async () => {
   try {
-    const res = await onlineApi.getOnlineStats()
-    if (res.success) {
-      stats.value = res.data
+    const res = await onlineApi.getOnlineList()
+    const responseData = res as Record<string, unknown>
+    if (responseData.success) {
+      const data = responseData.data as Record<string, unknown>
+      stats.value.onlineCount = Number(data.onlineCount) || 0
     }
   } catch {
     // ignore
@@ -154,9 +157,11 @@ const handleQuery = async () => {
   loading.value = true
   try {
     const res = await onlineApi.getOnlinePage(queryParams)
-    if (res.success) {
-      tableData.value = res.data
-      total.value = res.pagination.total
+    const responseData = res as Record<string, unknown>
+    if (responseData.success) {
+      tableData.value = responseData.data as OnlineInfo[]
+      const pagination = responseData.pagination as Record<string, unknown>
+      total.value = Number(pagination.total) || 0
     }
   } catch {
     ElMessage.error('获取在线用户失败')
@@ -166,10 +171,9 @@ const handleQuery = async () => {
 }
 
 const handleReset = () => {
-  queryParams.page = 1
-  queryParams.limit = 10
+  queryParams.pageNum = 1
+  queryParams.pageSize = 10
   queryParams.userName = undefined
-  queryParams.loginAccount = undefined
   handleQuery()
 }
 
@@ -178,14 +182,14 @@ const handleRefresh = () => {
   handleQuery()
 }
 
-const handleSelectionChange = (selection: IOnline[]) => {
-  selectedIds.value = selection.map((item) => item.sessionId)
+const handleSelectionChange = (selection: OnlineInfo[]) => {
+  selectedIds.value = selection.map((item) => item.tokenId)
 }
 
-const handleForceLogout = async (row: IOnline) => {
+const handleForceLogout = async (row: OnlineInfo) => {
   try {
     await ElMessageBox.confirm(`确认强制下线用户 ${row.userName} 吗？`, '提示', { type: 'warning' })
-    await onlineApi.forceLogout(row.sessionId)
+    await onlineApi.forceLogout(row.tokenId)
     ElMessage.success('强制下线成功')
     loadStats()
     handleQuery()

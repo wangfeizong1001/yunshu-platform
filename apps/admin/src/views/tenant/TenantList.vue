@@ -158,12 +158,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue'
 import {
   getTenantPage,
-  getTenantList,
   deleteTenant,
   changeTenantStatus,
 } from '@/api/tenant/tenant.api'
@@ -187,7 +186,7 @@ const currentTenantId = ref<number>()
 // 查询参数
 const queryParams = reactive<TenantQuery>({
   keyword: '',
-  status: '',
+  status: undefined,
   packageId: undefined,
   pageNum: 1,
   pageSize: 10,
@@ -199,8 +198,8 @@ function getStatusLabel(status: string) {
 }
 
 // 获取状态类型
-function getStatusType(status: string) {
-  const typeMap: Record<string, string> = {
+function getStatusType(status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     '0': 'success',
     '1': 'danger',
     '2': 'warning',
@@ -220,25 +219,6 @@ async function fetchTenantList() {
   }
 }
 
-// 加载套餐列表
-async function fetchPackageList() {
-  try {
-    const res = await getTenantList()
-    const packages = new Map<number, string>()
-    res.forEach(t => {
-      if (t.packageId && t.packageName) {
-        packages.set(t.packageId, t.packageName)
-      }
-    })
-    packageList.value = Array.from(packages.entries()).map(([packageId, packageName]) => ({
-      packageId,
-      packageName,
-    }))
-  } catch (error) {
-    console.error('加载套餐列表失败', error)
-  }
-}
-
 // 查询
 function handleQuery() {
   queryParams.pageNum = 1
@@ -248,7 +228,7 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = ''
+  queryParams.status = undefined
   queryParams.packageId = undefined
   queryParams.pageNum = 1
   handleQuery()
@@ -266,25 +246,25 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: Tenant) {
+function handleEdit(row: any) {
   currentTenant.value = { ...row }
   formVisible.value = true
 }
 
 // 详情
-function handleDetail(row: Tenant) {
+function handleDetail(row: any) {
   currentTenantId.value = row.tenantId
   detailVisible.value = true
 }
 
 // 套餐配置
-function handlePackage(row: Tenant) {
+function handlePackage(row: any) {
   currentTenantId.value = row.tenantId
   packageVisible.value = true
 }
 
 // 修改状态
-async function handleChangeStatus(row: Tenant) {
+async function handleChangeStatus(row: any) {
   const newStatus = row.status === '0' ? '1' : '0'
   const action = newStatus === '0' ? '启用' : '停用'
   try {
@@ -302,7 +282,7 @@ async function handleChangeStatus(row: Tenant) {
 }
 
 // 删除
-async function handleDelete(row: Tenant) {
+async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除租户"${row.tenantName}"？`, '提示', {
       type: 'warning',

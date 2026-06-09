@@ -44,14 +44,14 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { IOperlog } from '@yunshu/shared'
-import * as operlogApi from '@/api/monitor/operlog.api'
+import { getOperlog } from '@/api/monitor/operlog.api'
 
 const router = useRouter()
 const route = useRoute()
 const detailData = ref<IOperlog>({} as IOperlog)
 
-const getOperTypeTagType = (type: string) => {
-  const map: Record<string, string> = {
+const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
+  const map: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     查询: 'info',
     新增: 'success',
     修改: 'warning',
@@ -59,7 +59,7 @@ const getOperTypeTagType = (type: string) => {
     导出: 'primary',
     导入: 'success',
   }
-  return map[type] || 'info'
+  return map[type]
 }
 
 const formatDate = (date: string | undefined) => {
@@ -83,7 +83,7 @@ const handleBack = () => {
 const loadDetail = async () => {
   const id = route.params.id as string
   try {
-    const res = await operlogApi.getOperlogDetail(id)
+    const res = await getOperlog(Number(id)) as { success: boolean; data: IOperlog }
     if (res.success) {
       detailData.value = res.data
     }

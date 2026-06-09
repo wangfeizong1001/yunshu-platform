@@ -47,10 +47,10 @@
         </el-table-column>
         <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleApprove(row)">审批</el-button>
-            <el-button type="success" link @click="handleDelegate(row)">转办</el-button>
-            <el-button type="info" link @click="handleAssign(row)">委托</el-button>
-            <el-button link @click="handleView(row)">查看</el-button>
+            <el-button type="primary" link @click="handleApprove(row as Task)">审批</el-button>
+            <el-button type="success" link @click="handleDelegate(row as Task)">转办</el-button>
+            <el-button type="info" link @click="handleAssign(row as Task)">委托</el-button>
+            <el-button link @click="handleView(row as Task)">查看</el-button>
           </template>
         </el-table-column>
       </el-table>

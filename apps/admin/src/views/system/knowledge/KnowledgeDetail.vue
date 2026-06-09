@@ -96,7 +96,7 @@ async function fetchKnowledgeDetail() {
 
   loading.value = true
   try {
-    const res = await getKnowledge(props.knowledgeId)
+    const res = await getKnowledge(props.knowledgeId) as { data: KnowledgeInfo | null }
     knowledgeData.value = res.data || null
   } catch (error) {
     console.error('获取文档详情失败', error)

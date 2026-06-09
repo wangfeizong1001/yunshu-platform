@@ -90,7 +90,7 @@
               v-has-permi="['tenant:package:edit']"
               link
               type="primary"
-              @click="handleEdit(row)"
+              @click="handleEdit(row as TenantPackage)"
             >
               编辑
             </el-button>
@@ -98,7 +98,7 @@
               v-has-permi="['tenant:package:delete']"
               link
               type="danger"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as TenantPackage)"
             >
               删除
             </el-button>
@@ -144,8 +144,8 @@ const currentPackage = ref<TenantPackage | null>(null)
 // 查询参数
 const queryParams = reactive<TenantPackageQuery>({
   keyword: '',
-  status: '',
-  packageType: '',
+  status: undefined as any,
+  packageType: undefined as any,
   pageNum: 1,
   pageSize: 10,
 })
@@ -186,8 +186,8 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = ''
-  queryParams.packageType = ''
+  queryParams.status = undefined as any
+  queryParams.packageType = undefined as any
   queryParams.pageNum = 1
   handleQuery()
 }

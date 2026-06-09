@@ -46,3 +46,11 @@ export const forceLogout = (tokenId: string) => {
   })
 }
 
+export const batchForceLogout = (tokenIds: string[]) => {
+  return request({
+    url: '/monitor/online/batch',
+    method: 'delete',
+    data: tokenIds
+  })
+}
+

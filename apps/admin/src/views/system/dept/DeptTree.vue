@@ -31,7 +31,7 @@
               v-has-permi="['system:dept:add']"
               type="primary"
               :icon="Plus"
-              @click="handleAdd"
+              @click="() => handleAdd()"
             >
               新增
             </el-button>
@@ -70,7 +70,7 @@
               v-has-permi="['system:dept:add']"
               link
               type="primary"
-              @click="handleAdd(row)"
+              @click="handleAdd(row as SysDept)"
             >
               新增
             </el-button>
@@ -78,7 +78,7 @@
               v-has-permi="['system:dept:edit']"
               link
               type="primary"
-              @click="handleEdit(row)"
+              @click="handleEdit(row as SysDept)"
             >
               编辑
             </el-button>
@@ -86,7 +86,7 @@
               v-has-permi="['system:dept:delete']"
               link
               type="danger"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as SysDept)"
             >
               删除
             </el-button>
@@ -105,7 +105,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getDeptTree, deleteDept } from '@/api/system/dept.api'
-import type { SysDept, SysDeptQuery } from '@yunshu/shared'
+import type { DeptQuery } from '@/api/system/dept.api'
+import type { SysDept } from '@yunshu/shared'
 import DeptForm from './DeptForm.vue'
 
 // 状态
@@ -116,7 +117,7 @@ const currentDept = ref<SysDept | null>(null)
 const parentDept = ref<SysDept | null>(null)
 
 // 查询参数
-const queryParams = reactive<SysDeptQuery>({
+const queryParams = reactive<DeptQuery>({
   deptName: '',
   status: '',
 })
@@ -125,7 +126,8 @@ const queryParams = reactive<SysDeptQuery>({
 async function fetchDeptTree() {
   loading.value = true
   try {
-    deptList.value = await getDeptTree(queryParams)
+    const res = await getDeptTree(queryParams) as SysDept[]
+    deptList.value = res
   } finally {
     loading.value = false
   }

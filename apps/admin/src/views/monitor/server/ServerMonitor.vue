@@ -188,7 +188,7 @@ const formatUptime = (seconds: number | undefined) => {
 
 const loadData = async () => {
   try {
-    const res = await serverApi.getServerInfo()
+    const res = await serverApi.getServerInfo() as { success: boolean; data: IServer }
     if (res.success) {
       serverInfo.value = res.data
     }

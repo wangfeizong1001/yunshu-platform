@@ -62,12 +62,12 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link @click="handleView(row)">查看</el-button>
+            <el-button link @click="handleView(row as ProcessInstance)">查看</el-button>
             <el-button
               v-if="row.status === 'running'"
               link
               type="danger"
-              @click="handleTerminate(row)"
+              @click="handleTerminate(row as ProcessInstance)"
             >
               终止
             </el-button>
@@ -218,7 +218,7 @@ function handleView(row: ProcessInstance) {
   viewDrawerVisible.value = true
 }
 
-async function handleTerminate(row: ProcessInstance) {
+async function handleTerminate(_row: ProcessInstance) {
   try {
     await ElMessageBox.confirm('确定要终止该流程实例吗？', '提示', {
       type: 'warning',

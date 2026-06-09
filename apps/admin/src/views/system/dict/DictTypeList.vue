@@ -65,7 +65,7 @@
         <el-table-column prop="dictName" label="字典名称" width="150" />
         <el-table-column prop="dictType" label="字典类型" width="200">
           <template #default="{ row }">
-            <el-link type="primary" @click="handleViewData(row)">{{ row.dictType }}</el-link>
+            <el-link type="primary" @click="handleViewData(row as SysDictType)">{{ row.dictType }}</el-link>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
@@ -83,7 +83,7 @@
               v-has-permi="['system:dict:edit']"
               link
               type="primary"
-              @click="handleEdit(row)"
+              @click="handleEdit(row as SysDictType)"
             >
               编辑
             </el-button>
@@ -91,7 +91,7 @@
               v-has-permi="['system:dict:remove']"
               link
               type="danger"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as SysDictType)"
             >
               删除
             </el-button>
@@ -142,7 +142,7 @@ const currentDictType = ref<SysDictType | null>(null)
 // 查询参数
 const queryParams = reactive<SysDictTypeQuery>({
   keyword: '',
-  status: '',
+  status: undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -151,7 +151,7 @@ const queryParams = reactive<SysDictTypeQuery>({
 async function fetchDictTypeList() {
   loading.value = true
   try {
-    const res = await getDictTypePage(queryParams)
+    const res = await getDictTypePage(queryParams) as { rows: SysDictType[]; total: number }
     dictTypeList.value = res.rows
     total.value = res.total
   } finally {
@@ -168,7 +168,7 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = ''
+  queryParams.status = undefined
   queryParams.pageNum = 1
   handleQuery()
 }

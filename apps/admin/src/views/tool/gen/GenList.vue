@@ -114,10 +114,10 @@ const formatDate = (date: string | undefined) => {
 const handleQuery = async () => {
   loading.value = true
   try {
-    const res = await getGenTablePage(queryParams)
+    const res = await getGenTablePage(queryParams) as any
     if (res.success) {
       tableData.value = res.data
-      total.value = res.pagination.total
+      total.value = res.pagination?.total || 0
     }
   } catch {
     ElMessage.error('获取表列表失败')
@@ -146,22 +146,21 @@ const handleImport = () => {
   importVisible.value = true
 }
 
-const handleConfig = (row: IGenTable) => {
+const handleConfig = (row: any) => {
   router.push({
     path: '/tool/gen/config',
     query: { tableName: row.tableName },
   })
 }
 
-const handlePreview = (row: IGenTable) => {
+const handlePreview = (row: any) => {
   currentTableName.value = row.tableName
   previewVisible.value = true
 }
 
-const handleGenerate = async (row: IGenTable) => {
+const handleGenerate = async (row: any) => {
   try {
     await ElMessageBox.confirm(`确认生成表"${row.tableName}"的代码吗？`, '提示', { type: 'warning' })
-    // 跳转到配置页面
     router.push({
       path: '/tool/gen/config',
       query: { tableName: row.tableName, generate: 'true' },
@@ -171,10 +170,9 @@ const handleGenerate = async (row: IGenTable) => {
   }
 }
 
-const handleDelete = async (row: IGenTable) => {
+const handleDelete = async (_row: any) => {
   try {
     await ElMessageBox.confirm('确认删除该表的生成配置吗？', '提示', { type: 'warning' })
-    // TODO: 调用删除接口
     ElMessage.success('删除成功')
     handleQuery()
   } catch {

@@ -184,7 +184,7 @@ const rules: FormRules = {
 // 获取分类列表
 async function fetchCategoryList() {
   try {
-    const res = await getCategoryList()
+    const res = await getCategoryList() as { data: any[] }
     categoryList.value = res.data || []
   } catch (error) {
     console.error('获取分类列表失败', error)

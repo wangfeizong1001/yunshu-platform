@@ -85,3 +85,12 @@ export const sendSms = (phone: string, content: string) => {
     data: { phone, content }
   })
 }
+
+// 获取短信日志列表
+export const getSmsLogList = (params?: SmsQuery) => {
+  return request({
+    url: '/system/sms/log/page',
+    method: 'get',
+    params
+  })
+}

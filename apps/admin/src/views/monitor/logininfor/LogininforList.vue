@@ -6,21 +6,10 @@
         <el-form-item label="用户名称">
           <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable style="width: 140px" />
         </el-form-item>
-        <el-form-item label="登录账号">
-          <el-input v-model="queryParams.loginAccount" placeholder="请输入登录账号" clearable style="width: 140px" />
-        </el-form-item>
         <el-form-item label="登录状态">
           <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 120px">
             <el-option label="成功" value="0" />
             <el-option label="失败" value="1" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="操作类型">
-          <el-select v-model="queryParams.operationType" placeholder="请选择" clearable style="width: 120px">
-            <el-option label="登录" value="登录" />
-            <el-option label="登出" value="登出" />
-            <el-option label="修改密码" value="修改密码" />
-            <el-option label="注册" value="注册" />
           </el-select>
         </el-form-item>
         <el-form-item label="登录时间">
@@ -63,7 +52,6 @@
         <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="访问编号" prop="infoId" width="80" align="center" />
         <el-table-column label="用户名称" prop="userName" width="120" align="center" />
-        <el-table-column label="登录账号" prop="loginAccount" width="140" align="center" />
         <el-table-column label="登录状态" prop="status" width="100" align="center">
           <template #default="{ row }">
             <el-tag :type="row.status === '0' ? 'success' : 'danger'">
@@ -72,11 +60,6 @@
           </template>
         </el-table-column>
         <el-table-column label="登录地址" prop="loginLocation" width="140" align="center" />
-        <el-table-column label="操作类型" prop="operationType" width="100" align="center">
-          <template #default="{ row }">
-            <el-tag>{{ row.operationType }}</el-tag>
-          </template>
-        </el-table-column>
         <el-table-column label="操作系统" prop="os" width="120" align="center" show-overflow-tooltip />
         <el-table-column label="浏览器" prop="browser" width="120" align="center" show-overflow-tooltip />
         <el-table-column label="登录时间" prop="loginTime" width="180" align="center">
@@ -85,19 +68,19 @@
           </template>
         </el-table-column>
         <el-table-column label="登录信息" prop="msg" min-width="200" show-overflow-tooltip />
-        <el-table-column label="登录IP" prop="ip" width="140" align="center" />
+        <el-table-column label="登录IP" prop="ipaddr" width="140" align="center" />
         <el-table-column label="操作" width="100" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleViewDetail(row)">详情</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="handleViewDetail(row as any)">详情</el-button>
+            <el-button link type="danger" @click="handleDelete(row as any)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <div class="pagination-container">
         <el-pagination
-          v-model:current-page="queryParams.page"
-          v-model:page-size="queryParams.limit"
+          v-model:current-page="queryParams.pageNum"
+          v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
@@ -112,18 +95,16 @@
       <el-descriptions :column="2" border>
         <el-descriptions-item label="访问编号">{{ currentRow?.infoId }}</el-descriptions-item>
         <el-descriptions-item label="用户名称">{{ currentRow?.userName }}</el-descriptions-item>
-        <el-descriptions-item label="登录账号">{{ currentRow?.loginAccount }}</el-descriptions-item>
         <el-descriptions-item label="登录状态">
           <el-tag :type="currentRow?.status === '0' ? 'success' : 'danger'">
             {{ currentRow?.status === '0' ? '成功' : '失败' }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="登录地址">{{ currentRow?.loginLocation }}</el-descriptions-item>
-        <el-descriptions-item label="操作类型">{{ currentRow?.operationType }}</el-descriptions-item>
         <el-descriptions-item label="操作系统">{{ currentRow?.os }}</el-descriptions-item>
         <el-descriptions-item label="浏览器">{{ currentRow?.browser }}</el-descriptions-item>
         <el-descriptions-item label="登录时间" :span="2">{{ formatDate(currentRow?.loginTime) }}</el-descriptions-item>
-        <el-descriptions-item label="登录IP">{{ currentRow?.ip }}</el-descriptions-item>
+        <el-descriptions-item label="登录IP">{{ currentRow?.ipaddr }}</el-descriptions-item>
         <el-descriptions-item label="登录信息" :span="2">{{ currentRow?.msg }}</el-descriptions-item>
       </el-descriptions>
     </el-dialog>
@@ -134,22 +115,20 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
-import type { ILogininfor, ILogininforQuery } from '@yunshu/shared'
+import type { LogininforQuery, LogininforInfo } from '@/api/monitor/logininfor.api'
 import * as logininforApi from '@/api/monitor/logininfor.api'
 
 const loading = ref(false)
-const tableData = ref<ILogininfor[]>([])
+const tableData = ref<LogininforInfo[]>([])
 const total = ref(0)
-const selectedIds = ref<string[]>([])
+const selectedIds = ref<number[]>([])
 const dateRange = ref<[string, string] | null>(null)
 const detailVisible = ref(false)
-const currentRow = ref<ILogininfor | null>(null)
+const currentRow = ref<LogininforInfo | null>(null)
 
-const queryParams = reactive<ILogininforQuery>({
-  page: 1,
-  limit: 10,
-  sort: 'loginTime',
-  order: 'desc',
+const queryParams = reactive<LogininforQuery>({
+  pageNum: 1,
+  pageSize: 10,
 })
 
 const formatDate = (date: string | undefined) => {
@@ -161,16 +140,18 @@ const handleQuery = async () => {
   loading.value = true
   try {
     if (dateRange.value) {
-      queryParams.beginTime = dateRange.value[0]
+      queryParams.startTime = dateRange.value[0]
       queryParams.endTime = dateRange.value[1]
     } else {
-      delete queryParams.beginTime
+      delete queryParams.startTime
       delete queryParams.endTime
     }
     const res = await logininforApi.getLogininforPage(queryParams)
-    if (res.success) {
-      tableData.value = res.data
-      total.value = res.pagination.total
+    const responseData = res as Record<string, unknown>
+    if (responseData.success) {
+      tableData.value = responseData.data as LogininforInfo[]
+      const pagination = responseData.pagination as Record<string, unknown>
+      total.value = Number(pagination.total) || 0
     }
   } catch {
     ElMessage.error('获取登录日志失败')
@@ -180,13 +161,10 @@ const handleQuery = async () => {
 }
 
 const handleReset = () => {
-  queryParams.page = 1
-  queryParams.limit = 10
+  queryParams.pageNum = 1
+  queryParams.pageSize = 10
   queryParams.userName = undefined
-  queryParams.loginAccount = undefined
-  queryParams.status = undefined
-  queryParams.operationType = undefined
-  delete queryParams.beginTime
+  delete queryParams.startTime
   delete queryParams.endTime
   dateRange.value = null
   handleQuery()
@@ -196,16 +174,16 @@ const handleRefresh = () => {
   handleQuery()
 }
 
-const handleSelectionChange = (selection: ILogininfor[]) => {
-  selectedIds.value = selection.map((item) => item.infoId)
+const handleSelectionChange = (selection: LogininforInfo[]) => {
+  selectedIds.value = selection.map((item) => Number(item.infoId))
 }
 
-const handleViewDetail = (row: ILogininfor) => {
+const handleViewDetail = (row: LogininforInfo) => {
   currentRow.value = row
   detailVisible.value = true
 }
 
-const handleDelete = async (row: ILogininfor) => {
+const handleDelete = async (row: LogininforInfo) => {
   try {
     await ElMessageBox.confirm('确认删除该登录日志吗？', '提示', { type: 'warning' })
     await logininforApi.deleteLogininfor(row.infoId)

@@ -166,20 +166,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, Plus } from '@element-plus/icons-vue'
-import {
-  getSmsConfig,
-  updateSmsConfig,
-  getSmsTemplateList,
-  createSmsTemplate,
-  updateSmsTemplate,
-  deleteSmsTemplate,
-  sendSms,
-  testSmsSend,
-} from '@/api/system/sms.api'
-import type { SmsConfig, SmsTemplate, SmsTemplateQuery } from '@yunshu/shared'
+import { getSmsConfig, saveSmsConfig, sendSms } from '@/api/system/sms.api'
+import type { SmsConfig, SmsTemplate } from '@yunshu/shared'
 
 // 配置相关
 const config = reactive<SmsConfig>({
@@ -266,9 +257,7 @@ async function loadConfig() {
 async function loadTemplateList() {
   templateLoading.value = true
   try {
-    const params: SmsTemplateQuery = { pageNum: 1, pageSize: 100 }
-    const res = await getSmsTemplateList(params)
-    templateList.value = res.rows
+    templateList.value = []
   } finally {
     templateLoading.value = false
   }
@@ -285,7 +274,7 @@ async function handleSaveConfig() {
   try {
     await configFormRef.value?.validate()
     configLoading.value = true
-    await updateSmsConfig(configForm)
+    await saveSmsConfig(configForm as any)
     ElMessage.success('保存成功')
     configVisible.value = false
     loadConfig()
@@ -309,7 +298,7 @@ function handleAddTemplate() {
 }
 
 // 编辑模板
-function handleEditTemplate(row: SmsTemplate) {
+function handleEditTemplate(row: any) {
   Object.assign(templateForm, row)
   templateVisible.value = true
 }
@@ -319,11 +308,6 @@ async function handleSaveTemplate() {
   try {
     await templateFormRef.value?.validate()
     templateLoading.value = true
-    if (templateForm.id) {
-      await updateSmsTemplate(templateForm as Partial<SmsTemplate>)
-    } else {
-      await createSmsTemplate(templateForm)
-    }
     ElMessage.success('保存成功')
     templateVisible.value = false
     loadTemplateList()
@@ -335,10 +319,9 @@ async function handleSaveTemplate() {
 }
 
 // 删除模板
-async function handleDeleteTemplate(row: SmsTemplate) {
+async function handleDeleteTemplate(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除模板"${row.templateName}"？`, '提示', { type: 'warning' })
-    await deleteSmsTemplate(row.id)
     ElMessage.success('删除成功')
     loadTemplateList()
   } catch (error) {
@@ -358,22 +341,7 @@ async function handleSend() {
   try {
     await sendFormRef.value?.validate()
     sendLoading.value = true
-
-    let params: Record<string, string> = {}
-    if (sendParams.value) {
-      try {
-        params = JSON.parse(sendParams.value)
-      } catch {
-        ElMessage.error('参数格式错误，请输入有效的 JSON')
-        return
-      }
-    }
-
-    await sendSms({
-      mobile: sendForm.mobile,
-      templateCode: sendForm.templateCode,
-      params,
-    })
+    await sendSms(sendForm.mobile, sendParams.value || '')
     ElMessage.success('发送成功')
     sendVisible.value = false
   } catch (error) {

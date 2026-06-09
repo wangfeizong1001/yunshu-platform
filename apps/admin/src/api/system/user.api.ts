@@ -178,3 +178,11 @@ export function assignUserRole(userId: number, roleIds: number[]) {
     data: { userId, roleIds }
   })
 }
+
+// 获取用户角色列表
+export function getUserRoles(userId: number) {
+  return request({
+    url: `/system/user/${userId}/roles`,
+    method: 'get'
+  })
+}

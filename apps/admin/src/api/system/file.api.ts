@@ -87,3 +87,10 @@ export const downloadFile = (fileId: number) => {
     responseType: 'blob'
   })
 }
+
+export const previewFile = (fileId: number) => {
+  return request({
+    url: `/system/file/preview/${fileId}`,
+    method: 'get'
+  })
+}

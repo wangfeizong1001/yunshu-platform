@@ -21,7 +21,7 @@
           <el-tree-select
             v-model="queryParams.deptId"
             :data="deptTree"
-            :props="{ value: 'deptId', label: 'deptName', children: 'children' }"
+            :props="{ label: 'deptName', children: 'children' }"
             placeholder="请选择部门"
             check-strictly
             filterable
@@ -193,7 +193,7 @@ const queryParams = reactive({
 async function fetchUserList() {
   loading.value = true
   try {
-    const res = await getUserPage(queryParams)
+    const res = await getUserPage(queryParams) as any
     userList.value = res.rows
     total.value = res.total
   } finally {
@@ -204,7 +204,7 @@ async function fetchUserList() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = await getDeptTreeSelect()
+    deptTree.value = (await getDeptTreeSelect()) as any
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -237,13 +237,13 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: SysUser) {
+function handleEdit(row: any) {
   currentUser.value = { ...row }
   formVisible.value = true
 }
 
 // 删除
-async function handleDelete(row: SysUser) {
+async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
       type: 'warning',
@@ -259,12 +259,12 @@ async function handleDelete(row: SysUser) {
 }
 
 // 重置密码
-function handleResetPassword(row: SysUser) {
+function handleResetPassword(row: any) {
   ElMessage.info(`重置密码功能开发中，用户ID: ${row.userId}`)
 }
 
 // 分配角色
-function handleAssignRole(row: SysUser) {
+function handleAssignRole(row: any) {
   currentUserId.value = row.userId
   assignRoleVisible.value = true
 }

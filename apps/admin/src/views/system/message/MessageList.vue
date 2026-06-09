@@ -47,8 +47,8 @@
         <el-table-column prop="title" label="标题" min-width="200" show-overflow-tooltip>
           <template #default="{ row }">
             <div class="message-title" :class="{ 'unread': row.status === '0' }">
-              <el-icon v-if="row.status === '0'"><Dot /></el-icon>
-              <span @click="handleView(row)">{{ row.title }}</span>
+              <el-icon v-if="row.status === '0'"><CircleCheckFilled /></el-icon>
+              <span @click="handleView(row as MessageInfo)">{{ row.title }}</span>
             </div>
           </template>
         </el-table-column>
@@ -77,9 +77,9 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleView(row)">查看</el-button>
-            <el-button v-if="row.status === '0'" link type="success" @click="handleMarkRead(row)">标为已读</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" @click="handleView(row as MessageInfo)">查看</el-button>
+            <el-button v-if="row.status === '0'" link type="success" @click="handleMarkRead(row as MessageInfo)">标为已读</el-button>
+            <el-button link type="danger" @click="handleDelete(row as MessageInfo)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -105,7 +105,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Delete, DocumentChecked, Bell, Dot } from '@element-plus/icons-vue'
+import { Search, Refresh, Plus, Delete, DocumentChecked, Bell } from '@element-plus/icons-vue'
 import {
   getMessagePage,
   getUnreadMessageCount,
@@ -138,7 +138,7 @@ const queryParams = reactive({
 async function fetchMessageList() {
   loading.value = true
   try {
-    const res = await getMessagePage(queryParams)
+    const res = await getMessagePage(queryParams) as { rows: MessageInfo[]; total: number }
     messageList.value = res.rows || []
     total.value = res.total || 0
   } finally {
@@ -148,7 +148,7 @@ async function fetchMessageList() {
 
 async function fetchUnreadCount() {
   try {
-    const count = await getUnreadMessageCount()
+    const count = await getUnreadMessageCount() as number
     unreadCount.value = count
   } catch (error) {
     console.error('获取未读数量失败:', error)

@@ -174,8 +174,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Upload, Delete, Setting } from '@element-plus/icons-vue'
-import { getOssFilePage, deleteOssFile, batchDeleteOssFile, downloadOssFile, previewOssFile } from '@/api/system/oss.api'
-import type { OssFile, OssFileQuery } from '@yunshu/shared/types/oss'
+import { getOssPage, deleteOss, batchDeleteOss, downloadOss } from '@/api/system/oss.api'
+import type { OssFile, OssFileQuery } from '@yunshu/shared'
 import OssUploadDialog from './OssUpload.vue'
 import OssConfigDialog from './OssConfig.vue'
 
@@ -220,8 +220,8 @@ function getStorageTypeName(type: string): string {
 }
 
 // 获取存储类型标签类型
-function getStorageTypeTag(type: string): string {
-  const typeMap: Record<string, string> = {
+function getStorageTypeTag(type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     local: 'info',
     aliyun: 'success',
     qcloud: 'warning',
@@ -231,7 +231,8 @@ function getStorageTypeTag(type: string): string {
 }
 
 // 判断是否为图片文件
-function isImageFile(fileType: string): boolean {
+function isImageFile(fileType: string | undefined): boolean {
+  if (!fileType) return false
   return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileType.toLowerCase())
 }
 
@@ -239,7 +240,7 @@ function isImageFile(fileType: string): boolean {
 async function fetchFileList() {
   loading.value = true
   try {
-    const res = await getOssFilePage(queryParams)
+    const res = await getOssPage(queryParams) as any
     fileList.value = res.rows
     total.value = res.total
   } finally {
@@ -278,24 +279,20 @@ function handleConfig() {
 }
 
 // 预览
-async function handlePreview(row: OssFile) {
+async function handlePreview(row: any) {
   previewFile.value = row
   if (isImageFile(row.fileType)) {
-    try {
-      previewUrl.value = await previewOssFile(row.id)
-      previewVisible.value = true
-    } catch (error) {
-      ElMessage.error('预览失败')
-    }
+    previewUrl.value = row.url
+    previewVisible.value = true
   } else {
     previewVisible.value = true
   }
 }
 
 // 下载
-async function handleDownload(row: OssFile) {
+async function handleDownload(row: any) {
   try {
-    await downloadOssFile(row.id)
+    await downloadOss(row.id)
     ElMessage.success('下载成功')
   } catch (error) {
     ElMessage.error('下载失败')
@@ -303,12 +300,12 @@ async function handleDownload(row: OssFile) {
 }
 
 // 删除
-async function handleDelete(row: OssFile) {
+async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除文件"${row.fileName}"？`, '提示', {
       type: 'warning',
     })
-    await deleteOssFile(row.id)
+    await deleteOss(row.id)
     ElMessage.success('删除成功')
     fetchFileList()
   } catch (error) {
@@ -324,8 +321,8 @@ async function handleBatchDelete() {
     await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个文件？`, '提示', {
       type: 'warning',
     })
-    const ids = selectedRows.value.map((row) => row.id)
-    await batchDeleteOssFile(ids)
+    const ids = selectedRows.value.map((row: any) => row.id)
+    await batchDeleteOss(ids)
     ElMessage.success('删除成功')
     fetchFileList()
   } catch (error) {

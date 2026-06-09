@@ -98,3 +98,12 @@ export const refreshConfigCache = () => {
     method: 'delete'
   })
 }
+
+export const exportConfig = (params?: ConfigQuery) => {
+  return request({
+    url: '/system/config/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+}

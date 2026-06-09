@@ -56,10 +56,11 @@ export const getDeptTreeSelect = () => {
   })
 }
 
-export const getDeptTree = () => {
+export const getDeptTree = (params?: DeptQuery) => {
   return request({
     url: '/system/dept/tree',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 

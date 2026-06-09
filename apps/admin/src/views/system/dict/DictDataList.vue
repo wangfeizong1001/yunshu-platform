@@ -93,7 +93,7 @@
             v-has-permi="['system:dict:edit']"
             link
             type="primary"
-            @click="handleEdit(row)"
+            @click="handleEdit(row as SysDictData)"
           >
             编辑
           </el-button>
@@ -101,7 +101,7 @@
             v-has-permi="['system:dict:remove']"
             link
             type="danger"
-            @click="handleDelete(row)"
+            @click="handleDelete(row as SysDictData)"
           >
             删除
           </el-button>
@@ -126,7 +126,7 @@
     <DictDataForm
       v-model="formVisible"
       :dict-data="currentDictData"
-      :dict-type="dictType"
+      :dict-type="dictType || ''"
       @refresh="handleQuery"
     />
   </el-dialog>
@@ -158,6 +158,9 @@ const visible = computed({
   set: (val) => emit('update:modelValue', val),
 })
 
+// 字典类型
+const dictType = computed(() => props.dictType || '')
+
 // 状态
 const loading = ref(false)
 const dictDataList = ref<SysDictData[]>([])
@@ -168,15 +171,15 @@ const currentDictData = ref<SysDictData | null>(null)
 // 查询参数
 const queryParams = reactive<SysDictDataQuery>({
   keyword: '',
-  dictType: props.dictType || '',
-  status: '',
+  dictType: props.dictType || undefined,
+  status: undefined,
   pageNum: 1,
   pageSize: 10,
 })
 
 // 获取显示样式类型
-function getListClassType(listClass: string): string {
-  const typeMap: Record<string, string> = {
+function getListClassType(listClass: string): 'primary' | 'success' | 'warning' | 'danger' | 'info' {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
     primary: 'primary',
     success: 'success',
     warning: 'warning',
@@ -194,7 +197,7 @@ async function fetchDictDataList() {
   loading.value = true
   try {
     queryParams.dictType = props.dictType
-    const res = await getDictDataPage(queryParams)
+    const res = await getDictDataPage(queryParams) as { rows: SysDictData[]; total: number }
     dictDataList.value = res.rows
     total.value = res.total
   } finally {
@@ -211,7 +214,7 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = ''
+  queryParams.status = undefined
   queryParams.pageNum = 1
   handleQuery()
 }

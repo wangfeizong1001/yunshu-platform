@@ -68,8 +68,8 @@
 
     <div class="pagination-container">
       <el-pagination
-        v-model:current-page="queryParams.page"
-        v-model:page-size="queryParams.limit"
+        v-model:current-page="queryParams.pageNum"
+        v-model:page-size="queryParams.pageSize"
         :page-sizes="[10, 20, 50, 100]"
         :total="total"
         layout="total, sizes, prev, pager, next, jumper"
@@ -84,12 +84,16 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete } from '@element-plus/icons-vue'
-import type { IJobLog, IJobLogQuery } from '@yunshu/shared'
+import type { IJobLog } from '@yunshu/shared'
+import type { JobInfo, JobLogQuery } from '@/api/monitor/job.api'
 import * as jobApi from '@/api/monitor/job.api'
+
+// IJobLogQuery 别名
+type IJobLogQuery = JobLogQuery
 
 const props = defineProps<{
   modelValue: boolean
-  jobData: IJob | null
+  jobData: JobInfo | null
 }>()
 
 const emit = defineEmits<{
@@ -102,10 +106,13 @@ const total = ref(0)
 const dateRange = ref<[string, string] | null>(null)
 
 const queryParams = ref<IJobLogQuery>({
-  page: 1,
-  limit: 10,
-  sort: 'executeTime',
-  order: 'desc',
+  pageNum: 1,
+  pageSize: 10,
+  jobName: '',
+  jobGroup: '',
+  status: '',
+  startTime: '',
+  endTime: '',
 })
 
 const visible = computed({
@@ -123,18 +130,21 @@ const handleQuery = async () => {
 
   loading.value = true
   try {
-    queryParams.value.jobId = props.jobData.jobId
+    queryParams.value.jobName = props.jobData.jobName
+    queryParams.value.jobGroup = props.jobData.jobGroup
     if (dateRange.value) {
-      queryParams.value.beginTime = dateRange.value[0]
+      queryParams.value.startTime = dateRange.value[0]
       queryParams.value.endTime = dateRange.value[1]
     } else {
-      delete queryParams.value.beginTime
-      delete queryParams.value.endTime
+      queryParams.value.startTime = ''
+      queryParams.value.endTime = ''
     }
     const res = await jobApi.getJobLogPage(queryParams.value)
-    if (res.success) {
-      tableData.value = res.data
-      total.value = res.pagination.total
+    const responseData = res as Record<string, unknown>
+    if (responseData.success) {
+      tableData.value = responseData.data as any
+      const pagination = responseData.pagination as Record<string, unknown>
+      total.value = Number(pagination.total) || 0
     }
   } catch {
     ElMessage.error('获取任务日志失败')
@@ -144,10 +154,10 @@ const handleQuery = async () => {
 }
 
 const handleReset = () => {
-  queryParams.value.page = 1
-  queryParams.value.limit = 10
+  queryParams.value.pageNum = 1
+  queryParams.value.pageSize = 10
   queryParams.value.status = undefined
-  delete queryParams.value.beginTime
+  delete queryParams.value.startTime
   delete queryParams.value.endTime
   dateRange.value = null
   handleQuery()

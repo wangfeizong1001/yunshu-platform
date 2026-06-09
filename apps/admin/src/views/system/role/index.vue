@@ -138,8 +138,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
-import { getRolePage, deleteRole, batchDeleteRole } from '@/api/system/role.api'
-import type { SysRole, SysRoleQuery } from '@yunshu/shared'
+import { getRolePage, deleteRole } from '@/api/system/role.api'
+import type { SysRole } from '@yunshu/shared'
 import RoleForm from './RoleForm.vue'
 import RolePermission from './RolePermission.vue'
 
@@ -155,10 +155,10 @@ const currentRole = ref<SysRole | null>(null)
 const currentRoleId = ref<number>()
 
 // 查询参数
-const queryParams = reactive<SysRoleQuery>({
+const queryParams = reactive<any>({
   roleName: '',
   roleKey: '',
-  status: '',
+  status: undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -167,7 +167,7 @@ const queryParams = reactive<SysRoleQuery>({
 async function fetchRoleList() {
   loading.value = true
   try {
-    const res = await getRolePage(queryParams)
+    const res = await getRolePage(queryParams) as any
     roleList.value = res.rows
     total.value = res.total
   } finally {
@@ -185,7 +185,7 @@ function handleQuery() {
 function resetQuery() {
   queryParams.roleName = ''
   queryParams.roleKey = ''
-  queryParams.status = ''
+  queryParams.status = undefined
   queryParams.pageNum = 1
   handleQuery()
 }
@@ -202,19 +202,19 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: SysRole) {
+function handleEdit(row: any) {
   currentRole.value = { ...row }
   formVisible.value = true
 }
 
 // 权限分配
-function handlePermission(row: SysRole) {
+function handlePermission(row: any) {
   currentRoleId.value = row.roleId
   permissionVisible.value = true
 }
 
 // 删除
-async function handleDelete(row: SysRole) {
+async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除角色"${row.roleName}"？`, '提示', {
       type: 'warning',

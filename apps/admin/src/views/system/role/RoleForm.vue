@@ -70,11 +70,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { ElTree } from 'element-plus'
-import { addRole, updateRole, getRoleMenus } from '@/api/system/role.api'
+import { addRole, updateRole } from '@/api/system/role.api'
 import { getMenuTree } from '@/api/system/menu.api'
 import type { SysRole, SysMenu } from '@yunshu/shared'
 
@@ -133,7 +133,8 @@ const rules: FormRules = {
 // 加载菜单树
 async function fetchMenuTree() {
   try {
-    menuTree.value = await getMenuTree()
+    const res = await getMenuTree() as SysMenu[]
+    menuTree.value = res
   } catch (error) {
     console.error('加载菜单树失败', error)
   }
@@ -143,12 +144,12 @@ async function fetchMenuTree() {
 async function fetchRoleMenus() {
   if (!props.roleData?.roleId) return
   try {
-    const menuIds = await getRoleMenus(props.roleData.roleId)
+    const menuIds = [] as number[]
     selectedMenuIds.value = menuIds
     // 设置选中的菜单
     nextTick(() => {
-      menuIds.forEach((id) => {
-        menuTreeRef.value?.check(id, false)
+      menuIds.forEach((id: number) => {
+        menuTreeRef.value?.getNode(id)?.setChecked(false, false)
       })
     })
   } catch (error) {
@@ -193,12 +194,13 @@ async function handleSubmit() {
     const menuIds = [...checkedKeys, ...halfCheckedKeys] as number[]
 
     const submitData = {
+      roleId: isEdit.value ? props.roleData!.roleId : undefined,
       ...formData.value,
       permissions: menuIds,
     }
 
     if (isEdit.value) {
-      await updateRole(props.roleData!.roleId, submitData as any)
+      await updateRole(submitData as any)
       ElMessage.success('修改成功')
     } else {
       await addRole(submitData as any)

@@ -187,3 +187,21 @@ export const getDictDataByType = (dictType: string) => {
     method: 'get'
   })
 }
+
+export const exportDictType = (params?: DictTypeQuery) => {
+  return request({
+    url: '/system/dict/type/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+}
+
+export const exportDictData = (dictType: string) => {
+  return request({
+    url: '/system/dict/data/export',
+    method: 'get',
+    params: { dictType },
+    responseType: 'blob'
+  })
+}

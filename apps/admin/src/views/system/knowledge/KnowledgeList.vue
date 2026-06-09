@@ -103,7 +103,7 @@
               v-has-permi="['system:knowledge:edit']"
               link
               type="primary"
-              @click="handleEdit(row)"
+              @click="handleEdit(row as KnowledgeInfo)"
             >
               编辑
             </el-button>
@@ -111,7 +111,7 @@
               v-has-permi="['system:knowledge:query']"
               link
               type="success"
-              @click="handleView(row)"
+              @click="handleView(row as KnowledgeInfo)"
             >
               预览
             </el-button>
@@ -120,7 +120,7 @@
               v-has-permi="['system:knowledge:publish']"
               link
               type="warning"
-              @click="handlePublish(row)"
+              @click="handlePublish(row as KnowledgeInfo)"
             >
               发布
             </el-button>
@@ -129,7 +129,7 @@
               v-has-permi="['system:knowledge:publish']"
               link
               type="info"
-              @click="handleWithdraw(row)"
+              @click="handleWithdraw(row as KnowledgeInfo)"
             >
               撤回
             </el-button>
@@ -137,7 +137,7 @@
               v-has-permi="['system:knowledge:remove']"
               link
               type="danger"
-              @click="handleDelete(row)"
+              @click="handleDelete(row as KnowledgeInfo)"
             >
               删除
             </el-button>
@@ -207,7 +207,7 @@ const queryParams = reactive({
 // 获取分类列表
 async function fetchCategoryList() {
   try {
-    const res = await getCategoryList()
+    const res = await getCategoryList() as { data: any[] }
     categoryList.value = res.data || []
   } catch (error) {
     console.error('获取分类列表失败', error)
@@ -218,7 +218,7 @@ async function fetchCategoryList() {
 async function fetchKnowledgeList() {
   loading.value = true
   try {
-    const res = await getKnowledgePage(queryParams)
+    const res = await getKnowledgePage(queryParams) as { data?: { rows: KnowledgeInfo[]; total: number } }
     knowledgeList.value = res.data?.rows || []
     total.value = res.data?.total || 0
   } catch (error) {

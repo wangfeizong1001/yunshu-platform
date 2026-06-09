@@ -7,7 +7,7 @@
         <span class="form-title">{{ formInfo?.formName || '表单设计' }}</span>
       </div>
       <div class="right">
-        <el-button :icon="Preview" @click="handlePreview">预览</el-button>
+        <el-button :icon="View" @click="handlePreview">预览</el-button>
         <el-button type="primary" :icon="Check" @click="handleSave">保存</el-button>
       </div>
     </div>
@@ -97,7 +97,7 @@
               <el-select v-else v-model="selectedComponent.defaultValue" multiple placeholder="请选择">
                 <el-option
                   v-for="option in selectedComponent.options"
-                  :key="option.value"
+                  :key="String(option.value)"
                   :label="option.label"
                   :value="option.value"
                 />
@@ -110,7 +110,7 @@
               <div class="options-list">
                 <div v-for="(option, index) in selectedComponent.options" :key="index" class="option-item">
                   <el-input v-model="option.label" placeholder="标签" style="width: 40%; margin-right: 8px" />
-                  <el-input v-model="option.value" placeholder="值" style="width: 40%" />
+                  <el-input v-model="option.value as any" placeholder="值" style="width: 40%" />
                   <el-icon class="option-delete" @click="handleDeleteOption(index)">
                     <Delete />
                   </el-icon>
@@ -155,12 +155,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, h } from 'vue'
+import { ref, onMounted, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   ArrowLeft,
-  Preview,
+  View,
   Check,
   Delete,
   DocumentCopy,
@@ -175,7 +175,7 @@ import {
   Operation,
   SwitchButton,
   Star,
-  Slider
+  More,
 } from '@element-plus/icons-vue'
 import draggable from 'vuedraggable'
 import { getForm, updateForm, type FormComponent, type FormInfo } from '@/api/system/form.api'
@@ -205,7 +205,7 @@ const componentLibrary = [
   { type: 'number', label: '数字输入', icon: Operation },
   { type: 'switch', label: '开关', icon: SwitchButton },
   { type: 'rate', label: '评分', icon: Star },
-  { type: 'slider', label: '滑块', icon: Slider },
+  { type: 'slider', label: '滑块', icon: More },
   { type: 'upload', label: '上传', icon: Upload }
 ]
 
@@ -288,7 +288,7 @@ function renderComponentPreview(component: FormComponent) {
         name: 'el-radio-group',
         props,
         children: component.options?.map(opt =>
-          h('el-radio', { key: opt.value, value: opt.value, label: opt.label })
+          h('el-radio', { key: String(opt.value), value: opt.value, label: opt.label })
         )
       }
     case 'checkbox':
@@ -296,7 +296,7 @@ function renderComponentPreview(component: FormComponent) {
         name: 'el-checkbox-group',
         props,
         children: component.options?.map(opt =>
-          h('el-checkbox', { key: opt.value, value: opt.value, label: opt.label })
+          h('el-checkbox', { key: String(opt.value), value: opt.value, label: opt.label })
         )
       }
     case 'select':
@@ -304,7 +304,7 @@ function renderComponentPreview(component: FormComponent) {
         name: 'el-select',
         props,
         children: component.options?.map(opt =>
-          h('el-option', { key: opt.value, value: opt.value, label: opt.label })
+          h('el-option', { key: String(opt.value), value: opt.value, label: opt.label })
         )
       }
     case 'date':

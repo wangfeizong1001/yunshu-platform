@@ -78,3 +78,12 @@ export const unlockUser = (userName: string) => {
   })
 }
 
+export const exportLogininfor = (params?: LogininforQuery) => {
+  return request({
+    url: '/monitor/logininfor/export',
+    method: 'get',
+    params,
+    responseType: 'blob'
+  })
+}
+

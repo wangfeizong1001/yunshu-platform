@@ -88,12 +88,13 @@ const formData = ref<JobForm>({
   concurrent: '0',
   status: '0',
   remark: '',
+  invokeTarget: '',
+  misfirePolicy: '0',
 })
 
 const rules = {
   jobName: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
   jobGroup: [{ required: true, message: '请选择任务分组', trigger: 'change' }],
-  invokeTarget: [{ required: true, message: '请输入调用目标', trigger: 'blur' }],
   cronExpression: [{ required: true, message: '请输入cron表达式', trigger: 'blur' }],
 }
 
@@ -101,6 +102,7 @@ watch(
   () => props.jobData,
   (val) => {
     if (val) {
+      const jobInfo = val as unknown as JobForm
       formData.value = {
         jobId: Number(val.jobId),
         jobName: val.jobName,
@@ -109,6 +111,10 @@ watch(
         concurrent: val.concurrent,
         status: val.status,
         remark: val.remark || '',
+        targetBean: jobInfo.targetBean || '',
+        targetMethod: jobInfo.targetMethod || '',
+        invokeTarget: (val as any).invokeTarget || '',
+        misfirePolicy: (val as any).misfirePolicy || '0',
       }
     } else {
       formData.value = {
@@ -118,6 +124,8 @@ watch(
         concurrent: '0',
         status: '0',
         remark: '',
+        invokeTarget: '',
+        misfirePolicy: '0',
       }
     }
   },

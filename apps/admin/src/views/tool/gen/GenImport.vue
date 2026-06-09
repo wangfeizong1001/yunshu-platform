@@ -87,7 +87,7 @@
       </el-table-column>
       <el-table-column label="操作" width="100" align="center" fixed="right">
         <template #default="{ row }">
-          <el-button link type="primary" size="small" @click="handleSingleImport(row)">
+          <el-button link type="primary" size="small" @click="handleSingleImport(row as IGenTable)">
             导入
           </el-button>
         </template>
@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Tickets } from '@element-plus/icons-vue'
 import type { IGenTable, IGenQuery } from '@yunshu/shared'

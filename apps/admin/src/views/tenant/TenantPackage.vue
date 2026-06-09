@@ -66,7 +66,6 @@ import { ElMessage } from 'element-plus'
 import {
   getTenantDetail,
   getPackageList,
-  assignTenantPackage,
   updateTenant,
 } from '@/api/tenant/tenant.api'
 import type { Tenant, TenantPackage } from '@yunshu/shared'

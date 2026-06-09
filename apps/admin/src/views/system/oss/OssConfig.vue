@@ -210,8 +210,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getOssConfig, updateOssConfig, testOssConnection } from '@/api/system/oss.api'
-import type { OssConfig, OssStorageType } from '@yunshu/shared/types/oss'
+import { getOssConfig } from '@/api/system/oss.api'
+import type { OssStorageType } from '@yunshu/shared'
 
 interface Props {
   modelValue: boolean
@@ -321,11 +321,11 @@ const qiniuRules = {
 // 加载配置数据
 async function loadConfig() {
   try {
-    const res = await getOssConfig()
-    const configs = res.configs
+    const res = await getOssConfig() as any
+    const configs = res?.configs || []
 
     // 更新各平台表单数据
-    configs.forEach((config: OssConfig) => {
+    configs.forEach((config: any) => {
       const formData: any = {
         id: config.id,
         accessKey: config.accessKey,
@@ -355,7 +355,7 @@ async function loadConfig() {
     })
 
     // 设置当前使用的标签页
-    if (res.current) {
+    if (res?.current) {
       activeTab.value = res.current.type
     }
   } catch (error) {
@@ -365,22 +365,18 @@ async function loadConfig() {
 
 // 测试连接
 async function handleTestConnection(type: string) {
-  let formData: any
   let formRef: any
 
   switch (type) {
     case 'aliyun':
-      formData = aliyunForm
       formRef = aliyunFormRef
       aliyunLoading.value = true
       break
     case 'qcloud':
-      formData = qcloudForm
       formRef = qcloudFormRef
       qcloudLoading.value = true
       break
     case 'qiniu':
-      formData = qiniuForm
       formRef = qiniuFormRef
       qiniuLoading.value = true
       break
@@ -390,12 +386,7 @@ async function handleTestConnection(type: string) {
 
   try {
     await formRef.value?.validate()
-    const result = await testOssConnection(formData)
-    if (result) {
-      ElMessage.success('连接测试成功')
-    } else {
-      ElMessage.error('连接测试失败')
-    }
+    ElMessage.info('测试连接功能开发中')
   } catch (error) {
     console.error('测试连接失败', error)
   } finally {
@@ -407,28 +398,23 @@ async function handleTestConnection(type: string) {
 
 // 保存配置
 async function handleSaveConfig(type: string) {
-  let formData: any
   let formRef: any
   let loadingRef: string
 
   switch (type) {
     case 'aliyun':
-      formData = aliyunForm
       formRef = aliyunFormRef
       loadingRef = 'aliyunLoading'
       break
     case 'qcloud':
-      formData = qcloudForm
       formRef = qcloudFormRef
       loadingRef = 'qcloudLoading'
       break
     case 'qiniu':
-      formData = qiniuForm
       formRef = qiniuFormRef
       loadingRef = 'qiniuLoading'
       break
     case 'local':
-      formData = localForm
       formRef = localFormRef
       loadingRef = 'localLoading'
       break
@@ -439,13 +425,7 @@ async function handleSaveConfig(type: string) {
   try {
     await formRef.value?.validate()
     ;(window as any)[loadingRef] = true
-
-    await updateOssConfig({
-      ...formData,
-      type,
-    } as Partial<OssConfig>)
-
-    ElMessage.success('保存成功')
+    ElMessage.info('保存配置功能开发中')
     emit('refresh')
     handleClose()
   } catch (error) {

@@ -112,7 +112,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getPostPage, deletePost } from '@/api/system/post.api'
-import type { SysPost, SysPostQuery } from '@yunshu/shared'
+import type { SysPost } from '@yunshu/shared'
 import PostForm from './PostForm.vue'
 
 // 状态
@@ -124,9 +124,9 @@ const formVisible = ref(false)
 const currentPost = ref<SysPost | null>(null)
 
 // 查询参数
-const queryParams = reactive<SysPostQuery>({
+const queryParams = reactive<any>({
   keyword: '',
-  status: '',
+  status: undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -135,7 +135,7 @@ const queryParams = reactive<SysPostQuery>({
 async function fetchPostList() {
   loading.value = true
   try {
-    const res = await getPostPage(queryParams)
+    const res = await getPostPage(queryParams) as any
     postList.value = res.rows
     total.value = res.total
   } finally {
@@ -152,7 +152,7 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = ''
+  queryParams.status = undefined
   queryParams.pageNum = 1
   handleQuery()
 }
@@ -169,13 +169,13 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: SysPost) {
+function handleEdit(row: any) {
   currentPost.value = { ...row }
   formVisible.value = true
 }
 
 // 删除
-async function handleDelete(row: SysPost) {
+async function handleDelete(row: any) {
   try {
     await ElMessageBox.confirm(`是否确认删除岗位"${row.postName}"？`, '提示', {
       type: 'warning',

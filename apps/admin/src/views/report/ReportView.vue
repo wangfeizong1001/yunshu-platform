@@ -97,7 +97,8 @@ import { ArrowLeft, Download, Refresh, ArrowDown } from '@element-plus/icons-vue
 import * as echarts from 'echarts'
 import type { EChartsOption } from 'echarts'
 import dayjs from 'dayjs'
-import { getReport, getReportData } from '@/api/report.api'
+import { getReport } from '@/api/report.api'
+import type { ReportInfo } from '@/api/report.api'
 import { exportToExcel, exportToPDF } from '@/utils/export'
 
 const router = useRouter()
@@ -114,6 +115,13 @@ const reportRef = ref<HTMLElement>()
 const showDataDetail = ref(true)
 let chartInstance: echarts.ECharts | null = null
 
+// 报表列配置
+interface ReportColumn {
+  field: string
+  title: string
+  width?: string | number
+}
+
 // 报表配置
 const reportConfig = reactive({
   title: '',
@@ -123,8 +131,8 @@ const reportConfig = reactive({
   yAxis: '',
   showLegend: true,
   showToolbox: true,
-  columns: [],
-  data: []
+  columns: [] as ReportColumn[],
+  data: [] as Record<string, any>[]
 })
 
 // 表格数据
@@ -274,15 +282,15 @@ async function loadReport() {
   
   try {
     // 获取报表信息
-    const res = await getReport(reportId.value)
+    const res = await getReport(reportId.value) as { data: ReportInfo }
     reportInfo.value = res.data
     reportType.value = res.data.reportType as 'chart' | 'table'
     
     // 解析配置
     if (res.data.config) {
       try {
-        const config = JSON.parse(res.data.config)
-        Object.assign(reportConfig, config)
+        const config = JSON.parse(res.data.config) as ReportColumn[]
+        reportConfig.columns = config
       } catch (e) {
         console.error('解析配置失败:', e)
       }

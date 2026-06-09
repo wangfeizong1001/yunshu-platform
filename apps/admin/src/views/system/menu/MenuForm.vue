@@ -27,7 +27,7 @@
             <el-tree-select
               v-model="formData.parentId"
               :data="menuTree"
-              :props="{ value: 'menuId', label: 'menuName', children: 'children' }"
+              :props="{ value: 'menuId', label: 'menuName', children: 'children' } as any"
               placeholder="请选择上级菜单"
               check-strictly
               filterable
@@ -200,7 +200,8 @@ const rules: FormRules = {
 // 加载菜单树
 async function fetchMenuTree() {
   try {
-    menuTree.value = await getMenuTreeSelect()
+    const res = await getMenuTreeSelect() as SysMenu[]
+    menuTree.value = res
   } catch (error) {
     console.error('加载菜单树失败', error)
   }
@@ -265,7 +266,7 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateMenu(props.menuData!.menuId, formData.value as any)
+      await updateMenu({ menuId: props.menuData!.menuId, ...formData.value } as any)
       ElMessage.success('修改成功')
     } else {
       await addMenu(formData.value as any)

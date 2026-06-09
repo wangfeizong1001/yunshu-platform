@@ -57,7 +57,7 @@
             >
               <el-radio
                 v-for="option in component.options"
-                :key="option.value"
+                :key="String(option.value)"
                 :value="option.value"
               >
                 {{ option.label }}
@@ -72,8 +72,8 @@
             >
               <el-checkbox
                 v-for="option in component.options"
-                :key="option.value"
-                :value="option.value"
+                :key="String(option.value)"
+                :label="String(option.value)"
               >
                 {{ option.label }}
               </el-checkbox>
@@ -89,7 +89,7 @@
             >
               <el-option
                 v-for="option in component.options"
-                :key="option.value"
+                :key="String(option.value)"
                 :label="option.label"
                 :value="option.value"
               />
@@ -251,7 +251,7 @@ async function handleSubmit() {
   await formRef.value.validate(async valid => {
     if (valid) {
       try {
-        await submitFormData(formInfo.value.formId, formData)
+        await submitFormData(formInfo.value!.formId, formData)
         ElMessage.success('提交成功')
       } catch (error) {
         console.error('提交失败', error)

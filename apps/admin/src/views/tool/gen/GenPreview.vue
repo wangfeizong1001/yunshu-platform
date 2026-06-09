@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, nextTick, onMounted } from 'vue'
+import { ref, watch, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, DocumentCopy, Download, Refresh, Files, Key } from '@element-plus/icons-vue'
 import type { IGenPreview, IGenPreviewItem, IGenConfig } from '@yunshu/shared'
@@ -115,19 +115,17 @@ const getFileExt = (fileName: string): string => {
   return ext.toLowerCase()
 }
 
-const getFileTagType = (fileName: string): 'success' | 'warning' | 'info' | 'danger' | '' => {
+const getFileTagType = (fileName: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
   const ext = getFileExt(fileName)
-  const typeMap: Record<string, any> = {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     java: 'success',
     vue: 'primary',
     ts: 'warning',
     js: 'warning',
     sql: 'info',
     xml: 'danger',
-    yml: '',
-    properties: ''
   }
-  return typeMap[ext] || ''
+  return typeMap[ext]
 }
 
 const getFileIconColor = (fileName?: string): string => {
@@ -162,7 +160,7 @@ const isSqlFile = (fileName?: string): boolean => {
   return getFileExt(fileName || '') === 'sql'
 }
 
-const highlightCode = (code: string, lang: string): string => {
+const highlightCode = (code: string, _lang: string): string => {
   let result = escapeHtml(code)
 
   const keywords = [
@@ -244,7 +242,7 @@ const loadPreviewData = async () => {
       treeNameField: props.config?.treeNameField
     }
 
-    const res = await previewCode(config)
+    const res = await previewCode(config) as { success: boolean; data: IGenPreview }
     if (res.success) {
       previewData.value = res.data
       if (fileList.value.length > 0 && !currentFile.value) {
