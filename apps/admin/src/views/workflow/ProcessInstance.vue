@@ -109,7 +109,25 @@
 
         <div class="flow-chart-section">
           <h4>流程进度</h4>
-          <div class="flow-chart">
+          <div class="flow-chart" v-if="instanceFlowNodes.length > 0">
+            <template v-for="(node, idx) in instanceFlowNodes" :key="node.id">
+              <div
+                class="flow-node"
+                :class="{
+                  start: node.type === 'start',
+                  done: node.status === 'done',
+                  current: node.status === 'current',
+                  pending: node.status === 'pending',
+                }"
+              >
+                <div class="node-icon">{{ node.icon }}</div>
+                <div class="node-label">{{ node.name }}</div>
+                <div class="node-assignee" v-if="node.assignee">{{ node.assignee }}</div>
+              </div>
+              <div class="flow-arrow" v-if="idx < instanceFlowNodes.length - 1">→</div>
+            </template>
+          </div>
+          <div v-else class="flow-chart-simple">
             <div class="flow-node start">
               <div class="node-icon">●</div>
               <div class="node-label">开始</div>
@@ -132,21 +150,34 @@
           </div>
         </div>
 
+        <div class="variables-section">
+          <h4>流程变量</h4>
+          <el-table :data="instanceVariables" border size="small">
+            <el-table-column prop="name" label="变量名" width="150" />
+            <el-table-column prop="type" label="类型" width="100" />
+            <el-table-column prop="value" label="值" min-width="200" />
+            <el-table-column prop="updateTime" label="更新时间" width="180" />
+          </el-table>
+        </div>
+
         <div class="history-section">
           <h4>审批历史</h4>
-          <el-timeline>
-            <el-timeline-item
-              v-for="(item, idx) in instanceHistory"
-              :key="idx"
-              :timestamp="item.time"
-            >
-              <div class="timeline-content">
-                <div class="timeline-user">{{ item.user }}</div>
-                <div class="timeline-action" :class="item.action">{{ item.actionText }}</div>
-                <div class="timeline-comment" v-if="item.comment">{{ item.comment }}</div>
-              </div>
-            </el-timeline-item>
-          </el-timeline>
+          <el-table :data="instanceHistory" border stripe size="small">
+            <el-table-column prop="taskName" label="任务名称" width="150" />
+            <el-table-column prop="assignee" label="处理人" width="100" />
+            <el-table-column prop="action" label="操作" width="100">
+              <template #default="{ row }">
+                <el-tag :type="getActionType(row.action)" size="small">{{ row.actionText }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="comment" label="审批意见" min-width="200" />
+            <el-table-column prop="duration" label="处理时长" width="100">
+              <template #default="{ row }">
+                {{ row.duration || '-' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="endTime" label="完成时间" width="180" />
+          </el-table>
         </div>
       </div>
     </el-drawer>
@@ -175,13 +206,57 @@ const queryParams = reactive({
 const viewDrawerVisible = ref(false)
 const currentInstance = ref<ProcessInstance | null>(null)
 
-const instanceHistory = ref([
+// 流程进度节点
+interface FlowNodeItem {
+  id: string
+  name: string
+  type: string
+  icon: string
+  assignee?: string
+  status: 'done' | 'current' | 'pending'
+}
+
+const instanceFlowNodes = ref<FlowNodeItem[]>([])
+
+// 流程变量
+interface ProcessVariable {
+  name: string
+  type: string
+  value: string
+  updateTime: string
+}
+
+const instanceVariables = ref<ProcessVariable[]>([])
+
+// 审批历史
+interface HistoryItem {
+  taskName: string
+  assignee: string
+  action: string
+  actionText: string
+  comment?: string
+  duration?: string
+  endTime: string
+}
+
+const instanceHistory = ref<HistoryItem[]>([
   {
-    user: '张三',
+    taskName: '发起申请',
+    assignee: '张三',
     action: 'start',
     actionText: '发起申请',
     comment: '申请年假3天，从6月1日到6月3日',
-    time: '2024-06-01 09:00:00',
+    duration: '0分钟',
+    endTime: '2024-06-01 09:00:00',
+  },
+  {
+    taskName: '部门经理审批',
+    assignee: '李四',
+    action: 'approve',
+    actionText: '审批通过',
+    comment: '同意申请',
+    duration: '2小时30分钟',
+    endTime: '2024-06-01 11:30:00',
   },
 ])
 
@@ -215,7 +290,69 @@ function refreshTable() {
 
 function handleView(row: ProcessInstance) {
   currentInstance.value = row
+  loadInstanceDetail(row)
   viewDrawerVisible.value = true
+}
+
+function loadInstanceDetail(row: ProcessInstance) {
+  // 模拟加载流程进度节点
+  if (row.status === 'running') {
+    instanceFlowNodes.value = [
+      { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
+      { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
+      { id: '3', name: '部门经理审批', type: 'task', icon: '▢', assignee: '李四', status: 'current' },
+      { id: '4', name: '结束', type: 'end', icon: '◉', status: 'pending' },
+    ]
+  } else {
+    instanceFlowNodes.value = [
+      { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
+      { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
+      { id: '3', name: '部门经理审批', type: 'task', icon: '▢', assignee: '李四', status: 'done' },
+      { id: '4', name: '结束', type: 'end', icon: '◉', status: 'done' },
+    ]
+  }
+
+  // 模拟加载流程变量
+  instanceVariables.value = [
+    { name: 'days', type: 'Integer', value: '3', updateTime: '2024-06-01 09:00:00' },
+    { name: 'startDate', type: 'Date', value: '2024-06-01', updateTime: '2024-06-01 09:00:00' },
+    { name: 'endDate', type: 'Date', value: '2024-06-03', updateTime: '2024-06-01 09:00:00' },
+    { name: 'reason', type: 'String', value: '年假', updateTime: '2024-06-01 09:00:00' },
+    { name: 'amount', type: 'Double', value: '0.0', updateTime: '2024-06-01 09:00:00' },
+  ]
+
+  // 模拟加载审批历史
+  instanceHistory.value = [
+    {
+      taskName: '发起申请',
+      assignee: '张三',
+      action: 'start',
+      actionText: '发起申请',
+      comment: '申请年假3天，从6月1日到6月3日',
+      duration: '0分钟',
+      endTime: '2024-06-01 09:00:00',
+    },
+    {
+      taskName: '部门经理审批',
+      assignee: '李四',
+      action: 'approve',
+      actionText: '审批通过',
+      comment: '同意申请',
+      duration: '2小时30分钟',
+      endTime: '2024-06-01 11:30:00',
+    },
+  ]
+}
+
+function getActionType(action: string): string {
+  const typeMap: Record<string, string> = {
+    start: 'success',
+    approve: 'primary',
+    reject: 'danger',
+    delegate: 'warning',
+    addSign: 'info',
+  }
+  return typeMap[action] || 'info'
 }
 
 async function handleTerminate(_row: ProcessInstance) {
@@ -266,6 +403,7 @@ onMounted(() => {
 
   .instance-detail {
     .flow-chart-section,
+    .variables-section,
     .history-section {
       margin-top: 24px;
       h4 {
@@ -273,25 +411,38 @@ onMounted(() => {
       }
     }
 
-    .flow-chart {
+    .flow-chart,
+    .flow-chart-simple {
       display: flex;
       align-items: center;
       gap: 16px;
       padding: 24px;
       background: #f5f7fa;
       border-radius: 8px;
+      flex-wrap: wrap;
       .flow-node {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 8px;
+        min-width: 80px;
         .node-icon {
           font-size: 24px;
+        }
+        .node-label {
+          font-size: 12px;
+        }
+        .node-assignee {
+          font-size: 10px;
+          color: #909399;
         }
         &.start .node-icon {
           color: #67c23a;
         }
         &.done .node-icon {
+          color: #67c23a;
+        }
+        &.done .node-label {
           color: #67c23a;
         }
         &.current {
@@ -305,6 +456,9 @@ onMounted(() => {
           }
         }
         &.pending .node-icon {
+          color: #c0c4cc;
+        }
+        &.pending .node-label {
           color: #c0c4cc;
         }
       }

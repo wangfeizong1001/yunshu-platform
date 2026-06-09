@@ -26,6 +26,7 @@ import toolGen from './routes/tool/gen'
 import reportReport from './routes/report/report'
 import dashboardDashboard from './routes/dashboard/dashboard'
 import systemForm from './routes/system/form'
+import workflow from './routes/workflow'
 
 /**
  * 合并所有 Mock API
@@ -47,7 +48,8 @@ const mockPlugins: MockMethod[] = [
   ...toolGen,
   ...reportReport,
   ...dashboardDashboard,
-  ...systemForm
+  ...systemForm,
+  ...workflow
 ]
 
 /**

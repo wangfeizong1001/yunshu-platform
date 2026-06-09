@@ -8,6 +8,25 @@
         <el-form-item label="流程名称" prop="processName">
           <el-input v-model="queryParams.processName" placeholder="请输入流程名称" clearable />
         </el-form-item>
+        <el-form-item label="操作结果" prop="action">
+          <el-select v-model="queryParams.action" placeholder="请选择" clearable>
+            <el-option label="全部" value="" />
+            <el-option label="已通过" value="approve" />
+            <el-option label="已驳回" value="reject" />
+            <el-option label="已转办" value="delegate" />
+            <el-option label="已委托" value="assign" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="完成时间">
+          <el-date-picker
+            v-model="queryParams.dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleQuery">搜索</el-button>
           <el-button :icon="Refresh" @click="resetQuery">重置</el-button>
@@ -24,6 +43,7 @@
           </div>
           <div class="right">
             <el-button :icon="Refresh" circle @click="refreshTable" />
+            <el-button :icon="Download" @click="handleExport">导出</el-button>
           </div>
         </div>
       </template>
@@ -34,14 +54,24 @@
         <el-table-column prop="businessKey" label="业务编号" width="180" />
         <el-table-column prop="startTime" label="接收时间" width="180" />
         <el-table-column prop="endTime" label="完成时间" width="180" />
-        <el-table-column prop="assignee" label="处理人" width="120">
+        <el-table-column prop="action" label="操作结果" width="100">
           <template #default="{ row }">
-            {{ row.assignee || '-' }}
+            <el-tag v-if="row.action === 'approve'" type="success" size="small">通过</el-tag>
+            <el-tag v-else-if="row.action === 'reject'" type="danger" size="small">驳回</el-tag>
+            <el-tag v-else-if="row.action === 'delegate'" type="warning" size="small">转办</el-tag>
+            <el-tag v-else-if="row.action === 'assign'" type="info" size="small">委托</el-tag>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="duration" label="处理时长" width="100">
+          <template #default="{ row }">
+            {{ row.duration || '-' }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
             <el-button link @click="handleView(row as Task)">查看</el-button>
+            <el-button link @click="handleRecall(row as Task)">撤回</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -98,7 +128,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Search, Refresh } from '@element-plus/icons-vue'
+import { Search, Refresh, Download } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { type Task } from '@/api/workflow.api'
 import { getMockDoneTaskPage } from '@/mock/workflow.mock'
 
@@ -109,6 +140,8 @@ const total = ref(0)
 const queryParams = reactive({
   name: '',
   processName: '',
+  action: '',
+  dateRange: [] as string[],
   pageNum: 1,
   pageSize: 10,
 })
@@ -152,6 +185,8 @@ function handleQuery() {
 function resetQuery() {
   queryParams.name = ''
   queryParams.processName = ''
+  queryParams.action = ''
+  queryParams.dateRange = []
   queryParams.pageNum = 1
   handleQuery()
 }
@@ -163,6 +198,14 @@ function refreshTable() {
 function handleView(row: Task) {
   currentTask.value = row
   viewDrawerVisible.value = true
+}
+
+function handleRecall(row: Task) {
+  ElMessage.info(`撤回任务: ${row.name}`)
+}
+
+function handleExport() {
+  ElMessage.info('正在导出已办任务数据...')
 }
 
 onMounted(() => {

@@ -24,11 +24,29 @@
           </div>
           <div class="right">
             <el-button :icon="Refresh" circle @click="refreshTable" />
+            <el-button :icon="Download" @click="handleExport">导出</el-button>
           </div>
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="taskList" stripe border>
+      <div class="batch-actions" v-if="selectedTasks.length > 0">
+        <el-alert type="info" :closable="false">
+          已选择 {{ selectedTasks.length }} 项，
+          <el-button type="primary" link @click="handleBatchApprove">批量通过</el-button>
+          <el-button type="danger" link @click="handleBatchReject">批量驳回</el-button>
+          <el-button type="warning" link @click="handleBatchTransfer">批量转办</el-button>
+          <el-button link @click="selectedTasks = []">清空选择</el-button>
+        </el-alert>
+      </div>
+
+      <el-table
+        v-loading="loading"
+        :data="taskList"
+        stripe
+        border
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" />
         <el-table-column prop="name" label="任务名称" min-width="150" />
         <el-table-column prop="processDefinitionName" label="流程名称" width="150" />
         <el-table-column prop="businessKey" label="业务编号" width="180" />
@@ -45,10 +63,11 @@
             <el-tag v-else type="info">低</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="280" fixed="right">
+        <el-table-column label="操作" width="360" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleApprove(row as Task)">审批</el-button>
-            <el-button type="success" link @click="handleDelegate(row as Task)">转办</el-button>
+            <el-button type="success" link @click="handleAddSign(row as Task)">加签</el-button>
+            <el-button type="warning" link @click="handleDelegate(row as Task)">转办</el-button>
             <el-button type="info" link @click="handleAssign(row as Task)">委托</el-button>
             <el-button link @click="handleView(row as Task)">查看</el-button>
           </template>
@@ -146,6 +165,70 @@
       </template>
     </el-dialog>
 
+    <el-dialog
+      v-model="addSignDialogVisible"
+      title="加签"
+      width="500px"
+    >
+      <el-form :model="addSignForm" label-width="80px">
+        <el-form-item label="加签类型">
+          <el-radio-group v-model="addSignForm.type">
+            <el-radio value="before">前加签</el-radio>
+            <el-radio value="after">后加签</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="加签人">
+          <el-select v-model="addSignForm.userId" placeholder="请选择用户" style="width: 100%">
+            <el-option label="管理员" value="1" />
+            <el-option label="张三" value="2" />
+            <el-option label="李四" value="3" />
+            <el-option label="王五" value="4" />
+            <el-option label="赵六" value="5" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="加签意见">
+          <el-input
+            v-model="addSignForm.comment"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入加签意见"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="addSignDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleAddSignSubmit">确认</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog
+      v-model="batchTransferDialogVisible"
+      title="批量转办"
+      width="500px"
+    >
+      <el-form :model="batchTransferForm" label-width="80px">
+        <el-form-item label="转办给">
+          <el-select v-model="batchTransferForm.userId" placeholder="请选择用户" style="width: 100%">
+            <el-option label="管理员" value="1" />
+            <el-option label="张三" value="2" />
+            <el-option label="李四" value="3" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="转办原因">
+          <el-input
+            v-model="batchTransferForm.reason"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入转办原因"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="batchTransferDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleBatchTransferSubmit">确认转办</el-button>
+      </template>
+    </el-dialog>
+
     <el-drawer
       v-model="viewDrawerVisible"
       title="任务详情"
@@ -190,13 +273,14 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search, Refresh } from '@element-plus/icons-vue'
+import { Search, Refresh, Download } from '@element-plus/icons-vue'
 import { type Task } from '@/api/workflow.api'
 import { getMockTodoTaskPage } from '@/mock/workflow.mock'
 
 const loading = ref(false)
 const taskList = ref<Task[]>([])
 const total = ref(0)
+const selectedTasks = ref<Task[]>([])
 
 const queryParams = reactive({
   name: '',
@@ -208,6 +292,8 @@ const queryParams = reactive({
 const approveDialogVisible = ref(false)
 const delegateDialogVisible = ref(false)
 const assignDialogVisible = ref(false)
+const addSignDialogVisible = ref(false)
+const batchTransferDialogVisible = ref(false)
 const viewDrawerVisible = ref(false)
 
 const currentTask = ref<Task | null>(null)
@@ -224,6 +310,17 @@ const delegateForm = reactive({
 const assignForm = reactive({
   userId: '',
   comment: '',
+})
+
+const addSignForm = reactive({
+  type: 'after',
+  userId: '',
+  comment: '',
+})
+
+const batchTransferForm = reactive({
+  userId: '',
+  reason: '',
 })
 
 const taskHistory = ref([
@@ -320,6 +417,74 @@ function handleAssignSubmit() {
   refreshTable()
 }
 
+function handleAddSign(row: Task) {
+  currentTask.value = row
+  addSignForm.type = 'after'
+  addSignForm.userId = ''
+  addSignForm.comment = ''
+  addSignDialogVisible.value = true
+}
+
+function handleAddSignSubmit() {
+  if (!addSignForm.userId) {
+    ElMessage.warning('请选择加签人')
+    return
+  }
+  const typeText = addSignForm.type === 'before' ? '前加签' : '后加签'
+  ElMessage.success(`${typeText}成功`)
+  addSignDialogVisible.value = false
+  refreshTable()
+}
+
+function handleSelectionChange(selection: Task[]) {
+  selectedTasks.value = selection
+}
+
+function handleBatchApprove() {
+  if (selectedTasks.value.length === 0) {
+    ElMessage.warning('请先选择任务')
+    return
+  }
+  ElMessage.success(`已批量通过 ${selectedTasks.value.length} 项任务`)
+  selectedTasks.value = []
+  refreshTable()
+}
+
+function handleBatchReject() {
+  if (selectedTasks.value.length === 0) {
+    ElMessage.warning('请先选择任务')
+    return
+  }
+  ElMessage.success(`已批量驳回 ${selectedTasks.value.length} 项任务`)
+  selectedTasks.value = []
+  refreshTable()
+}
+
+function handleBatchTransfer() {
+  if (selectedTasks.value.length === 0) {
+    ElMessage.warning('请先选择任务')
+    return
+  }
+  batchTransferForm.userId = ''
+  batchTransferForm.reason = ''
+  batchTransferDialogVisible.value = true
+}
+
+function handleBatchTransferSubmit() {
+  if (!batchTransferForm.userId) {
+    ElMessage.warning('请选择转办对象')
+    return
+  }
+  ElMessage.success(`已批量转办 ${selectedTasks.value.length} 项任务`)
+  batchTransferDialogVisible.value = false
+  selectedTasks.value = []
+  refreshTable()
+}
+
+function handleExport() {
+  ElMessage.info('正在导出任务数据...')
+}
+
 onMounted(() => {
   fetchTaskList()
 })
@@ -344,6 +509,10 @@ onMounted(() => {
         margin-left: 8px;
       }
     }
+  }
+
+  .batch-actions {
+    margin-bottom: 16px;
   }
 
   .pagination {
