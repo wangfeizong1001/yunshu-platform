@@ -69,9 +69,24 @@
 
 - **Monorepo 架构** — 使用 Turborepo 管理多包仓库
 - **TypeScript 严格模式** — 完整的类型安全
-- **完善的错误处理** — 统一的错误处理体系
+- **完善的错误处理** — 统一的 PostgreSQL 错误处理体系（唯一约束、外键、非空等）
 - **CI/CD 自动化** — GitHub Actions 自动化构建、测试、部署
 - **E2E 测试** — Playwright 端到端测试
+
+### 🗄️ 数据层架构
+
+- **PostgreSQL 16** — 主数据库，支持 JSONB、分区表、CTE 等高级特性
+- **Redis 7** — 缓存与分布式锁，支持二级缓存（L1 内存 + L2 Redis）
+- **布隆过滤器** — 防止缓存穿透，优化热点键保护
+- **代码生成器** — 一键生成数据库表结构、Service、Repository 与前后端 CRUD 代码
+
+### 🔄 缓存架构
+
+- **二级缓存** — L1（进程内 LRU）+ L2（Redis）组合
+- **装饰器模式** — `@cacheable` 风格声明式缓存注解
+- **分布式锁** — 基于 Redis 的 SETNX + 过期机制，防并发更新
+- **缓存预热** — 服务启动时自动加载热点数据
+- **Ttl + Jitter** — 随机抖动避免缓存雪崩
 
 ### 📋 业务模块
 
@@ -111,6 +126,7 @@
 |------|----------|
 | Node.js | >= 20.0.0 |
 | pnpm | >= 9.0.0 |
+| Docker | >= 20.10（推荐本地开发时启动 PostgreSQL + Redis） |
 
 ### 安装
 
@@ -126,6 +142,23 @@ pnpm install
 pnpm config set registry https://registry.npmmirror.com/
 ```
 
+### 启动数据库与缓存
+
+项目使用 **PostgreSQL 16** 作为主数据库，**Redis 7** 作为缓存和分布式锁中间件。
+
+```bash
+# 使用 Docker Compose 一键启动 PostgreSQL + Redis
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+```
+
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| PostgreSQL | 5432 | 数据库名：`yunshu`，用户：`yunshu`，密码：`yunshupassword` |
+| Redis | 6379 | 无密码，默认 DB 0 |
+
 ### 开发模式
 
 ```bash
@@ -140,6 +173,18 @@ pnpm docs:dev
 
 # 启动 Playground
 pnpm playground:dev
+```
+
+### 数据库初始化与代码生成
+
+```bash
+# 1. 使用代码生成器生成表结构 SQL
+pnpm gen:sql
+
+# 2. 运行代码生成（前端 CRUD + 后端 Service + Repository）
+pnpm gen
+
+# 3. 生成的 SQL 文件位于 packages/server-express/src/modules/gen/templates/
 ```
 
 ### 构建
