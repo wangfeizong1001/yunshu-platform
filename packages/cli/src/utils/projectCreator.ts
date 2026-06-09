@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const TEMPLATES_DIR = path.resolve(__dirname, '../../templates')
+const TEMPLATE_SUFFIX = '.template'
 
 export type TemplateType = 'basic' | 'admin' | 'full-stack'
 
@@ -45,8 +46,8 @@ function copyTemplateDir(
 
   for (const entry of entries) {
     const sourcePath = path.join(templateDir, entry.name)
-    const targetName = entry.name.endsWith('.template')
-      ? entry.name.slice(0, -9) // 移除 .template 后缀
+    const targetName = entry.name.endsWith(TEMPLATE_SUFFIX)
+      ? entry.name.slice(0, -TEMPLATE_SUFFIX.length)
       : entry.name
     const targetPath = path.join(targetDir, targetName)
 
@@ -90,13 +91,6 @@ export async function createProject(
 
   // 复制并渲染模板文件
   copyTemplateDir(templateDir, targetDir, vars)
-
-  // 根据模板类型添加额外文件
-  if (template === 'admin') {
-    // admin 模板已包含所有文件
-  } else if (template === 'full-stack') {
-    // full-stack 模板已包含所有文件
-  }
 
   // 生成 README
   await fs.writeFile(

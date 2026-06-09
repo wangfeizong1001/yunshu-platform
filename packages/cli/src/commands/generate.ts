@@ -462,6 +462,8 @@ defineExpose({ count: localCount, reset: () => (localCount.value = 0) })
 
 import request from '@/utils/request'
 
+const API_BASE_PATH = '/api'
+
 // ============================================================
 // 类型定义
 // ============================================================
@@ -513,7 +515,7 @@ export function get${pascalName}List(
   params: ${pascalName}Query,
 ): Promise<ApiResponse<${pascalName}ListResponse>> {
   return request({
-    url: '/api/${camelName}',
+    url: \`\${API_BASE_PATH}/${camelName}\`,
     method: 'get',
     params,
   })
@@ -524,7 +526,7 @@ export function get${pascalName}List(
  */
 export function get${pascalName}Detail(id: number): Promise<ApiResponse<${pascalName}Item>> {
   return request({
-    url: \`/api/${camelName}/\${id}\`,
+    url: \`\${API_BASE_PATH}/${camelName}/\${id}\`,
     method: 'get',
   })
 }
@@ -536,7 +538,7 @@ export function create${pascalName}(
   data: ${pascalName}Create,
 ): Promise<ApiResponse<${pascalName}Item>> {
   return request({
-    url: '/api/${camelName}',
+    url: \`\${API_BASE_PATH}/${camelName}\`,
     method: 'post',
     data,
   })
@@ -550,7 +552,7 @@ export function update${pascalName}(
   data: ${pascalName}Update,
 ): Promise<ApiResponse<${pascalName}Item>> {
   return request({
-    url: \`/api/${camelName}/\${id}\`,
+    url: \`\${API_BASE_PATH}/${camelName}/\${id}\`,
     method: 'put',
     data,
   })
@@ -561,7 +563,7 @@ export function update${pascalName}(
  */
 export function delete${pascalName}(id: number): Promise<ApiResponse<null>> {
   return request({
-    url: \`/api/${camelName}/\${id}\`,
+    url: \`\${API_BASE_PATH}/${camelName}/\${id}\`,
     method: 'delete',
   })
 }
@@ -571,7 +573,7 @@ export function delete${pascalName}(id: number): Promise<ApiResponse<null>> {
  */
 export function batchDelete${pascalName}(ids: number[]): Promise<ApiResponse<null>> {
   return request({
-    url: '/api/${camelName}/batch',
+    url: \`\${API_BASE_PATH}/${camelName}/batch\`,
     method: 'delete',
     data: { ids },
   })
@@ -582,7 +584,7 @@ export function batchDelete${pascalName}(ids: number[]): Promise<ApiResponse<nul
  */
 export function export${pascalName}(params: ${pascalName}Query): Promise<Blob> {
   return request({
-    url: '/api/${camelName}/export',
+    url: \`\${API_BASE_PATH}/${camelName}/export\`,
     method: 'get',
     params,
     responseType: 'blob',
@@ -780,7 +782,7 @@ export function use${pascalName}<T = unknown>(
     error.value = null
     try {
       // TODO: 替换为真实的请求逻辑
-      // const response = await fetch('/api/${camelName}', { params })
+      // const response = await fetch(\`\${API_BASE_PATH}/${camelName}\`, { params })
       // data.value = response.data as T
       await new Promise((resolve) => setTimeout(resolve, 200))
       data.value = { id: 1, name: '${pascalName}' } as unknown as T

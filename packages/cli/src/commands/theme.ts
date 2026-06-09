@@ -8,6 +8,7 @@
 
 import { Command } from 'commander'
 import { select, input, confirm } from '@inquirer/prompts'
+import { ExitPromptError, CancelPromptError } from '@inquirer/core'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import path from 'path'
@@ -158,7 +159,7 @@ export function themeCommand(): Command {
         console.log(chalk.green('🎉 主题生成完成!\n'))
       } catch (error) {
         // 用户中断或错误
-        if ((error as { message?: string })?.message?.includes('User force closed')) {
+        if (error instanceof ExitPromptError || error instanceof CancelPromptError) {
           console.log(chalk.yellow('\n已取消\n'))
         } else {
           console.error(chalk.red('\n生成主题时出错:'), error)
