@@ -7,7 +7,8 @@
  */
 
 import { Command } from 'commander';
-import { select, input } from '@inquirer/prompts';
+import { input } from '@inquirer/input';
+import { select } from '@inquirer/select';
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'path';

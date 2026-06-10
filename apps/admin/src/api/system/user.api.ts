@@ -179,6 +179,11 @@ export function assignUserRole(userId: number, roleIds: number[]) {
   })
 }
 
+// 分配用户角色（别名）
+export function assignRoles(userId: number, roleIds: number[]) {
+  return assignUserRole(userId, roleIds)
+}
+
 // 获取用户角色列表
 export function getUserRoles(userId: number) {
   return request<UserInfo>({
