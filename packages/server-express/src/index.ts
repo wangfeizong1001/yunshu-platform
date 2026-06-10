@@ -53,6 +53,38 @@ export {
 } from './middlewares/auth';
 
 // ============================================================================
+// 请求限流中间件
+// ============================================================================
+
+export {
+  createRateLimitMiddleware,
+  authRateLimit,
+  defaultRateLimit,
+} from './middlewares/rateLimit';
+export type { RateLimitOptions } from './middlewares/rateLimit';
+
+// ============================================================================
+// 文件上传安全中间件
+// ============================================================================
+
+export {
+  createUploadMiddleware,
+  defaultUpload,
+} from './middlewares/uploadGuard';
+export type { UploadMiddlewareOptions } from './middlewares/uploadGuard';
+
+// ============================================================================
+// Sentry 监控中间件
+// ============================================================================
+
+export {
+  initSentry,
+  sentryRequestHandler,
+  sentryErrorHandler,
+  setupSentryExpress,
+} from './middlewares/sentry';
+
+// ============================================================================
 // 应用工厂
 // ============================================================================
 

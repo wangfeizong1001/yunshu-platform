@@ -18,7 +18,7 @@ module.exports = {
   rules: {
     // Vue 3
     'vue/multi-word-component-names': 'warn',
-    'vue/no-v-html': 'warn',
+    'vue/no-v-html': 'error',
     'vue/require-default-prop': 'off',
     'vue/component-name-in-template-casing': ['error', 'PascalCase'],
     'vue/script-setup-uses-vars': 'error',

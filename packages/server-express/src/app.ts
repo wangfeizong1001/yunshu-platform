@@ -13,6 +13,8 @@ import {
   globalErrorHandler,
   notFoundHandler,
 } from './middlewares/errorHandler';
+import { createRateLimitMiddleware } from './middlewares/rateLimit';
+import { sentryRequestHandler, sentryErrorHandler, initSentry } from './middlewares/sentry';
 import { createRouter } from './routes';
 
 // ============================================================================
@@ -38,14 +40,23 @@ export function createApp(options: {
   const app: Express = express();
 
   // --------------------------------------------------------------------------
+  // Sentry：必须在任何其他中间件之前挂载 requestHandler
+  // --------------------------------------------------------------------------
+  initSentry();
+  app.use(sentryRequestHandler());
+
+  // --------------------------------------------------------------------------
   // 基础中间件
   // --------------------------------------------------------------------------
   app.set('trust proxy', trustProxy);
   app.use(cors({ origin: corsOrigin, credentials: true }));
 
+  // 全局限流（默认 100 req / 15min），避免恶意请求耗尽服务器资源
+  app.use(createRateLimitMiddleware());
+
   // 请求 ID：为每个请求分配唯一 requestId，用于日志追踪与问题定位
-  app.use((req: Request, _res: Response, next) => {
-    (req as any).requestId = crypto.randomUUID();
+  app.use((req: Request & { requestId?: string }, _res: Response, next) => {
+    req.requestId = crypto.randomUUID();
     next();
   });
 
@@ -65,13 +76,13 @@ export function createApp(options: {
   // --------------------------------------------------------------------------
   // 健康检查
   // --------------------------------------------------------------------------
-  app.get(`${apiPrefix}/health`, (req: Request, res: Response) => {
+  app.get(`${apiPrefix}/health`, (req: Request & { requestId?: string }, res: Response) => {
     res.status(200).json({
       success: true,
       status: 'UP',
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? '1.0.0',
-      requestId: (req as any).requestId,
+      requestId: req.requestId,
     });
   });
 
@@ -100,6 +111,11 @@ export function createApp(options: {
   // 404 处理
   // --------------------------------------------------------------------------
   app.use(notFoundHandler());
+
+  // --------------------------------------------------------------------------
+  // Sentry 错误上报：必须在 globalErrorHandler 之前
+  // --------------------------------------------------------------------------
+  app.use(sentryErrorHandler());
 
   // --------------------------------------------------------------------------
   // 全局错误处理（必须是最后一个中间件）

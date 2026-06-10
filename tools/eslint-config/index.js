@@ -27,10 +27,13 @@ module.exports = {
   ],
   rules: {
     // TypeScript
-    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+    '@typescript-eslint/no-empty-function': 'error',
+    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/prefer-nullish-coalescing': 'warn',
 
     // 通用
     'no-console': ['warn', { allow: ['warn', 'error'] }],

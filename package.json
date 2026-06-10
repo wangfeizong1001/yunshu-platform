@@ -10,8 +10,8 @@
     "test": "turbo test",
     "test:coverage": "turbo test:coverage",
     "lint": "turbo lint",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
+    "format": "prettier --write",
+    "format:check": "prettier --check",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
     "changeset": "changeset",
@@ -19,10 +19,13 @@
     "release": "turbo build && changeset publish",
     "docs:dev": "turbo dev --filter=@yunshu/docs",
     "docs:build": "turbo build --filter=@yunshu/docs",
-    "playground:dev": "turbo dev --filter=@yunshu/playground"
+    "playground:dev": "turbo dev --filter=@yunshu/playground",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install --with-deps chromium"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",
+    "@playwright/test": "^1.44.0",
     "@yunshu/eslint-config": "workspace:*",
     "@yunshu/tsconfig": "workspace:*",
     "prettier": "^3.2.0",

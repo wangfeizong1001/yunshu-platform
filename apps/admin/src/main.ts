@@ -17,6 +17,7 @@ import App from './App.vue'
 import router from './router'
 import { registerDirectives } from './directives'
 import i18n, { localeSetting } from './locales'
+import { initSentry } from './plugins/sentry'
 
 // 创建应用实例
 const app = createApp(App)
@@ -29,6 +30,9 @@ app.use(pinia)
 
 // 注册路由
 app.use(router)
+
+// 初始化 Sentry（必须在 router 之后、mount 之前，以便 browserTracing 接入路由）
+initSentry(app, router)
 
 // 配置 Element Plus 语言
 const getElementPlusLocale = () => {
