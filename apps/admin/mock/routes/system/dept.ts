@@ -4,9 +4,9 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success, fail } from '../utils/response';
-import { delay, randomDelay } from '../utils/delay';
-import { db, type Dept } from '../utils/database';
+import { success, fail } from '../../utils/response';
+import { delay, randomDelay } from '../../utils/delay';
+import { db, type Dept } from '../../utils/database';
 
 /** 递归构建部门树 */
 function buildDeptTree(depts: Dept[], parentId: number = 0): any[] {

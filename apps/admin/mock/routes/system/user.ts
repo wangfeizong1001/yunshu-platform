@@ -4,9 +4,9 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success, fail, pageResult } from '../utils/response';
-import { delay, randomDelay } from '../utils/delay';
-import { db, type User } from '../utils/database';
+import { success, fail, pageResult } from '../../utils/response';
+import { delay, randomDelay } from '../../utils/delay';
+import { db, type User } from '../../utils/database';
 
 /** 部门名称映射 */
 function getDeptName(deptId: number): string {

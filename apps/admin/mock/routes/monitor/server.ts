@@ -4,8 +4,8 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success } from '../utils/response';
-import { delay } from '../utils/delay';
+import { success } from '../../utils/response';
+import { delay } from '../../utils/delay';
 
 export default [
   /**

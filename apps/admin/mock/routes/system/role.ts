@@ -4,9 +4,9 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success, fail, pageResult } from '../utils/response';
-import { delay, randomDelay } from '../utils/delay';
-import { db, type Role } from '../utils/database';
+import { success, fail, pageResult } from '../../utils/response';
+import { delay, randomDelay } from '../../utils/delay';
+import { db, type Role } from '../../utils/database';
 
 /** 格式化角色数据 */
 function formatRole(role: Role) {

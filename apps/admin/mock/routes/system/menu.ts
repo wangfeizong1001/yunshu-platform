@@ -4,9 +4,9 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success, fail, treeResult } from '../utils/response';
-import { delay, randomDelay } from '../utils/delay';
-import { db, type Menu } from '../utils/database';
+import { success, fail, treeResult } from '../../utils/response';
+import { delay, randomDelay } from '../../utils/delay';
+import { db, type Menu } from '../../utils/database';
 
 /** 递归构建菜单树 */
 function buildMenuTree(menus: Menu[], parentId: number = 0): any[] {

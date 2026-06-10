@@ -4,15 +4,15 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success, fail, pageResult } from '../utils/response';
-import { delay, randomDelay } from '../utils/delay';
+import { success, fail, pageResult } from '../../utils/response';
+import { delay, randomDelay } from '../../utils/delay';
 import {
   db,
   type WorkflowDefinition,
   type WorkflowInstance,
   type WorkflowTask,
   type WorkflowHistory,
-} from '../utils/database';
+} from '../../utils/database';
 
 export default [
   // ==================== 工作流定义 ====================

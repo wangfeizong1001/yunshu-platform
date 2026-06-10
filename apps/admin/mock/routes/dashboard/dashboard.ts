@@ -4,8 +4,8 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success, fail, pageResult } from '../utils/response';
-import { delay, randomDelay } from '../utils/delay';
+import { success, fail, pageResult } from '../../utils/response';
+import { delay, randomDelay } from '../../utils/delay';
 
 // 模拟大屏看板数据
 interface Dashboard {

@@ -4,9 +4,9 @@
  */
 
 import { MockMethod } from 'vite-plugin-mock';
-import { success, fail, pageResult } from '../utils/response';
-import { delay, randomDelay } from '../utils/delay';
-import { db, type Job, type JobLog } from '../utils/database';
+import { success, fail, pageResult } from '../../utils/response';
+import { delay, randomDelay } from '../../utils/delay';
+import { db, type Job, type JobLog } from '../../utils/database';
 
 export default [
   /**
