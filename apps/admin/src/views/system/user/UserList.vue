@@ -193,7 +193,7 @@ const queryParams = reactive({
 async function fetchUserList() {
   loading.value = true
   try {
-    const res = await getUserPage(queryParams) as any
+    const res = await getUserPage(queryParams) as Record<string, unknown>
     userList.value = res.rows
     total.value = res.total
   } finally {
@@ -204,7 +204,7 @@ async function fetchUserList() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = (await getDeptTreeSelect()) as any
+    deptTree.value = (await getDeptTreeSelect()) as unknown[]
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -237,13 +237,13 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: any) {
+function handleEdit(row: Record<string, unknown>) {
   currentUser.value = { ...row }
   formVisible.value = true
 }
 
 // 删除
-async function handleDelete(row: any) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
       type: 'warning',
@@ -259,12 +259,12 @@ async function handleDelete(row: any) {
 }
 
 // 重置密码
-function handleResetPassword(row: any) {
+function handleResetPassword(row: Record<string, unknown>) {
   ElMessage.info(`重置密码功能开发中，用户ID: ${row.userId}`)
 }
 
 // 分配角色
-function handleAssignRole(row: any) {
+function handleAssignRole(row: Record<string, unknown>) {
   currentUserId.value = row.userId
   assignRoleVisible.value = true
 }

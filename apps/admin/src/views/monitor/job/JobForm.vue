@@ -113,8 +113,8 @@ watch(
         remark: val.remark || '',
         targetBean: jobInfo.targetBean || '',
         targetMethod: jobInfo.targetMethod || '',
-        invokeTarget: (val as any).invokeTarget || '',
-        misfirePolicy: (val as any).misfirePolicy || '0',
+        invokeTarget: (val as Record<string, unknown>).invokeTarget as string || '',
+        misfirePolicy: (val as Record<string, unknown>).misfirePolicy as string || '0',
       }
     } else {
       formData.value = {

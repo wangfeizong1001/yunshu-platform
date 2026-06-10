@@ -28,7 +28,7 @@ export class ServerController extends BaseController {
    * 获取全部服务器信息
    */
   async getServerInfo(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const info = {
@@ -45,7 +45,7 @@ export class ServerController extends BaseController {
    * 获取 CPU 信息
    */
   async getCpuInfo(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
     return this.success(res, this._getCpuInfo(), '查询成功');
   }
@@ -54,7 +54,7 @@ export class ServerController extends BaseController {
    * 获取内存信息
    */
   async getMemoryInfo(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
     return this.success(res, this._getMemoryInfo(), '查询成功');
   }
@@ -67,7 +67,7 @@ export class ServerController extends BaseController {
    * 生产环境可使用 systeminformation、node-diskusage 等第三方库。
    */
   async getDiskInfo(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
     return this.success(res, this._getDiskInfo(), '查询成功');
   }
@@ -76,7 +76,7 @@ export class ServerController extends BaseController {
    * 获取 Node.js/V8 运行时信息（代替传统 JVM 信息）
    */
   async getJvmInfo(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
     return this.success(res, this._getJvmInfo(), '查询成功');
   }

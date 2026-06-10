@@ -38,7 +38,7 @@ export const parseQuery = (search: string): Record<string, string> => {
 /**
  * 序列化参数为 URL 查询字符串
  */
-export const stringifyQuery = (query: Record<string, any>): string => {
+export const stringifyQuery = (query: Record<string, unknown>): string => {
   const params = new URLSearchParams()
   Object.keys(query).forEach((key) => {
     const value = query[key]

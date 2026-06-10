@@ -254,7 +254,7 @@ function getTypeLabel(type: string) {
 }
 
 function getTypeTagType(type: string) {
-  const types: Record<string, any> = {
+  const types: Record<string, string> = {
     system: 'danger',
     normal: 'info',
     reminder: 'warning'
@@ -272,7 +272,7 @@ function getPriorityLabel(priority: string) {
 }
 
 function getPriorityTagType(priority: string) {
-  const types: Record<string, any> = {
+  const types: Record<string, string> = {
     high: 'danger',
     medium: 'warning',
     low: 'info'

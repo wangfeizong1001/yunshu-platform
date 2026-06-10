@@ -7,7 +7,7 @@
 
 import defaultCacheConfig, { CacheType, CACHE_KEYS } from '@/config/cache.config'
 
-export interface CacheItem<T = any> {
+export interface CacheItem<T = unknown> {
   /** 缓存数据 */
   data: T
   /** 创建时间戳 */

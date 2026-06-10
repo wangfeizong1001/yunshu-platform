@@ -52,12 +52,12 @@ interface Column {
   align?: 'left' | 'center' | 'right'
   fixed?: 'left' | 'right'
   sortable?: boolean
-  formatter?: (row: any, column: any, cellValue: any) => any
+  formatter?: (row: Record<string, unknown>, column: Record<string, unknown>, cellValue: unknown) => unknown
   slot?: string
 }
 
 interface Props {
-  data: any[]
+  data: unknown[]
   columns: Column[]
   loading?: boolean
   stripe?: boolean
@@ -84,7 +84,7 @@ const emit = defineEmits(['selectionChange', 'pageChange'])
 
 const currentPage = ref(1)
 
-const handleSelectionChange = (selection: any[]) => {
+const handleSelectionChange = (selection: unknown[]) => {
   emit('selectionChange', selection)
 }
 

@@ -226,7 +226,7 @@ const doImport = async (tables: IGenTable[]) => {
       emit('success')
       handleClose()
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== 'cancel') {
       ElMessage.error(error.message || '导入失败')
     }

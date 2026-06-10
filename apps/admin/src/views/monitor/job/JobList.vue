@@ -44,7 +44,7 @@
 
     <!-- 数据表格 -->
     <el-card class="table-card">
-      <el-table v-loading="loading" :data="tableData" @selection-change="(selection: any) => handleSelectionChange(selection)">
+      <el-table v-loading="loading" :data="tableData" @selection-change="(selection: unknown[]) => handleSelectionChange(selection)">
         <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="任务ID" prop="jobId" width="80" align="center" />
         <el-table-column label="任务名称" prop="jobName" width="140" align="center" />
@@ -75,7 +75,7 @@
               v-model="row.status"
               active-value="0"
               inactive-value="1"
-              @change="handleStatusChange(row as any)"
+              @change="handleStatusChange(row)"
             />
           </template>
         </el-table-column>
@@ -92,10 +92,10 @@
         <el-table-column label="执行次数" prop="runCount" width="100" align="center" />
         <el-table-column label="操作" width="200" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleExecute(row as any)">执行</el-button>
-            <el-button link type="primary" @click="handleViewLog(row as any)">日志</el-button>
-            <el-button link type="primary" @click="handleEdit(row as any)">编辑</el-button>
-            <el-button link type="danger" @click="handleDelete(row as any)">删除</el-button>
+            <el-button link type="primary" @click="handleExecute(row)">执行</el-button>
+            <el-button link type="primary" @click="handleViewLog(row)">日志</el-button>
+            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -114,7 +114,7 @@
     </el-card>
 
     <!-- 任务表单弹窗 -->
-    <JobForm v-model="formVisible" :job-data="currentJob as any" @success="handleQuery" />
+    <JobForm v-model="formVisible" :job-data="currentJob" @success="handleQuery" />
 
     <!-- 任务日志抽屉 -->
     <JobLogDrawer v-model="logDrawerVisible" :job-data="currentJob" />
@@ -206,8 +206,8 @@ const handleRefresh = () => {
   handleQuery()
 }
 
-const handleSelectionChange = (selection: any[]) => {
-  selectedIds.value = selection.map((item: any) => item.jobId)
+const handleSelectionChange = (selection: unknown[]) => {
+  selectedIds.value = selection.map((item: Record<string, unknown>) => item.jobId)
 }
 
 const handleAdd = () => {

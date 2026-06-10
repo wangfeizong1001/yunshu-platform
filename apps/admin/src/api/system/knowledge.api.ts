@@ -2,7 +2,7 @@
  * 知识库 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface KnowledgeQuery {
   pageNum?: number
@@ -62,106 +62,106 @@ export interface KnowledgeCategory {
 }
 
 export const getKnowledgePage = (params?: KnowledgeQuery) => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getKnowledgeList = (params?: KnowledgeQuery) => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getKnowledge = (knowledgeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/knowledge/${knowledgeId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addKnowledge = (data: KnowledgeForm) => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateKnowledge = (data: KnowledgeForm) => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteKnowledge = (knowledgeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/knowledge/${knowledgeId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteKnowledge = (knowledgeIds: number[]) => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: knowledgeIds
   })
 }
 
 export const publishKnowledge = (knowledgeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/knowledge/publish/${knowledgeId}`,
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 export const withdrawKnowledge = (knowledgeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/knowledge/withdraw/${knowledgeId}`,
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 export const getCategoryList = () => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge/category/list',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getCategoryTree = () => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge/category/tree',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addCategory = (data: Partial<KnowledgeCategory>) => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge/category',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateCategory = (data: Partial<KnowledgeCategory>) => {
-  return request({
+  return request<unknown>({
     url: '/system/knowledge/category',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteCategory = (categoryId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/knowledge/category/${categoryId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }

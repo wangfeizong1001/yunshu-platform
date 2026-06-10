@@ -200,10 +200,10 @@ async function handleSubmit() {
     }
 
     if (isEdit.value) {
-      await updateRole(submitData as any)
+      await updateRole(submitData as Record<string, unknown>)
       ElMessage.success('修改成功')
     } else {
-      await addRole(submitData as any)
+      await addRole(submitData as Record<string, unknown>)
       ElMessage.success('新增成功')
     }
 

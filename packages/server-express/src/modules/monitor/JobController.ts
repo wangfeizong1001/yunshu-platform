@@ -197,7 +197,7 @@ export class JobController extends BaseController {
    * 创建定时任务
    */
   async create(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as Partial<SysJob>;
@@ -239,7 +239,7 @@ export class JobController extends BaseController {
    * 更新定时任务
    */
   async update(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const jobId = Number(req.params.jobId);
@@ -295,7 +295,7 @@ export class JobController extends BaseController {
    * 删除定时任务
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const jobId = Number(req.params.jobId);
@@ -311,7 +311,7 @@ export class JobController extends BaseController {
    * 立即执行一次任务
    */
   async run(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as { jobId?: unknown };
@@ -341,7 +341,7 @@ export class JobController extends BaseController {
    * 切换任务状态
    */
   async changeStatus(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as { jobId?: unknown; status?: unknown };
@@ -387,7 +387,7 @@ export class JobController extends BaseController {
    * 删除任务日志
    */
   async deleteLog(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const jobLogId = Number(req.params.jobLogId);
@@ -403,7 +403,7 @@ export class JobController extends BaseController {
    * 清空任务日志
    */
   async cleanLog(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const count = jobLogs.length;

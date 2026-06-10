@@ -40,20 +40,20 @@ const router = useRouter()
 const visible = ref(false)
 const left = ref(0)
 const top = ref(0)
-const selectedTag = ref<any>({})
+const selectedTag = ref<Record<string, unknown>>({})
 
 const visitedViews = computed(() => tagsViewStore.visitedViews.value)
 
-const isActive = (tag: any) => {
+const isActive = (tag: Record<string, unknown>) => {
   return tag.path === route.path
 }
 
-const isAffix = (tag: any) => {
+const isAffix = (tag: Record<string, unknown>) => {
   return tag.meta?.affix || false
 }
 
-const filterAffixTags = (routes: any[], basePath = '/') => {
-  let tags: any[] = []
+const filterAffixTags = (routes: unknown[], basePath = '/') => {
+  let tags: unknown[] = []
   routes.forEach((route) => {
     if (route.meta?.affix) {
       const tagPath = `${basePath}${route.path}`.replace(/\/+/g, '/')
@@ -92,14 +92,14 @@ const addTags = () => {
   }
 }
 
-const openMenu = (tag: any, event: MouseEvent) => {
+const openMenu = (tag: Record<string, unknown>, event: MouseEvent) => {
   visible.value = true
   left.value = event.clientX
   top.value = event.clientY + 4
   selectedTag.value = tag
 }
 
-const closeSelectedTag = (tag: any) => {
+const closeSelectedTag = (tag: Record<string, unknown>) => {
   tagsViewStore.delVisitedView(tag)
   if (isActive(tag)) {
     const latestView = visitedViews.value.slice(-1)[0] as { path: string } | undefined
@@ -111,7 +111,7 @@ const closeSelectedTag = (tag: any) => {
   }
 }
 
-const refreshSelectedTag = (tag: any) => {
+const refreshSelectedTag = (tag: Record<string, unknown>) => {
   tagsViewStore.delCachedView(tag)
   router.replace({
     path: '/redirect' + tag.path

@@ -22,7 +22,7 @@ export const downloadByUrl = (url: string, filename: string) => {
   document.body.removeChild(link)
 }
 
-export const downloadFile = (data: any, filename: string) => {
+export const downloadFile = (data: unknown, filename: string) => {
   const blob = new Blob([data])
   downloadByBlob(blob, filename)
 }

@@ -11,7 +11,7 @@
  * @module @yunshu/server-express/controller
  */
 
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import type { ServiceResult, PaginatedResult } from '@yunshu/shared';
 import { BusinessError } from '@yunshu/server-core';
 
@@ -241,6 +241,55 @@ export abstract class BaseController {
       errorCode: error?.code,
       timestamp: new Date().toISOString(),
     });
+  }
+
+  // ========================================================================
+  // 请求上下文工具（类型安全，替代 (req as any).user.* 模式）
+  // ========================================================================
+
+  /**
+   * 从请求中安全获取当前登录用户对象
+   *
+   * user 对象由 auth 中间件（requireAuth / optionalAuth）注入到 req 上。
+   * 这里用类型断言替代 any，确保后续访问 .role / .userId 都是类型安全的。
+   */
+  protected getCurrentUser(
+    req: Request,
+  ): { role?: string; userId?: string; userName?: string } | undefined {
+    const context = req as unknown as {
+      user?: { role?: string; userId?: string; userName?: string };
+    };
+    return context.user;
+  }
+
+  /**
+   * 从请求中安全获取当前登录用户的角色
+   */
+  protected getCurrentUserRole(req: Request): string | undefined {
+    return this.getCurrentUser(req)?.role;
+  }
+
+  /**
+   * 从请求中安全获取当前登录用户的 userId
+   */
+  protected getCurrentUserId(req: Request): string | undefined {
+    return this.getCurrentUser(req)?.userId;
+  }
+
+  /**
+   * 判断当前登录用户是否为管理员（admin 或 super_admin）
+   */
+  protected isCurrentUserAdmin(req: Request): boolean {
+    const role = this.getCurrentUserRole(req);
+    return role === 'admin' || role === 'super_admin';
+  }
+
+  /**
+   * 从请求中安全获取 requestId（由 app.ts 的请求 ID 中间件注入）
+   */
+  protected getRequestId(req: Request): string | undefined {
+    const context = req as unknown as { requestId?: string };
+    return context.requestId;
   }
 
   // ========================================================================

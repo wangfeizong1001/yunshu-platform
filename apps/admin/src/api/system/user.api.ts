@@ -2,7 +2,7 @@
  * 用户管理相关 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 // 用户查询参数
 export interface UserQuery {
@@ -54,88 +54,88 @@ export interface UserInfo {
 
 // 获取用户列表
 export function getUserList(params: UserQuery) {
-  return request({
+  return request<unknown>({
     url: '/system/user/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 // 获取用户分页列表
 export function getUserPage(params: UserQuery) {
-  return request({
+  return request<unknown>({
     url: '/system/user/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 // 获取用户详情
 export function getUser(userId: number) {
-  return request({
+  return request<unknown>({
     url: `/system/user/${userId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 // 新增用户
 export function addUser(data: UserForm) {
-  return request({
+  return request<unknown>({
     url: '/system/user',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 // 修改用户
 export function updateUser(data: UserForm) {
-  return request({
+  return request<unknown>({
     url: '/system/user',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 // 删除用户
 export function deleteUser(userId: number) {
-  return request({
+  return request<unknown>({
     url: `/system/user/${userId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 // 批量删除用户
 export function batchDeleteUser(userIds: number[]) {
-  return request({
+  return request<unknown>({
     url: '/system/user/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: userIds
   })
 }
 
 // 修改用户状态
 export function changeUserStatus(userId: number, status: string) {
-  return request({
+  return request<unknown>({
     url: '/system/user/changeStatus',
-    method: 'put',
+    method: 'PUT',
     params: { userId, status }
   })
 }
 
 // 重置用户密码
 export function resetUserPwd(userId: number, password: string) {
-  return request({
+  return request<unknown>({
     url: '/system/user/resetPwd',
-    method: 'put',
+    method: 'PUT',
     data: { userId, password }
   })
 }
 
 // 导出用户
 export function exportUser(params: UserQuery) {
-  return request({
+  return request<unknown>({
     url: '/system/user/export',
-    method: 'get',
+    method: 'GET',
     params,
     responseType: 'blob'
   })
@@ -143,18 +143,18 @@ export function exportUser(params: UserQuery) {
 
 // 导入用户模板下载
 export function importTemplate() {
-  return request({
+  return request<unknown>({
     url: '/system/user/importTemplate',
-    method: 'get',
+    method: 'GET',
     responseType: 'blob'
   })
 }
 
 // 导入用户
 export function importUser(data: FormData) {
-  return request({
+  return request<unknown>({
     url: '/system/user/import',
-    method: 'post',
+    method: 'POST',
     data,
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -164,25 +164,25 @@ export function importUser(data: FormData) {
 
 // 获取所有角色列表
 export function getAllRoles() {
-  return request({
+  return request<unknown>({
     url: '/system/role/list',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 // 分配用户角色
 export function assignUserRole(userId: number, roleIds: number[]) {
-  return request({
+  return request<unknown>({
     url: '/system/user/assignRole',
-    method: 'put',
+    method: 'PUT',
     data: { userId, roleIds }
   })
 }
 
 // 获取用户角色列表
 export function getUserRoles(userId: number) {
-  return request({
+  return request<unknown>({
     url: `/system/user/${userId}/roles`,
-    method: 'get'
+    method: 'GET'
   })
 }

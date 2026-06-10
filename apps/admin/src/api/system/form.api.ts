@@ -2,7 +2,7 @@
  * 表单管理相关 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 // 表单组件类型
 export type FormComponentType =
@@ -35,7 +35,7 @@ export interface FormComponent {
   placeholder?: string
   required?: boolean
   disabled?: boolean
-  defaultValue?: any
+  defaultValue?: unknown
   options?: FormOption[]
   rules?: string[]
   min?: number
@@ -88,7 +88,7 @@ export interface FormPageResp {
 export function getFormList(params: FormQuery) {
   return request<FormPageResp>({
     url: '/system/form/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -97,7 +97,7 @@ export function getFormList(params: FormQuery) {
 export function getFormPage(params: FormQuery) {
   return request<FormPageResp>({
     url: '/system/form/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -106,83 +106,83 @@ export function getFormPage(params: FormQuery) {
 export function getForm(formId: number) {
   return request<FormInfo>({
     url: `/system/form/${formId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 // 新增表单
 export function addForm(data: FormForm) {
-  return request({
+  return request<unknown>({
     url: '/system/form',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 // 修改表单
 export function updateForm(data: FormForm) {
-  return request({
+  return request<unknown>({
     url: '/system/form',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 // 删除表单
 export function deleteForm(formId: number) {
-  return request({
+  return request<unknown>({
     url: `/system/form/${formId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 // 批量删除表单
 export function batchDeleteForm(formIds: number[]) {
-  return request({
+  return request<unknown>({
     url: '/system/form/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: formIds
   })
 }
 
 // 复制表单
 export function copyForm(formId: number) {
-  return request({
+  return request<unknown>({
     url: `/system/form/copy/${formId}`,
-    method: 'post'
+    method: 'POST'
   })
 }
 
 // 发布表单
 export function publishForm(formId: number) {
-  return request({
+  return request<unknown>({
     url: `/system/form/publish/${formId}`,
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 // 停用表单
 export function stopForm(formId: number) {
-  return request({
+  return request<unknown>({
     url: `/system/form/stop/${formId}`,
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 // 表单数据提交
-export function submitFormData(formId: number, data: Record<string, any>) {
-  return request({
+export function submitFormData(formId: number, data: Record<string, unknown>) {
+  return request<unknown>({
     url: `/system/form/data/${formId}`,
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 // 获取表单数据列表
-export function getFormDataList(formId: number, params: any) {
-  return request({
+export function getFormDataList(formId: number, params: Record<string, unknown>) {
+  return request<unknown>({
     url: `/system/form/data/${formId}/list`,
-    method: 'get',
+    method: 'GET',
     params
   })
 }

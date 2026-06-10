@@ -16,7 +16,7 @@
         <el-tree-select
           v-model="formData.parentId"
           :data="deptTree"
-          :props="{ value: 'deptId', label: 'deptName', children: 'children' } as any"
+          :props="{ value: 'deptId', label: 'deptName', children: 'children' } as Record<string, string>"
           placeholder="请选择上级部门"
           check-strictly
           filterable
@@ -134,7 +134,7 @@ function fillFormData() {
     formData.value = {
       parentId: props.deptData.parentId,
       deptName: props.deptData.deptName,
-      orderNum: (props.deptData as any).orderNum || 0,
+      orderNum: (props.deptData as Record<string, unknown>).orderNum || 0,
       leader: props.deptData.leader,
       phone: props.deptData.phone,
       email: props.deptData.email,
@@ -172,10 +172,10 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateDept({ deptId: props.deptData!.deptId, ...formData.value } as any)
+      await updateDept({ deptId: props.deptData!.deptId, ...formData.value } as Record<string, unknown>)
       ElMessage.success('修改成功')
     } else {
-      await addDept(formData.value as any)
+      await addDept(formData.value as Record<string, unknown>)
       ElMessage.success('新增成功')
     }
 

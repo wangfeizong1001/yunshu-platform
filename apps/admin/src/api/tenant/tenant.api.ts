@@ -2,7 +2,8 @@
  * 租户管理 API
  */
 
-import { request } from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
+
 import type {
   Tenant,
   TenantQuery,
@@ -21,7 +22,7 @@ import type {
 export function getTenantPage(params: TenantQuery) {
   return request<TenantPageResp>({
     url: '/tenant/list',
-    method: 'get',
+    method: 'GET',
     params,
   })
 }
@@ -33,7 +34,7 @@ export function getTenantPage(params: TenantQuery) {
 export function getTenantList(params?: TenantQuery) {
   return request<Tenant[]>({
     url: '/tenant/list',
-    method: 'get',
+    method: 'GET',
     params,
   })
 }
@@ -45,7 +46,7 @@ export function getTenantList(params?: TenantQuery) {
 export function getTenantDetail(tenantId: number) {
   return request<Tenant>({
     url: `/tenant/${tenantId}`,
-    method: 'get',
+    method: 'GET',
   })
 }
 
@@ -56,7 +57,7 @@ export function getTenantDetail(tenantId: number) {
 export function addTenant(data: TenantForm) {
   return request<Tenant>({
     url: '/tenant',
-    method: 'post',
+    method: 'POST',
     data,
   })
 }
@@ -69,7 +70,7 @@ export function addTenant(data: TenantForm) {
 export function updateTenant(tenantId: number, data: TenantForm) {
   return request<Tenant>({
     url: `/tenant/${tenantId}`,
-    method: 'put',
+    method: 'PUT',
     data,
   })
 }
@@ -81,7 +82,7 @@ export function updateTenant(tenantId: number, data: TenantForm) {
 export function deleteTenant(tenantId: number) {
   return request<void>({
     url: `/tenant/${tenantId}`,
-    method: 'delete',
+    method: 'DELETE',
   })
 }
 
@@ -93,7 +94,7 @@ export function deleteTenant(tenantId: number) {
 export function changeTenantStatus(tenantId: number, status: '0' | '1' | '2') {
   return request<void>({
     url: '/tenant/status',
-    method: 'put',
+    method: 'PUT',
     data: { tenantId, status },
   })
 }
@@ -105,7 +106,7 @@ export function changeTenantStatus(tenantId: number, status: '0' | '1' | '2') {
 export function getPackagePage(params: TenantPackageQuery) {
   return request<TenantPackagePageResp>({
     url: '/tenant/package/list',
-    method: 'get',
+    method: 'GET',
     params,
   })
 }
@@ -117,7 +118,7 @@ export function getPackagePage(params: TenantPackageQuery) {
 export function getPackageList(params?: TenantPackageQuery) {
   return request<TenantPackage[]>({
     url: '/tenant/package/list',
-    method: 'get',
+    method: 'GET',
     params,
   })
 }
@@ -129,7 +130,7 @@ export function getPackageList(params?: TenantPackageQuery) {
 export function getPackageDetail(packageId: number) {
   return request<TenantPackage>({
     url: `/tenant/package/${packageId}`,
-    method: 'get',
+    method: 'GET',
   })
 }
 
@@ -140,7 +141,7 @@ export function getPackageDetail(packageId: number) {
 export function addPackage(data: TenantPackageForm) {
   return request<TenantPackage>({
     url: '/tenant/package',
-    method: 'post',
+    method: 'POST',
     data,
   })
 }
@@ -153,7 +154,7 @@ export function addPackage(data: TenantPackageForm) {
 export function updatePackage(packageId: number, data: TenantPackageForm) {
   return request<TenantPackage>({
     url: `/tenant/package/${packageId}`,
-    method: 'put',
+    method: 'PUT',
     data,
   })
 }
@@ -165,7 +166,7 @@ export function updatePackage(packageId: number, data: TenantPackageForm) {
 export function deletePackage(packageId: number) {
   return request<void>({
     url: `/tenant/package/${packageId}`,
-    method: 'delete',
+    method: 'DELETE',
   })
 }
 
@@ -177,7 +178,7 @@ export function deletePackage(packageId: number) {
 export function assignTenantPackage(tenantId: number, packageId: number) {
   return request<void>({
     url: '/tenant/package/assign',
-    method: 'put',
+    method: 'PUT',
     data: { tenantId, packageId },
   })
 }
@@ -189,6 +190,6 @@ export function assignTenantPackage(tenantId: number, packageId: number) {
 export function getTenantAvailablePackages(tenantId: number) {
   return request<TenantPackage[]>({
     url: `/tenant/${tenantId}/packages`,
-    method: 'get',
+    method: 'GET',
   })
 }

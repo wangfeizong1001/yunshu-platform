@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { BusinessError } from '@yunshu/server-core';
+import { BusinessError, logger } from '@yunshu/server-core';
 
 interface AppError extends Error {
   statusCode: number;
@@ -143,7 +143,7 @@ export function globalErrorHandler() {
     ) {
       processed = handleJWTError(error);
     } else if (
-      (err as any).code?.startsWith?.('LIMIT_') ||
+      (error as Error & { code?: string }).code?.startsWith?.('LIMIT_') ||
       err.message?.includes('Multer')
     ) {
       processed = handleUploadError(error);
@@ -170,12 +170,11 @@ export function globalErrorHandler() {
     }
 
     // 生产环境：operational 业务错误可返回原始 message，其它一律统一提示，避免泄露内部信息
-    console.error('[严重错误]', {
+    logger.error('[严重错误]', {
       message: err.message,
       stack: err.stack,
       url: req.originalUrl,
       method: req.method,
-      timestamp: new Date().toISOString(),
     });
 
     if (processed.isOperational) {

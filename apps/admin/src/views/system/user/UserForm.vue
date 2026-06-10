@@ -279,10 +279,10 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updateUser({ userId: props.userData!.userId, ...formData.value } as any)
+      await updateUser({ userId: props.userData!.userId, ...formData.value } as Record<string, unknown>)
       ElMessage.success('修改成功')
     } else {
-      await addUser(formData.value as any)
+      await addUser(formData.value as Record<string, unknown>)
       ElMessage.success('新增成功')
     }
 

@@ -29,7 +29,7 @@
 import { isExternal } from '@/utils'
 
 interface Props {
-  item: any
+  item: Record<string, unknown>
   basePath: string
 }
 

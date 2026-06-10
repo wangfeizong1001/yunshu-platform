@@ -15,15 +15,15 @@ export interface UseCacheOptions extends CacheOptions {
 }
 
 export interface UseCacheReturn<T> {
-  data: Ref<any>
-  hasCache: ComputedRef<any>
+  data: Ref<T | undefined>
+  hasCache: ComputedRef<boolean>
   set: (value: T, newOptions?: CacheOptions) => void
   get: () => T | undefined
   remove: () => void
   refresh: () => void
 }
 
-export function useCache<T = any>(
+export function useCache<T = unknown>(
   key: string,
   defaultValue?: T,
   options: UseCacheOptions = {}

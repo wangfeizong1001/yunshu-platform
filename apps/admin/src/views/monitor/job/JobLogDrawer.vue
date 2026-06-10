@@ -142,7 +142,7 @@ const handleQuery = async () => {
     const res = await jobApi.getJobLogPage(queryParams.value)
     const responseData = res as Record<string, unknown>
     if (responseData.success) {
-      tableData.value = responseData.data as any
+      tableData.value = responseData.data as unknown[]
       const pagination = responseData.pagination as Record<string, unknown>
       total.value = Number(pagination.total) || 0
     }

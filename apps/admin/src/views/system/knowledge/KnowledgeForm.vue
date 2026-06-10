@@ -140,7 +140,7 @@ const isEdit = computed(() => !!props.knowledgeData?.knowledgeId)
 const formRef = ref<FormInstance>()
 const submitting = ref(false)
 const editorRef = ref<IDomEditor | null>(null)
-const categoryList = ref<any[]>([])
+const categoryList = ref<unknown[]>([])
 
 // 工具栏配置
 const toolbarConfig: Partial<IToolbarConfig> = {
@@ -184,7 +184,7 @@ const rules: FormRules = {
 // 获取分类列表
 async function fetchCategoryList() {
   try {
-    const res = await getCategoryList() as { data: any[] }
+    const res = await getCategoryList() as { data: unknown[] }
     categoryList.value = res.data || []
   } catch (error) {
     console.error('获取分类列表失败', error)

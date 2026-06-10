@@ -20,7 +20,7 @@
         </div>
       </div>
       <el-divider />
-      <div class="notice-content" v-html="noticeData?.noticeContent"></div>
+      <SafeHtml :html="noticeData?.noticeContent || ''" custom-class="notice-content" />
       <el-divider />
       <div class="notice-footer">
         <span v-if="noticeData?.remark">备注：{{ noticeData?.remark }}</span>
@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import SafeHtml from '@/components/SafeHtml/index.vue'
 import { getNoticeDetail } from '@/api/system/notice.api'
 import type { SysNotice } from '@yunshu/shared'
 

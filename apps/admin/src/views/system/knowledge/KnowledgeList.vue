@@ -186,7 +186,7 @@ import KnowledgeDetail from './KnowledgeDetail.vue'
 // 状态
 const loading = ref(false)
 const knowledgeList = ref<KnowledgeInfo[]>([])
-const categoryList = ref<any[]>([])
+const categoryList = ref<unknown[]>([])
 const total = ref(0)
 const selectedRows = ref<KnowledgeInfo[]>([])
 const formVisible = ref(false)
@@ -207,7 +207,7 @@ const queryParams = reactive({
 // 获取分类列表
 async function fetchCategoryList() {
   try {
-    const res = await getCategoryList() as { data: any[] }
+    const res = await getCategoryList() as { data: unknown[] }
     categoryList.value = res.data || []
   } catch (error) {
     console.error('获取分类列表失败', error)

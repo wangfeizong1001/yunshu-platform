@@ -4,23 +4,23 @@
 
 import dayjs from 'dayjs'
 
-export const formatDate = (date: any, format = 'YYYY-MM-DD HH:mm:ss') => {
+export const formatDate = (date: unknown, format = 'YYYY-MM-DD HH:mm:ss') => {
   return dayjs(date).format(format)
 }
 
-export const formatDateTime = (date: any) => {
+export const formatDateTime = (date: unknown) => {
   return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }
 
-export const formatDateOnly = (date: any) => {
+export const formatDateOnly = (date: unknown) => {
   return dayjs(date).format('YYYY-MM-DD')
 }
 
-export const formatTimeOnly = (date: any) => {
+export const formatTimeOnly = (date: unknown) => {
   return dayjs(date).format('HH:mm:ss')
 }
 
-export const getRelativeTime = (date: any) => {
+export const getRelativeTime = (date: unknown) => {
   const now = dayjs()
   const target = dayjs(date)
   const diff = now.diff(target, 'second')
@@ -38,12 +38,12 @@ export const getRelativeTime = (date: any) => {
   }
 }
 
-export const getWeekDay = (date: any) => {
+export const getWeekDay = (date: unknown) => {
   const weekDays = ['日', '一', '二', '三', '四', '五', '六']
   return `星期${weekDays[dayjs(date).day()]}`
 }
 
-export const getAge = (birthDate: any) => {
+export const getAge = (birthDate: unknown) => {
   const now = dayjs()
   const birth = dayjs(birthDate)
   let age = now.year() - birth.year()

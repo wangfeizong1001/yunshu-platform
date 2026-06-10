@@ -2,7 +2,8 @@
  * 代码生成器 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
+
 import type {
   IGenTable,
   IGenQuery,
@@ -12,7 +13,7 @@ import type {
   IGenResult
 } from '@yunshu/shared'
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   message?: string
@@ -27,9 +28,9 @@ export interface ApiResponse<T = any> {
  * 获取表列表（分页）
  */
 export const getGenTablePage = (params: IGenQuery): Promise<ApiResponse<IGenTable[]>> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -38,9 +39,9 @@ export const getGenTablePage = (params: IGenQuery): Promise<ApiResponse<IGenTabl
  * 获取数据库表列表（未导入）
  */
 export const getGenDbList = (params?: IGenQuery): Promise<ApiResponse<IGenTable[]>> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/db/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -52,9 +53,9 @@ export const getGenConfig = (tableName: string): Promise<ApiResponse<{
   config: IGenConfig
   columns: IGenColumn[]
 }>> => {
-  return request({
+  return request<unknown>({
     url: `/tool/gen/config/${tableName}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
@@ -62,9 +63,9 @@ export const getGenConfig = (tableName: string): Promise<ApiResponse<{
  * 保存表配置
  */
 export const saveGenConfig = (data: IGenConfig & { columns: IGenColumn[] }): Promise<ApiResponse> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/config',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
@@ -73,9 +74,9 @@ export const saveGenConfig = (data: IGenConfig & { columns: IGenColumn[] }): Pro
  * 导入表
  */
 export const importGenTable = (tableNames: string[]): Promise<ApiResponse> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/import',
-    method: 'post',
+    method: 'POST',
     data: { tableNames }
   })
 }
@@ -84,9 +85,9 @@ export const importGenTable = (tableNames: string[]): Promise<ApiResponse> => {
  * 同步表结构
  */
 export const syncTable = (tableName: string): Promise<ApiResponse<IGenColumn[]>> => {
-  return request({
+  return request<unknown>({
     url: `/tool/gen/sync/${tableName}`,
-    method: 'post'
+    method: 'POST'
   })
 }
 
@@ -94,9 +95,9 @@ export const syncTable = (tableName: string): Promise<ApiResponse<IGenColumn[]>>
  * 预览代码
  */
 export const previewCode = (config: IGenConfig): Promise<ApiResponse<IGenPreview>> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/preview',
-    method: 'post',
+    method: 'POST',
     data: config
   })
 }
@@ -105,9 +106,9 @@ export const previewCode = (config: IGenConfig): Promise<ApiResponse<IGenPreview
  * 下载代码
  */
 export const downloadCode = (tableName: string, config?: IGenConfig): Promise<Blob> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/download',
-    method: 'post',
+    method: 'POST',
     data: config || { tableName },
     responseType: 'blob'
   })
@@ -117,9 +118,9 @@ export const downloadCode = (tableName: string, config?: IGenConfig): Promise<Bl
  * 删除表配置
  */
 export const deleteGenTable = (tableNames: string[]): Promise<ApiResponse> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/delete',
-    method: 'delete',
+    method: 'DELETE',
     data: { tableNames }
   })
 }
@@ -128,9 +129,9 @@ export const deleteGenTable = (tableNames: string[]): Promise<ApiResponse> => {
  * 批量生成代码
  */
 export const batchGenerate = (tableNames: string[]): Promise<ApiResponse<IGenResult[]>> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/batch',
-    method: 'post',
+    method: 'POST',
     data: { tableNames }
   })
 }
@@ -143,9 +144,9 @@ export const getTemplateList = (): Promise<ApiResponse<{
   templatePath: string
   description: string
 }[]>> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/templates',
-    method: 'get'
+    method: 'GET'
   })
 }
 
@@ -153,9 +154,9 @@ export const getTemplateList = (): Promise<ApiResponse<{
  * 保存自定义模板
  */
 export const saveTemplate = (templateName: string, content: string): Promise<ApiResponse> => {
-  return request({
+  return request<unknown>({
     url: '/tool/gen/template',
-    method: 'post',
+    method: 'POST',
     data: { templateName, content }
   })
 }
@@ -164,9 +165,9 @@ export const saveTemplate = (templateName: string, content: string): Promise<Api
  * 重置模板为默认
  */
 export const resetTemplate = (templateName: string): Promise<ApiResponse> => {
-  return request({
+  return request<unknown>({
     url: `/tool/gen/template/reset/${templateName}`,
-    method: 'post'
+    method: 'POST'
   })
 }
 

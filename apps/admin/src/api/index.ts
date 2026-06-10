@@ -3,8 +3,8 @@
  * 统一导出所有 API 接口
  */
 
-// 导出 request 实例
-export { default as HttpRequest } from '../utils/request'
+// 导出 httpClient 实例（从 request 迁移至 httpClient，统一请求入口）
+export { default as HttpRequest } from '../utils/httpClient'
 
 // 导出认证相关 API
 export * from './auth'

@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="code-content" ref="codeContentRef">
-          <pre v-if="currentFile"><code v-html="highlightedCode"></code></pre>
+          <pre v-if="currentFile"><SafeHtml :html="highlightedCode" /></pre>
           <div v-else class="empty-state">
             <el-empty description="请选择一个文件预览" />
           </div>
@@ -72,6 +72,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
+import SafeHtml from '@/components/SafeHtml/index.vue'
 import { Document, DocumentCopy, Download, Refresh, Files, Key } from '@element-plus/icons-vue'
 import type { IGenPreview, IGenPreviewItem, IGenConfig } from '@yunshu/shared'
 import { previewCode, downloadCode } from '@/api/tool/gen.api'

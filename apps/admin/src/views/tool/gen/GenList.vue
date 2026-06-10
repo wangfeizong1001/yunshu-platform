@@ -114,7 +114,7 @@ const formatDate = (date: string | undefined) => {
 const handleQuery = async () => {
   loading.value = true
   try {
-    const res = await getGenTablePage(queryParams) as any
+    const res = await getGenTablePage(queryParams) as Record<string, unknown>
     if (res.success) {
       tableData.value = res.data
       total.value = res.pagination?.total || 0
@@ -146,19 +146,19 @@ const handleImport = () => {
   importVisible.value = true
 }
 
-const handleConfig = (row: any) => {
+const handleConfig = (row: Record<string, unknown>) => {
   router.push({
     path: '/tool/gen/config',
     query: { tableName: row.tableName },
   })
 }
 
-const handlePreview = (row: any) => {
+const handlePreview = (row: Record<string, unknown>) => {
   currentTableName.value = row.tableName
   previewVisible.value = true
 }
 
-const handleGenerate = async (row: any) => {
+const handleGenerate = async (row: Record<string, unknown>) => {
   try {
     await ElMessageBox.confirm(`确认生成表"${row.tableName}"的代码吗？`, '提示', { type: 'warning' })
     router.push({
@@ -170,7 +170,7 @@ const handleGenerate = async (row: any) => {
   }
 }
 
-const handleDelete = async (_row: any) => {
+const handleDelete = async (_row: Record<string, unknown>) => {
   try {
     await ElMessageBox.confirm('确认删除该表的生成配置吗？', '提示', { type: 'warning' })
     ElMessage.success('删除成功')

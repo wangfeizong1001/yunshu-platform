@@ -2,7 +2,7 @@
  * 通知公告 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface NoticeQuery {
   pageNum?: number
@@ -32,76 +32,76 @@ export interface NoticeInfo {
 }
 
 export const getNoticeList = (params?: NoticeQuery) => {
-  return request({
+  return request<unknown>({
     url: '/system/notice/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getNoticePage = (params?: NoticeQuery) => {
-  return request({
+  return request<unknown>({
     url: '/system/notice/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getNotice = (noticeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/notice/${noticeId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addNotice = (data: NoticeForm) => {
-  return request({
+  return request<unknown>({
     url: '/system/notice',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateNotice = (data: NoticeForm) => {
-  return request({
+  return request<unknown>({
     url: '/system/notice',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteNotice = (noticeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/notice/${noticeId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteNotice = (noticeIds: number[]) => {
-  return request({
+  return request<unknown>({
     url: '/system/notice/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: noticeIds
   })
 }
 
 export const publishNotice = (noticeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/notice/publish/${noticeId}`,
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 export const withdrawNotice = (noticeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/notice/withdraw/${noticeId}`,
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 export const getNoticeDetail = (noticeId: number) => {
-  return request({
+  return request<unknown>({
     url: `/system/notice/${noticeId}`,
-    method: 'get'
+    method: 'GET'
   })
 }

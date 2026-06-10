@@ -73,7 +73,7 @@ const activeMenu = computed(() => {
 const hasOneShowingChild = (item: MenuItem) => {
   if (!item.children) return false
 
-  const showingChildren = item.children.filter((child: any) => {
+  const showingChildren = item.children.filter((child: Record<string, unknown>) => {
     return !child.meta?.hidden
   })
 

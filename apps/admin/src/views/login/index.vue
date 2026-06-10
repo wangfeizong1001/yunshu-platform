@@ -141,7 +141,7 @@ const loginRules = {
 // 获取验证码
 const getCaptcha = async () => {
   try {
-    const res: any = await getCaptchaApi()
+    const res: Record<string, unknown> = await getCaptchaApi()
     if (res.code === 200) {
       captchaData.uuid = res.data.uuid
       captchaData.img = res.data.img
@@ -169,7 +169,7 @@ const handleLogin = async () => {
         uuid: captchaData.uuid
       }
 
-      const res: any = await loginApi(loginData)
+      const res: Record<string, unknown> = await loginApi(loginData)
 
       if (res.code === 200) {
         const token = res.data.token
@@ -189,8 +189,9 @@ const handleLogin = async () => {
           getCaptcha()
         }
       }
-    } catch (error: any) {
-      ElMessage.error(error.message || '登录失败，请稍后重试')
+    } catch (error: unknown) {
+      const err = error as Record<string, unknown>
+      ElMessage.error(err.message as string || '登录失败，请稍后重试')
       // 刷新验证码
       if (captchaEnabled.value) {
         getCaptcha()

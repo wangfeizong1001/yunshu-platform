@@ -144,8 +144,8 @@ const currentPackage = ref<TenantPackage | null>(null)
 // 查询参数
 const queryParams = reactive<TenantPackageQuery>({
   keyword: '',
-  status: undefined as any,
-  packageType: undefined as any,
+  status: undefined as unknown as number | undefined,
+  packageType: undefined as unknown as string | undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -186,8 +186,8 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = undefined as any
-  queryParams.packageType = undefined as any
+  queryParams.status = undefined as unknown as number | undefined
+  queryParams.packageType = undefined as unknown as string | undefined
   queryParams.pageNum = 1
   handleQuery()
 }

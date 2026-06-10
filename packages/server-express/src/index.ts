@@ -8,6 +8,8 @@
  * @module @yunshu/server-express
  */
 
+import { logger } from '@yunshu/server-core';
+
 // ============================================================================
 // BaseController & 类型
 // ============================================================================
@@ -52,6 +54,21 @@ export {
   createOptionalAuthMiddleware as optionalAuthMiddleware,
 } from './middlewares/auth';
 
+// 速率限制中间件
+export {
+  loginLimiter,
+  apiLimiter,
+  strictLimiter,
+} from './middlewares/rateLimit';
+
+// 文件上传守卫中间件
+export {
+  createUploadMiddleware,
+  createImageUploadMiddleware,
+  createDocumentUploadMiddleware,
+  validateUploadMagic,
+} from './middlewares/uploadGuard';
+
 // ============================================================================
 // 应用工厂
 // ============================================================================
@@ -81,7 +98,10 @@ export * as monitor from './modules/monitor';
 if (require.main === module) {
   const port = process.env.PORT ?? 3000;
   const host = process.env.HOST ?? '0.0.0.0';
-  // eslint-disable-next-line no-console
-  console.log(`[startServer] 启动服务于 ${host}:${port} (env=${process.env.NODE_ENV ?? 'development'})`);
+  logger.info('startServer', {
+    host,
+    port,
+    env: process.env.NODE_ENV ?? 'development',
+  });
   startServer(port, host);
 }

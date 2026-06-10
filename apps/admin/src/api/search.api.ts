@@ -4,7 +4,7 @@
  * 提供搜索相关的后端接口
  */
 
-import { request } from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 /** 搜索类型 */
 export type SearchType = 'all' | 'user' | 'dept' | 'menu' | 'role' | 'notice' | 'knowledge'
@@ -92,7 +92,7 @@ export interface SearchHistoryItem {
 export function search(params: SearchQueryParams) {
   return request<SearchResponse>({
     url: '/search',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -103,7 +103,7 @@ export function search(params: SearchQueryParams) {
 export function searchUsers(params: Omit<SearchQueryParams, 'type'>) {
   return request<SearchResponse>({
     url: '/search/users',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -114,7 +114,7 @@ export function searchUsers(params: Omit<SearchQueryParams, 'type'>) {
 export function searchDepts(params: Omit<SearchQueryParams, 'type'>) {
   return request<SearchResponse>({
     url: '/search/depts',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -125,7 +125,7 @@ export function searchDepts(params: Omit<SearchQueryParams, 'type'>) {
 export function searchMenus(params: Omit<SearchQueryParams, 'type'>) {
   return request<SearchResponse>({
     url: '/search/menus',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -136,7 +136,7 @@ export function searchMenus(params: Omit<SearchQueryParams, 'type'>) {
 export function searchRoles(params: Omit<SearchQueryParams, 'type'>) {
   return request<SearchResponse>({
     url: '/search/roles',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -147,7 +147,7 @@ export function searchRoles(params: Omit<SearchQueryParams, 'type'>) {
 export function searchNotices(params: Omit<SearchQueryParams, 'type'>) {
   return request<SearchResponse>({
     url: '/search/notices',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -158,7 +158,7 @@ export function searchNotices(params: Omit<SearchQueryParams, 'type'>) {
 export function searchKnowledge(params: Omit<SearchQueryParams, 'type'>) {
   return request<SearchResponse>({
     url: '/search/knowledge',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
@@ -169,7 +169,7 @@ export function searchKnowledge(params: Omit<SearchQueryParams, 'type'>) {
 export function getHotSearches(limit = 10) {
   return request<HotSearchResponse>({
     url: '/search/hot',
-    method: 'get',
+    method: 'GET',
     params: { limit }
   })
 }
@@ -180,7 +180,7 @@ export function getHotSearches(limit = 10) {
 export function getSearchSuggestions(keyword: string, limit = 10) {
   return request<string[]>({
     url: '/search/suggestions',
-    method: 'get',
+    method: 'GET',
     params: { keyword, limit }
   })
 }
@@ -191,7 +191,7 @@ export function getSearchSuggestions(keyword: string, limit = 10) {
 export function getSearchHistory(limit = 20) {
   return request<SearchHistoryItem[]>({
     url: '/search/history',
-    method: 'get',
+    method: 'GET',
     params: { limit }
   })
 }
@@ -200,9 +200,9 @@ export function getSearchHistory(limit = 20) {
  * 保存搜索历史
  */
 export function saveSearchHistory(data: { keyword: string; type?: SearchType }) {
-  return request({
+  return request<unknown>({
     url: '/search/history',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
@@ -211,9 +211,9 @@ export function saveSearchHistory(data: { keyword: string; type?: SearchType }) 
  * 清空搜索历史
  */
 export function clearSearchHistory() {
-  return request({
+  return request<unknown>({
     url: '/search/history',
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
@@ -221,9 +221,9 @@ export function clearSearchHistory() {
  * 删除单条搜索历史
  */
 export function deleteSearchHistory(id: string | number) {
-  return request({
+  return request<unknown>({
     url: `/search/history/${id}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
@@ -231,9 +231,9 @@ export function deleteSearchHistory(id: string | number) {
  * 重建搜索索引
  */
 export function rebuildSearchIndex(type?: SearchType) {
-  return request({
+  return request<unknown>({
     url: '/search/rebuild',
-    method: 'post',
+    method: 'POST',
     data: type ? { type } : undefined
   })
 }
@@ -253,6 +253,6 @@ export function getSearchStats() {
     indexedDocs: number
   }>({
     url: '/search/stats',
-    method: 'get'
+    method: 'GET'
   })
 }

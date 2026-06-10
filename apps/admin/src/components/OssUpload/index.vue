@@ -44,7 +44,7 @@ interface Props {
   /** 上传地址 */
   action?: string
   /** 额外参数 */
-  extraData?: Record<string, any>
+  extraData?: Record<string, unknown>
   /** 接受的文件类型 */
   accept?: string
   /** 文件大小限制 (MB) */
@@ -81,11 +81,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
-  'success': [data: any]
-  'error': [error: any]
-  'progress': [event: any]
-  'change': [file: any, fileList: any[]]
-  'remove': [file: any, fileList: any[]]
+  'success': [data: unknown]
+  'error': [error: unknown]
+  'progress': [event: unknown]
+  'change': [file: unknown, fileList: unknown[]]
+  'remove': [file: unknown, fileList: unknown[]]
 }>()
 
 const uploadRef = ref()
@@ -115,7 +115,7 @@ const hideUploadBtn = computed(() => {
 })
 
 // 内部文件列表
-const internalFileList = ref<any[]>([])
+const internalFileList = ref<unknown[]>([])
 
 // 监听外部值变化
 watch(
@@ -163,7 +163,7 @@ function handleBeforeUpload(file: File) {
 }
 
 // 上传成功
-function handleSuccess(res: any) {
+function handleSuccess(res: Record<string, unknown>) {
   if (res.code === 200 || res.code === 0 || res.success) {
     const url = res.data?.url || res.data?.filePath || res.data
     emit('update:modelValue', url)
@@ -178,23 +178,23 @@ function handleSuccess(res: any) {
 }
 
 // 上传失败
-function handleError(err: any) {
+function handleError(err: unknown) {
   emit('error', err)
   ElMessage.error('上传失败')
 }
 
 // 上传进度
-function handleProgress(event: any) {
+function handleProgress(event: unknown) {
   emit('progress', event)
 }
 
 // 文件改变
-function handleChange(file: any, fileList: any[]) {
+function handleChange(file: unknown, fileList: unknown[]) {
   emit('change', file, fileList)
 }
 
 // 文件移除
-function handleRemove(file: any, fileList: any[]) {
+function handleRemove(file: unknown, fileList: unknown[]) {
   if (fileList.length === 0) {
     emit('update:modelValue', '')
   }
@@ -212,7 +212,7 @@ function clearFiles() {
 }
 
 // 取消上传
-function abort(file?: any) {
+function abort(file?: unknown) {
   uploadRef.value?.abort(file)
 }
 

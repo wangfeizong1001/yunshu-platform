@@ -16,10 +16,17 @@ import type { Request, Response, NextFunction } from 'express';
 declare global {
   namespace Express {
     interface Request {
-      /** 当前登录用户 */
-      user?: Record<string, unknown>;
+      /** 当前登录用户（由 auth 中间件注入） */
+      user?: {
+        userId: string;
+        userName?: string;
+        role?: string;
+        [key: string]: unknown;
+      };
       /** 原始 Token */
       token?: string;
+      /** 请求 ID（由 app.ts 的请求 ID 中间件注入） */
+      requestId?: string;
     }
   }
 }
@@ -158,7 +165,7 @@ export function createRoleMiddleware(allowedRoles: string[]) {
       });
     }
 
-    const userRole = (req.user as Record<string, unknown>).role as string;
+    const userRole = req.user.role as string;
     if (!allowedRoles.includes(userRole)) {
       return res.status(403).json({
         success: false,
@@ -258,7 +265,7 @@ export function requireAuth(options: { role?: 'admin' | 'user' | 'super_admin' }
       }
     }
 
-    (req as any).user = user;
+    req.user = user;
     return next();
   };
 }
@@ -271,7 +278,7 @@ export function optionalAuth() {
       : (req.headers['x-auth-token'] as string) || null;
     if (token) {
       const user = authSession.findByToken(token);
-      if (user) (req as any).user = user;
+      if (user) req.user = user;
     }
     return next();
   };

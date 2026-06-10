@@ -175,7 +175,7 @@ export function useSearch<T extends SearchDocument = SearchDocument>(
       }
 
       const results = searchIndex.search(query, maxResults)
-      state.value.results = results as any
+      state.value.results = results as unknown[]
       state.value.hasResults = results.length > 0
 
       // 生成搜索建议

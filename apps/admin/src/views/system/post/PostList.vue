@@ -124,7 +124,7 @@ const formVisible = ref(false)
 const currentPost = ref<SysPost | null>(null)
 
 // 查询参数
-const queryParams = reactive<any>({
+const queryParams = reactive<Record<string, unknown>>({
   keyword: '',
   status: undefined,
   pageNum: 1,
@@ -135,7 +135,7 @@ const queryParams = reactive<any>({
 async function fetchPostList() {
   loading.value = true
   try {
-    const res = await getPostPage(queryParams) as any
+    const res = await getPostPage(queryParams) as Record<string, unknown>
     postList.value = res.rows
     total.value = res.total
   } finally {
@@ -169,13 +169,13 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: any) {
+function handleEdit(row: Record<string, unknown>) {
   currentPost.value = { ...row }
   formVisible.value = true
 }
 
 // 删除
-async function handleDelete(row: any) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除岗位"${row.postName}"？`, '提示', {
       type: 'warning',

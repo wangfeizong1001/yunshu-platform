@@ -161,10 +161,10 @@ async function handleSubmit() {
     }
 
     if (isEdit.value) {
-      await updateDictData({ dictCode: props.dictData!.dictCode, ...submitData } as any)
+      await updateDictData({ dictCode: props.dictData!.dictCode, ...submitData } as Record<string, unknown>)
       ElMessage.success('修改成功')
     } else {
-      await addDictData(submitData as any)
+      await addDictData(submitData as Record<string, unknown>)
       ElMessage.success('新增成功')
     }
 

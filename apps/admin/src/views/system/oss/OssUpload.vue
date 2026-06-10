@@ -77,7 +77,7 @@ const form = reactive({
 const uploadProgress = ref(0)
 
 const uploadUrl = computed(() => {
-  const baseUrl = (import.meta as any).env.VITE_APP_BASE_API || ''
+  const baseUrl = (import.meta as unknown as { env: Record<string, string> }).env.VITE_APP_BASE_API || ''
   return `${baseUrl}/api/system/oss/upload`
 })
 
@@ -95,7 +95,7 @@ function handleBeforeUpload(file: File) {
 }
 
 // 上传成功
-function handleSuccess(res: any) {
+function handleSuccess(res: Record<string, unknown>) {
   if (res.code === 200 || res.code === 0 || res.success) {
     ElMessage.success('上传成功')
     emit('refresh')
@@ -106,13 +106,13 @@ function handleSuccess(res: any) {
 }
 
 // 上传失败
-function handleError(err: any) {
+function handleError(err: unknown) {
   ElMessage.error('上传失败')
   console.error('上传失败', err)
 }
 
 // 上传进度
-function handleProgress(event: any) {
+function handleProgress(event: Record<string, unknown>) {
   uploadProgress.value = Math.round(event.percent || 0)
 }
 

@@ -4,9 +4,9 @@ interface TagView {
   path: string
   name: string
   title?: string
-  query?: Record<string, any>
-  params?: Record<string, any>
-  meta?: Record<string, any>
+  query?: Record<string, unknown>
+  params?: Record<string, unknown>
+  meta?: Record<string, unknown>
 }
 
 interface TagsViewState {

@@ -18,7 +18,8 @@ module.exports = {
   rules: {
     // Vue 3
     'vue/multi-word-component-names': 'warn',
-    'vue/no-v-html': 'warn',
+    // 禁止裸用 v-html —— 强制使用 sanitizeHtml 封装组件
+    'vue/no-v-html': 'error',
     'vue/require-default-prop': 'off',
     'vue/component-name-in-template-casing': ['error', 'PascalCase'],
     'vue/script-setup-uses-vars': 'error',

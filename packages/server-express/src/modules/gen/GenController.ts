@@ -178,7 +178,7 @@ export class GenController extends BaseController {
       packageName: req.query.packageName as string || 'com.yunshu.generator',
       author: req.query.author as string || '云枢',
       email: req.query.email as string,
-      generateType: (req.query.generateType as any) || 'single',
+      generateType: (req.query.generateType as string) || 'single',
       generateMenu: req.query.generateMenu !== 'false',
       generateApi: req.query.generateApi !== 'false',
       generateView: req.query.generateView !== 'false',

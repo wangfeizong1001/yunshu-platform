@@ -83,7 +83,7 @@ export class LogininforController extends BaseController {
    * 删除登录日志
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const infoId = Number(req.params.infoId);
@@ -99,7 +99,7 @@ export class LogininforController extends BaseController {
    * 清空登录日志
    */
   async clean(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const count = logininfors.length;

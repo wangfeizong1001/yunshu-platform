@@ -12,7 +12,7 @@ import { hasRole, hasRoleAll } from './role'
 /**
  * 注册所有指令
  */
-export function registerDirectives(app: any) {
+export function registerDirectives(app: { directive: (name: string, directive: unknown) => void }) {
   // 权限指令
   app.directive('hasPermi', hasPermi)
   app.directive('hasPermiAll', hasPermiAll)

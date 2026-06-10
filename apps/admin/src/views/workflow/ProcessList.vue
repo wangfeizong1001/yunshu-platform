@@ -204,7 +204,7 @@ async function fetchProcessList() {
 
 // 获取状态类型
 function getStatusType(status: string) {
-  const typeMap: Record<string, any> = {
+  const typeMap: Record<string, string> = {
     draft: 'info',
     active: 'success',
     suspended: 'warning',
@@ -262,12 +262,12 @@ function handleEdit(row: ProcessDefinition) {
 }
 
 // 设计
-function handleDesign(row: any) {
+function handleDesign(row: Record<string, unknown>) {
   router.push(`/workflow/process/design/${row.id}`)
 }
 
 // 发布
-async function handleDeploy(row: any) {
+async function handleDeploy(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`确认发布流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -282,7 +282,7 @@ async function handleDeploy(row: any) {
 }
 
 // 挂起
-async function handleSuspend(row: any) {
+async function handleSuspend(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`确认挂起流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -297,7 +297,7 @@ async function handleSuspend(row: any) {
 }
 
 // 激活
-async function handleActivate(row: any) {
+async function handleActivate(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`确认激活流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -312,17 +312,17 @@ async function handleActivate(row: any) {
 }
 
 // 复制
-function handleCopy(_row: any) {
+function handleCopy(_row: Record<string, unknown>) {
   ElMessage.info('复制功能开发中')
 }
 
 // 导出
-function handleExport(_row: any) {
+function handleExport(_row: Record<string, unknown>) {
   ElMessage.info('导出功能开发中')
 }
 
 // 删除
-async function handleDelete(row: any) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`确认删除流程"${row.name}"吗？`, '提示', {
       type: 'warning',

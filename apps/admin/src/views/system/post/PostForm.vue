@@ -127,10 +127,10 @@ async function handleSubmit() {
     submitting.value = true
 
     if (isEdit.value) {
-      await updatePost({ postId: props.postData!.postId, ...formData.value } as any)
+      await updatePost({ postId: props.postData!.postId, ...formData.value } as Record<string, unknown>)
       ElMessage.success('修改成功')
     } else {
-      await addPost(formData.value as any)
+      await addPost(formData.value as Record<string, unknown>)
       ElMessage.success('新增成功')
     }
 

@@ -62,16 +62,16 @@ const visible = computed({
 
 // 状态
 const uploadRef = ref<UploadInstance>()
-const fileList = ref<any[]>([])
+const fileList = ref<unknown[]>([])
 const uploading = ref(false)
 
 // 处理文件超出限制
-function handleExceed(files: File[], _uploadFiles: any[]) {
+function handleExceed(files: File[], _uploadFiles: unknown[]) {
   ElMessage.warning(`最多只能上传10个文件，当前已选择${files.length}个文件`)
 }
 
 // 处理文件变化
-function handleChange(_file: any, uploadFiles: any[]) {
+function handleChange(_file: unknown, uploadFiles: unknown[]) {
   fileList.value = uploadFiles
 }
 

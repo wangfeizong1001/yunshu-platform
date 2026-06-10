@@ -246,25 +246,25 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: any) {
+function handleEdit(row: Record<string, unknown>) {
   currentTenant.value = { ...row }
   formVisible.value = true
 }
 
 // 详情
-function handleDetail(row: any) {
+function handleDetail(row: Record<string, unknown>) {
   currentTenantId.value = row.tenantId
   detailVisible.value = true
 }
 
 // 套餐配置
-function handlePackage(row: any) {
+function handlePackage(row: Record<string, unknown>) {
   currentTenantId.value = row.tenantId
   packageVisible.value = true
 }
 
 // 修改状态
-async function handleChangeStatus(row: any) {
+async function handleChangeStatus(row: Record<string, unknown>) {
   const newStatus = row.status === '0' ? '1' : '0'
   const action = newStatus === '0' ? '启用' : '停用'
   try {
@@ -282,7 +282,7 @@ async function handleChangeStatus(row: any) {
 }
 
 // 删除
-async function handleDelete(row: any) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除租户"${row.tenantName}"？`, '提示', {
       type: 'warning',

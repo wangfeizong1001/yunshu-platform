@@ -213,7 +213,7 @@ export class PostController extends BaseController {
    * 创建岗位
    */
   async create(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as PostCreateBody;
@@ -252,7 +252,7 @@ export class PostController extends BaseController {
    * 更新岗位
    */
   async update(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as PostUpdateBody;
@@ -295,7 +295,7 @@ export class PostController extends BaseController {
    * 删除单个岗位
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const { postId } = req.params;
@@ -315,7 +315,7 @@ export class PostController extends BaseController {
    * body: { postIds: string[] }
    */
   async batchRemove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as BatchRemoveBody;
