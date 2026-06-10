@@ -44,7 +44,23 @@ export type { ITokenVerifier, IUserLookup } from './middlewares/auth';
 // 应用工厂
 // ============================================================================
 
+import { createApp, startServer } from './app';
+import { createRouter, registerRoutes } from './routes';
+
 export { createApp, startServer } from './app';
+export { createRouter, registerRoutes } from './routes';
+
+// ============================================================================
+// 系统模块控制器
+// ============================================================================
+
+export * as system from './modules/system';
+
+// ============================================================================
+// 监控模块控制器
+// ============================================================================
+
+export * as monitor from './modules/monitor';
 
 // ============================================================================
 // 自动启动（当此文件作为脚本直接执行时）

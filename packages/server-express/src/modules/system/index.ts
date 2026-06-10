@@ -1,0 +1,9 @@
+export { UserController, userController } from './UserController';
+export { RoleController, roleController } from './RoleController';
+export { MenuController, menuController } from './MenuController';
+export { DeptController, deptController } from './DeptController';
+export { PostController, postController } from './PostController';
+export { DictController, dictController } from './DictController';
+export { ConfigController, configController } from './ConfigController';
+export { NoticeController, noticeController } from './NoticeController';
+export { MessageController, messageController } from './MessageController';

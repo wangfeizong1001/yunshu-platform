@@ -101,7 +101,7 @@ export function createAuthMiddleware(
       // 注入用户信息
       req.user = user;
       req.token = token;
-      next();
+      return next();
     } catch (error) {
       return res.status(500).json({
         success: false,
@@ -166,7 +166,7 @@ export function createRoleMiddleware(allowedRoles: string[]) {
       });
     }
 
-    next();
+    return next();
   };
 }
 

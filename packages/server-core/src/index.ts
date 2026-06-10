@@ -157,3 +157,18 @@ export type {
   WarmupTaskStatus,
   WarmupManagerConfig,
 } from './cache/CacheWarmup';
+
+// ============================================================================
+// 配置管理
+// ============================================================================
+
+export { ConfigService, getConfig, validateConfig } from './config/ConfigService';
+export type {
+  AppConfig,
+  ServerConfig,
+  PostgresDbConfig,
+  RedisCacheConfig,
+  AuthConfig,
+  AppMetaConfig,
+  CacheConfig as AppCacheConfig,
+} from './config/ConfigService';
