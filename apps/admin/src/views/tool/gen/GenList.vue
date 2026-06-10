@@ -37,7 +37,7 @@
         <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="表名称" prop="tableName" width="180" align="center">
           <template #default="{ row }">
-            <el-link type="primary" @click="handlePreview(row)">{{ row.tableName }}</el-link>
+            <el-link type="primary" @click="handlePreview(row as unknown as IGenTable)">{{ row.tableName }}</el-link>
           </template>
         </el-table-column>
         <el-table-column label="表描述" prop="tableComment" min-width="150" show-overflow-tooltip />
@@ -50,9 +50,9 @@
         </el-table-column>
         <el-table-column label="操作" width="280" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleConfig(row)">编辑</el-button>
-            <el-button link type="primary" @click="handlePreview(row)">预览</el-button>
-            <el-button link type="success" @click="handleGenerate(row)">生成</el-button>
+            <el-button link type="primary" @click="handleConfig(row as unknown as IGenTable)">编辑</el-button>
+            <el-button link type="primary" @click="handlePreview(row as unknown as IGenTable)">预览</el-button>
+            <el-button link type="success" @click="handleGenerate(row as unknown as IGenTable)">生成</el-button>
             <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>

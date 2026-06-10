@@ -453,8 +453,8 @@ const toggleAllQuery = () => {
 }
 
 const toggleAllDisplay = () => {
-  const allSelected = columns.value.every(col => col.isDisplay)
-  columns.value.forEach(col => {
+  const allSelected = columns.value.every((col: IGenColumn & { isQuery?: boolean; isDisplay?: boolean; isForm?: boolean }) => col.isDisplay)
+  columns.value.forEach((col: IGenColumn & { isQuery?: boolean; isDisplay?: boolean; isForm?: boolean }) => {
     if (!col.isPK) {
       col.isDisplay = !allSelected
       col.isForm = !allSelected

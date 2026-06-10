@@ -56,16 +56,16 @@
         <el-table-column prop="endTime" label="完成时间" width="180" />
         <el-table-column prop="action" label="操作结果" width="100">
           <template #default="{ row }">
-            <el-tag v-if="(row as Task).action === 'approve'" type="success" size="small">通过</el-tag>
-            <el-tag v-else-if="(row as Task).action === 'reject'" type="danger" size="small">驳回</el-tag>
-            <el-tag v-else-if="(row as Task).action === 'delegate'" type="warning" size="small">转办</el-tag>
-            <el-tag v-else-if="(row as Task).action === 'assign'" type="info" size="small">委托</el-tag>
+            <el-tag v-if="(row as Record<string, unknown>)['action'] === 'approve'" type="success" size="small">通过</el-tag>
+            <el-tag v-else-if="(row as Record<string, unknown>)['action'] === 'reject'" type="danger" size="small">驳回</el-tag>
+            <el-tag v-else-if="(row as Record<string, unknown>)['action'] === 'delegate'" type="warning" size="small">转办</el-tag>
+            <el-tag v-else-if="(row as Record<string, unknown>)['action'] === 'assign'" type="info" size="small">委托</el-tag>
             <span v-else>-</span>
           </template>
         </el-table-column>
         <el-table-column prop="duration" label="处理时长" width="100">
           <template #default="{ row }">
-            {{ (row as Task).duration || '-' }}
+            {{ (row as Record<string, unknown>)['duration'] || '-' }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120" fixed="right">
