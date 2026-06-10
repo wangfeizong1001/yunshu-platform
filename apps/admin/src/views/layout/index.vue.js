@@ -79,10 +79,27 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "logo" },
 });
-__VLS_asFunctionalElement(__VLS_intrinsicElements.img)({
-    src: "/vite.svg",
-    alt: "logo",
+__VLS_asFunctionalElement(__VLS_intrinsicElements.svg, __VLS_intrinsicElements.svg)({
     ...{ class: "logo-img" },
+    viewBox: "0 0 40 40",
+    xmlns: "http://www.w3.org/2000/svg",
+    'aria-label': "logo",
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.rect)({
+    width: "40",
+    height: "40",
+    rx: "8",
+    fill: "#409eff",
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.text, __VLS_intrinsicElements.text)({
+    x: "50%",
+    y: "55%",
+    'dominant-baseline': "middle",
+    'text-anchor': "middle",
+    'font-size': "18",
+    'font-weight': "bold",
+    fill: "#fff",
+    'font-family': "Arial, sans-serif",
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
     ...{ class: "logo-text" },

@@ -1,11 +1,11 @@
 export declare function useLocale(): {
-    locale: import("vue").ComputedRef<string>;
-    locales: import("vue").ComputedRef<{
+    locale: globalThis.ComputedRef<string>;
+    locales: globalThis.ComputedRef<{
         label: string;
         key: string;
         elLocale: string;
     }[]>;
-    elLocale: import("vue").ComputedRef<string>;
+    elLocale: globalThis.ComputedRef<string>;
     changeLocale: (newLocale: string) => Promise<void>;
     t: (key: string, params?: Record<string, unknown>) => string;
     isCurrentLocale: (localeKey: string) => boolean;

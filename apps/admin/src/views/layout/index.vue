@@ -4,7 +4,10 @@
     <aside class="sidebar" :class="{ 'is-collapse': isCollapse }">
       <div class="sidebar-header">
         <div class="logo">
-          <img src="/vite.svg" alt="logo" class="logo-img" />
+          <svg class="logo-img" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-label="logo">
+            <rect width="40" height="40" rx="8" fill="#409eff" />
+            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold" fill="#fff" font-family="Arial, sans-serif">云</text>
+          </svg>
           <span v-show="!isCollapse" class="logo-text">云枢中台</span>
         </div>
       </div>

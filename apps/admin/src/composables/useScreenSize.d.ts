@@ -3,7 +3,7 @@ interface ScreenSize {
     height: number;
 }
 export declare function useScreenSize(): {
-    screenSize: import("vue").Ref<{
+    screenSize: globalThis.Ref<{
         width: number;
         height: number;
     }, ScreenSize | {

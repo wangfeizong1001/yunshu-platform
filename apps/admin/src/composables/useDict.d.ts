@@ -9,7 +9,7 @@ import type { SysDictData } from '@yunshu/shared';
  */
 export declare function useDict(): {
     /** 字典缓存 */
-    dictCache: import("vue").ComputedRef<Map<string, {
+    dictCache: globalThis.ComputedRef<Map<string, {
         dictCode: number;
         dictSort: number;
         dictLabel: string;

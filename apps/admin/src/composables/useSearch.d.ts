@@ -49,7 +49,7 @@ export interface UseSearchConfig<T extends SearchDocument = SearchDocument> {
  * 搜索组合式函数
  */
 export declare function useSearch<T extends SearchDocument = SearchDocument>(config: UseSearchConfig<T>): {
-    state: import("vue").Ref<{
+    state: globalThis.Ref<{
         query: string;
         results: {
             document: import("vue").UnwrapRef<T>;
@@ -76,18 +76,18 @@ export declare function useSearch<T extends SearchDocument = SearchDocument>(con
         suggestions: string[];
         error: string | null;
     }>;
-    query: import("vue").ComputedRef<string>;
-    results: import("vue").ComputedRef<{
+    query: globalThis.ComputedRef<string>;
+    results: globalThis.ComputedRef<{
         document: import("vue").UnwrapRef<T>;
         score: number;
         matchedFields: string[];
         highlights: Map<string, string> & Omit<Map<string, string>, keyof Map<any, any>>;
     }[]>;
-    loading: import("vue").ComputedRef<boolean>;
-    hasResults: import("vue").ComputedRef<boolean>;
-    history: import("vue").ComputedRef<string[]>;
-    suggestions: import("vue").ComputedRef<string[]>;
-    error: import("vue").ComputedRef<string | null>;
+    loading: globalThis.ComputedRef<boolean>;
+    hasResults: globalThis.ComputedRef<boolean>;
+    history: globalThis.ComputedRef<string[]>;
+    suggestions: globalThis.ComputedRef<string[]>;
+    error: globalThis.ComputedRef<string | null>;
     setQuery: (query: string) => void;
     search: (query?: string) => void;
     reset: () => void;

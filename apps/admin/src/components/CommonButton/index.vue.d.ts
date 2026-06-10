@@ -14,9 +14,9 @@ declare const __VLS_component: import("vue").DefineComponent<Props, {}, {}, {}, 
     onClick?: ((...args: any[]) => any) | undefined;
 }>, {
     type: "primary" | "success" | "warning" | "danger" | "info" | "text" | "default";
-    loading: boolean;
     size: "large" | "default" | "small";
     disabled: boolean;
+    loading: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
 declare const _default: __VLS_WithSlots<typeof __VLS_component, __VLS_Slots>;
 export default _default;

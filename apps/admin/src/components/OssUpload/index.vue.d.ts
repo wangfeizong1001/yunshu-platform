@@ -35,33 +35,33 @@ declare const __VLS_component: import("vue").DefineComponent<Props, {
     submit: typeof submit;
     clearFiles: typeof clearFiles;
     abort: typeof abort;
-    uploadRef: import("vue").Ref<any, any>;
+    uploadRef: globalThis.Ref<any, any>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     success: (data: any) => any;
-    error: (error: any) => any;
     progress: (event: any) => any;
-    "update:modelValue": (value: string) => any;
     change: (file: any, fileList: any[]) => any;
+    "update:modelValue": (value: string) => any;
+    error: (error: any) => any;
     remove: (file: any, fileList: any[]) => any;
 }, string, import("vue").PublicProps, Readonly<Props> & Readonly<{
     onSuccess?: ((data: any) => any) | undefined;
-    onError?: ((error: any) => any) | undefined;
     onProgress?: ((event: any) => any) | undefined;
-    "onUpdate:modelValue"?: ((value: string) => any) | undefined;
     onChange?: ((file: any, fileList: any[]) => any) | undefined;
+    "onUpdate:modelValue"?: ((value: string) => any) | undefined;
+    onError?: ((error: any) => any) | undefined;
     onRemove?: ((file: any, fileList: any[]) => any) | undefined;
 }>, {
     disabled: boolean;
+    limit: number;
     modelValue: string;
-    multiple: boolean;
     action: string;
+    accept: string;
+    maxSize: number;
+    multiple: boolean;
     drag: boolean;
     showFileList: boolean;
-    accept: string;
-    limit: number;
     tip: string;
     fileType: string[];
-    maxSize: number;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
 declare const _default: __VLS_WithSlots<typeof __VLS_component, __VLS_Slots>;
 export default _default;
