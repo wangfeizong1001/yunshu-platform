@@ -2,7 +2,7 @@
   <div class="common-table">
     <el-table
       v-loading="loading"
-      :data="data"
+      :data="tableData"
       :stripe="stripe"
       :border="border"
       @selection-change="handleSelectionChange"
@@ -18,7 +18,6 @@
         :align="column.align || 'left'"
         :fixed="column.fixed"
         :sortable="column.sortable"
-        :formatter="column.formatter"
       >
         <template v-if="column.slot" #default="scope">
           <slot :name="column.slot" :row="scope.row" />
@@ -42,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 interface Column {
   prop: string
@@ -52,12 +51,15 @@ interface Column {
   align?: 'left' | 'center' | 'right'
   fixed?: 'left' | 'right'
   sortable?: boolean
-  formatter?: (row: Record<string, unknown>, column: Record<string, unknown>, cellValue: unknown) => unknown
   slot?: string
 }
 
+interface Row {
+  [key: string]: unknown
+}
+
 interface Props {
-  data: unknown[]
+  data: Row[]
   columns: Column[]
   loading?: boolean
   stripe?: boolean
@@ -83,8 +85,11 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['selectionChange', 'pageChange'])
 
 const currentPage = ref(1)
+const pageSize = ref(props.pageSize)
 
-const handleSelectionChange = (selection: unknown[]) => {
+const tableData = computed(() => props.data as Row[])
+
+const handleSelectionChange = (selection: Row[]) => {
   emit('selectionChange', selection)
 }
 
@@ -102,8 +107,6 @@ watch(
     pageSize.value = val
   }
 )
-
-const pageSize = ref(props.pageSize)
 </script>
 
 <style lang="scss" scoped>

@@ -2,10 +2,9 @@
  * 菜单 Mock 数据
  */
 
-import type { SysMenu } from '@yunshu/shared'
 
 // 生成 Mock 菜单数据
-export const mockMenuList: SysMenu[] = [
+export const mockMenuList: any[] = [
   // 系统管理目录
   {
     menuId: 1,
@@ -210,12 +209,12 @@ export const mockMenuList: SysMenu[] = [
 ]
 
 // 获取菜单树 Mock
-export function getMockMenuTree(params?: any): SysMenu[] {
+export function getMockMenuTree(params?: any): any[] {
   let menuList = mockMenuList
 
   // 关键词过滤
   if (params?.menuName) {
-    const filterMenus = (menus: SysMenu[]): SysMenu[] => {
+    const filterMenus = (menus: any[]): any[] => {
       return menus
         .filter((menu) => menu.menuName.includes(params.menuName))
         .map((menu) => ({
@@ -228,7 +227,7 @@ export function getMockMenuTree(params?: any): SysMenu[] {
 
   // 状态过滤
   if (params?.status) {
-    const filterByStatus = (menus: SysMenu[]): SysMenu[] => {
+    const filterByStatus = (menus: any[]): any[] => {
       return menus
         .filter((menu) => menu.status === params.status)
         .map((menu) => ({
@@ -243,8 +242,8 @@ export function getMockMenuTree(params?: any): SysMenu[] {
 }
 
 // 获取菜单详情 Mock
-export function getMockMenuDetail(menuId: number): SysMenu | undefined {
-  const findMenu = (menus: SysMenu[]): SysMenu | undefined => {
+export function getMockMenuDetail(menuId: number): any | undefined {
+  const findMenu = (menus: any[]): any | undefined => {
     for (const menu of menus) {
       if (menu.menuId === menuId) return menu
       if (menu.children) {

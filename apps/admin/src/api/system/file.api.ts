@@ -32,7 +32,7 @@ export interface FileInfo {
 }
 
 export const getFileList = (params?: FileQuery) => {
-  return request<unknown>({
+  return request<{ rows: FileInfo[]; total: number }>({
     url: '/system/file/list',
     method: 'GET',
     params
@@ -40,7 +40,7 @@ export const getFileList = (params?: FileQuery) => {
 }
 
 export const getFilePage = (params?: FileQuery) => {
-  return request<unknown>({
+  return request<{ rows: FileInfo[]; total: number }>({
     url: '/system/file/page',
     method: 'GET',
     params
@@ -48,7 +48,7 @@ export const getFilePage = (params?: FileQuery) => {
 }
 
 export const getFile = (fileId: number) => {
-  return request<unknown>({
+  return request<FileInfo>({
     url: `/system/file/${fileId}`,
     method: 'GET'
   })
@@ -57,7 +57,7 @@ export const getFile = (fileId: number) => {
 export const uploadFile = (file: File) => {
   const formData = new FormData()
   formData.append('file', file)
-  return request<unknown>({
+  return request<void>({
     url: '/system/file/upload',
     method: 'POST',
     data: formData,
@@ -66,14 +66,14 @@ export const uploadFile = (file: File) => {
 }
 
 export const deleteFile = (fileId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/file/${fileId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteFile = (fileIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/file/batch',
     method: 'DELETE',
     data: fileIds
@@ -81,7 +81,7 @@ export const batchDeleteFile = (fileIds: number[]) => {
 }
 
 export const downloadFile = (fileId: number) => {
-  return request<unknown>({
+  return request<Blob>({
     url: `/system/file/download/${fileId}`,
     method: 'GET',
     responseType: 'blob'
@@ -89,7 +89,7 @@ export const downloadFile = (fileId: number) => {
 }
 
 export const previewFile = (fileId: number) => {
-  return request<unknown>({
+  return request<FileInfo>({
     url: `/system/file/preview/${fileId}`,
     method: 'GET'
   })

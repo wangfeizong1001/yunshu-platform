@@ -41,7 +41,7 @@ export interface SmsConfig {
 }
 
 export const getSmsList = (params?: SmsQuery) => {
-  return request<unknown>({
+  return request<{ rows: SmsInfo[]; total: number }>({
     url: '/system/sms/list',
     method: 'GET',
     params
@@ -49,7 +49,7 @@ export const getSmsList = (params?: SmsQuery) => {
 }
 
 export const getSmsPage = (params?: SmsQuery) => {
-  return request<unknown>({
+  return request<{ rows: SmsInfo[]; total: number }>({
     url: '/system/sms/page',
     method: 'GET',
     params
@@ -57,21 +57,21 @@ export const getSmsPage = (params?: SmsQuery) => {
 }
 
 export const getSms = (smsId: number) => {
-  return request<unknown>({
+  return request<SmsInfo>({
     url: `/system/sms/${smsId}`,
     method: 'GET'
   })
 }
 
 export const getSmsConfig = () => {
-  return request<unknown>({
+  return request<SmsConfig>({
     url: '/system/sms/config',
     method: 'GET'
   })
 }
 
 export const saveSmsConfig = (data: SmsConfig) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/sms/config',
     method: 'POST',
     data
@@ -79,16 +79,15 @@ export const saveSmsConfig = (data: SmsConfig) => {
 }
 
 export const sendSms = (phone: string, content: string) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/sms/send',
     method: 'POST',
     data: { phone, content }
   })
 }
 
-// 获取短信日志列表
 export const getSmsLogList = (params?: SmsQuery) => {
-  return request<unknown>({
+  return request<{ rows: SmsInfo[]; total: number }>({
     url: '/system/sms/log/page',
     method: 'GET',
     params

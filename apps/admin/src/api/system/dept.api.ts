@@ -35,7 +35,7 @@ export interface DeptInfo {
 }
 
 export const getDeptList = (params?: DeptQuery) => {
-  return request<unknown>({
+  return request<DeptInfo[]>({
     url: '/system/dept/list',
     method: 'GET',
     params
@@ -43,21 +43,21 @@ export const getDeptList = (params?: DeptQuery) => {
 }
 
 export const getDept = (deptId: number) => {
-  return request<unknown>({
+  return request<DeptInfo>({
     url: `/system/dept/${deptId}`,
     method: 'GET'
   })
 }
 
 export const getDeptTreeSelect = () => {
-  return request<unknown>({
+  return request<DeptInfo[]>({
     url: '/system/dept/treeSelect',
     method: 'GET'
   })
 }
 
 export const getDeptTree = (params?: DeptQuery) => {
-  return request<unknown>({
+  return request<DeptInfo[]>({
     url: '/system/dept/tree',
     method: 'GET',
     params
@@ -65,14 +65,14 @@ export const getDeptTree = (params?: DeptQuery) => {
 }
 
 export const getDeptExcludeChild = (deptId: number) => {
-  return request<unknown>({
+  return request<DeptInfo[]>({
     url: `/system/dept/list/excludeChild/${deptId}`,
     method: 'GET'
   })
 }
 
 export const addDept = (data: DeptForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dept',
     method: 'POST',
     data
@@ -80,7 +80,7 @@ export const addDept = (data: DeptForm) => {
 }
 
 export const updateDept = (data: DeptForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dept',
     method: 'PUT',
     data
@@ -88,7 +88,7 @@ export const updateDept = (data: DeptForm) => {
 }
 
 export const deleteDept = (deptId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/dept/${deptId}`,
     method: 'DELETE'
   })

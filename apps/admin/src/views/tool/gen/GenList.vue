@@ -60,8 +60,8 @@
 
       <div class="pagination-container">
         <el-pagination
-          v-model:current-page="queryParams.page"
-          v-model:page-size="queryParams.limit"
+          v-model:current-page="queryParams.pageNum"
+          v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 20, 50, 100]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
@@ -84,8 +84,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
-import type { IGenTable, IGenQuery } from '@yunshu/shared'
-import { getGenTablePage } from '@/api/tool/gen.api'
+import { getGenTablePage, type IGenTable, type IGenQuery } from '@/api/tool/gen.api'
 import GenImport from './GenImport.vue'
 import GenPreview from './GenPreview.vue'
 
@@ -100,10 +99,10 @@ const previewVisible = ref(false)
 const currentTableName = ref('')
 
 const queryParams = reactive<IGenQuery>({
-  page: 1,
-  limit: 10,
-  sort: 'createTime',
-  order: 'desc',
+  tableName: undefined,
+  tableComment: undefined,
+  pageNum: 1,
+  pageSize: 10,
 })
 
 const formatDate = (date: string | undefined) => {
@@ -114,10 +113,10 @@ const formatDate = (date: string | undefined) => {
 const handleQuery = async () => {
   loading.value = true
   try {
-    const res = await getGenTablePage(queryParams) as Record<string, unknown>
-    if (res.success) {
-      tableData.value = res.data
-      total.value = res.pagination?.total || 0
+    const res = await getGenTablePage(queryParams)
+    if (res.success && res.data) {
+      tableData.value = res.data.rows as IGenTable[]
+      total.value = (res.data.total as number) || 0
     }
   } catch {
     ElMessage.error('获取表列表失败')
@@ -127,8 +126,8 @@ const handleQuery = async () => {
 }
 
 const handleReset = () => {
-  queryParams.page = 1
-  queryParams.limit = 10
+  queryParams.pageNum = 1
+  queryParams.pageSize = 10
   queryParams.tableName = undefined
   queryParams.tableComment = undefined
   handleQuery()
@@ -139,31 +138,31 @@ const handleRefresh = () => {
 }
 
 const handleSelectionChange = (selection: IGenTable[]) => {
-  selectedIds.value = selection.map((item) => item.tableName)
+  selectedIds.value = selection.map((item) => item.tableName).filter((n): n is string => !!n)
 }
 
 const handleImport = () => {
   importVisible.value = true
 }
 
-const handleConfig = (row: Record<string, unknown>) => {
+const handleConfig = (row: IGenTable) => {
   router.push({
     path: '/tool/gen/config',
-    query: { tableName: row.tableName },
+    query: { tableName: row.tableName as string },
   })
 }
 
-const handlePreview = (row: Record<string, unknown>) => {
-  currentTableName.value = row.tableName
+const handlePreview = (row: IGenTable) => {
+  currentTableName.value = row.tableName || ''
   previewVisible.value = true
 }
 
-const handleGenerate = async (row: Record<string, unknown>) => {
+const handleGenerate = async (row: IGenTable) => {
   try {
     await ElMessageBox.confirm(`确认生成表"${row.tableName}"的代码吗？`, '提示', { type: 'warning' })
     router.push({
       path: '/tool/gen/config',
-      query: { tableName: row.tableName, generate: 'true' },
+      query: { tableName: row.tableName as string, generate: 'true' },
     })
   } catch {
     // 用户取消

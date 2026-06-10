@@ -49,7 +49,7 @@ export interface MenuInfo {
 }
 
 export const getMenuList = (params?: MenuQuery) => {
-  return request<unknown>({
+  return request<MenuInfo[]>({
     url: '/system/menu/list',
     method: 'GET',
     params
@@ -57,7 +57,7 @@ export const getMenuList = (params?: MenuQuery) => {
 }
 
 export const getMenuTree = (params?: MenuQuery) => {
-  return request<unknown>({
+  return request<MenuInfo[]>({
     url: '/system/menu/tree',
     method: 'GET',
     params
@@ -65,7 +65,7 @@ export const getMenuTree = (params?: MenuQuery) => {
 }
 
 export const getMenuListApi = (params?: MenuQuery) => {
-  return request<unknown>({
+  return request<MenuInfo[]>({
     url: '/system/menu/list',
     method: 'GET',
     params
@@ -73,28 +73,28 @@ export const getMenuListApi = (params?: MenuQuery) => {
 }
 
 export const getMenu = (menuId: number) => {
-  return request<unknown>({
+  return request<MenuInfo>({
     url: `/system/menu/${menuId}`,
     method: 'GET'
   })
 }
 
 export const getMenuTreeSelect = () => {
-  return request<unknown>({
+  return request<MenuInfo[]>({
     url: '/system/menu/treeSelect',
     method: 'GET'
   })
 }
 
 export const getMenuTreeByRoleId = (roleId: number) => {
-  return request<unknown>({
+  return request<MenuInfo[]>({
     url: `/system/menu/roleMenuTreeSelect/${roleId}`,
     method: 'GET'
   })
 }
 
 export const addMenu = (data: MenuForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/menu',
     method: 'POST',
     data
@@ -102,7 +102,7 @@ export const addMenu = (data: MenuForm) => {
 }
 
 export const updateMenu = (data: MenuForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/menu',
     method: 'PUT',
     data
@@ -110,7 +110,7 @@ export const updateMenu = (data: MenuForm) => {
 }
 
 export const deleteMenu = (menuId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/menu/${menuId}`,
     method: 'DELETE'
   })

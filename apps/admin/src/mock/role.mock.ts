@@ -2,10 +2,9 @@
  * 角色 Mock 数据
  */
 
-import type { SysRole, SysRolePageResp } from '@yunshu/shared'
 
 // 生成 Mock 角色数据
-export const mockRoleList: SysRole[] = [
+export const mockRoleList: any[] = [
   {
     roleId: 1,
     roleName: '超级管理员',
@@ -53,7 +52,7 @@ export const mockRoleList: SysRole[] = [
 ]
 
 // 获取角色分页列表 Mock
-export function getMockRolePage(params: any): SysRolePageResp {
+export function getMockRolePage(params: any): any {
   const { pageNum = 1, pageSize = 10, keyword = '', status = '' } = params
 
   let filteredList = mockRoleList
@@ -82,13 +81,13 @@ export function getMockRolePage(params: any): SysRolePageResp {
 }
 
 // 获取角色详情 Mock
-export function getMockRoleDetail(roleId: number): SysRole | undefined {
+export function getMockRoleDetail(roleId: number): any | undefined {
   return mockRoleList.find((role) => role.roleId === roleId)
 }
 
 // 新增角色 Mock
-export function addMockRole(role: Partial<SysRole>): SysRole {
-  const newRole: SysRole = {
+export function addMockRole(role: Partial<any>): any {
+  const newRole: any = {
     roleId: Math.max(...mockRoleList.map((r) => r.roleId)) + 1,
     roleName: role.roleName || '',
     roleKey: role.roleKey || '',
@@ -106,7 +105,7 @@ export function addMockRole(role: Partial<SysRole>): SysRole {
 }
 
 // 更新角色 Mock
-export function updateMockRole(roleId: number, role: Partial<SysRole>): SysRole | undefined {
+export function updateMockRole(roleId: number, role: Partial<any>): any | undefined {
   const index = mockRoleList.findIndex((r) => r.roleId === roleId)
   if (index !== -1) {
     mockRoleList[index] = { ...mockRoleList[index], ...role }

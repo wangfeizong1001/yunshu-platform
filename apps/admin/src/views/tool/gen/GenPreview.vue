@@ -74,8 +74,14 @@ import { ref, watch, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import SafeHtml from '@/components/SafeHtml/index.vue'
 import { Document, DocumentCopy, Download, Refresh, Files, Key } from '@element-plus/icons-vue'
-import type { IGenPreview, IGenPreviewItem, IGenConfig } from '@yunshu/shared'
-import { previewCode, downloadCode } from '@/api/tool/gen.api'
+import type { IGenConfig, IGenPreview } from '@/api/tool/gen.api'
+
+interface IGenPreviewItem {
+  filePath?: string
+  fileName?: string
+  content?: string
+  [key: string]: unknown
+}
 
 const props = defineProps<{
   modelValue: boolean

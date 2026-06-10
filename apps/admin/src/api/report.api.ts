@@ -49,7 +49,7 @@ export interface ReportDataQuery {
 
 // 获取报表列表
 export function getReportList(params: ReportQuery) {
-  return request<unknown>({
+  return request<{ rows: ReportInfo[]; total: number }>({
     url: '/report/list',
     method: 'GET',
     params
@@ -58,7 +58,7 @@ export function getReportList(params: ReportQuery) {
 
 // 获取报表分页列表
 export function getReportPage(params: ReportQuery) {
-  return request<unknown>({
+  return request<{ rows: ReportInfo[]; total: number }>({
     url: '/report/page',
     method: 'GET',
     params
@@ -67,7 +67,7 @@ export function getReportPage(params: ReportQuery) {
 
 // 获取报表详情
 export function getReport(reportId: number) {
-  return request<unknown>({
+  return request<ReportInfo>({
     url: `/report/${reportId}`,
     method: 'GET'
   })
@@ -75,7 +75,7 @@ export function getReport(reportId: number) {
 
 // 新增报表
 export function addReport(data: ReportForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/report',
     method: 'POST',
     data
@@ -84,7 +84,7 @@ export function addReport(data: ReportForm) {
 
 // 修改报表
 export function updateReport(data: ReportForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/report',
     method: 'PUT',
     data
@@ -93,7 +93,7 @@ export function updateReport(data: ReportForm) {
 
 // 删除报表
 export function deleteReport(reportId: number) {
-  return request<unknown>({
+  return request<void>({
     url: `/report/${reportId}`,
     method: 'DELETE'
   })
@@ -101,7 +101,7 @@ export function deleteReport(reportId: number) {
 
 // 批量删除报表
 export function batchDeleteReport(reportIds: number[]) {
-  return request<unknown>({
+  return request<void>({
     url: '/report/batch',
     method: 'DELETE',
     data: reportIds
@@ -110,7 +110,7 @@ export function batchDeleteReport(reportIds: number[]) {
 
 // 获取报表数据
 export function getReportData(params: ReportDataQuery) {
-  return request<unknown>({
+  return request<Record<string, unknown>>({
     url: '/report/data',
     method: 'GET',
     params
@@ -118,8 +118,12 @@ export function getReportData(params: ReportDataQuery) {
 }
 
 // 导出报表
-export function exportReport(reportId: number, format: string, params?: Record<string, unknown>) {
-  return request<unknown>({
+export function exportReport(
+  reportId: number,
+  format: string,
+  params?: Record<string, unknown>
+) {
+  return request<Blob>({
     url: '/report/export',
     method: 'GET',
     params: { reportId, format, ...params },

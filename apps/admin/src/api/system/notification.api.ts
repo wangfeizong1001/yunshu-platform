@@ -44,7 +44,7 @@ export interface NotificationInfo {
 }
 
 export const getNotificationList = (params?: NotificationQuery) => {
-  return request<unknown>({
+  return request<{ rows: NotificationInfo[]; total: number }>({
     url: '/system/notification/list',
     method: 'GET',
     params
@@ -52,7 +52,7 @@ export const getNotificationList = (params?: NotificationQuery) => {
 }
 
 export const getNotificationPage = (params?: NotificationQuery) => {
-  return request<unknown>({
+  return request<{ rows: NotificationInfo[]; total: number }>({
     url: '/system/notification/page',
     method: 'GET',
     params
@@ -60,14 +60,14 @@ export const getNotificationPage = (params?: NotificationQuery) => {
 }
 
 export const getNotification = (notificationId: number) => {
-  return request<unknown>({
+  return request<NotificationInfo>({
     url: `/system/notification/${notificationId}`,
     method: 'GET'
   })
 }
 
 export const createNotification = (data: NotificationForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/notification',
     method: 'POST',
     data
@@ -75,7 +75,7 @@ export const createNotification = (data: NotificationForm) => {
 }
 
 export const updateNotification = (data: NotificationForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/notification',
     method: 'PUT',
     data
@@ -83,14 +83,14 @@ export const updateNotification = (data: NotificationForm) => {
 }
 
 export const deleteNotification = (notificationId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/notification/${notificationId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteNotification = (notificationIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/notification/batch',
     method: 'DELETE',
     data: notificationIds
@@ -98,21 +98,21 @@ export const batchDeleteNotification = (notificationIds: number[]) => {
 }
 
 export const pushNotification = (notificationId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/notification/${notificationId}/push`,
     method: 'POST'
   })
 }
 
 export const recallNotification = (notificationId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/notification/${notificationId}/recall`,
     method: 'POST'
   })
 }
 
 export const getNotificationStats = () => {
-  return request<unknown>({
+  return request<{ total: number; unread: number; today: number }>({
     url: '/system/notification/stats',
     method: 'GET'
   })

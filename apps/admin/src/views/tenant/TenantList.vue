@@ -167,7 +167,6 @@ import {
   changeTenantStatus,
 } from '@/api/tenant/tenant.api'
 import type { Tenant, TenantQuery } from '@yunshu/shared'
-import { TenantStatusEnum } from '@yunshu/shared'
 import TenantForm from './TenantForm.vue'
 import TenantDetail from './TenantDetail.vue'
 import TenantPackage from './TenantPackage.vue'

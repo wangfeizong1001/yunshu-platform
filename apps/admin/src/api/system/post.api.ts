@@ -32,7 +32,7 @@ export interface PostInfo {
 }
 
 export const getPostList = (params?: PostQuery) => {
-  return request<unknown>({
+  return request<{ rows: PostInfo[]; total: number }>({
     url: '/system/post/list',
     method: 'GET',
     params
@@ -40,7 +40,7 @@ export const getPostList = (params?: PostQuery) => {
 }
 
 export const getPostPage = (params?: PostQuery) => {
-  return request<unknown>({
+  return request<{ rows: PostInfo[]; total: number }>({
     url: '/system/post/page',
     method: 'GET',
     params
@@ -48,14 +48,14 @@ export const getPostPage = (params?: PostQuery) => {
 }
 
 export const getPost = (postId: number) => {
-  return request<unknown>({
+  return request<PostInfo>({
     url: `/system/post/${postId}`,
     method: 'GET'
   })
 }
 
 export const addPost = (data: PostForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/post',
     method: 'POST',
     data
@@ -63,7 +63,7 @@ export const addPost = (data: PostForm) => {
 }
 
 export const updatePost = (data: PostForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/post',
     method: 'PUT',
     data
@@ -71,14 +71,14 @@ export const updatePost = (data: PostForm) => {
 }
 
 export const deletePost = (postId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/post/${postId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeletePost = (postIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/post/batch',
     method: 'DELETE',
     data: postIds
@@ -86,7 +86,7 @@ export const batchDeletePost = (postIds: number[]) => {
 }
 
 export const changePostStatus = (postId: number, status: string) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/post/changeStatus',
     method: 'PUT',
     params: { postId, status }
@@ -94,7 +94,7 @@ export const changePostStatus = (postId: number, status: string) => {
 }
 
 export const getPostSelect = () => {
-  return request<unknown>({
+  return request<PostInfo[]>({
     url: '/system/post/select',
     method: 'GET'
   })

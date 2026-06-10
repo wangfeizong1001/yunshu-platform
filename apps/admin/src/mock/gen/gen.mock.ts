@@ -4,10 +4,9 @@
  * @module @yunshu/admin/mock/gen
  */
 
-import type { IGenTable, IGenColumn, IGenConfig, IGenPreview } from '@yunshu/shared'
 
 /** Mock 数据库表数据 */
-export const genTableMockData: IGenTable[] = [
+export const genTableMockData: any[] = [
   {
     tableName: 'sys_user',
     tableComment: '用户表',
@@ -53,7 +52,7 @@ export const genTableMockData: IGenTable[] = [
 ]
 
 /** Mock 字段数据 */
-export const genColumnMockData: IGenColumn[] = [
+export const genColumnMockData: any[] = [
   {
     columnName: 'user_id',
     dataType: 'bigint',
@@ -196,7 +195,7 @@ export const genColumnMockData: IGenColumn[] = [
 ]
 
 /** Mock 生成配置 */
-export const genConfigMockData: IGenConfig = {
+export const genConfigMockData: any = {
   tableName: 'sys_user',
   tableComment: '用户表',
   className: 'SysUser',
@@ -214,7 +213,7 @@ export const genConfigMockData: IGenConfig = {
 }
 
 /** Mock 代码预览数据 */
-export const genPreviewMockData: IGenPreview = {
+export const genPreviewMockData: any = {
   tableName: 'sys_user',
   files: [
     {
@@ -254,7 +253,7 @@ public class SysUserController {
             SysUserDTO dto,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer limit) {
-        Page<SysUser> result = sysUserService.selectPage(dto, page, limit);
+        Page<any> result = sysUserService.selectPage(dto, page, limit);
         return PagedResponse.ok(result);
     }
 }`,
@@ -277,9 +276,9 @@ import java.util.List;
  *
  * @author 云枢
  */
-public interface ISysUserService extends IService<SysUser> {
+public interface ISysUserService extends IService<any> {
 
-    IPage<SysUser> selectPage(SysUserDTO dto, Integer page, Integer limit);
+    IPage<any> selectPage(SysUserDTO dto, Integer page, Integer limit);
 
     List<SysUserVO> selectList(SysUserDTO dto);
 
@@ -294,66 +293,6 @@ public interface ISysUserService extends IService<SysUser> {
     int deleteBatch(List<Long> ids);
 }`,
     },
-    {
-      fileName: 'sys_user.api.ts',
-      filePath: 'api/system/sys_user.api.ts',
-      content: `/**
- * 用户管理 API
- *
- * @author 云枢
- */
-
-import { request } from '@/utils/request'
-import type { ApiResponse, PaginatedResponse } from '@yunshu/shared'
-import type { ISysUser, ISysUserQuery } from '@/types/system/sys_user.types'
-
-export type SysUserPageResp = PaginatedResponse<ISysUser>
-
-export function getSysUserPage(params: ISysUserQuery) {
-  return request<SysUserPageResp>({
-    url: '/system/sysUser/page',
-    method: 'get',
-    params,
-  })
-}
-
-export function getSysUserList(params?: ISysUserQuery) {
-  return request<ApiResponse<ISysUser[]>>({
-    url: '/system/sysUser/list',
-    method: 'get',
-    params,
-  })
-}
-
-export function getSysUserDetail(userId: number) {
-  return request<ApiResponse<ISysUser>>({
-    url: \`/system/sysUser/\${userId}\`,
-    method: 'get',
-  })
-}
-
-export function createSysUser(data: Partial<ISysUser>) {
-  return request<ApiResponse<boolean>>({
-    url: '/system/sysUser',
-    method: 'post',
-    data,
-  })
-}
-
-export function updateSysUser(userId: number, data: Partial<ISysUser>) {
-  return request<ApiResponse<boolean>>({
-    url: \`/system/sysUser/\${userId}\`,
-    method: 'put',
-    data,
-  })
-}
-
-export function deleteSysUser(userId: number) {
-  return request<ApiResponse<boolean>>({
-    url: \`/system/sysUser/\${userId}\`,
-    method: 'delete',
-  })
-}`,
-    },
   ],
 }
+

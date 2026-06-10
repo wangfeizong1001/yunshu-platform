@@ -24,7 +24,7 @@ export interface OnlineInfo {
 }
 
 export const getOnlineList = (params?: OnlineQuery) => {
-  return request<unknown>({
+  return request<{ rows: OnlineInfo[]; total: number }>({
     url: '/monitor/online/list',
     method: 'GET',
     params
@@ -32,7 +32,7 @@ export const getOnlineList = (params?: OnlineQuery) => {
 }
 
 export const getOnlinePage = (params?: OnlineQuery) => {
-  return request<unknown>({
+  return request<{ rows: OnlineInfo[]; total: number }>({
     url: '/monitor/online/page',
     method: 'GET',
     params
@@ -40,17 +40,16 @@ export const getOnlinePage = (params?: OnlineQuery) => {
 }
 
 export const forceLogout = (tokenId: string) => {
-  return request<unknown>({
+  return request<void>({
     url: `/monitor/online/${tokenId}`,
     method: 'DELETE'
   })
 }
 
 export const batchForceLogout = (tokenIds: string[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/online/batch',
     method: 'DELETE',
     data: tokenIds
   })
 }
-

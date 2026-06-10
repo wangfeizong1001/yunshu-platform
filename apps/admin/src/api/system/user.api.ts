@@ -54,7 +54,7 @@ export interface UserInfo {
 
 // 获取用户列表
 export function getUserList(params: UserQuery) {
-  return request<unknown>({
+  return request<{ rows: UserInfo[]; total: number }>({
     url: '/system/user/list',
     method: 'GET',
     params
@@ -63,7 +63,7 @@ export function getUserList(params: UserQuery) {
 
 // 获取用户分页列表
 export function getUserPage(params: UserQuery) {
-  return request<unknown>({
+  return request<{ rows: UserInfo[]; total: number }>({
     url: '/system/user/page',
     method: 'GET',
     params
@@ -72,7 +72,7 @@ export function getUserPage(params: UserQuery) {
 
 // 获取用户详情
 export function getUser(userId: number) {
-  return request<unknown>({
+  return request<UserInfo>({
     url: `/system/user/${userId}`,
     method: 'GET'
   })
@@ -80,7 +80,7 @@ export function getUser(userId: number) {
 
 // 新增用户
 export function addUser(data: UserForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/user',
     method: 'POST',
     data
@@ -89,7 +89,7 @@ export function addUser(data: UserForm) {
 
 // 修改用户
 export function updateUser(data: UserForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/user',
     method: 'PUT',
     data
@@ -98,7 +98,7 @@ export function updateUser(data: UserForm) {
 
 // 删除用户
 export function deleteUser(userId: number) {
-  return request<unknown>({
+  return request<void>({
     url: `/system/user/${userId}`,
     method: 'DELETE'
   })
@@ -106,7 +106,7 @@ export function deleteUser(userId: number) {
 
 // 批量删除用户
 export function batchDeleteUser(userIds: number[]) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/user/batch',
     method: 'DELETE',
     data: userIds
@@ -115,7 +115,7 @@ export function batchDeleteUser(userIds: number[]) {
 
 // 修改用户状态
 export function changeUserStatus(userId: number, status: string) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/user/changeStatus',
     method: 'PUT',
     params: { userId, status }
@@ -124,7 +124,7 @@ export function changeUserStatus(userId: number, status: string) {
 
 // 重置用户密码
 export function resetUserPwd(userId: number, password: string) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/user/resetPwd',
     method: 'PUT',
     data: { userId, password }
@@ -133,7 +133,7 @@ export function resetUserPwd(userId: number, password: string) {
 
 // 导出用户
 export function exportUser(params: UserQuery) {
-  return request<unknown>({
+  return request<Blob>({
     url: '/system/user/export',
     method: 'GET',
     params,
@@ -143,7 +143,7 @@ export function exportUser(params: UserQuery) {
 
 // 导入用户模板下载
 export function importTemplate() {
-  return request<unknown>({
+  return request<Blob>({
     url: '/system/user/importTemplate',
     method: 'GET',
     responseType: 'blob'
@@ -152,7 +152,7 @@ export function importTemplate() {
 
 // 导入用户
 export function importUser(data: FormData) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/user/import',
     method: 'POST',
     data,
@@ -164,7 +164,7 @@ export function importUser(data: FormData) {
 
 // 获取所有角色列表
 export function getAllRoles() {
-  return request<unknown>({
+  return request<UserInfo[]>({
     url: '/system/role/list',
     method: 'GET'
   })
@@ -172,7 +172,7 @@ export function getAllRoles() {
 
 // 分配用户角色
 export function assignUserRole(userId: number, roleIds: number[]) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/user/assignRole',
     method: 'PUT',
     data: { userId, roleIds }
@@ -181,7 +181,7 @@ export function assignUserRole(userId: number, roleIds: number[]) {
 
 // 获取用户角色列表
 export function getUserRoles(userId: number) {
-  return request<unknown>({
+  return request<UserInfo>({
     url: `/system/user/${userId}/roles`,
     method: 'GET'
   })

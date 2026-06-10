@@ -32,7 +32,7 @@ export interface ConfigInfo {
 }
 
 export const getConfigList = (params?: ConfigQuery) => {
-  return request<unknown>({
+  return request<{ rows: ConfigInfo[]; total: number }>({
     url: '/system/config/list',
     method: 'GET',
     params
@@ -40,7 +40,7 @@ export const getConfigList = (params?: ConfigQuery) => {
 }
 
 export const getConfigPage = (params?: ConfigQuery) => {
-  return request<unknown>({
+  return request<{ rows: ConfigInfo[]; total: number }>({
     url: '/system/config/page',
     method: 'GET',
     params
@@ -48,21 +48,21 @@ export const getConfigPage = (params?: ConfigQuery) => {
 }
 
 export const getConfig = (configId: number) => {
-  return request<unknown>({
+  return request<ConfigInfo>({
     url: `/system/config/${configId}`,
     method: 'GET'
   })
 }
 
 export const getConfigValue = (configKey: string) => {
-  return request<unknown>({
+  return request<string>({
     url: `/system/config/configKey/${configKey}`,
     method: 'GET'
   })
 }
 
 export const addConfig = (data: ConfigForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/config',
     method: 'POST',
     data
@@ -70,7 +70,7 @@ export const addConfig = (data: ConfigForm) => {
 }
 
 export const updateConfig = (data: ConfigForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/config',
     method: 'PUT',
     data
@@ -78,14 +78,14 @@ export const updateConfig = (data: ConfigForm) => {
 }
 
 export const deleteConfig = (configId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/config/${configId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteConfig = (configIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/config/batch',
     method: 'DELETE',
     data: configIds
@@ -93,14 +93,14 @@ export const batchDeleteConfig = (configIds: number[]) => {
 }
 
 export const refreshConfigCache = () => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/config/refreshCache',
     method: 'DELETE'
   })
 }
 
 export const exportConfig = (params?: ConfigQuery) => {
-  return request<unknown>({
+  return request<Blob>({
     url: '/system/config/export',
     method: 'GET',
     params,

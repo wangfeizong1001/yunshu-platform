@@ -10,11 +10,29 @@ interface TagView {
 }
 
 interface TagsViewState {
-  visitedViews: TagView[]
-  cachedViews: string[]
+  visitedViews: { value: TagView[] }
+  cachedViews: { value: string[] }
 }
 
-export type { TagsViewState }
+function useLocalStorage<T>(key: string, defaultValue: T): { value: T } {
+  const storedValue = localStorage.getItem(key)
+  let value: T
+  try {
+    value = storedValue ? JSON.parse(storedValue) as T : defaultValue
+  } catch {
+    value = defaultValue
+  }
+
+  return {
+    get value() {
+      return value
+    },
+    set value(newValue: T) {
+      value = newValue
+      localStorage.setItem(key, JSON.stringify(newValue))
+    }
+  }
+}
 
 export const useTagsViewStore = defineStore('tagsView', () => {
   const visitedViews = useLocalStorage<TagView[]>('visited-views', [])
@@ -27,11 +45,11 @@ export const useTagsViewStore = defineStore('tagsView', () => {
 
     visitedViews.value.push({
       ...view,
-      title: view.meta?.title || '未命名'
+      title: (view.meta?.title as string) || view.name || '未命名'
     })
 
-    if (view.name && !cachedViews.value.includes(view.name as string)) {
-      cachedViews.value.push(view.name as string)
+    if (view.name && !cachedViews.value.includes(view.name)) {
+      cachedViews.value.push(view.name)
     }
   }
 
@@ -49,7 +67,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
 
   const delOtherViews = (view: TagView) => {
     visitedViews.value = visitedViews.value.filter((v) => {
-      return v.path === view.path || (v.meta?.affix && v.path !== view.path)
+      return v.path === view.path || ((v.meta?.affix as boolean) && v.path !== view.path)
     })
 
     cachedViews.value = cachedViews.value.filter((name) => {
@@ -58,7 +76,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   }
 
   const delAllViews = () => {
-    const affixViews = visitedViews.value.filter((v) => v.meta?.affix)
+    const affixViews = visitedViews.value.filter((v) => v.meta?.affix as boolean)
     visitedViews.value = affixViews
     cachedViews.value = []
   }
@@ -89,17 +107,4 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   }
 })
 
-// 使用 useLocalStorage 的 polyfill
-function useLocalStorage<T>(key: string, defaultValue: T): { value: T } {
-  const storedValue = localStorage.getItem(key)
-  const value = storedValue ? JSON.parse(storedValue) : defaultValue
-
-  return {
-    get value() {
-      return value
-    },
-    set value(newValue: T) {
-      localStorage.setItem(key, JSON.stringify(newValue))
-    }
-  }
-}
+export type { TagsViewState }

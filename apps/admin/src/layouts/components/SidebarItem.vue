@@ -1,24 +1,25 @@
 <template>
   <div>
-    <template v-for="item in item.children" :key="item.path">
-      <!-- 有子菜单 -->
-      <el-sub-menu v-if="item.children && item.children.length > 0" :index="resolvePath(item.path)">
+    <template v-for="child in itemChildren" :key="child.path">
+      <el-sub-menu
+        v-if="child.children && child.children.length > 0"
+        :index="resolvePath(child.path)"
+      >
         <template #title>
-          <el-icon v-if="item.meta?.icon">
-            <component :is="item.meta.icon" />
+          <el-icon v-if="child.meta?.icon">
+            <component :is="child.meta.icon" />
           </el-icon>
-          <span>{{ item.meta?.title }}</span>
+          <span>{{ child.meta?.title }}</span>
         </template>
-        <SidebarItem :item="item" :base-path="resolvePath(item.path)" />
+        <SidebarItem :item="child" :base-path="resolvePath(child.path)" />
       </el-sub-menu>
 
-      <!-- 无子菜单 -->
-      <el-menu-item v-else :index="resolvePath(item.path)">
-        <el-icon v-if="item.meta?.icon">
-          <component :is="item.meta.icon" />
+      <el-menu-item v-else :index="resolvePath(child.path)">
+        <el-icon v-if="child.meta?.icon">
+          <component :is="child.meta.icon" />
         </el-icon>
         <template #title>
-          <span>{{ item.meta?.title }}</span>
+          <span>{{ child.meta?.title }}</span>
         </template>
       </el-menu-item>
     </template>
@@ -28,12 +29,30 @@
 <script setup lang="ts">
 import { isExternal } from '@/utils'
 
+interface MenuMeta {
+  icon?: string
+  title?: string
+  affix?: boolean
+  hidden?: boolean
+  [key: string]: unknown
+}
+
+interface MenuItem {
+  path: string
+  name?: string
+  meta?: MenuMeta
+  children?: MenuItem[]
+  [key: string]: unknown
+}
+
 interface Props {
-  item: Record<string, unknown>
+  item: MenuItem
   basePath: string
 }
 
 const props = defineProps<Props>()
+
+const itemChildren = (props.item?.children || []) as MenuItem[]
 
 const resolvePath = (childPath: string) => {
   if (isExternal(childPath)) {

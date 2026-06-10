@@ -43,7 +43,7 @@ export interface OssConfig {
 }
 
 export const getOssList = (params?: OssQuery) => {
-  return request<unknown>({
+  return request<{ rows: OssInfo[]; total: number }>({
     url: '/system/oss/list',
     method: 'GET',
     params
@@ -51,7 +51,7 @@ export const getOssList = (params?: OssQuery) => {
 }
 
 export const getOssPage = (params?: OssQuery) => {
-  return request<unknown>({
+  return request<{ rows: OssInfo[]; total: number }>({
     url: '/system/oss/page',
     method: 'GET',
     params
@@ -59,14 +59,14 @@ export const getOssPage = (params?: OssQuery) => {
 }
 
 export const getOss = (ossId: number) => {
-  return request<unknown>({
+  return request<OssInfo>({
     url: `/system/oss/${ossId}`,
     method: 'GET'
   })
 }
 
 export const getOssConfig = () => {
-  return request<unknown>({
+  return request<OssConfig>({
     url: '/system/oss/config',
     method: 'GET'
   })
@@ -75,7 +75,7 @@ export const getOssConfig = () => {
 export const uploadOss = (file: File) => {
   const formData = new FormData()
   formData.append('file', file)
-  return request<unknown>({
+  return request<void>({
     url: '/system/oss/upload',
     method: 'POST',
     data: formData,
@@ -84,14 +84,14 @@ export const uploadOss = (file: File) => {
 }
 
 export const deleteOss = (ossId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/oss/${ossId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteOss = (ossIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/oss/batch',
     method: 'DELETE',
     data: ossIds
@@ -99,7 +99,7 @@ export const batchDeleteOss = (ossIds: number[]) => {
 }
 
 export const downloadOss = (ossId: number) => {
-  return request<unknown>({
+  return request<Blob>({
     url: `/system/oss/download/${ossId}`,
     method: 'GET',
     responseType: 'blob'

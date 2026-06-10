@@ -40,36 +40,36 @@
         <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)">
-              {{ getStatusLabel(row.status) }}
+            <el-tag :type="getStatusType((row as ProcessDefinition).status)">
+              {{ getStatusLabel((row as ProcessDefinition).status) }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleDesign(row)">设计</el-button>
+            <el-button link type="primary" @click="handleDesign(row as unknown as ProcessDefinition)">设计</el-button>
             <el-button
-              v-if="row.status === 'draft'"
+              v-if="(row as ProcessDefinition).status === 'draft'"
               link
               type="success"
-              @click="handleDeploy(row)"
+              @click="handleDeploy(row as unknown as ProcessDefinition)"
             >
               发布
             </el-button>
             <el-button
-              v-if="row.status === 'active'"
+              v-if="(row as ProcessDefinition).status === 'active'"
               link
               type="warning"
-              @click="handleSuspend(row)"
+              @click="handleSuspend(row as unknown as ProcessDefinition)"
             >
               挂起
             </el-button>
             <el-button
-              v-if="row.status === 'suspended'"
+              v-if="(row as ProcessDefinition).status === 'suspended'"
               link
               type="success"
-              @click="handleActivate(row)"
+              @click="handleActivate(row as unknown as ProcessDefinition)"
             >
               激活
             </el-button>
@@ -77,10 +77,10 @@
               <el-button link type="primary">更多</el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="handleEdit(row as ProcessDefinition)">编辑</el-dropdown-item>
-                  <el-dropdown-item @click="handleCopy(row as ProcessDefinition)">复制</el-dropdown-item>
-                  <el-dropdown-item @click="handleExport(row as ProcessDefinition)">导出</el-dropdown-item>
-                  <el-dropdown-item divided @click="handleDelete(row as ProcessDefinition)" type="danger">
+                  <el-dropdown-item @click="handleEdit(row as unknown as ProcessDefinition)">编辑</el-dropdown-item>
+                  <el-dropdown-item @click="handleCopy(row as unknown as ProcessDefinition)">复制</el-dropdown-item>
+                  <el-dropdown-item @click="handleExport(row as unknown as ProcessDefinition)">导出</el-dropdown-item>
+                  <el-dropdown-item divided @click="handleDelete(row as unknown as ProcessDefinition)" type="danger">
                     删除
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -191,9 +191,8 @@ const formRules: FormRules<ProcessDefinitionForm> = {
 async function fetchProcessList() {
   loading.value = true
   try {
-    // 使用 Mock 数据
     const res = getMockProcessDefinitionPage(queryParams)
-    processList.value = res.rows
+    processList.value = res.rows as unknown as ProcessDefinition[]
     total.value = res.total
   } catch (error) {
     console.error('获取流程列表失败', error)
@@ -202,14 +201,13 @@ async function fetchProcessList() {
   }
 }
 
-// 获取状态类型
-function getStatusType(status: string) {
-  const typeMap: Record<string, string> = {
+function getStatusType(status: string): 'success' | 'primary' | 'warning' | 'info' | 'danger' {
+  const typeMap: Record<string, 'success' | 'primary' | 'warning' | 'info' | 'danger'> = {
     draft: 'info',
     active: 'success',
     suspended: 'warning',
   }
-  return typeMap[status] || 'info'
+  return (typeMap[status] || 'info') as 'success' | 'primary' | 'warning' | 'info' | 'danger'
 }
 
 // 获取状态标签
@@ -262,12 +260,12 @@ function handleEdit(row: ProcessDefinition) {
 }
 
 // 设计
-function handleDesign(row: Record<string, unknown>) {
+function handleDesign(row: ProcessDefinition) {
   router.push(`/workflow/process/design/${row.id}`)
 }
 
 // 发布
-async function handleDeploy(row: Record<string, unknown>) {
+async function handleDeploy(row: ProcessDefinition) {
   try {
     await ElMessageBox.confirm(`确认发布流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -282,7 +280,7 @@ async function handleDeploy(row: Record<string, unknown>) {
 }
 
 // 挂起
-async function handleSuspend(row: Record<string, unknown>) {
+async function handleSuspend(row: ProcessDefinition) {
   try {
     await ElMessageBox.confirm(`确认挂起流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -297,7 +295,7 @@ async function handleSuspend(row: Record<string, unknown>) {
 }
 
 // 激活
-async function handleActivate(row: Record<string, unknown>) {
+async function handleActivate(row: ProcessDefinition) {
   try {
     await ElMessageBox.confirm(`确认激活流程"${row.name}"吗？`, '提示', {
       type: 'warning',
@@ -312,17 +310,17 @@ async function handleActivate(row: Record<string, unknown>) {
 }
 
 // 复制
-function handleCopy(_row: Record<string, unknown>) {
+function handleCopy(_row: ProcessDefinition) {
   ElMessage.info('复制功能开发中')
 }
 
 // 导出
-function handleExport(_row: Record<string, unknown>) {
+function handleExport(_row: ProcessDefinition) {
   ElMessage.info('导出功能开发中')
 }
 
 // 删除
-async function handleDelete(row: Record<string, unknown>) {
+async function handleDelete(row: ProcessDefinition) {
   try {
     await ElMessageBox.confirm(`确认删除流程"${row.name}"吗？`, '提示', {
       type: 'warning',

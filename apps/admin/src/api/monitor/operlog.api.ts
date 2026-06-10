@@ -36,7 +36,7 @@ export interface OperlogInfo {
 }
 
 export const getOperlogList = (params?: OperlogQuery) => {
-  return request<unknown>({
+  return request<{ rows: OperlogInfo[]; total: number }>({
     url: '/monitor/operlog/list',
     method: 'GET',
     params
@@ -44,7 +44,7 @@ export const getOperlogList = (params?: OperlogQuery) => {
 }
 
 export const getOperlogPage = (params?: OperlogQuery) => {
-  return request<unknown>({
+  return request<{ rows: OperlogInfo[]; total: number }>({
     url: '/monitor/operlog/page',
     method: 'GET',
     params
@@ -52,21 +52,21 @@ export const getOperlogPage = (params?: OperlogQuery) => {
 }
 
 export const getOperlog = (operId: number) => {
-  return request<unknown>({
+  return request<OperlogInfo>({
     url: `/monitor/operlog/${operId}`,
     method: 'GET'
   })
 }
 
 export const deleteOperlog = (operId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/monitor/operlog/${operId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteOperlog = (operIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/operlog/batch',
     method: 'DELETE',
     data: operIds
@@ -74,9 +74,8 @@ export const batchDeleteOperlog = (operIds: number[]) => {
 }
 
 export const cleanOperlog = () => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/operlog/clean',
     method: 'DELETE'
   })
 }
-

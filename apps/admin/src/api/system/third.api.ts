@@ -22,21 +22,21 @@ export interface ThirdLogin {
 }
 
 export const getThirdConfigList = () => {
-  return request<unknown>({
+  return request<ThirdConfig[]>({
     url: '/system/third/config/list',
     method: 'GET'
   })
 }
 
 export const getThirdConfig = (thirdType: string) => {
-  return request<unknown>({
+  return request<ThirdConfig>({
     url: `/system/third/config/${thirdType}`,
     method: 'GET'
   })
 }
 
 export const saveThirdConfig = (data: ThirdConfig) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/third/config',
     method: 'POST',
     data
@@ -44,7 +44,7 @@ export const saveThirdConfig = (data: ThirdConfig) => {
 }
 
 export const updateThirdConfig = (data: ThirdConfig) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/third/config',
     method: 'PUT',
     data
@@ -52,7 +52,7 @@ export const updateThirdConfig = (data: ThirdConfig) => {
 }
 
 export const thirdLogin = (data: ThirdLogin) => {
-  return request<unknown>({
+  return request<{ token: string; user?: object }>({
     url: '/system/third/login',
     method: 'POST',
     data
@@ -60,7 +60,7 @@ export const thirdLogin = (data: ThirdLogin) => {
 }
 
 export const bindThirdAccount = (data: ThirdLogin) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/third/bind',
     method: 'POST',
     data
@@ -68,15 +68,14 @@ export const bindThirdAccount = (data: ThirdLogin) => {
 }
 
 export const unbindThirdAccount = (thirdType: string) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/third/unbind/${thirdType}`,
     method: 'POST'
   })
 }
 
-// 获取第三方登录日志列表
 export const getThirdLoginLogList = (params?: Record<string, unknown>) => {
-  return request<unknown>({
+  return request<{ rows: { id: number; thirdType: string; userId: number; createTime: string }[]; total: number }>({
     url: '/system/third/log/page',
     method: 'GET',
     params

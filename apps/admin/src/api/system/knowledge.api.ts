@@ -62,7 +62,7 @@ export interface KnowledgeCategory {
 }
 
 export const getKnowledgePage = (params?: KnowledgeQuery) => {
-  return request<unknown>({
+  return request<{ rows: KnowledgeInfo[]; total: number }>({
     url: '/system/knowledge/page',
     method: 'GET',
     params
@@ -70,7 +70,7 @@ export const getKnowledgePage = (params?: KnowledgeQuery) => {
 }
 
 export const getKnowledgeList = (params?: KnowledgeQuery) => {
-  return request<unknown>({
+  return request<{ rows: KnowledgeInfo[]; total: number }>({
     url: '/system/knowledge/list',
     method: 'GET',
     params
@@ -78,14 +78,14 @@ export const getKnowledgeList = (params?: KnowledgeQuery) => {
 }
 
 export const getKnowledge = (knowledgeId: number) => {
-  return request<unknown>({
+  return request<KnowledgeInfo>({
     url: `/system/knowledge/${knowledgeId}`,
     method: 'GET'
   })
 }
 
 export const addKnowledge = (data: KnowledgeForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/knowledge',
     method: 'POST',
     data
@@ -93,7 +93,7 @@ export const addKnowledge = (data: KnowledgeForm) => {
 }
 
 export const updateKnowledge = (data: KnowledgeForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/knowledge',
     method: 'PUT',
     data
@@ -101,14 +101,14 @@ export const updateKnowledge = (data: KnowledgeForm) => {
 }
 
 export const deleteKnowledge = (knowledgeId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/knowledge/${knowledgeId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteKnowledge = (knowledgeIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/knowledge/batch',
     method: 'DELETE',
     data: knowledgeIds
@@ -116,35 +116,35 @@ export const batchDeleteKnowledge = (knowledgeIds: number[]) => {
 }
 
 export const publishKnowledge = (knowledgeId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/knowledge/publish/${knowledgeId}`,
     method: 'PUT'
   })
 }
 
 export const withdrawKnowledge = (knowledgeId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/knowledge/withdraw/${knowledgeId}`,
     method: 'PUT'
   })
 }
 
 export const getCategoryList = () => {
-  return request<unknown>({
+  return request<KnowledgeCategory[]>({
     url: '/system/knowledge/category/list',
     method: 'GET'
   })
 }
 
 export const getCategoryTree = () => {
-  return request<unknown>({
+  return request<KnowledgeCategory[]>({
     url: '/system/knowledge/category/tree',
     method: 'GET'
   })
 }
 
 export const addCategory = (data: Partial<KnowledgeCategory>) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/knowledge/category',
     method: 'POST',
     data
@@ -152,7 +152,7 @@ export const addCategory = (data: Partial<KnowledgeCategory>) => {
 }
 
 export const updateCategory = (data: Partial<KnowledgeCategory>) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/knowledge/category',
     method: 'PUT',
     data
@@ -160,7 +160,7 @@ export const updateCategory = (data: Partial<KnowledgeCategory>) => {
 }
 
 export const deleteCategory = (categoryId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/knowledge/category/${categoryId}`,
     method: 'DELETE'
   })

@@ -61,7 +61,7 @@ export interface DictDataInfo {
 }
 
 export const getDictTypeList = (params?: DictTypeQuery) => {
-  return request<unknown>({
+  return request<{ rows: DictTypeInfo[]; total: number }>({
     url: '/system/dict/type/list',
     method: 'GET',
     params
@@ -69,7 +69,7 @@ export const getDictTypeList = (params?: DictTypeQuery) => {
 }
 
 export const getDictTypePage = (params?: DictTypeQuery) => {
-  return request<unknown>({
+  return request<{ rows: DictTypeInfo[]; total: number }>({
     url: '/system/dict/type/page',
     method: 'GET',
     params
@@ -77,28 +77,28 @@ export const getDictTypePage = (params?: DictTypeQuery) => {
 }
 
 export const getDictType = (dictId: number) => {
-  return request<unknown>({
+  return request<DictTypeInfo>({
     url: `/system/dict/type/${dictId}`,
     method: 'GET'
   })
 }
 
 export const getDictTypeAll = () => {
-  return request<unknown>({
+  return request<DictTypeInfo[]>({
     url: '/system/dict/type/all',
     method: 'GET'
   })
 }
 
 export const getDictTypeOptions = (dictType: string) => {
-  return request<unknown>({
+  return request<DictDataInfo[]>({
     url: `/system/dict/type/options/${dictType}`,
     method: 'GET'
   })
 }
 
 export const addDictType = (data: DictTypeForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dict/type',
     method: 'POST',
     data
@@ -106,7 +106,7 @@ export const addDictType = (data: DictTypeForm) => {
 }
 
 export const updateDictType = (data: DictTypeForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dict/type',
     method: 'PUT',
     data
@@ -114,14 +114,14 @@ export const updateDictType = (data: DictTypeForm) => {
 }
 
 export const deleteDictType = (dictId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/dict/type/${dictId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteDictType = (dictIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dict/type/batch',
     method: 'DELETE',
     data: dictIds
@@ -129,14 +129,14 @@ export const batchDeleteDictType = (dictIds: number[]) => {
 }
 
 export const refreshDictCache = () => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dict/type/refreshCache',
     method: 'DELETE'
   })
 }
 
 export const getDictDataList = (params?: DictDataQuery) => {
-  return request<unknown>({
+  return request<{ rows: DictDataInfo[]; total: number }>({
     url: '/system/dict/data/list',
     method: 'GET',
     params
@@ -144,7 +144,7 @@ export const getDictDataList = (params?: DictDataQuery) => {
 }
 
 export const getDictDataPage = (params?: DictDataQuery) => {
-  return request<unknown>({
+  return request<{ rows: DictDataInfo[]; total: number }>({
     url: '/system/dict/data/page',
     method: 'GET',
     params
@@ -152,14 +152,14 @@ export const getDictDataPage = (params?: DictDataQuery) => {
 }
 
 export const getDictData = (dictCode: number) => {
-  return request<unknown>({
+  return request<DictDataInfo>({
     url: `/system/dict/data/${dictCode}`,
     method: 'GET'
   })
 }
 
 export const addDictData = (data: DictDataForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dict/data',
     method: 'POST',
     data
@@ -167,7 +167,7 @@ export const addDictData = (data: DictDataForm) => {
 }
 
 export const updateDictData = (data: DictDataForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/dict/data',
     method: 'PUT',
     data
@@ -175,21 +175,21 @@ export const updateDictData = (data: DictDataForm) => {
 }
 
 export const deleteDictData = (dictCode: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/dict/data/${dictCode}`,
     method: 'DELETE'
   })
 }
 
 export const getDictDataByType = (dictType: string) => {
-  return request<unknown>({
+  return request<DictDataInfo[]>({
     url: `/system/dict/data/type/${dictType}`,
     method: 'GET'
   })
 }
 
 export const exportDictType = (params?: DictTypeQuery) => {
-  return request<unknown>({
+  return request<Blob>({
     url: '/system/dict/type/export',
     method: 'GET',
     params,
@@ -198,7 +198,7 @@ export const exportDictType = (params?: DictTypeQuery) => {
 }
 
 export const exportDictData = (dictType: string) => {
-  return request<unknown>({
+  return request<Blob>({
     url: '/system/dict/data/export',
     method: 'GET',
     params: { dictType },

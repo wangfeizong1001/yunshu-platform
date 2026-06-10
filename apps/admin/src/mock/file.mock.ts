@@ -2,10 +2,9 @@
  * 文件管理 Mock 数据
  */
 
-import type { SysFile, SysFilePageResp, SysFileUploadResp } from '@yunshu/shared'
 
 // 文件管理 Mock 数据
-export const mockFileList: SysFile[] = [
+export const mockFileList: any[] = [
   {
     fileId: 1,
     fileName: '产品需求文档.pdf',
@@ -95,7 +94,7 @@ export const mockFileList: SysFile[] = [
 ]
 
 // 获取文件分页列表 Mock
-export function getMockFilePage(params: any): SysFilePageResp {
+export function getMockFilePage(params: any): any {
   const { pageNum = 1, pageSize = 10, keyword = '', storageType = '', fileType = '' } = params
 
   let filteredList = mockFileList
@@ -127,13 +126,13 @@ export function getMockFilePage(params: any): SysFilePageResp {
 }
 
 // 获取文件详情 Mock
-export function getMockFileDetail(fileId: number): SysFile | undefined {
+export function getMockFileDetail(fileId: number): any | undefined {
   return mockFileList.find((item) => item.fileId === fileId)
 }
 
 // 上传文件 Mock
-export function uploadMockFile(file: File): SysFileUploadResp {
-  const newFile: SysFile = {
+export function uploadMockFile(file: File): any {
+  const newFile: any = {
     fileId: Math.max(...mockFileList.map((u) => u.fileId)) + 1,
     fileName: file.name,
     originalName: file.name,

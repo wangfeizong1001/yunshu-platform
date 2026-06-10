@@ -112,7 +112,7 @@ export function getForm(formId: number) {
 
 // 新增表单
 export function addForm(data: FormForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/form',
     method: 'POST',
     data
@@ -121,7 +121,7 @@ export function addForm(data: FormForm) {
 
 // 修改表单
 export function updateForm(data: FormForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/form',
     method: 'PUT',
     data
@@ -130,7 +130,7 @@ export function updateForm(data: FormForm) {
 
 // 删除表单
 export function deleteForm(formId: number) {
-  return request<unknown>({
+  return request<void>({
     url: `/system/form/${formId}`,
     method: 'DELETE'
   })
@@ -138,7 +138,7 @@ export function deleteForm(formId: number) {
 
 // 批量删除表单
 export function batchDeleteForm(formIds: number[]) {
-  return request<unknown>({
+  return request<void>({
     url: '/system/form/batch',
     method: 'DELETE',
     data: formIds
@@ -147,7 +147,7 @@ export function batchDeleteForm(formIds: number[]) {
 
 // 复制表单
 export function copyForm(formId: number) {
-  return request<unknown>({
+  return request<void>({
     url: `/system/form/copy/${formId}`,
     method: 'POST'
   })
@@ -155,7 +155,7 @@ export function copyForm(formId: number) {
 
 // 发布表单
 export function publishForm(formId: number) {
-  return request<unknown>({
+  return request<void>({
     url: `/system/form/publish/${formId}`,
     method: 'PUT'
   })
@@ -163,7 +163,7 @@ export function publishForm(formId: number) {
 
 // 停用表单
 export function stopForm(formId: number) {
-  return request<unknown>({
+  return request<void>({
     url: `/system/form/stop/${formId}`,
     method: 'PUT'
   })
@@ -171,7 +171,7 @@ export function stopForm(formId: number) {
 
 // 表单数据提交
 export function submitFormData(formId: number, data: Record<string, unknown>) {
-  return request<unknown>({
+  return request<void>({
     url: `/system/form/data/${formId}`,
     method: 'POST',
     data
@@ -180,7 +180,7 @@ export function submitFormData(formId: number, data: Record<string, unknown>) {
 
 // 获取表单数据列表
 export function getFormDataList(formId: number, params: Record<string, unknown>) {
-  return request<unknown>({
+  return request<{ rows: Record<string, unknown>[]; total: number }>({
     url: `/system/form/data/${formId}/list`,
     method: 'GET',
     params

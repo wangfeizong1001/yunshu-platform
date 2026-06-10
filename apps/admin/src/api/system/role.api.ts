@@ -35,7 +35,7 @@ export interface RoleInfo {
 }
 
 export const getRoleList = (params?: RoleQuery) => {
-  return request<unknown>({
+  return request<{ rows: RoleInfo[]; total: number }>({
     url: '/system/role/list',
     method: 'GET',
     params
@@ -43,7 +43,7 @@ export const getRoleList = (params?: RoleQuery) => {
 }
 
 export const getRolePage = (params?: RoleQuery) => {
-  return request<unknown>({
+  return request<{ rows: RoleInfo[]; total: number }>({
     url: '/system/role/page',
     method: 'GET',
     params
@@ -51,14 +51,14 @@ export const getRolePage = (params?: RoleQuery) => {
 }
 
 export const getRole = (roleId: number) => {
-  return request<unknown>({
+  return request<RoleInfo>({
     url: `/system/role/${roleId}`,
     method: 'GET'
   })
 }
 
 export const addRole = (data: RoleForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/role',
     method: 'POST',
     data
@@ -66,7 +66,7 @@ export const addRole = (data: RoleForm) => {
 }
 
 export const updateRole = (data: RoleForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/role',
     method: 'PUT',
     data
@@ -74,14 +74,14 @@ export const updateRole = (data: RoleForm) => {
 }
 
 export const deleteRole = (roleId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/system/role/${roleId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteRole = (roleIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/role/batch',
     method: 'DELETE',
     data: roleIds
@@ -89,7 +89,7 @@ export const batchDeleteRole = (roleIds: number[]) => {
 }
 
 export const changeRoleStatus = (roleId: number, status: string) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/role/changeStatus',
     method: 'PUT',
     params: { roleId, status }
@@ -97,7 +97,7 @@ export const changeRoleStatus = (roleId: number, status: string) => {
 }
 
 export const dataScope = (data: RoleForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/role/dataScope',
     method: 'PUT',
     data
@@ -105,7 +105,7 @@ export const dataScope = (data: RoleForm) => {
 }
 
 export const authRoleAll = (roleId: number, menuIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/role/authRoleAll',
     method: 'PUT',
     data: { roleId, menuIds }

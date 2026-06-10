@@ -15,14 +15,14 @@ export interface SsoConfig {
 }
 
 export const getSsoConfig = () => {
-  return request<unknown>({
+  return request<SsoConfig>({
     url: '/system/sso/config',
     method: 'GET'
   })
 }
 
 export const saveSsoConfig = (data: SsoConfig) => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/sso/config',
     method: 'POST',
     data
@@ -30,7 +30,7 @@ export const saveSsoConfig = (data: SsoConfig) => {
 }
 
 export const ssoLogin = (code: string, state: string) => {
-  return request<unknown>({
+  return request<{ token: string; user?: object }>({
     url: '/system/sso/login',
     method: 'POST',
     data: { code, state }
@@ -38,7 +38,7 @@ export const ssoLogin = (code: string, state: string) => {
 }
 
 export const ssoLogout = () => {
-  return request<unknown>({
+  return request<void>({
     url: '/system/sso/logout',
     method: 'POST'
   })

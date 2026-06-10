@@ -34,7 +34,7 @@ export interface UserInfo {
 
 // 获取验证码
 export function getCaptchaApi() {
-  return request<unknown>({
+  return request<{ captchaOnOff: boolean; img: string; uuid: string }>({
     url: '/auth/captcha',
     method: 'GET'
   })
@@ -42,7 +42,7 @@ export function getCaptchaApi() {
 
 // 登录
 export function loginApi(data: LoginForm) {
-  return request<unknown>({
+  return request<{ token: string; user?: object }>({
     url: '/auth/login',
     method: 'POST',
     data
@@ -51,7 +51,7 @@ export function loginApi(data: LoginForm) {
 
 // 退出登录
 export function logoutApi() {
-  return request<unknown>({
+  return request<void>({
     url: '/auth/logout',
     method: 'POST'
   })
@@ -59,7 +59,7 @@ export function logoutApi() {
 
 // 获取用户信息
 export function getUserInfoApi() {
-  return request<unknown>({
+  return request<UserInfo>({
     url: '/auth/getInfo',
     method: 'GET'
   })
@@ -67,7 +67,7 @@ export function getUserInfoApi() {
 
 // 获取路由菜单
 export function getRoutersApi() {
-  return request<unknown>({
+  return request<unknown[]>({
     url: '/system/menu/getRouters',
     method: 'GET'
   })

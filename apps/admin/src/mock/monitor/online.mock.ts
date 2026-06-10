@@ -4,9 +4,8 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IOnline } from '@yunshu/shared'
 
-export const onlineMockData: IOnline[] = Array.from({ length: 30 }, (_, i) => {
+export const onlineMockData: any[] = Array.from({ length: 30 }, (_, i) => {
   const isMobile = i % 5 === 0
   return {
     sessionId: `session_${i + 1}_${Date.now()}`,

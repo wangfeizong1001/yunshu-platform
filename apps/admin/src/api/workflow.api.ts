@@ -120,7 +120,7 @@ export interface AssignRequest {
 
 // 获取流程定义列表
 export function getProcessDefinitionList(params?: ProcessDefinitionQuery) {
-  return request<unknown>({
+  return request<{ rows: ProcessDefinition[]; total: number }>({
     url: '/workflow/process-definition/list',
     method: 'GET',
     params
@@ -129,7 +129,7 @@ export function getProcessDefinitionList(params?: ProcessDefinitionQuery) {
 
 // 获取流程定义分页
 export function getProcessDefinitionPage(params?: ProcessDefinitionQuery) {
-  return request<unknown>({
+  return request<{ rows: ProcessDefinition[]; total: number }>({
     url: '/workflow/process-definition/page',
     method: 'GET',
     params
@@ -138,7 +138,7 @@ export function getProcessDefinitionPage(params?: ProcessDefinitionQuery) {
 
 // 获取流程定义详情
 export function getProcessDefinition(id: string) {
-  return request<unknown>({
+  return request<ProcessDefinition>({
     url: `/workflow/process-definition/${id}`,
     method: 'GET'
   })
@@ -146,7 +146,7 @@ export function getProcessDefinition(id: string) {
 
 // 新增流程定义
 export function addProcessDefinition(data: ProcessDefinitionForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/workflow/process-definition',
     method: 'POST',
     data
@@ -155,7 +155,7 @@ export function addProcessDefinition(data: ProcessDefinitionForm) {
 
 // 更新流程定义
 export function updateProcessDefinition(data: ProcessDefinitionForm) {
-  return request<unknown>({
+  return request<void>({
     url: '/workflow/process-definition',
     method: 'PUT',
     data
@@ -164,7 +164,7 @@ export function updateProcessDefinition(data: ProcessDefinitionForm) {
 
 // 删除流程定义
 export function deleteProcessDefinition(id: string) {
-  return request<unknown>({
+  return request<void>({
     url: `/workflow/process-definition/${id}`,
     method: 'DELETE'
   })
@@ -172,7 +172,7 @@ export function deleteProcessDefinition(id: string) {
 
 // 批量删除流程定义
 export function batchDeleteProcessDefinition(ids: string[]) {
-  return request<unknown>({
+  return request<void>({
     url: '/workflow/process-definition/batch',
     method: 'DELETE',
     data: ids
@@ -181,7 +181,7 @@ export function batchDeleteProcessDefinition(ids: string[]) {
 
 // 发布流程定义
 export function deployProcessDefinition(id: string) {
-  return request<unknown>({
+  return request<void>({
     url: `/workflow/process-definition/deploy/${id}`,
     method: 'POST'
   })
@@ -189,7 +189,7 @@ export function deployProcessDefinition(id: string) {
 
 // 挂起流程定义
 export function suspendProcessDefinition(id: string) {
-  return request<unknown>({
+  return request<void>({
     url: `/workflow/process-definition/suspend/${id}`,
     method: 'POST'
   })
@@ -197,7 +197,7 @@ export function suspendProcessDefinition(id: string) {
 
 // 激活流程定义
 export function activateProcessDefinition(id: string) {
-  return request<unknown>({
+  return request<void>({
     url: `/workflow/process-definition/activate/${id}`,
     method: 'POST'
   })
@@ -205,7 +205,7 @@ export function activateProcessDefinition(id: string) {
 
 // 获取流程实例列表
 export function getProcessInstanceList(params?: ProcessInstanceQuery) {
-  return request<unknown>({
+  return request<{ rows: ProcessInstance[]; total: number }>({
     url: '/workflow/process-instance/list',
     method: 'GET',
     params
@@ -214,7 +214,7 @@ export function getProcessInstanceList(params?: ProcessInstanceQuery) {
 
 // 获取流程实例分页
 export function getProcessInstancePage(params?: ProcessInstanceQuery) {
-  return request<unknown>({
+  return request<{ rows: ProcessInstance[]; total: number }>({
     url: '/workflow/process-instance/page',
     method: 'GET',
     params
@@ -223,15 +223,19 @@ export function getProcessInstancePage(params?: ProcessInstanceQuery) {
 
 // 获取流程实例详情
 export function getProcessInstance(id: string) {
-  return request<unknown>({
+  return request<ProcessInstance>({
     url: `/workflow/process-instance/${id}`,
     method: 'GET'
   })
 }
 
 // 启动流程实例
-export function startProcessInstance(processDefinitionKey: string, businessKey?: string, variables?: Record<string, unknown>) {
-  return request<unknown>({
+export function startProcessInstance(
+  processDefinitionKey: string,
+  businessKey?: string,
+  variables?: Record<string, unknown>
+) {
+  return request<ProcessInstance>({
     url: '/workflow/process-instance/start',
     method: 'POST',
     data: { processDefinitionKey, businessKey, variables }
@@ -240,7 +244,7 @@ export function startProcessInstance(processDefinitionKey: string, businessKey?:
 
 // 终止流程实例
 export function terminateProcessInstance(id: string, reason?: string) {
-  return request<unknown>({
+  return request<void>({
     url: `/workflow/process-instance/terminate/${id}`,
     method: 'POST',
     data: { reason }
@@ -249,7 +253,7 @@ export function terminateProcessInstance(id: string, reason?: string) {
 
 // 获取待办任务列表
 export function getTodoTaskList(params?: TaskQuery) {
-  return request<unknown>({
+  return request<{ rows: Task[]; total: number }>({
     url: '/workflow/task/todo/list',
     method: 'GET',
     params
@@ -258,7 +262,7 @@ export function getTodoTaskList(params?: TaskQuery) {
 
 // 获取待办任务分页
 export function getTodoTaskPage(params?: TaskQuery) {
-  return request<unknown>({
+  return request<{ rows: Task[]; total: number }>({
     url: '/workflow/task/todo/page',
     method: 'GET',
     params
@@ -267,7 +271,7 @@ export function getTodoTaskPage(params?: TaskQuery) {
 
 // 获取已办任务列表
 export function getDoneTaskList(params?: TaskQuery) {
-  return request<unknown>({
+  return request<{ rows: Task[]; total: number }>({
     url: '/workflow/task/done/list',
     method: 'GET',
     params
@@ -276,7 +280,7 @@ export function getDoneTaskList(params?: TaskQuery) {
 
 // 获取已办任务分页
 export function getDoneTaskPage(params?: TaskQuery) {
-  return request<unknown>({
+  return request<{ rows: Task[]; total: number }>({
     url: '/workflow/task/done/page',
     method: 'GET',
     params
@@ -285,7 +289,7 @@ export function getDoneTaskPage(params?: TaskQuery) {
 
 // 获取任务详情
 export function getTask(id: string) {
-  return request<unknown>({
+  return request<Task>({
     url: `/workflow/task/${id}`,
     method: 'GET'
   })
@@ -293,7 +297,7 @@ export function getTask(id: string) {
 
 // 审批通过
 export function approveTask(data: ApprovalRequest) {
-  return request<unknown>({
+  return request<void>({
     url: '/workflow/task/approve',
     method: 'POST',
     data
@@ -302,7 +306,7 @@ export function approveTask(data: ApprovalRequest) {
 
 // 审批拒绝
 export function rejectTask(data: ApprovalRequest) {
-  return request<unknown>({
+  return request<void>({
     url: '/workflow/task/reject',
     method: 'POST',
     data
@@ -311,7 +315,7 @@ export function rejectTask(data: ApprovalRequest) {
 
 // 转办
 export function delegateTask(data: DelegateRequest) {
-  return request<unknown>({
+  return request<void>({
     url: '/workflow/task/delegate',
     method: 'POST',
     data
@@ -320,7 +324,7 @@ export function delegateTask(data: DelegateRequest) {
 
 // 委托
 export function assignTask(data: AssignRequest) {
-  return request<unknown>({
+  return request<void>({
     url: '/workflow/task/assign',
     method: 'POST',
     data
@@ -329,7 +333,7 @@ export function assignTask(data: AssignRequest) {
 
 // 获取流程历史记录
 export function getProcessHistory(processInstanceId: string) {
-  return request<unknown>({
+  return request<{ rows: Task[]; total: number }>({
     url: `/workflow/process-instance/${processInstanceId}/history`,
     method: 'GET'
   })

@@ -7,7 +7,14 @@
 import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 /** 搜索类型 */
-export type SearchType = 'all' | 'user' | 'dept' | 'menu' | 'role' | 'notice' | 'knowledge'
+export type SearchType =
+  | 'all'
+  | 'user'
+  | 'dept'
+  | 'menu'
+  | 'role'
+  | 'notice'
+  | 'knowledge'
 
 /** 搜索请求参数 */
 export interface SearchQueryParams {
@@ -200,7 +207,7 @@ export function getSearchHistory(limit = 20) {
  * 保存搜索历史
  */
 export function saveSearchHistory(data: { keyword: string; type?: SearchType }) {
-  return request<unknown>({
+  return request<void>({
     url: '/search/history',
     method: 'POST',
     data
@@ -211,7 +218,7 @@ export function saveSearchHistory(data: { keyword: string; type?: SearchType }) 
  * 清空搜索历史
  */
 export function clearSearchHistory() {
-  return request<unknown>({
+  return request<void>({
     url: '/search/history',
     method: 'DELETE'
   })
@@ -221,7 +228,7 @@ export function clearSearchHistory() {
  * 删除单条搜索历史
  */
 export function deleteSearchHistory(id: string | number) {
-  return request<unknown>({
+  return request<void>({
     url: `/search/history/${id}`,
     method: 'DELETE'
   })
@@ -231,7 +238,7 @@ export function deleteSearchHistory(id: string | number) {
  * 重建搜索索引
  */
 export function rebuildSearchIndex(type?: SearchType) {
-  return request<unknown>({
+  return request<void>({
     url: '/search/rebuild',
     method: 'POST',
     data: type ? { type } : undefined

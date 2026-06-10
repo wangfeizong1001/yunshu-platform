@@ -59,8 +59,13 @@ export interface CategoryData {
 }
 
 // 获取大屏看板列表
-export function getDashboardList(params?: { pageNum?: number; pageSize?: number; dashboardName?: string; status?: string }) {
-  return request<unknown>({
+export function getDashboardList(params?: {
+  pageNum?: number
+  pageSize?: number
+  dashboardName?: string
+  status?: string
+}) {
+  return request<{ rows: DashboardInfo[]; total: number }>({
     url: '/dashboard/list',
     method: 'GET',
     params
@@ -69,7 +74,7 @@ export function getDashboardList(params?: { pageNum?: number; pageSize?: number;
 
 // 获取大屏看板详情
 export function getDashboard(dashboardId: number) {
-  return request<unknown>({
+  return request<DashboardInfo>({
     url: `/dashboard/${dashboardId}`,
     method: 'GET'
   })
@@ -77,7 +82,7 @@ export function getDashboard(dashboardId: number) {
 
 // 获取大屏统计数据
 export function getDashboardStats() {
-  return request<unknown>({
+  return request<DashboardStats>({
     url: '/dashboard/stats',
     method: 'GET'
   })
@@ -85,7 +90,7 @@ export function getDashboardStats() {
 
 // 获取实时数据
 export function getRealTimeData() {
-  return request<unknown>({
+  return request<RealTimeData>({
     url: '/dashboard/realtime',
     method: 'GET'
   })
@@ -93,7 +98,7 @@ export function getRealTimeData() {
 
 // 获取销售趋势数据
 export function getSalesTrendData() {
-  return request<unknown>({
+  return request<SalesTrendData[]>({
     url: '/dashboard/sales-trend',
     method: 'GET'
   })
@@ -101,7 +106,7 @@ export function getSalesTrendData() {
 
 // 获取区域销售数据
 export function getRegionSalesData() {
-  return request<unknown>({
+  return request<RegionSalesData[]>({
     url: '/dashboard/region-sales',
     method: 'GET'
   })
@@ -109,7 +114,7 @@ export function getRegionSalesData() {
 
 // 获取分类占比数据
 export function getCategoryData() {
-  return request<unknown>({
+  return request<CategoryData[]>({
     url: '/dashboard/category',
     method: 'GET'
   })
@@ -117,7 +122,7 @@ export function getCategoryData() {
 
 // 新增大屏看板
 export function addDashboard(data: Partial<DashboardInfo>) {
-  return request<unknown>({
+  return request<void>({
     url: '/dashboard',
     method: 'POST',
     data
@@ -126,7 +131,7 @@ export function addDashboard(data: Partial<DashboardInfo>) {
 
 // 更新大屏看板
 export function updateDashboard(data: Partial<DashboardInfo>) {
-  return request<unknown>({
+  return request<void>({
     url: '/dashboard',
     method: 'PUT',
     data
@@ -135,7 +140,7 @@ export function updateDashboard(data: Partial<DashboardInfo>) {
 
 // 删除大屏看板
 export function deleteDashboard(dashboardId: number) {
-  return request<unknown>({
+  return request<void>({
     url: `/dashboard/${dashboardId}`,
     method: 'DELETE'
   })

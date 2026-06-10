@@ -70,7 +70,7 @@ export interface JobLogInfo {
 }
 
 export const getJobList = (params?: JobQuery) => {
-  return request<unknown>({
+  return request<{ rows: JobInfo[]; total: number }>({
     url: '/monitor/job/list',
     method: 'GET',
     params
@@ -78,7 +78,7 @@ export const getJobList = (params?: JobQuery) => {
 }
 
 export const getJobPage = (params?: JobQuery) => {
-  return request<unknown>({
+  return request<{ rows: JobInfo[]; total: number }>({
     url: '/monitor/job/page',
     method: 'GET',
     params
@@ -86,14 +86,14 @@ export const getJobPage = (params?: JobQuery) => {
 }
 
 export const getJob = (jobId: number) => {
-  return request<unknown>({
+  return request<JobInfo>({
     url: `/monitor/job/${jobId}`,
     method: 'GET'
   })
 }
 
 export const addJob = (data: JobForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/job',
     method: 'POST',
     data
@@ -101,7 +101,7 @@ export const addJob = (data: JobForm) => {
 }
 
 export const updateJob = (data: JobForm) => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/job',
     method: 'PUT',
     data
@@ -109,14 +109,14 @@ export const updateJob = (data: JobForm) => {
 }
 
 export const deleteJob = (jobId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/monitor/job/${jobId}`,
     method: 'DELETE'
   })
 }
 
 export const batchDeleteJob = (jobIds: number[]) => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/job/batch',
     method: 'DELETE',
     data: jobIds
@@ -124,15 +124,15 @@ export const batchDeleteJob = (jobIds: number[]) => {
 }
 
 export const runJob = (jobId: number) => {
-  return request<unknown>({
-    url: `/monitor/job/run`,
+  return request<void>({
+    url: '/monitor/job/run',
     method: 'POST',
     params: { jobId }
   })
 }
 
 export const changeJobStatus = (jobId: number, status: string) => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/job/changeStatus',
     method: 'PUT',
     params: { jobId, status }
@@ -140,7 +140,7 @@ export const changeJobStatus = (jobId: number, status: string) => {
 }
 
 export const getJobLogList = (params?: JobLogQuery) => {
-  return request<unknown>({
+  return request<{ rows: JobLogInfo[]; total: number }>({
     url: '/monitor/job/log/list',
     method: 'GET',
     params
@@ -148,7 +148,7 @@ export const getJobLogList = (params?: JobLogQuery) => {
 }
 
 export const getJobLogPage = (params?: JobLogQuery) => {
-  return request<unknown>({
+  return request<{ rows: JobLogInfo[]; total: number }>({
     url: '/monitor/job/log/page',
     method: 'GET',
     params
@@ -156,23 +156,22 @@ export const getJobLogPage = (params?: JobLogQuery) => {
 }
 
 export const getJobLog = (jobLogId: number) => {
-  return request<unknown>({
+  return request<JobLogInfo>({
     url: `/monitor/job/log/${jobLogId}`,
     method: 'GET'
   })
 }
 
 export const deleteJobLog = (jobLogId: number) => {
-  return request<unknown>({
+  return request<void>({
     url: `/monitor/job/log/${jobLogId}`,
     method: 'DELETE'
   })
 }
 
 export const cleanJobLog = () => {
-  return request<unknown>({
+  return request<void>({
     url: '/monitor/job/log/clean',
     method: 'DELETE'
   })
 }
-

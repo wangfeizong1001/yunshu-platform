@@ -37,31 +37,33 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import { getToken } from '@/utils/auth'
+import type { UploadUserFile } from 'element-plus'
+
+interface UploadResponseData {
+  url?: string
+  filePath?: string
+}
+
+interface UploadResponse {
+  code?: number
+  success?: boolean
+  data?: UploadResponseData | string
+  msg?: string
+  message?: string
+}
 
 interface Props {
-  /** 绑定的文件路径 */
   modelValue?: string
-  /** 上传地址 */
   action?: string
-  /** 额外参数 */
   extraData?: Record<string, unknown>
-  /** 接受的文件类型 */
   accept?: string
-  /** 文件大小限制 (MB) */
   maxSize?: number
-  /** 是否禁用 */
   disabled?: boolean
-  /** 文件数量限制 */
   limit?: number
-  /** 是否多选 */
   multiple?: boolean
-  /** 是否拖拽上传 */
   drag?: boolean
-  /** 是否显示文件列表 */
   showFileList?: boolean
-  /** 提示文字 */
   tip?: string
-  /** 文件类型验证正则 */
   fileType?: string[]
 }
 
@@ -88,7 +90,7 @@ const emit = defineEmits<{
   'remove': [file: unknown, fileList: unknown[]]
 }>()
 
-const uploadRef = ref()
+const uploadRef = ref<InstanceType<typeof import('element-plus')['ElUpload']> | null>(null)
 
 const uploadUrl = computed(() => {
   const env = (import.meta as unknown as { env: Record<string, string> }).env
@@ -106,7 +108,6 @@ const extraData = computed(() => {
   }
 })
 
-// 隐藏上传按钮
 const hideUploadBtn = computed(() => {
   if (!props.multiple && props.limit === 1) {
     return !!props.modelValue && props.showFileList
@@ -114,10 +115,8 @@ const hideUploadBtn = computed(() => {
   return false
 })
 
-// 内部文件列表
-const internalFileList = ref<unknown[]>([])
+const internalFileList = ref<UploadUserFile[]>([])
 
-// 监听外部值变化
 watch(
   () => props.modelValue,
   (val) => {
@@ -127,7 +126,8 @@ watch(
         {
           name: fileName,
           url: val,
-        },
+          uid: Date.now(),
+        } as UploadUserFile,
       ]
     } else {
       internalFileList.value = []
@@ -136,15 +136,11 @@ watch(
   { immediate: true }
 )
 
-// 上传前验证
 function handleBeforeUpload(file: File) {
-  // 检查文件大小
   if (props.maxSize > 0 && file.size > props.maxSize * 1024 * 1024) {
     ElMessage.error(`文件大小不能超过 ${props.maxSize}MB`)
     return false
   }
-
-  // 检查文件类型
   if (props.fileType.length > 0) {
     const fileExt = file.name.split('.').pop()?.toLowerCase() || ''
     const isValidType = props.fileType.some((type) => {
@@ -158,65 +154,60 @@ function handleBeforeUpload(file: File) {
       return false
     }
   }
-
   return true
 }
 
-// 上传成功
-function handleSuccess(res: Record<string, unknown>) {
-  if (res.code === 200 || res.code === 0 || res.success) {
-    const url = res.data?.url || res.data?.filePath || res.data
+function handleSuccess(res: unknown) {
+  const r = res as UploadResponse
+  if (r.code === 200 || r.code === 0 || r.success) {
+    let url = ''
+    if (typeof r.data && typeof r.data === 'object') {
+      url = (r.data as UploadResponseData).url || (r.data as UploadResponseData).filePath || ''
+    } else if (typeof r.data === 'string') {
+      url = r.data
+    }
     emit('update:modelValue', url)
-    emit('success', res.data)
+    emit('success', r.data)
     ElMessage.success('上传成功')
   } else {
-    emit('error', res)
-    ElMessage.error(res.msg || res.message || '上传失败')
-    // 清空文件列表
+    emit('error', r)
+    ElMessage.error(r.msg || r.message || '上传失败')
     internalFileList.value = []
   }
 }
 
-// 上传失败
 function handleError(err: unknown) {
   emit('error', err)
   ElMessage.error('上传失败')
 }
 
-// 上传进度
 function handleProgress(event: unknown) {
   emit('progress', event)
 }
 
-// 文件改变
 function handleChange(file: unknown, fileList: unknown[]) {
   emit('change', file, fileList)
 }
 
-// 文件移除
 function handleRemove(file: unknown, fileList: unknown[]) {
-  if (fileList.length === 0) {
+  if ((fileList as unknown[]).length === 0) {
     emit('update:modelValue', '')
   }
   emit('remove', file, fileList)
 }
 
-// 手动上传
 function submit() {
   uploadRef.value?.submit()
 }
 
-// 清除文件
 function clearFiles() {
   uploadRef.value?.clearFiles()
 }
 
-// 取消上传
 function abort(file?: unknown) {
   uploadRef.value?.abort(file)
 }
 
-// 获取上传组件引用
 defineExpose({
   submit,
   clearFiles,
@@ -235,11 +226,6 @@ defineExpose({
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      transition: border-color 0.3s;
-
-      &:hover {
-        border-color: var(--el-color-primary);
-      }
     }
   }
 
@@ -254,6 +240,5 @@ defineExpose({
   color: var(--el-text-color-secondary);
   font-size: 12px;
   margin-top: 7px;
-  line-height: 1.4;
 }
 </style>
