@@ -13,4 +13,4 @@ export default {
     perPage: '每页',
     currentPage: '当前页',
   },
-}
+};

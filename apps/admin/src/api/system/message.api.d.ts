@@ -2,41 +2,41 @@
  * 站内消息 API
  */
 export interface MessageQuery {
-    pageNum?: number;
-    pageSize?: number;
-    title?: string;
-    type?: string;
-    status?: string;
-    senderId?: number;
-    receiverId?: number;
+  pageNum?: number;
+  pageSize?: number;
+  title?: string;
+  type?: string;
+  status?: string;
+  senderId?: number;
+  receiverId?: number;
 }
 export interface MessageForm {
-    messageId?: number;
-    title?: string;
-    content?: string;
-    type?: string;
-    priority?: string;
-    receiverIds?: number[];
-    receiverNames?: string[];
+  messageId?: number;
+  title?: string;
+  content?: string;
+  type?: string;
+  priority?: string;
+  receiverIds?: number[];
+  receiverNames?: string[];
 }
 export interface MessageInfo {
-    messageId: number;
-    title: string;
-    content: string;
-    type: string;
-    priority: string;
-    status: string;
-    senderId: number;
-    senderName: string;
-    receiverId: number;
-    receiverName: string;
-    sendTime: string;
-    readTime?: string;
+  messageId: number;
+  title: string;
+  content: string;
+  type: string;
+  priority: string;
+  status: string;
+  senderId: number;
+  senderName: string;
+  receiverId: number;
+  receiverName: string;
+  sendTime: string;
+  readTime?: string;
 }
 export interface SendMessageResult {
-    successCount: number;
-    failCount: number;
-    message: string;
+  successCount: number;
+  failCount: number;
+  message: string;
 }
 export declare const getMessageList: (params?: MessageQuery) => Promise<unknown>;
 export declare const getMessagePage: (params?: MessageQuery) => Promise<unknown>;

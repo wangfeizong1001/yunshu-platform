@@ -1,1 +1,1 @@
-export { default as SafeHtml } from './index.vue'
+export { default as SafeHtml } from './index.vue';

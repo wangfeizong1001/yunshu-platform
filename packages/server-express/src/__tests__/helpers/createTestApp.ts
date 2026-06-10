@@ -28,9 +28,15 @@ export function createTestApp(): TestAppContext {
 
   const request = new Proxy(rawRequest as any, {
     get(target: any, prop: string) {
-      if (prop === 'get' || prop === 'post' || prop === 'put' ||
-          prop === 'delete' || prop === 'patch' ||
-          prop === 'head' || prop === 'options') {
+      if (
+        prop === 'get' ||
+        prop === 'post' ||
+        prop === 'put' ||
+        prop === 'delete' ||
+        prop === 'patch' ||
+        prop === 'head' ||
+        prop === 'options'
+      ) {
         return withAuth(prop as any);
       }
       return target[prop];

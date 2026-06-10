@@ -70,4 +70,4 @@ export default {
     nameExists: 'Role name already exists',
     keyExists: 'Role key already exists',
   },
-}
+};

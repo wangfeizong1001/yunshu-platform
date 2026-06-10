@@ -1,7 +1,14 @@
 /**
  * SSO 单点登录 Mock 数据
  */
-import type { SsoApplication, SsoAppPageResp, SsoConfig, SsoAuthorizeResp, SsoTokenResp, SsoUserInfo } from '@yunshu/shared';
+import type {
+  SsoApplication,
+  SsoAppPageResp,
+  SsoConfig,
+  SsoAuthorizeResp,
+  SsoTokenResp,
+  SsoUserInfo,
+} from '@yunshu/shared';
 export declare const mockSsoConfig: SsoConfig;
 export declare const mockSsoAppList: SsoApplication[];
 export declare function getMockSsoConfig(): SsoConfig;

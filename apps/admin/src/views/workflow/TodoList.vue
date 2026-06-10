@@ -87,11 +87,7 @@
       </div>
     </el-card>
 
-    <el-dialog
-      v-model="approveDialogVisible"
-      title="审批"
-      width="500px"
-    >
+    <el-dialog v-model="approveDialogVisible" title="审批" width="500px">
       <el-form :model="approveForm" label-width="80px">
         <el-form-item label="审批意见">
           <el-input
@@ -109,11 +105,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="delegateDialogVisible"
-      title="转办"
-      width="500px"
-    >
+    <el-dialog v-model="delegateDialogVisible" title="转办" width="500px">
       <el-form :model="delegateForm" label-width="80px">
         <el-form-item label="转办给">
           <el-select v-model="delegateForm.userId" placeholder="请选择用户" style="width: 100%">
@@ -137,11 +129,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="assignDialogVisible"
-      title="委托"
-      width="500px"
-    >
+    <el-dialog v-model="assignDialogVisible" title="委托" width="500px">
       <el-form :model="assignForm" label-width="80px">
         <el-form-item label="委托给">
           <el-select v-model="assignForm.userId" placeholder="请选择用户" style="width: 100%">
@@ -165,11 +153,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="addSignDialogVisible"
-      title="加签"
-      width="500px"
-    >
+    <el-dialog v-model="addSignDialogVisible" title="加签" width="500px">
       <el-form :model="addSignForm" label-width="80px">
         <el-form-item label="加签类型">
           <el-radio-group v-model="addSignForm.type">
@@ -201,14 +185,14 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="batchTransferDialogVisible"
-      title="批量转办"
-      width="500px"
-    >
+    <el-dialog v-model="batchTransferDialogVisible" title="批量转办" width="500px">
       <el-form :model="batchTransferForm" label-width="80px">
         <el-form-item label="转办给">
-          <el-select v-model="batchTransferForm.userId" placeholder="请选择用户" style="width: 100%">
+          <el-select
+            v-model="batchTransferForm.userId"
+            placeholder="请选择用户"
+            style="width: 100%"
+          >
             <el-option label="管理员" value="1" />
             <el-option label="张三" value="2" />
             <el-option label="李四" value="3" />
@@ -229,34 +213,34 @@
       </template>
     </el-dialog>
 
-    <el-drawer
-      v-model="viewDrawerVisible"
-      title="任务详情"
-      size="50%"
-    >
+    <el-drawer v-model="viewDrawerVisible" title="任务详情" size="50%">
       <div v-if="currentTask" class="task-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="任务名称">{{ currentTask.name }}</el-descriptions-item>
-          <el-descriptions-item label="流程名称">{{ currentTask.processDefinitionName }}</el-descriptions-item>
-          <el-descriptions-item label="业务编号">{{ currentTask.businessKey }}</el-descriptions-item>
+          <el-descriptions-item label="流程名称">{{
+            currentTask.processDefinitionName
+          }}</el-descriptions-item>
+          <el-descriptions-item label="业务编号">{{
+            currentTask.businessKey
+          }}</el-descriptions-item>
           <el-descriptions-item label="优先级">
             <el-tag v-if="currentTask.priority >= 80" type="danger">高</el-tag>
             <el-tag v-else-if="currentTask.priority >= 50" type="warning">中</el-tag>
             <el-tag v-else type="info">低</el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="接收时间">{{ currentTask.startTime }}</el-descriptions-item>
-          <el-descriptions-item label="处理人">{{ currentTask.assignee || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="任务描述" :span="2">{{ currentTask.description || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="处理人">{{
+            currentTask.assignee || '-'
+          }}</el-descriptions-item>
+          <el-descriptions-item label="任务描述" :span="2">{{
+            currentTask.description || '-'
+          }}</el-descriptions-item>
         </el-descriptions>
 
         <div class="history-section">
           <h4>审批历史</h4>
           <el-timeline>
-            <el-timeline-item
-              v-for="(item, idx) in taskHistory"
-              :key="idx"
-              :timestamp="item.time"
-            >
+            <el-timeline-item v-for="(item, idx) in taskHistory" :key="idx" :timestamp="item.time">
               <div class="timeline-content">
                 <div class="timeline-user">{{ item.user }}</div>
                 <div class="timeline-action" :class="item.action">{{ item.actionText }}</div>
@@ -271,278 +255,278 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Search, Refresh, Download } from '@element-plus/icons-vue'
-import { type Task } from '@/api/workflow.api'
-import { getMockTodoTaskPage } from '@/mock/workflow.mock'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage } from 'element-plus';
+  import { Search, Refresh, Download } from '@element-plus/icons-vue';
+  import { type Task } from '@/api/workflow.api';
+  import { getMockTodoTaskPage } from '@/mock/workflow.mock';
 
-const loading = ref(false)
-const taskList = ref<Task[]>([])
-const total = ref(0)
-const selectedTasks = ref<Task[]>([])
+  const loading = ref(false);
+  const taskList = ref<Task[]>([]);
+  const total = ref(0);
+  const selectedTasks = ref<Task[]>([]);
 
-const queryParams = reactive({
-  name: '',
-  processName: '',
-  pageNum: 1,
-  pageSize: 10,
-})
+  const queryParams = reactive({
+    name: '',
+    processName: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-const approveDialogVisible = ref(false)
-const delegateDialogVisible = ref(false)
-const assignDialogVisible = ref(false)
-const addSignDialogVisible = ref(false)
-const batchTransferDialogVisible = ref(false)
-const viewDrawerVisible = ref(false)
+  const approveDialogVisible = ref(false);
+  const delegateDialogVisible = ref(false);
+  const assignDialogVisible = ref(false);
+  const addSignDialogVisible = ref(false);
+  const batchTransferDialogVisible = ref(false);
+  const viewDrawerVisible = ref(false);
 
-const currentTask = ref<Task | null>(null)
+  const currentTask = ref<Task | null>(null);
 
-const approveForm = reactive({
-  comment: '',
-})
+  const approveForm = reactive({
+    comment: '',
+  });
 
-const delegateForm = reactive({
-  userId: '',
-  comment: '',
-})
+  const delegateForm = reactive({
+    userId: '',
+    comment: '',
+  });
 
-const assignForm = reactive({
-  userId: '',
-  comment: '',
-})
+  const assignForm = reactive({
+    userId: '',
+    comment: '',
+  });
 
-const addSignForm = reactive({
-  type: 'after',
-  userId: '',
-  comment: '',
-})
+  const addSignForm = reactive({
+    type: 'after',
+    userId: '',
+    comment: '',
+  });
 
-const batchTransferForm = reactive({
-  userId: '',
-  reason: '',
-})
+  const batchTransferForm = reactive({
+    userId: '',
+    reason: '',
+  });
 
-const taskHistory = ref([
-  {
-    user: '张三',
-    action: 'start',
-    actionText: '发起申请',
-    comment: '申请年假3天，从6月1日到6月3日',
-    time: '2024-06-01 09:00:00',
-  },
-])
+  const taskHistory = ref([
+    {
+      user: '张三',
+      action: 'start',
+      actionText: '发起申请',
+      comment: '申请年假3天，从6月1日到6月3日',
+      time: '2024-06-01 09:00:00',
+    },
+  ]);
 
-async function fetchTaskList() {
-  loading.value = true
-  try {
-    const res = getMockTodoTaskPage(queryParams)
-    taskList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
+  async function fetchTaskList() {
+    loading.value = true;
+    try {
+      const res = getMockTodoTaskPage(queryParams);
+      taskList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
+    }
   }
-}
 
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchTaskList()
-}
-
-function resetQuery() {
-  queryParams.name = ''
-  queryParams.processName = ''
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-function refreshTable() {
-  fetchTaskList()
-}
-
-function handleApprove(row: Task) {
-  currentTask.value = row
-  approveForm.comment = ''
-  approveDialogVisible.value = true
-}
-
-function handleDelegate(row: Task) {
-  currentTask.value = row
-  delegateForm.userId = ''
-  delegateForm.comment = ''
-  delegateDialogVisible.value = true
-}
-
-function handleAssign(row: Task) {
-  currentTask.value = row
-  assignForm.userId = ''
-  assignForm.comment = ''
-  assignDialogVisible.value = true
-}
-
-function handleView(row: Task) {
-  currentTask.value = row
-  viewDrawerVisible.value = true
-}
-
-function handleApproveSubmit() {
-  ElMessage.success('审批通过')
-  approveDialogVisible.value = false
-  refreshTable()
-}
-
-function handleRejectSubmit() {
-  ElMessage.success('已驳回')
-  approveDialogVisible.value = false
-  refreshTable()
-}
-
-function handleDelegateSubmit() {
-  if (!delegateForm.userId) {
-    ElMessage.warning('请选择转办对象')
-    return
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchTaskList();
   }
-  ElMessage.success('转办成功')
-  delegateDialogVisible.value = false
-  refreshTable()
-}
 
-function handleAssignSubmit() {
-  if (!assignForm.userId) {
-    ElMessage.warning('请选择委托对象')
-    return
+  function resetQuery() {
+    queryParams.name = '';
+    queryParams.processName = '';
+    queryParams.pageNum = 1;
+    handleQuery();
   }
-  ElMessage.success('委托成功')
-  assignDialogVisible.value = false
-  refreshTable()
-}
 
-function handleAddSign(row: Task) {
-  currentTask.value = row
-  addSignForm.type = 'after'
-  addSignForm.userId = ''
-  addSignForm.comment = ''
-  addSignDialogVisible.value = true
-}
-
-function handleAddSignSubmit() {
-  if (!addSignForm.userId) {
-    ElMessage.warning('请选择加签人')
-    return
+  function refreshTable() {
+    fetchTaskList();
   }
-  const typeText = addSignForm.type === 'before' ? '前加签' : '后加签'
-  ElMessage.success(`${typeText}成功`)
-  addSignDialogVisible.value = false
-  refreshTable()
-}
 
-function handleSelectionChange(selection: Task[]) {
-  selectedTasks.value = selection
-}
-
-function handleBatchApprove() {
-  if (selectedTasks.value.length === 0) {
-    ElMessage.warning('请先选择任务')
-    return
+  function handleApprove(row: Task) {
+    currentTask.value = row;
+    approveForm.comment = '';
+    approveDialogVisible.value = true;
   }
-  ElMessage.success(`已批量通过 ${selectedTasks.value.length} 项任务`)
-  selectedTasks.value = []
-  refreshTable()
-}
 
-function handleBatchReject() {
-  if (selectedTasks.value.length === 0) {
-    ElMessage.warning('请先选择任务')
-    return
+  function handleDelegate(row: Task) {
+    currentTask.value = row;
+    delegateForm.userId = '';
+    delegateForm.comment = '';
+    delegateDialogVisible.value = true;
   }
-  ElMessage.success(`已批量驳回 ${selectedTasks.value.length} 项任务`)
-  selectedTasks.value = []
-  refreshTable()
-}
 
-function handleBatchTransfer() {
-  if (selectedTasks.value.length === 0) {
-    ElMessage.warning('请先选择任务')
-    return
+  function handleAssign(row: Task) {
+    currentTask.value = row;
+    assignForm.userId = '';
+    assignForm.comment = '';
+    assignDialogVisible.value = true;
   }
-  batchTransferForm.userId = ''
-  batchTransferForm.reason = ''
-  batchTransferDialogVisible.value = true
-}
 
-function handleBatchTransferSubmit() {
-  if (!batchTransferForm.userId) {
-    ElMessage.warning('请选择转办对象')
-    return
+  function handleView(row: Task) {
+    currentTask.value = row;
+    viewDrawerVisible.value = true;
   }
-  ElMessage.success(`已批量转办 ${selectedTasks.value.length} 项任务`)
-  batchTransferDialogVisible.value = false
-  selectedTasks.value = []
-  refreshTable()
-}
 
-function handleExport() {
-  ElMessage.info('正在导出任务数据...')
-}
+  function handleApproveSubmit() {
+    ElMessage.success('审批通过');
+    approveDialogVisible.value = false;
+    refreshTable();
+  }
 
-onMounted(() => {
-  fetchTaskList()
-})
+  function handleRejectSubmit() {
+    ElMessage.success('已驳回');
+    approveDialogVisible.value = false;
+    refreshTable();
+  }
+
+  function handleDelegateSubmit() {
+    if (!delegateForm.userId) {
+      ElMessage.warning('请选择转办对象');
+      return;
+    }
+    ElMessage.success('转办成功');
+    delegateDialogVisible.value = false;
+    refreshTable();
+  }
+
+  function handleAssignSubmit() {
+    if (!assignForm.userId) {
+      ElMessage.warning('请选择委托对象');
+      return;
+    }
+    ElMessage.success('委托成功');
+    assignDialogVisible.value = false;
+    refreshTable();
+  }
+
+  function handleAddSign(row: Task) {
+    currentTask.value = row;
+    addSignForm.type = 'after';
+    addSignForm.userId = '';
+    addSignForm.comment = '';
+    addSignDialogVisible.value = true;
+  }
+
+  function handleAddSignSubmit() {
+    if (!addSignForm.userId) {
+      ElMessage.warning('请选择加签人');
+      return;
+    }
+    const typeText = addSignForm.type === 'before' ? '前加签' : '后加签';
+    ElMessage.success(`${typeText}成功`);
+    addSignDialogVisible.value = false;
+    refreshTable();
+  }
+
+  function handleSelectionChange(selection: Task[]) {
+    selectedTasks.value = selection;
+  }
+
+  function handleBatchApprove() {
+    if (selectedTasks.value.length === 0) {
+      ElMessage.warning('请先选择任务');
+      return;
+    }
+    ElMessage.success(`已批量通过 ${selectedTasks.value.length} 项任务`);
+    selectedTasks.value = [];
+    refreshTable();
+  }
+
+  function handleBatchReject() {
+    if (selectedTasks.value.length === 0) {
+      ElMessage.warning('请先选择任务');
+      return;
+    }
+    ElMessage.success(`已批量驳回 ${selectedTasks.value.length} 项任务`);
+    selectedTasks.value = [];
+    refreshTable();
+  }
+
+  function handleBatchTransfer() {
+    if (selectedTasks.value.length === 0) {
+      ElMessage.warning('请先选择任务');
+      return;
+    }
+    batchTransferForm.userId = '';
+    batchTransferForm.reason = '';
+    batchTransferDialogVisible.value = true;
+  }
+
+  function handleBatchTransferSubmit() {
+    if (!batchTransferForm.userId) {
+      ElMessage.warning('请选择转办对象');
+      return;
+    }
+    ElMessage.success(`已批量转办 ${selectedTasks.value.length} 项任务`);
+    batchTransferDialogVisible.value = false;
+    selectedTasks.value = [];
+    refreshTable();
+  }
+
+  function handleExport() {
+    ElMessage.info('正在导出任务数据...');
+  }
+
+  onMounted(() => {
+    fetchTaskList();
+  });
 </script>
 
 <style scoped lang="scss">
-.todo-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
-
-  .table-card {
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .title {
-        font-size: 16px;
-        font-weight: 600;
-      }
-      .count-tag {
-        margin-left: 8px;
-      }
+  .todo-list {
+    .search-card {
+      margin-bottom: 16px;
     }
-  }
 
-  .batch-actions {
-    margin-bottom: 16px;
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-
-  .task-detail {
-    .history-section {
-      margin-top: 24px;
-      h4 {
-        margin-bottom: 16px;
-      }
-      .timeline-content {
-        .timeline-user {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .title {
+          font-size: 16px;
           font-weight: 600;
         }
-        .timeline-action {
-          margin-top: 4px;
-          &.start {
-            color: #67c23a;
-          }
+        .count-tag {
+          margin-left: 8px;
         }
-        .timeline-comment {
-          margin-top: 8px;
-          color: #606266;
+      }
+    }
+
+    .batch-actions {
+      margin-bottom: 16px;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .task-detail {
+      .history-section {
+        margin-top: 24px;
+        h4 {
+          margin-bottom: 16px;
+        }
+        .timeline-content {
+          .timeline-user {
+            font-weight: 600;
+          }
+          .timeline-action {
+            margin-top: 4px;
+            &.start {
+              color: #67c23a;
+            }
+          }
+          .timeline-comment {
+            margin-top: 8px;
+            color: #606266;
+          }
         }
       }
     }
   }
-}
 </style>

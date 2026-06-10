@@ -3,9 +3,9 @@
  * @module mock/routes/monitor/server
  */
 
-import { MockMethod } from 'vite-plugin-mock'
-import { success } from '../utils/response'
-import { delay } from '../utils/delay'
+import { MockMethod } from 'vite-plugin-mock';
+import { success } from '../utils/response';
+import { delay } from '../utils/delay';
 
 export default [
   /**
@@ -15,7 +15,7 @@ export default [
     url: '/api/monitor/server',
     method: 'get',
     response: async () => {
-      await delay(500) // 服务器信息获取稍慢
+      await delay(500); // 服务器信息获取稍慢
 
       return success({
         serverName: '云枢中台服务器',
@@ -37,9 +37,9 @@ export default [
         databaseVersion: '16.0',
         projectPath: '/opt/yunshu/server',
         hostName: 'yunshu-server-01',
-        collectTime: new Date().toISOString().replace('T', ' ').slice(0, 19)
-      })
-    }
+        collectTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      });
+    },
   },
 
   /**
@@ -49,14 +49,14 @@ export default [
     url: '/api/monitor/server/cpu',
     method: 'get',
     response: async () => {
-      await delay()
+      await delay();
 
       return success({
         coreCount: 8,
         usage: Math.random() * 40 + 10,
-        model: 'Intel(R) Xeon(R) Platinum 8260C CPU @ 2.40GHz'
-      })
-    }
+        model: 'Intel(R) Xeon(R) Platinum 8260C CPU @ 2.40GHz',
+      });
+    },
   },
 
   /**
@@ -66,15 +66,15 @@ export default [
     url: '/api/monitor/server/memory',
     method: 'get',
     response: async () => {
-      await delay()
+      await delay();
 
       return success({
         used: Math.floor(Math.random() * 8 + 8),
         total: 16,
         usage: Math.random() * 30 + 20,
-        unit: 'GB'
-      })
-    }
+        unit: 'GB',
+      });
+    },
   },
 
   /**
@@ -84,15 +84,15 @@ export default [
     url: '/api/monitor/server/disk',
     method: 'get',
     response: async () => {
-      await delay()
+      await delay();
 
       return success({
         used: Math.floor(Math.random() * 200 + 100),
         total: 500,
         usage: Math.random() * 30 + 20,
-        unit: 'GB'
-      })
-    }
+        unit: 'GB',
+      });
+    },
   },
 
   /**
@@ -102,15 +102,15 @@ export default [
     url: '/api/monitor/server/jvm',
     method: 'get',
     response: async () => {
-      await delay()
+      await delay();
 
       return success({
         name: 'OpenJDK 64-Bit Server VM',
         version: '17.0.9',
         runtime: 'OpenJDK Runtime Environment',
         startTime: '2024-01-01 08:00:00',
-        uptime: Math.floor((Date.now() - new Date('2024-01-01T08:00:00').getTime()) / 1000)
-      })
-    }
-  }
-] as MockMethod[]
+        uptime: Math.floor((Date.now() - new Date('2024-01-01T08:00:00').getTime()) / 1000),
+      });
+    },
+  },
+] as MockMethod[];

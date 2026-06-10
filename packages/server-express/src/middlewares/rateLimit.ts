@@ -27,10 +27,17 @@ const DEFAULT_OPTIONS: Partial<RateLimitOptions> = {
   standardHeaders: true, // 在响应头返回 X-RateLimit-*
   legacyHeaders: false,
   handler: (req, _res) => {
-    logger.warn('[rate-limit] 请求过于频繁', { ip: req.ip, method: req.method, url: req.originalUrl });
+    logger.warn('[rate-limit] 请求过于频繁', {
+      ip: req.ip,
+      method: req.method,
+      url: req.originalUrl,
+    });
     // 429 + 统一响应结构由全局 errorHandler 处理（本函数作为 handler 时需自行发送）
     // 这里直接抛出由全局中间件统一处理，保持一致的错误格式
-    const err = new Error('请求过于频繁，请稍后再试') as Error & { code?: string; statusCode?: number };
+    const err = new Error('请求过于频繁，请稍后再试') as Error & {
+      code?: string;
+      statusCode?: number;
+    };
     err.code = 'TOO_MANY_REQUESTS';
     err.statusCode = 429;
     throw err;

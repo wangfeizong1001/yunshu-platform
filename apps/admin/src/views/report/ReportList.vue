@@ -35,12 +35,7 @@
       <template #header>
         <div class="table-header">
           <div class="left">
-            <el-button
-              v-has-permi="['report:add']"
-              type="primary"
-              :icon="Plus"
-              @click="handleAdd"
-            >
+            <el-button v-has-permi="['report:add']" type="primary" :icon="Plus" @click="handleAdd">
               新增
             </el-button>
             <el-button
@@ -89,20 +84,10 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
-            <el-button
-              v-has-permi="['report:view']"
-              link
-              type="primary"
-              @click="handleView(row)"
-            >
+            <el-button v-has-permi="['report:view']" link type="primary" @click="handleView(row)">
               查看
             </el-button>
-            <el-button
-              v-has-permi="['report:edit']"
-              link
-              type="primary"
-              @click="handleEdit(row)"
-            >
+            <el-button v-has-permi="['report:edit']" link type="primary" @click="handleEdit(row)">
               设计
             </el-button>
             <el-button
@@ -146,12 +131,7 @@
       width="600px"
       destroy-on-close
     >
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        label-width="100px"
-      >
+      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
         <el-form-item label="报表名称" prop="reportName">
           <el-input v-model="formData.reportName" placeholder="请输入报表名称" />
         </el-form-item>
@@ -179,29 +159,17 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input
-            v-model="formData.remark"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入备注"
-          />
+          <el-input v-model="formData.remark" type="textarea" :rows="3" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitLoading" @click="handleSubmit">
-          确定
-        </el-button>
+        <el-button type="primary" :loading="submitLoading" @click="handleSubmit"> 确定 </el-button>
       </template>
     </el-dialog>
 
     <!-- 导出对话框 -->
-    <el-dialog
-      v-model="exportDialogVisible"
-      title="导出报表"
-      width="400px"
-      destroy-on-close
-    >
+    <el-dialog v-model="exportDialogVisible" title="导出报表" width="400px" destroy-on-close>
       <el-form label-width="100px">
         <el-form-item label="导出格式">
           <el-radio-group v-model="exportFormat">
@@ -221,253 +189,259 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Search, Refresh, Plus, Delete } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
-import {
-  getReportPage,
-  addReport,
-  updateReport,
-  deleteReport,
-  batchDeleteReport,
-  exportReport,
-  getReportData,
-  type ReportForm
-} from '@/api/report.api'
-import { exportToExcel } from '@/utils/export'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+  import { Search, Refresh, Plus, Delete } from '@element-plus/icons-vue';
+  import { useRouter } from 'vue-router';
+  import {
+    getReportPage,
+    addReport,
+    updateReport,
+    deleteReport,
+    batchDeleteReport,
+    exportReport,
+    getReportData,
+    type ReportForm,
+  } from '@/api/report.api';
+  import { exportToExcel } from '@/utils/export';
 
-const router = useRouter()
+  const router = useRouter();
 
-// 状态
-const loading = ref(false)
-const submitLoading = ref(false)
-const exportLoading = ref(false)
-const reportList = ref<any[]>([])
-const total = ref(0)
-const selectedRows = ref<any[]>([])
-const dialogVisible = ref(false)
-const exportDialogVisible = ref(false)
-const isEdit = ref(false)
-const formRef = ref<FormInstance>()
-const currentReport = ref<any>(null)
-const exportFormat = ref('excel')
+  // 状态
+  const loading = ref(false);
+  const submitLoading = ref(false);
+  const exportLoading = ref(false);
+  const reportList = ref<any[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<any[]>([]);
+  const dialogVisible = ref(false);
+  const exportDialogVisible = ref(false);
+  const isEdit = ref(false);
+  const formRef = ref<FormInstance>();
+  const currentReport = ref<any>(null);
+  const exportFormat = ref('excel');
 
-// 查询参数
-const queryParams = reactive({
-  reportName: '',
-  reportType: '',
-  status: '',
-  pageNum: 1,
-  pageSize: 10
-})
+  // 查询参数
+  const queryParams = reactive({
+    reportName: '',
+    reportType: '',
+    status: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 表单数据
-const formData = reactive<ReportForm>({
-  reportName: '',
-  reportCode: '',
-  reportType: 'chart',
-  description: '',
-  status: '0',
-  remark: ''
-})
-
-// 表单验证规则
-const formRules: FormRules = {
-  reportName: [{ required: true, message: '请输入报表名称', trigger: 'blur' }],
-  reportCode: [
-    { required: true, message: '请输入报表编码', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: '报表编码只能包含字母、数字和下划线', trigger: 'blur' }
-  ],
-  reportType: [{ required: true, message: '请选择报表类型', trigger: 'change' }]
-}
-
-// 加载报表列表
-async function fetchReportList() {
-  loading.value = true
-  try {
-    const res = await getReportPage(queryParams) as { rows: any[]; total: number }
-    reportList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchReportList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.reportName = ''
-  queryParams.reportType = ''
-  queryParams.status = ''
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchReportList()
-}
-
-// 新增
-function handleAdd() {
-  isEdit.value = false
-  Object.assign(formData, {
+  // 表单数据
+  const formData = reactive<ReportForm>({
     reportName: '',
     reportCode: '',
     reportType: 'chart',
     description: '',
     status: '0',
-    remark: ''
-  })
-  dialogVisible.value = true
-}
+    remark: '',
+  });
 
-// 编辑
-function handleEdit(row: any) {
-  router.push(`/report/design/${row.reportId}`)
-}
-
-// 查看
-function handleView(row: any) {
-  router.push(`/report/view/${row.reportId}`)
-}
-
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除报表"${row.reportName}"？`, '提示', {
-      type: 'warning'
-    })
-    await deleteReport(row.reportId)
-    ElMessage.success('删除成功')
-    fetchReportList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败:', error)
-    }
-  }
-}
-
-// 批量删除
-async function handleBatchDelete() {
-  try {
-    await ElMessageBox.confirm(
-      `是否确认删除选中的 ${selectedRows.value.length} 个报表？`,
-      '提示',
+  // 表单验证规则
+  const formRules: FormRules = {
+    reportName: [{ required: true, message: '请输入报表名称', trigger: 'blur' }],
+    reportCode: [
+      { required: true, message: '请输入报表编码', trigger: 'blur' },
       {
-        type: 'warning'
-      }
-    )
-    const ids = selectedRows.value.map(item => item.reportId)
-    await batchDeleteReport(ids)
-    ElMessage.success('删除成功')
-    fetchReportList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败:', error)
+        pattern: /^[a-zA-Z0-9_]+$/,
+        message: '报表编码只能包含字母、数字和下划线',
+        trigger: 'blur',
+      },
+    ],
+    reportType: [{ required: true, message: '请选择报表类型', trigger: 'change' }],
+  };
+
+  // 加载报表列表
+  async function fetchReportList() {
+    loading.value = true;
+    try {
+      const res = (await getReportPage(queryParams)) as { rows: any[]; total: number };
+      reportList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 导出
-function handleExport(row: any) {
-  currentReport.value = row
-  exportFormat.value = 'excel'
-  exportDialogVisible.value = true
-}
-
-// 确认导出
-async function handleConfirmExport() {
-  if (!currentReport.value) return
-  
-  exportLoading.value = true
-  try {
-    // 获取报表数据
-    const dataRes = await getReportData({ reportId: currentReport.value.reportId }) as { data: any }
-    const reportData = dataRes.data
-    
-    if (reportData && reportData.data) {
-      if (exportFormat.value === 'excel') {
-        exportToExcel(reportData.data, currentReport.value.reportName)
-      } else if (exportFormat.value === 'pdf') {
-        // 使用 API 导出
-        await exportReport(currentReport.value.reportId, 'pdf')
-      }
-      ElMessage.success('导出成功')
-    } else {
-      ElMessage.warning('报表数据为空')
-    }
-    
-    exportDialogVisible.value = false
-  } catch (error) {
-    console.error('导出失败:', error)
-    ElMessage.error('导出失败')
-  } finally {
-    exportLoading.value = false
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchReportList();
   }
-}
 
-// 提交
-async function handleSubmit() {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      submitLoading.value = true
-      try {
-        if (isEdit.value && formData.reportId) {
-          await updateReport(formData)
-          ElMessage.success('修改成功')
-        } else {
-          await addReport(formData)
-          ElMessage.success('新增成功')
+  // 重置查询
+  function resetQuery() {
+    queryParams.reportName = '';
+    queryParams.reportType = '';
+    queryParams.status = '';
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchReportList();
+  }
+
+  // 新增
+  function handleAdd() {
+    isEdit.value = false;
+    Object.assign(formData, {
+      reportName: '',
+      reportCode: '',
+      reportType: 'chart',
+      description: '',
+      status: '0',
+      remark: '',
+    });
+    dialogVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: any) {
+    router.push(`/report/design/${row.reportId}`);
+  }
+
+  // 查看
+  function handleView(row: any) {
+    router.push(`/report/view/${row.reportId}`);
+  }
+
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除报表"${row.reportName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteReport(row.reportId);
+      ElMessage.success('删除成功');
+      fetchReportList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败:', error);
+      }
+    }
+  }
+
+  // 批量删除
+  async function handleBatchDelete() {
+    try {
+      await ElMessageBox.confirm(
+        `是否确认删除选中的 ${selectedRows.value.length} 个报表？`,
+        '提示',
+        {
+          type: 'warning',
+        },
+      );
+      const ids = selectedRows.value.map((item) => item.reportId);
+      await batchDeleteReport(ids);
+      ElMessage.success('删除成功');
+      fetchReportList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败:', error);
+      }
+    }
+  }
+
+  // 导出
+  function handleExport(row: any) {
+    currentReport.value = row;
+    exportFormat.value = 'excel';
+    exportDialogVisible.value = true;
+  }
+
+  // 确认导出
+  async function handleConfirmExport() {
+    if (!currentReport.value) return;
+
+    exportLoading.value = true;
+    try {
+      // 获取报表数据
+      const dataRes = (await getReportData({ reportId: currentReport.value.reportId })) as {
+        data: any;
+      };
+      const reportData = dataRes.data;
+
+      if (reportData && reportData.data) {
+        if (exportFormat.value === 'excel') {
+          exportToExcel(reportData.data, currentReport.value.reportName);
+        } else if (exportFormat.value === 'pdf') {
+          // 使用 API 导出
+          await exportReport(currentReport.value.reportId, 'pdf');
         }
-        dialogVisible.value = false
-        fetchReportList()
-      } catch (error) {
-        console.error('操作失败:', error)
-      } finally {
-        submitLoading.value = false
+        ElMessage.success('导出成功');
+      } else {
+        ElMessage.warning('报表数据为空');
       }
+
+      exportDialogVisible.value = false;
+    } catch (error) {
+      console.error('导出失败:', error);
+      ElMessage.error('导出失败');
+    } finally {
+      exportLoading.value = false;
     }
-  })
-}
+  }
 
-// 选择变化
-function handleSelectionChange(selection: any[]) {
-  selectedRows.value = selection
-}
+  // 提交
+  async function handleSubmit() {
+    if (!formRef.value) return;
 
-// 初始化
-onMounted(() => {
-  fetchReportList()
-})
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        submitLoading.value = true;
+        try {
+          if (isEdit.value && formData.reportId) {
+            await updateReport(formData);
+            ElMessage.success('修改成功');
+          } else {
+            await addReport(formData);
+            ElMessage.success('新增成功');
+          }
+          dialogVisible.value = false;
+          fetchReportList();
+        } catch (error) {
+          console.error('操作失败:', error);
+        } finally {
+          submitLoading.value = false;
+        }
+      }
+    });
+  }
+
+  // 选择变化
+  function handleSelectionChange(selection: any[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchReportList();
+  });
 </script>
 
 <style scoped lang="scss">
-.report-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .report-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

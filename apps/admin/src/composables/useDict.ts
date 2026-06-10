@@ -4,15 +4,15 @@
  * 提供字典数据的获取、缓存和管理功能
  */
 
-import { ref, computed } from 'vue'
-import type { SysDictData } from '@yunshu/shared'
-import { getDictDataByType } from '@/api/system/dict.api'
+import { ref, computed } from 'vue';
+import type { SysDictData } from '@yunshu/shared';
+import { getDictDataByType } from '@/api/system/dict.api';
 
 // 全局字典缓存
-const dictCache = ref<Map<string, SysDictData[]>>(new Map())
+const dictCache = ref<Map<string, SysDictData[]>>(new Map());
 
 // 加载状态
-const loadingDict = ref<Set<string>>(new Set())
+const loadingDict = ref<Set<string>>(new Set());
 
 /**
  * 数据字典组合式函数
@@ -26,7 +26,7 @@ export function useDict() {
   async function getDictData(dictType: string, forceRefresh = false): Promise<SysDictData[]> {
     // 先从缓存获取
     if (!forceRefresh && dictCache.value.has(dictType)) {
-      return dictCache.value.get(dictType)!
+      return dictCache.value.get(dictType)!;
     }
 
     // 检查是否正在加载
@@ -35,27 +35,27 @@ export function useDict() {
       return new Promise((resolve) => {
         const checkInterval = setInterval(() => {
           if (!loadingDict.value.has(dictType)) {
-            clearInterval(checkInterval)
-            resolve(dictCache.value.get(dictType) || [])
+            clearInterval(checkInterval);
+            resolve(dictCache.value.get(dictType) || []);
           }
-        }, 50)
-      })
+        }, 50);
+      });
     }
 
     // 设置加载状态
-    loadingDict.value.add(dictType)
+    loadingDict.value.add(dictType);
 
     try {
       // 从API获取
-      const data = await getDictDataByType(dictType)
-      const dictData = (data || []) as unknown as SysDictData[]
-      dictCache.value.set(dictType, dictData)
-      return dictData
+      const data = await getDictDataByType(dictType);
+      const dictData = (data || []) as unknown as SysDictData[];
+      dictCache.value.set(dictType, dictData);
+      return dictData;
     } catch (error) {
-      console.error(`获取字典[${dictType}]失败:`, error)
-      return []
+      console.error(`获取字典[${dictType}]失败:`, error);
+      return [];
     } finally {
-      loadingDict.value.delete(dictType)
+      loadingDict.value.delete(dictType);
     }
   }
 
@@ -65,9 +65,9 @@ export function useDict() {
    */
   function clearDictCache(dictType?: string) {
     if (dictType) {
-      dictCache.value.delete(dictType)
+      dictCache.value.delete(dictType);
     } else {
-      dictCache.value.clear()
+      dictCache.value.clear();
     }
   }
 
@@ -78,18 +78,18 @@ export function useDict() {
    */
   async function getDictDatas(
     dictTypes: string[],
-    forceRefresh = false
+    forceRefresh = false,
   ): Promise<Map<string, SysDictData[]>> {
-    const result = new Map<string, SysDictData[]>()
+    const result = new Map<string, SysDictData[]>();
 
     await Promise.all(
       dictTypes.map(async (type) => {
-        const data = await getDictData(type, forceRefresh)
-        result.set(type, data)
-      })
-    )
+        const data = await getDictData(type, forceRefresh);
+        result.set(type, data);
+      }),
+    );
 
-    return result
+    return result;
   }
 
   /**
@@ -98,9 +98,9 @@ export function useDict() {
    * @param dictValue 字典值
    */
   async function getDictLabel(dictType: string, dictValue: string): Promise<string> {
-    const data = await getDictData(dictType)
-    const item = data.find((d) => d.dictValue === dictValue)
-    return item?.dictLabel || dictValue
+    const data = await getDictData(dictType);
+    const item = data.find((d) => d.dictValue === dictValue);
+    return item?.dictLabel || dictValue;
   }
 
   /**
@@ -109,21 +109,21 @@ export function useDict() {
    * @param forceRefresh 是否强制刷新
    */
   async function getDictOptions(dictType: string, forceRefresh = false) {
-    return getDictData(dictType, forceRefresh)
+    return getDictData(dictType, forceRefresh);
   }
 
   /**
    * 缓存是否包含指定字典
    */
   function hasDict(dictType: string): boolean {
-    return dictCache.value.has(dictType)
+    return dictCache.value.has(dictType);
   }
 
   /**
    * 获取缓存的字典数据
    */
   function getCachedDict(dictType: string): SysDictData[] | undefined {
-    return dictCache.value.get(dictType)
+    return dictCache.value.get(dictType);
   }
 
   return {
@@ -143,7 +143,7 @@ export function useDict() {
     hasDict,
     /** 获取缓存的字典数据 */
     getCachedDict,
-  }
+  };
 }
 
 /**
@@ -196,4 +196,4 @@ export const STATIC_DICT_OPTIONS = {
     { label: 'OSS', value: 'oss' },
     { label: 'COS', value: 'cos' },
   ],
-}
+};

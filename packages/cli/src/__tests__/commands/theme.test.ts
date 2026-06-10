@@ -21,7 +21,7 @@ describe('theme', () => {
     it('should generate CSS with :root and light theme variables', () => {
       const result = generateCSSTheme('#409EFF', darkScheme, 'light');
       expect(result).toContain(':root');
-      expect(result).toContain("--color-primary: #409EFF;");
+      expect(result).toContain('--color-primary: #409EFF;');
       expect(result).toContain('--color-success: #67C23A');
       expect(result).toContain('--color-bg: #ffffff');
       expect(result).toContain('color-scheme: light');
@@ -29,7 +29,7 @@ describe('theme', () => {
 
     it('should include dark theme variables when mode is dark', () => {
       const result = generateCSSTheme('#409EFF', darkScheme, 'dark');
-      expect(result).toContain(":root");
+      expect(result).toContain(':root');
       expect(result).toContain("[data-theme='dark']");
       expect(result).toContain('--color-bg: #0f172a');
       expect(result).toContain('--color-surface: #1e293b');
@@ -241,9 +241,7 @@ describe('theme', () => {
         expect(lightenedRgb.g).toBeGreaterThanOrEqual(original.g);
         expect(lightenedRgb.b).toBeGreaterThanOrEqual(original.b);
         // 至少 R 或 G 通道应该增加（因为它们不是 255）
-        expect(
-          lightenedRgb.r > original.r || lightenedRgb.g > original.g,
-        ).toBe(true);
+        expect(lightenedRgb.r > original.r || lightenedRgb.g > original.g).toBe(true);
       });
 
       it('should lighten by 0% to return the same color', () => {

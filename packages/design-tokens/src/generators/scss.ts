@@ -53,7 +53,7 @@ export function generateSCSS(): string {
     ' * 此文件由 @yunshu/design-tokens 自动生成，请勿手动编辑。',
     ' *',
     ' * 使用方式：',
-    ' *   @use \'@yunshu/design-tokens/scss\' as yun;',
+    " *   @use '@yunshu/design-tokens/scss' as yun;",
     ' *   padding: yun.$spacing-md;',
     ' */',
     '',

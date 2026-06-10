@@ -12,23 +12,11 @@
  * @module @yunshu/server-core/base/BaseService
  */
 
-import type {
-  ServiceResult,
-  PaginationParams,
-  PaginatedResult,
-} from '@yunshu/shared';
+import type { ServiceResult, PaginationParams, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult } from '@yunshu/shared';
-import type {
-  IRepository,
-  IEntity,
-  QueryCondition,
-} from '../repositories/IRepository';
+import type { IRepository, IEntity, QueryCondition } from '../repositories/IRepository';
 import { ErrorCode } from '../errors/BusinessError';
-import {
-  withCache,
-  invalidateCache,
-  invalidateCacheByPrefix,
-} from '../cache/CacheDecorator';
+import { withCache, invalidateCache, invalidateCacheByPrefix } from '../cache/CacheDecorator';
 import { bloomAdd, bloomMightContain } from '../cache/BloomFilter';
 
 // ============================================================================
@@ -135,10 +123,7 @@ const DEFAULT_CONFIG: Required<Omit<BaseServiceConfig, 'cacheOptions'>> & {
  * }
  * ```
  */
-export abstract class BaseService<
-  T extends IEntity = IEntity,
-  TId = string,
-> {
+export abstract class BaseService<T extends IEntity = IEntity, TId = string> {
   protected readonly repository: IRepository<T, TId>;
   protected readonly config: {
     entityName: string;
@@ -156,8 +141,7 @@ export abstract class BaseService<
     this.repository = repository;
 
     const entityName = config.entityName ?? DEFAULT_CONFIG.entityName;
-    const cacheKeyPrefix: string =
-      config.cacheOptions?.cacheKeyPrefix ?? `service:${entityName}`;
+    const cacheKeyPrefix: string = config.cacheOptions?.cacheKeyPrefix ?? `service:${entityName}`;
 
     this.config = {
       ...DEFAULT_CONFIG,
@@ -166,15 +150,11 @@ export abstract class BaseService<
       softDelete: config.softDelete ?? DEFAULT_CONFIG.softDelete,
       deletedAtField: config.deletedAtField ?? DEFAULT_CONFIG.deletedAtField,
       cacheOptions: {
-        cacheEnabled:
-          config.cacheOptions?.cacheEnabled ??
-          DEFAULT_CONFIG.cacheOptions.cacheEnabled,
-        cacheTtl:
-          config.cacheOptions?.cacheTtl ?? DEFAULT_CONFIG.cacheOptions.cacheTtl,
+        cacheEnabled: config.cacheOptions?.cacheEnabled ?? DEFAULT_CONFIG.cacheOptions.cacheEnabled,
+        cacheTtl: config.cacheOptions?.cacheTtl ?? DEFAULT_CONFIG.cacheOptions.cacheTtl,
         cacheKeyPrefix,
         bloomFilterEnabled:
-          config.cacheOptions?.bloomFilterEnabled ??
-          DEFAULT_CONFIG.cacheOptions.bloomFilterEnabled,
+          config.cacheOptions?.bloomFilterEnabled ?? DEFAULT_CONFIG.cacheOptions.bloomFilterEnabled,
       },
     };
   }
@@ -187,8 +167,7 @@ export abstract class BaseService<
    * 根据 ID 查找
    */
   async findById(id: TId): Promise<ServiceResult<T | null>> {
-    const { cacheEnabled, cacheTtl, cacheKeyPrefix, bloomFilterEnabled } =
-      this.config.cacheOptions;
+    const { cacheEnabled, cacheTtl, cacheKeyPrefix, bloomFilterEnabled } = this.config.cacheOptions;
 
     if (!cacheEnabled) {
       return this.repository.findById(id);
@@ -201,23 +180,15 @@ export abstract class BaseService<
       return createSuccessResult(null);
     }
 
-    const cachedFn = withCache(
-      async (_key: string, _id: TId) => this.repository.findById(_id),
-      {
-        keyPrefix: cacheKeyPrefix,
-        ttl: cacheTtl,
-        keyGenerator: (_k, _idArg) => `byId:${_idArg}`,
-      },
-    );
+    const cachedFn = withCache(async (_key: string, _id: TId) => this.repository.findById(_id), {
+      keyPrefix: cacheKeyPrefix,
+      ttl: cacheTtl,
+      keyGenerator: (_k, _idArg) => `byId:${_idArg}`,
+    });
 
     const result = await cachedFn(bloomKey, id);
 
-    if (
-      bloomFilterEnabled &&
-      result &&
-      result.success &&
-      result.data !== null
-    ) {
+    if (bloomFilterEnabled && result && result.success && result.data !== null) {
       bloomAdd(bloomKey);
     }
 
@@ -227,9 +198,7 @@ export abstract class BaseService<
   /**
    * 查找全部
    */
-  async findAll(
-    query: Record<string, unknown> = {},
-  ): Promise<ServiceResult<T[]>> {
+  async findAll(query: Record<string, unknown> = {}): Promise<ServiceResult<T[]>> {
     const conditions = this.buildConditions(query);
     return this.repository.findAll({
       where: conditions,
@@ -279,9 +248,7 @@ export abstract class BaseService<
   /**
    * 根据条件查找单个
    */
-  async findOne(
-    query: Record<string, unknown>,
-  ): Promise<ServiceResult<T | null>> {
+  async findOne(query: Record<string, unknown>): Promise<ServiceResult<T | null>> {
     const { cacheEnabled, cacheTtl, cacheKeyPrefix } = this.config.cacheOptions;
     const conditions = this.buildConditions(query);
 
@@ -291,14 +258,11 @@ export abstract class BaseService<
 
     const conditionHash = this.hashObject(conditions);
 
-    const cachedFn = withCache(
-      async (_key: string) => this.repository.findOne(conditions),
-      {
-        keyPrefix: cacheKeyPrefix,
-        ttl: cacheTtl,
-        keyGenerator: () => `one:${conditionHash}`,
-      },
-    );
+    const cachedFn = withCache(async (_key: string) => this.repository.findOne(conditions), {
+      keyPrefix: cacheKeyPrefix,
+      ttl: cacheTtl,
+      keyGenerator: () => `one:${conditionHash}`,
+    });
 
     return cachedFn(`${cacheKeyPrefix}:one:${conditionHash}`);
   }
@@ -338,16 +302,11 @@ export abstract class BaseService<
     } = config;
 
     const conditions = this.buildConditions(filter);
-    const sortField = params.sort && allowedSortFields.includes(params.sort)
-      ? params.sort
-      : defaultSort;
+    const sortField =
+      params.sort && allowedSortFields.includes(params.sort) ? params.sort : defaultSort;
     const dbSortField = this.toDbFieldName(sortField);
-    const populateConfigs = populate
-      ? this.buildPopulateConfigs(populate)
-      : undefined;
-    const selectFields = select
-      ? select.map((f) => this.toDbFieldName(f))
-      : undefined;
+    const populateConfigs = populate ? this.buildPopulateConfigs(populate) : undefined;
+    const selectFields = select ? select.map((f) => this.toDbFieldName(f)) : undefined;
 
     const performQuery = async () =>
       this.repository.findWithPagination(params, {
@@ -371,14 +330,11 @@ export abstract class BaseService<
       config: { filter, sort: sortField, populate, select, includeDeleted },
     });
 
-    const cachedFn = withCache(
-      async (_key: string) => performQuery(),
-      {
-        keyPrefix: cacheKeyPrefix,
-        ttl: 60,
-        keyGenerator: () => `page:${pageHash}`,
-      },
-    );
+    const cachedFn = withCache(async (_key: string) => performQuery(), {
+      keyPrefix: cacheKeyPrefix,
+      ttl: 60,
+      keyGenerator: () => `page:${pageHash}`,
+    });
 
     return cachedFn(`${cacheKeyPrefix}:page:${pageHash}`);
   }
@@ -492,9 +448,7 @@ export abstract class BaseService<
   /**
    * 将查询对象转换为条件数组
    */
-  protected buildConditions(
-    query: Record<string, unknown>,
-  ): QueryCondition[] {
+  protected buildConditions(query: Record<string, unknown>): QueryCondition[] {
     const conditions: QueryCondition[] = [];
 
     for (const [key, value] of Object.entries(query)) {
@@ -545,9 +499,7 @@ export abstract class BaseService<
   /**
    * 构建关联查询配置
    */
-  protected buildPopulateConfigs(
-    populate: string | string[],
-  ): { path: string; select?: string }[] {
+  protected buildPopulateConfigs(populate: string | string[]): { path: string; select?: string }[] {
     const paths = Array.isArray(populate) ? populate : [populate];
     return paths.map((path) => ({
       path,
@@ -575,10 +527,7 @@ export abstract class BaseService<
       if ('code' in error) {
         const pgError = error as { code: string };
         if (pgError.code === '23505') {
-          return createErrorResult(
-            ErrorCode.CONFLICT,
-            `${this.config.entityName}已存在`,
-          );
+          return createErrorResult(ErrorCode.CONFLICT, `${this.config.entityName}已存在`);
         }
       }
 

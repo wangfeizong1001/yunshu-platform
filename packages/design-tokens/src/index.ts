@@ -43,12 +43,7 @@ export {
 // 颜色令牌
 // ============================================================================
 
-export {
-  lightColors,
-  darkColors,
-  themeColors,
-  getColors,
-} from './tokens/colors';
+export { lightColors, darkColors, themeColors, getColors } from './tokens/colors';
 
 export type { IColorTokens, TTheme } from './tokens/colors';
 

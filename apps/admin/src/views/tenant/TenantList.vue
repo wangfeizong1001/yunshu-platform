@@ -76,9 +76,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="userLimit" label="用户数/上限" width="100">
-          <template #default="{ row }">
-            {{ row.userCount }}/{{ row.userLimit }}
-          </template>
+          <template #default="{ row }"> {{ row.userCount }}/{{ row.userLimit }} </template>
         </el-table-column>
         <el-table-column prop="expireTime" label="到期时间" width="170" />
         <el-table-column prop="status" label="状态" width="80">
@@ -158,174 +156,172 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue'
-import {
-  getTenantPage,
-  deleteTenant,
-  changeTenantStatus,
-} from '@/api/tenant/tenant.api'
-import type { Tenant, TenantQuery } from '@yunshu/shared'
-import { TenantStatusEnum } from '@yunshu/shared'
-import TenantForm from './TenantForm.vue'
-import TenantDetail from './TenantDetail.vue'
-import TenantPackage from './TenantPackage.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue';
+  import { getTenantPage, deleteTenant, changeTenantStatus } from '@/api/tenant/tenant.api';
+  import type { Tenant, TenantQuery } from '@yunshu/shared';
+  import { TenantStatusEnum } from '@yunshu/shared';
+  import TenantForm from './TenantForm.vue';
+  import TenantDetail from './TenantDetail.vue';
+  import TenantPackage from './TenantPackage.vue';
 
-// 状态
-const loading = ref(false)
-const tenantList = ref<Tenant[]>([])
-const total = ref(0)
-const packageList = ref<{ packageId: number; packageName: string }[]>([])
-const formVisible = ref(false)
-const detailVisible = ref(false)
-const packageVisible = ref(false)
-const currentTenant = ref<Tenant | null>(null)
-const currentTenantId = ref<number>()
+  // 状态
+  const loading = ref(false);
+  const tenantList = ref<Tenant[]>([]);
+  const total = ref(0);
+  const packageList = ref<{ packageId: number; packageName: string }[]>([]);
+  const formVisible = ref(false);
+  const detailVisible = ref(false);
+  const packageVisible = ref(false);
+  const currentTenant = ref<Tenant | null>(null);
+  const currentTenantId = ref<number>();
 
-// 查询参数
-const queryParams = reactive<TenantQuery>({
-  keyword: '',
-  status: undefined,
-  packageId: undefined,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<TenantQuery>({
+    keyword: '',
+    status: undefined,
+    packageId: undefined,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 获取状态标签
-function getStatusLabel(status: string) {
-  return TenantStatusEnum[status as keyof typeof TenantStatusEnum]?.label || status
-}
-
-// 获取状态类型
-function getStatusType(status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
-  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    '0': 'success',
-    '1': 'danger',
-    '2': 'warning',
+  // 获取状态标签
+  function getStatusLabel(status: string) {
+    return TenantStatusEnum[status as keyof typeof TenantStatusEnum]?.label || status;
   }
-  return typeMap[status] || 'info'
-}
 
-// 加载租户列表
-async function fetchTenantList() {
-  loading.value = true
-  try {
-    const res = await getTenantPage(queryParams)
-    tenantList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
+  // 获取状态类型
+  function getStatusType(
+    status: string,
+  ): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
+    const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
+      '0': 'success',
+      '1': 'danger',
+      '2': 'warning',
+    };
+    return typeMap[status] || 'info';
   }
-}
 
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchTenantList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.status = undefined
-  queryParams.packageId = undefined
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchTenantList()
-}
-
-// 新增
-function handleAdd() {
-  currentTenant.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: any) {
-  currentTenant.value = { ...row }
-  formVisible.value = true
-}
-
-// 详情
-function handleDetail(row: any) {
-  currentTenantId.value = row.tenantId
-  detailVisible.value = true
-}
-
-// 套餐配置
-function handlePackage(row: any) {
-  currentTenantId.value = row.tenantId
-  packageVisible.value = true
-}
-
-// 修改状态
-async function handleChangeStatus(row: any) {
-  const newStatus = row.status === '0' ? '1' : '0'
-  const action = newStatus === '0' ? '启用' : '停用'
-  try {
-    await ElMessageBox.confirm(`是否确认${action}租户"${row.tenantName}"？`, '提示', {
-      type: 'warning',
-    })
-    await changeTenantStatus(row.tenantId, newStatus as '0' | '1' | '2')
-    ElMessage.success(`${action}成功`)
-    fetchTenantList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error(`${action}失败`, error)
+  // 加载租户列表
+  async function fetchTenantList() {
+    loading.value = true;
+    try {
+      const res = await getTenantPage(queryParams);
+      tenantList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除租户"${row.tenantName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteTenant(row.tenantId)
-    ElMessage.success('删除成功')
-    fetchTenantList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchTenantList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.status = undefined;
+    queryParams.packageId = undefined;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchTenantList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentTenant.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: any) {
+    currentTenant.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 详情
+  function handleDetail(row: any) {
+    currentTenantId.value = row.tenantId;
+    detailVisible.value = true;
+  }
+
+  // 套餐配置
+  function handlePackage(row: any) {
+    currentTenantId.value = row.tenantId;
+    packageVisible.value = true;
+  }
+
+  // 修改状态
+  async function handleChangeStatus(row: any) {
+    const newStatus = row.status === '0' ? '1' : '0';
+    const action = newStatus === '0' ? '启用' : '停用';
+    try {
+      await ElMessageBox.confirm(`是否确认${action}租户"${row.tenantName}"？`, '提示', {
+        type: 'warning',
+      });
+      await changeTenantStatus(row.tenantId, newStatus as '0' | '1' | '2');
+      ElMessage.success(`${action}成功`);
+      fetchTenantList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error(`${action}失败`, error);
+      }
     }
   }
-}
 
-// 导出
-async function handleExport() {
-  ElMessage.info('导出功能开发中')
-}
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除租户"${row.tenantName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteTenant(row.tenantId);
+      ElMessage.success('删除成功');
+      fetchTenantList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
 
-// 初始化
-onMounted(() => {
-  fetchTenantList()
-})
+  // 导出
+  async function handleExport() {
+    ElMessage.info('导出功能开发中');
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchTenantList();
+  });
 </script>
 
 <style scoped lang="scss">
-.tenant-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .tenant-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

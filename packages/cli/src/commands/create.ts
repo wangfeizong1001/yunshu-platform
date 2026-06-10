@@ -14,9 +14,21 @@ import { createProject } from '../utils/projectCreator';
 
 /** 可用模板 */
 const TEMPLATES = {
-  basic: { name: '基础模板', desc: 'Vue 3 + TypeScript + 设计令牌', packages: ['@yunshu/ui', '@yunshu/api-client'] },
-  admin: { name: '后台管理', desc: '完整后台管理方案 + CRUD 模板', packages: ['@yunshu/ui', '@yunshu/api-client', 'element-plus', 'pinia'] },
-  'full-stack': { name: '全栈项目', desc: 'Express + Vue 3 + 数据库集成', packages: ['@yunshu/ui', '@yunshu/api-client', '@yunshu/server-express'] },
+  basic: {
+    name: '基础模板',
+    desc: 'Vue 3 + TypeScript + 设计令牌',
+    packages: ['@yunshu/ui', '@yunshu/api-client'],
+  },
+  admin: {
+    name: '后台管理',
+    desc: '完整后台管理方案 + CRUD 模板',
+    packages: ['@yunshu/ui', '@yunshu/api-client', 'element-plus', 'pinia'],
+  },
+  'full-stack': {
+    name: '全栈项目',
+    desc: 'Express + Vue 3 + 数据库集成',
+    packages: ['@yunshu/ui', '@yunshu/api-client', '@yunshu/server-express'],
+  },
 };
 
 /** 可用功能选项 */
@@ -41,51 +53,62 @@ export function createCommand(): Command {
         console.log(chalk.blue('\n☁️  云枢中台 — 项目创建向导\n'));
 
         // 1. 项目名称
-        const projectName = name || await input({
-          message: '项目名称:',
-          default: 'yunshu-app',
-          validate: (v: string) => /^[a-z0-9-_]+$/.test(v) || '名称只能包含小写字母、数字、短横线和下划线',
-        });
+        const projectName =
+          name ||
+          (await input({
+            message: '项目名称:',
+            default: 'yunshu-app',
+            validate: (v: string) =>
+              /^[a-z0-9-_]+$/.test(v) || '名称只能包含小写字母、数字、短横线和下划线',
+          }));
 
         // 2. 选择模板
-        const template = options?.template || await select({
-          message: '选择模板:',
-          choices: Object.entries(TEMPLATES).map(([key, t]) => ({
-            name: `${t.name} — ${t.desc}`,
-            value: key,
-          })),
-        }) as string;
+        const template =
+          options?.template ||
+          ((await select({
+            message: '选择模板:',
+            choices: Object.entries(TEMPLATES).map(([key, t]) => ({
+              name: `${t.name} — ${t.desc}`,
+              value: key,
+            })),
+          })) as string);
 
         // 3. 选择功能
         let features: string[] = [];
         if (options?.yes) {
           features = ['auth', 'permission', 'theme'];
         } else {
-          const featureChoices = await select({
+          const featureChoices = (await select({
             message: '需要哪些功能？（空格选择，回车确认）',
             choices: FEATURES.map((f) => ({
               name: `${f.name} — ${f.desc}`,
               value: f.value,
             })),
-          }) as unknown as string[];
+          })) as unknown as string[];
           features = Array.isArray(featureChoices) ? featureChoices : [featureChoices];
         }
 
         // 4. 包管理器
-        const pm = options?.packageManager || await select({
-          message: '选择包管理器:',
-          choices: [
-            { name: 'pnpm (推荐)', value: 'pnpm' },
-            { name: 'npm', value: 'npm' },
-            { name: 'yarn', value: 'yarn' },
-          ],
-        }) as string;
+        const pm =
+          options?.packageManager ||
+          ((await select({
+            message: '选择包管理器:',
+            choices: [
+              { name: 'pnpm (推荐)', value: 'pnpm' },
+              { name: 'npm', value: 'npm' },
+              { name: 'yarn', value: 'yarn' },
+            ],
+          })) as string);
 
         // 5. 确认
         console.log(chalk.cyan('\n📋 项目配置摘要:'));
         console.log(`   名称:     ${chalk.bold(projectName)}`);
-        console.log(`   模板:     ${chalk.bold(TEMPLATES[template as keyof typeof TEMPLATES]?.name)}`);
-        console.log(`   功能:     ${chalk.bold(features.map((f) => FEATURES.find((x) => x.value === f)?.name).join(', ') || '无')}`);
+        console.log(
+          `   模板:     ${chalk.bold(TEMPLATES[template as keyof typeof TEMPLATES]?.name)}`,
+        );
+        console.log(
+          `   功能:     ${chalk.bold(features.map((f) => FEATURES.find((x) => x.value === f)?.name).join(', ') || '无')}`,
+        );
         console.log(`   包管理器: ${chalk.bold(pm)}`);
 
         if (options?.yes) {
@@ -121,7 +144,6 @@ export function createCommand(): Command {
         console.log(chalk.cyan(`    ${pm} install`));
         console.log(chalk.cyan(`    ${pm} run dev`));
         console.log('');
-
       } catch (error) {
         console.error(chalk.red('\n创建项目时发生错误:'), error);
         process.exit(1);

@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
   return {
     // 项目根目录
     root: '.',
-    
+
     // 构建输出目录
     build: {
       outDir: 'dist',
@@ -102,13 +102,7 @@ export default defineConfig(({ mode }) => {
     // 6. 优化配置
     // ================================
     optimizeDeps: {
-      include: [
-        'vue',
-        'vue-router',
-        'pinia',
-        'element-plus',
-        '@element-plus/icons-vue',
-      ],
+      include: ['vue', 'vue-router', 'pinia', 'element-plus', '@element-plus/icons-vue'],
     },
 
     // ================================

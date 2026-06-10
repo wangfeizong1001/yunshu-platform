@@ -4,10 +4,10 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IOnline } from '@yunshu/shared'
+import type { IOnline } from '@yunshu/shared';
 
 export const onlineMockData: IOnline[] = Array.from({ length: 30 }, (_, i) => {
-  const isMobile = i % 5 === 0
+  const isMobile = i % 5 === 0;
   return {
     sessionId: `session_${i + 1}_${Date.now()}`,
     userName: ['张三', '李四', '王五', '赵六', '钱七'][i % 5],
@@ -22,5 +22,5 @@ export const onlineMockData: IOnline[] = Array.from({ length: 30 }, (_, i) => {
     lastAccessTime: new Date(Date.now() - i * 60000).toISOString(),
     expireTime: new Date(Date.now() + 30 * 60000).toISOString(),
     userId: String(1000 + i),
-  }
-})
+  };
+});

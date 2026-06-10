@@ -39,6 +39,8 @@
     "vitest": "^1.0.0"
   },
   "peerDependenciesMeta": {
-    "ioredis": { "optional": true }
+    "ioredis": {
+      "optional": true
+    }
   }
 }

@@ -2,28 +2,28 @@
  * 文件管理 API
  */
 export interface FileQuery {
-    pageNum?: number;
-    pageSize?: number;
-    fileName?: string;
-    fileType?: string;
+  pageNum?: number;
+  pageSize?: number;
+  fileName?: string;
+  fileType?: string;
 }
 export interface FileForm {
-    fileId?: number;
-    fileName?: string;
-    fileUrl?: string;
-    fileSize?: number;
-    fileType?: string;
-    uploadUser?: string;
-    uploadTime?: string;
+  fileId?: number;
+  fileName?: string;
+  fileUrl?: string;
+  fileSize?: number;
+  fileType?: string;
+  uploadUser?: string;
+  uploadTime?: string;
 }
 export interface FileInfo {
-    fileId: number;
-    fileName: string;
-    fileUrl: string;
-    fileSize: number;
-    fileType: string;
-    uploadUser: string;
-    uploadTime: string;
+  fileId: number;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  fileType: string;
+  uploadUser: string;
+  uploadTime: string;
 }
 export declare const getFileList: (params?: FileQuery) => Promise<unknown>;
 export declare const getFilePage: (params?: FileQuery) => Promise<unknown>;

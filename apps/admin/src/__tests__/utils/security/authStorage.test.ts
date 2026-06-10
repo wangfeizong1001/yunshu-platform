@@ -77,7 +77,10 @@ describe('utils/security/authStorage', () => {
 
     it('损坏的 JSON 资料读取返回 null', () => {
       // 直接绕过 setUserProfile 注入脏数据
-      (Cookies as unknown as { set: (k: string, v: string) => void }).set('yunshu_profile', '{bad-json');
+      (Cookies as unknown as { set: (k: string, v: string) => void }).set(
+        'yunshu_profile',
+        '{bad-json',
+      );
       expect(getUserProfile()).toBeNull();
     });
   });

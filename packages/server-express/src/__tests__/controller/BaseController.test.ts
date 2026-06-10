@@ -36,7 +36,10 @@ class TestController extends BaseController {
   }
 
   public testBusinessError(req: Request, res: Response) {
-    return this.error(res, new BusinessError(ErrorCode.VALIDATION_ERROR, '业务校验失败', { field: 'email' }));
+    return this.error(
+      res,
+      new BusinessError(ErrorCode.VALIDATION_ERROR, '业务校验失败', { field: 'email' }),
+    );
   }
 
   public testErrorString(req: Request, res: Response) {
@@ -295,7 +298,14 @@ describe('BaseController 便捷错误方法', () => {
   });
 
   it('所有便捷错误方法应包含 timestamp', async () => {
-    const paths = ['/bad-request', '/unauthorized', '/forbidden', '/not-found-ctrl', '/conflict', '/server-error'];
+    const paths = [
+      '/bad-request',
+      '/unauthorized',
+      '/forbidden',
+      '/not-found-ctrl',
+      '/conflict',
+      '/server-error',
+    ];
     for (const path of paths) {
       const res = await supertest(app).get(path);
       expect(res.body).toHaveProperty('timestamp');
@@ -304,7 +314,14 @@ describe('BaseController 便捷错误方法', () => {
   });
 
   it('所有便捷错误方法应返回 JSON 格式', async () => {
-    const paths = ['/bad-request', '/unauthorized', '/forbidden', '/not-found-ctrl', '/conflict', '/server-error'];
+    const paths = [
+      '/bad-request',
+      '/unauthorized',
+      '/forbidden',
+      '/not-found-ctrl',
+      '/conflict',
+      '/server-error',
+    ];
     for (const path of paths) {
       const res = await supertest(app).get(path);
       expect(res.headers['content-type']).toContain('application/json');

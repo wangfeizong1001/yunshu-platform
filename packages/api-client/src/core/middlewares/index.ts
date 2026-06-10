@@ -7,12 +7,7 @@
  * @module @yunshu/api-client/core/middlewares
  */
 
-import type {
-  RequestConfig,
-  HttpResponse,
-  CacheOptions,
-  RetryConfig,
-} from '../types';
+import type { RequestConfig, HttpResponse, CacheOptions, RetryConfig } from '../types';
 import { RequestError } from '../types';
 
 // ============================================================================
@@ -170,7 +165,10 @@ export function createAuthMiddleware(config: AuthMiddlewareConfig) {
       const err = error as { status?: number };
       const is401 = err.status === 401;
       const canRefresh =
-        is401 && token && !reqConfig.url?.includes('/auth/refresh') && typeof refreshToken === 'function';
+        is401 &&
+        token &&
+        !reqConfig.url?.includes('/auth/refresh') &&
+        typeof refreshToken === 'function';
 
       if (!canRefresh) {
         throw error;

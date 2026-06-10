@@ -77,8 +77,8 @@ describe('LogininforService', () => {
         const log = result.data.data[0];
         expect(
           log.userName.includes('张三') ||
-          log.loginAccount.includes('张三') ||
-          log.ip.includes('张三')
+            log.loginAccount.includes('张三') ||
+            log.ip.includes('张三'),
         ).toBe(true);
       }
     });
@@ -92,7 +92,11 @@ describe('LogininforService', () => {
     });
 
     it('应支持登录账号筛选', async () => {
-      const result = await service.findWithPagination({ loginAccount: 'admin1', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        loginAccount: 'admin1',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
 
@@ -102,7 +106,11 @@ describe('LogininforService', () => {
     });
 
     it('应支持操作类型筛选', async () => {
-      const result = await service.findWithPagination({ operationType: '登录', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        operationType: '登录',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
 
@@ -114,7 +122,12 @@ describe('LogininforService', () => {
     });
 
     it('应支持升序排序', async () => {
-      const result = await service.findWithPagination({ sort: 'loginTime', order: 'asc', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        sort: 'loginTime',
+        order: 'asc',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
   });

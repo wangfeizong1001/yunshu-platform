@@ -2,40 +2,40 @@
  * 通知 API
  */
 export interface NotificationQuery {
-    pageNum?: number;
-    pageSize?: number;
-    title?: string;
-    type?: string;
-    status?: string;
-    level?: string;
+  pageNum?: number;
+  pageSize?: number;
+  title?: string;
+  type?: string;
+  status?: string;
+  level?: string;
 }
 export interface NotificationForm {
-    notificationId?: number;
-    title?: string;
-    content?: string;
-    type?: string;
-    level?: string;
-    targetType?: string;
-    targetIds?: number[];
-    isPushed?: boolean;
-    pushTime?: string;
-    expireTime?: string;
+  notificationId?: number;
+  title?: string;
+  content?: string;
+  type?: string;
+  level?: string;
+  targetType?: string;
+  targetIds?: number[];
+  isPushed?: boolean;
+  pushTime?: string;
+  expireTime?: string;
 }
 export interface NotificationInfo {
-    notificationId: number;
-    title: string;
-    content: string;
-    type: string;
-    level: string;
-    status: string;
-    targetType: string;
-    targetIds?: number[];
-    isPushed: boolean;
-    pushTime?: string;
-    expireTime?: string;
-    createBy: string;
-    createTime: string;
-    updateTime?: string;
+  notificationId: number;
+  title: string;
+  content: string;
+  type: string;
+  level: string;
+  status: string;
+  targetType: string;
+  targetIds?: number[];
+  isPushed: boolean;
+  pushTime?: string;
+  expireTime?: string;
+  createBy: string;
+  createTime: string;
+  updateTime?: string;
 }
 export declare const getNotificationList: (params?: NotificationQuery) => Promise<unknown>;
 export declare const getNotificationPage: (params?: NotificationQuery) => Promise<unknown>;

@@ -31,7 +31,10 @@ import type { ApiResponse, CacheOptions } from '../core/types';
  */
 export function createYunshuAPI(options: { httpClient: HttpClient }) {
   return {
-    install(app: { provide: (key: string, value: unknown) => void; config: { globalProperties: Record<string, unknown> } }) {
+    install(app: {
+      provide: (key: string, value: unknown) => void;
+      config: { globalProperties: Record<string, unknown> };
+    }) {
       app.provide('$api', options.httpClient);
       app.config.globalProperties.$api = options.httpClient;
     },
@@ -69,9 +72,7 @@ interface UseApiReturn<T> extends UseApiState<T> {
  * await execute('user-123');
  * ```
  */
-export function useApi<T>(
-  fn: (...args: unknown[]) => Promise<ApiResponse<T>>,
-): UseApiReturn<T> {
+export function useApi<T>(fn: (...args: unknown[]) => Promise<ApiResponse<T>>): UseApiReturn<T> {
   const data: Ref<T | null> = ref(null);
   const error: Ref<Error | null> = ref(null);
   const loading = ref(false);
@@ -142,7 +143,9 @@ interface UseApiListReturn<T> extends UseApiListState<T> {
  * ```
  */
 export function useApiList<T>(
-  fn: (params: Record<string, unknown>) => Promise<ApiResponse<{ list?: T[]; items?: T[]; total: number }>>,
+  fn: (
+    params: Record<string, unknown>,
+  ) => Promise<ApiResponse<{ list?: T[]; items?: T[]; total: number }>>,
   initialPageSize = 10,
 ): UseApiListReturn<T> {
   const data: Ref<T[]> = ref([]);
@@ -166,7 +169,8 @@ export function useApiList<T>(
     lastArgs = args;
 
     try {
-      const response = await fn(...args);
+      const params = (args[0] as Record<string, unknown>) || {};
+      const response = await fn(params);
       const items = response.data?.list ?? response.data?.items ?? [];
       data.value = items;
       total.value = response.data?.total ?? 0;
@@ -188,8 +192,17 @@ export function useApiList<T>(
   }
 
   return {
-    data, error, loading, called, total, page, pageSize,
-    execute, refresh, setPage, hasMore,
+    data,
+    error,
+    loading,
+    called,
+    total,
+    page,
+    pageSize,
+    execute,
+    refresh,
+    setPage,
+    hasMore,
   };
 }
 

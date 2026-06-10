@@ -2,98 +2,98 @@
  * 工作流管理 API
  */
 export interface ProcessDefinitionQuery {
-    pageNum?: number;
-    pageSize?: number;
-    name?: string;
-    key?: string;
-    category?: string;
-    status?: string;
+  pageNum?: number;
+  pageSize?: number;
+  name?: string;
+  key?: string;
+  category?: string;
+  status?: string;
 }
 export interface ProcessDefinitionForm {
-    id?: string;
-    name?: string;
-    key?: string;
-    category?: string;
-    description?: string;
-    xml?: string;
-    svg?: string;
+  id?: string;
+  name?: string;
+  key?: string;
+  category?: string;
+  description?: string;
+  xml?: string;
+  svg?: string;
 }
 export interface ProcessDefinition {
-    id: string;
-    name: string;
-    key: string;
-    version: number;
-    category: string;
-    description?: string;
-    status: string;
-    deploymentId?: string;
-    resourceName?: string;
-    diagramResourceName?: string;
-    createTime: string;
-    updateTime: string;
+  id: string;
+  name: string;
+  key: string;
+  version: number;
+  category: string;
+  description?: string;
+  status: string;
+  deploymentId?: string;
+  resourceName?: string;
+  diagramResourceName?: string;
+  createTime: string;
+  updateTime: string;
 }
 export interface ProcessInstanceQuery {
-    pageNum?: number;
-    pageSize?: number;
-    processDefinitionKey?: string;
-    processDefinitionName?: string;
-    businessKey?: string;
-    status?: string;
-    startUserId?: string;
+  pageNum?: number;
+  pageSize?: number;
+  processDefinitionKey?: string;
+  processDefinitionName?: string;
+  businessKey?: string;
+  status?: string;
+  startUserId?: string;
 }
 export interface ProcessInstance {
-    id: string;
-    processDefinitionId: string;
-    processDefinitionKey: string;
-    processDefinitionName: string;
-    businessKey?: string;
-    startUserId: string;
-    startTime: string;
-    endTime?: string;
-    duration?: number;
-    status: string;
-    currentTaskNames?: string[];
+  id: string;
+  processDefinitionId: string;
+  processDefinitionKey: string;
+  processDefinitionName: string;
+  businessKey?: string;
+  startUserId: string;
+  startTime: string;
+  endTime?: string;
+  duration?: number;
+  status: string;
+  currentTaskNames?: string[];
 }
 export interface TaskQuery {
-    pageNum?: number;
-    pageSize?: number;
-    name?: string;
-    processDefinitionName?: string;
-    assignee?: string;
-    candidateUser?: string;
-    candidateGroup?: string;
+  pageNum?: number;
+  pageSize?: number;
+  name?: string;
+  processDefinitionName?: string;
+  assignee?: string;
+  candidateUser?: string;
+  candidateGroup?: string;
 }
 export interface Task {
-    id: string;
-    name: string;
-    description?: string;
-    processDefinitionId: string;
-    processInstanceId: string;
-    executionId: string;
-    assignee?: string;
-    owner?: string;
-    startTime: string;
-    endTime?: string;
-    dueDate?: string;
-    priority: number;
-    taskDefinitionKey?: string;
-    businessKey?: string;
-    processDefinitionName?: string;
+  id: string;
+  name: string;
+  description?: string;
+  processDefinitionId: string;
+  processInstanceId: string;
+  executionId: string;
+  assignee?: string;
+  owner?: string;
+  startTime: string;
+  endTime?: string;
+  dueDate?: string;
+  priority: number;
+  taskDefinitionKey?: string;
+  businessKey?: string;
+  processDefinitionName?: string;
 }
 export interface ApprovalRequest {
-    taskId: string;
-    comment?: string;
-    variables?: Record<string, any>;
+  taskId: string;
+  comment?: string;
+  variables?: Record<string, any>;
 }
 export interface DelegateRequest {
-    taskId: string;
-    userId: string;
-    comment?: string;
+  taskId: string;
+  userId: string;
+  comment?: string;
 }
 export interface AssignRequest {
-    taskId: string;
-    userId: string;
-    comment?: string;
+  taskId: string;
+  userId: string;
+  comment?: string;
 }
 export declare function getProcessDefinitionList(params?: ProcessDefinitionQuery): Promise<unknown>;
 export declare function getProcessDefinitionPage(params?: ProcessDefinitionQuery): Promise<unknown>;
@@ -108,7 +108,11 @@ export declare function activateProcessDefinition(id: string): Promise<unknown>;
 export declare function getProcessInstanceList(params?: ProcessInstanceQuery): Promise<unknown>;
 export declare function getProcessInstancePage(params?: ProcessInstanceQuery): Promise<unknown>;
 export declare function getProcessInstance(id: string): Promise<unknown>;
-export declare function startProcessInstance(processDefinitionKey: string, businessKey?: string, variables?: Record<string, any>): Promise<unknown>;
+export declare function startProcessInstance(
+  processDefinitionKey: string,
+  businessKey?: string,
+  variables?: Record<string, any>,
+): Promise<unknown>;
 export declare function terminateProcessInstance(id: string, reason?: string): Promise<unknown>;
 export declare function getTodoTaskList(params?: TaskQuery): Promise<unknown>;
 export declare function getTodoTaskPage(params?: TaskQuery): Promise<unknown>;

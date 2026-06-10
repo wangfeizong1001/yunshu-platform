@@ -77,8 +77,8 @@ describe('OperlogService', () => {
         const log = result.data.data[0];
         expect(
           log.operName.includes('张三') ||
-          log.operModule.includes('张三') ||
-          log.operUrl.includes('张三')
+            log.operModule.includes('张三') ||
+            log.operUrl.includes('张三'),
         ).toBe(true);
       }
     });
@@ -97,7 +97,11 @@ describe('OperlogService', () => {
     });
 
     it('应支持模块筛选', async () => {
-      const result = await service.findWithPagination({ operModule: '用户管理', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        operModule: '用户管理',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
 
@@ -114,7 +118,12 @@ describe('OperlogService', () => {
     });
 
     it('应支持升序排序', async () => {
-      const result = await service.findWithPagination({ sort: 'operTime', order: 'asc', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        sort: 'operTime',
+        order: 'asc',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
   });

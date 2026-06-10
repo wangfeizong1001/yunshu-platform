@@ -161,10 +161,7 @@ describe('projectCreator', () => {
           const fullPath = path.join(dir, entry.name);
           if (entry.isDirectory()) {
             checkNoTemplatePlaceholders(fullPath);
-          } else if (
-            entry.isFile() &&
-            /\.(ts|js|vue|json|html|scss|css|md)$/.test(entry.name)
-          ) {
+          } else if (entry.isFile() && /\.(ts|js|vue|json|html|scss|css|md)$/.test(entry.name)) {
             const content = fs.readFileSync(fullPath, 'utf-8');
             // 检查我们已知的模板变量是否已被替换
             expect(content).not.toContain('{{name}}');

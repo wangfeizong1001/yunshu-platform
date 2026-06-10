@@ -2,64 +2,64 @@
  * 定时任务 API
  */
 export interface JobQuery {
-    pageNum?: number;
-    pageSize?: number;
-    jobName?: string;
-    jobGroup?: string;
-    status?: string;
+  pageNum?: number;
+  pageSize?: number;
+  jobName?: string;
+  jobGroup?: string;
+  status?: string;
 }
 export interface JobForm {
-    jobId?: number;
-    jobName?: string;
-    jobGroup?: string;
-    jobType?: string;
-    cronExpression?: string;
-    targetBean?: string;
-    targetMethod?: string;
-    targetParams?: string;
-    invokeTarget?: string;
-    misfirePolicy?: string;
-    concurrent?: string;
-    status?: string;
-    remark?: string;
+  jobId?: number;
+  jobName?: string;
+  jobGroup?: string;
+  jobType?: string;
+  cronExpression?: string;
+  targetBean?: string;
+  targetMethod?: string;
+  targetParams?: string;
+  invokeTarget?: string;
+  misfirePolicy?: string;
+  concurrent?: string;
+  status?: string;
+  remark?: string;
 }
 export interface JobInfo {
-    jobId: number;
-    jobName: string;
-    jobGroup: string;
-    jobType: string;
-    cronExpression: string;
-    targetBean: string;
-    targetMethod: string;
-    targetParams: string;
-    invokeTarget: string;
-    misfirePolicy: string;
-    concurrent: string;
-    status: string;
-    remark: string;
-    createTime: string;
+  jobId: number;
+  jobName: string;
+  jobGroup: string;
+  jobType: string;
+  cronExpression: string;
+  targetBean: string;
+  targetMethod: string;
+  targetParams: string;
+  invokeTarget: string;
+  misfirePolicy: string;
+  concurrent: string;
+  status: string;
+  remark: string;
+  createTime: string;
 }
 export interface JobLogQuery {
-    pageNum?: number;
-    pageSize?: number;
-    jobName?: string;
-    jobGroup?: string;
-    status?: string;
-    startTime?: string;
-    endTime?: string;
+  pageNum?: number;
+  pageSize?: number;
+  jobName?: string;
+  jobGroup?: string;
+  status?: string;
+  startTime?: string;
+  endTime?: string;
 }
 export interface JobLogInfo {
-    jobLogId: number;
-    jobName: string;
-    jobGroup: string;
-    jobType: string;
-    cronExpression: string;
-    targetBean: string;
-    targetMethod: string;
-    targetParams: string;
-    status: string;
-    exceptionInfo: string;
-    createTime: string;
+  jobLogId: number;
+  jobName: string;
+  jobGroup: string;
+  jobType: string;
+  cronExpression: string;
+  targetBean: string;
+  targetMethod: string;
+  targetParams: string;
+  status: string;
+  exceptionInfo: string;
+  createTime: string;
 }
 export declare const getJobList: (params?: JobQuery) => Promise<unknown>;
 export declare const getJobPage: (params?: JobQuery) => Promise<unknown>;

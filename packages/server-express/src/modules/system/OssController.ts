@@ -108,7 +108,7 @@ export class OssController extends BaseController {
    */
   async getConfigById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const config = mockOssConfigs.find(c => c.id === Number(id));
+    const config = mockOssConfigs.find((c) => c.id === Number(id));
 
     if (!config) {
       return this.notFound(res, 'OSS配置不存在');
@@ -121,7 +121,7 @@ export class OssController extends BaseController {
    * 获取当前使用的OSS配置
    */
   async getCurrentConfig(_req: Request, res: Response): Promise<Response> {
-    const current = mockOssConfigs.find(c => c.status === '1');
+    const current = mockOssConfigs.find((c) => c.status === '1');
 
     return this.success(res, current || null);
   }
@@ -137,7 +137,7 @@ export class OssController extends BaseController {
     }
 
     const newConfig: OssConfig = {
-      id: Math.max(...mockOssConfigs.map(c => c.id)) + 1,
+      id: Math.max(...mockOssConfigs.map((c) => c.id)) + 1,
       accessKey: data.accessKey,
       secretKey: data.secretKey,
       bucket: data.bucket,
@@ -163,7 +163,7 @@ export class OssController extends BaseController {
   async updateConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     const data = req.body;
-    const index = mockOssConfigs.findIndex(c => c.id === Number(id));
+    const index = mockOssConfigs.findIndex((c) => c.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, 'OSS配置不存在');
@@ -192,7 +192,7 @@ export class OssController extends BaseController {
    */
   async deleteConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const index = mockOssConfigs.findIndex(c => c.id === Number(id));
+    const index = mockOssConfigs.findIndex((c) => c.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, 'OSS配置不存在');
@@ -208,7 +208,7 @@ export class OssController extends BaseController {
   async setDefaultConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
 
-    mockOssConfigs.forEach(c => {
+    mockOssConfigs.forEach((c) => {
       c.status = c.id === Number(id) ? '1' : '0';
     });
 
@@ -220,7 +220,7 @@ export class OssController extends BaseController {
    */
   async testConnection(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const config = mockOssConfigs.find(c => c.id === Number(id));
+    const config = mockOssConfigs.find((c) => c.id === Number(id));
 
     if (!config) {
       return this.notFound(res, 'OSS配置不存在');
@@ -250,18 +250,16 @@ export class OssController extends BaseController {
     if (params.keyword) {
       const kw = params.keyword.toLowerCase();
       filtered = filtered.filter(
-        f =>
-          f.fileName.toLowerCase().includes(kw) ||
-          f.originalName?.toLowerCase().includes(kw),
+        (f) => f.fileName.toLowerCase().includes(kw) || f.originalName?.toLowerCase().includes(kw),
       );
     }
 
     if (params.storageType) {
-      filtered = filtered.filter(f => f.storageType === params.storageType);
+      filtered = filtered.filter((f) => f.storageType === params.storageType);
     }
 
     if (params.fileType) {
-      filtered = filtered.filter(f => f.fileType === params.fileType);
+      filtered = filtered.filter((f) => f.fileType === params.fileType);
     }
 
     const total = filtered.length;
@@ -279,7 +277,7 @@ export class OssController extends BaseController {
    */
   async getFileById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const file = mockOssFiles.find(f => f.id === Number(id));
+    const file = mockOssFiles.find((f) => f.id === Number(id));
 
     if (!file) {
       return this.notFound(res, '文件不存在');
@@ -292,16 +290,18 @@ export class OssController extends BaseController {
    * 上传文件到OSS
    */
   async uploadFile(req: Request, res: Response): Promise<Response> {
-    const file = (req as unknown as { file?: { originalname: string; size: number; path?: string } }).file;
+    const file = (
+      req as unknown as { file?: { originalname: string; size: number; path?: string } }
+    ).file;
 
     if (!file) {
       return this.badRequest(res, '请选择要上传的文件');
     }
 
-    const currentConfig = mockOssConfigs.find(c => c.status === '1');
+    const currentConfig = mockOssConfigs.find((c) => c.status === '1');
 
     const newFile: OssFile = {
-      id: Math.max(...mockOssFiles.map(f => f.id)) + 1,
+      id: Math.max(...mockOssFiles.map((f) => f.id)) + 1,
       fileName: `${Date.now()}-${file.originalname}`,
       originalName: file.originalname,
       filePath: `/${currentConfig?.prefix || 'uploads/'}${Date.now()}-${file.originalname}`,
@@ -317,14 +317,18 @@ export class OssController extends BaseController {
 
     mockOssFiles.push(newFile);
 
-    return this.created(res, {
-      fileId: newFile.id,
-      fileName: newFile.fileName,
-      filePath: newFile.filePath,
-      fileSize: newFile.fileSize,
-      fileType: newFile.fileType,
-      url: `${currentConfig?.domain || ''}${newFile.filePath}`,
-    }, '上传成功');
+    return this.created(
+      res,
+      {
+        fileId: newFile.id,
+        fileName: newFile.fileName,
+        filePath: newFile.filePath,
+        fileSize: newFile.fileSize,
+        fileType: newFile.fileType,
+        url: `${currentConfig?.domain || ''}${newFile.filePath}`,
+      },
+      '上传成功',
+    );
   }
 
   /**
@@ -332,7 +336,7 @@ export class OssController extends BaseController {
    */
   async deleteFile(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const index = mockOssFiles.findIndex(f => f.id === Number(id));
+    const index = mockOssFiles.findIndex((f) => f.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '文件不存在');
@@ -352,8 +356,8 @@ export class OssController extends BaseController {
       return this.badRequest(res, '请选择要删除的文件');
     }
 
-    ids.forEach(id => {
-      const index = mockOssFiles.findIndex(f => f.id === id);
+    ids.forEach((id) => {
+      const index = mockOssFiles.findIndex((f) => f.id === id);
       if (index !== -1) {
         mockOssFiles.splice(index, 1);
       }
@@ -370,10 +374,10 @@ export class OssController extends BaseController {
       totalFiles: mockOssFiles.length,
       totalSize: mockOssFiles.reduce((sum, f) => sum + f.fileSize, 0),
       byStorageType: {
-        aliyun: mockOssFiles.filter(f => f.storageType === 'aliyun').length,
-        qcloud: mockOssFiles.filter(f => f.storageType === 'qcloud').length,
-        qiniu: mockOssFiles.filter(f => f.storageType === 'qiniu').length,
-        local: mockOssFiles.filter(f => f.storageType === 'local').length,
+        aliyun: mockOssFiles.filter((f) => f.storageType === 'aliyun').length,
+        qcloud: mockOssFiles.filter((f) => f.storageType === 'qcloud').length,
+        qiniu: mockOssFiles.filter((f) => f.storageType === 'qiniu').length,
+        local: mockOssFiles.filter((f) => f.storageType === 'local').length,
       },
     };
 

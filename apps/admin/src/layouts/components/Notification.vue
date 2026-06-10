@@ -7,27 +7,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+  import { ref } from 'vue';
 
-const size = 20
-const count = ref(3)
+  const size = 20;
+  const count = ref(3);
 
-const openNotification = () => {
-  // TODO: 打开通知面板
-}
+  const openNotification = () => {
+    // TODO: 打开通知面板
+  };
 </script>
 
 <style lang="scss" scoped>
-.notification-badge {
-  cursor: pointer;
-}
-
-.notification-icon {
-  color: #666;
-  transition: color $transition-duration $transition-function;
-
-  &:hover {
-    color: #409eff;
+  .notification-badge {
+    cursor: pointer;
   }
-}
+
+  .notification-icon {
+    color: #666;
+    transition: color $transition-duration $transition-function;
+
+    &:hover {
+      color: #409eff;
+    }
+  }
 </style>

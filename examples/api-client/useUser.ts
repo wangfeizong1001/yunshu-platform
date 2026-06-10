@@ -4,14 +4,9 @@
  * 演示 useUserList、useUserDetail、useUserForm、useUserImportExport 的完整用法
  */
 
-import { ref, onMounted, watch } from 'vue'
-import {
-  useUserList,
-  useUserDetail,
-  useUserForm,
-  useUserImportExport
-} from '@yunshu/api-client'
-import type { SysUser, SysUserForm } from '@yunshu/shared/types/system'
+import { ref, onMounted, watch } from 'vue';
+import { useUserList, useUserDetail, useUserForm, useUserImportExport } from '@yunshu/api-client';
+import type { SysUser, SysUserForm } from '@yunshu/shared/types/system';
 
 // ============================================================================
 // 示例 1：用户列表查询
@@ -22,64 +17,57 @@ import type { SysUser, SysUserForm } from '@yunshu/shared/types/system'
  */
 function basicUserList() {
   const {
-    list,        // Ref<SysUser[]> - 用户列表
-    total,       // Ref<number> - 总数
-    loading,     // Ref<boolean> - 加载状态
+    list, // Ref<SysUser[]> - 用户列表
+    total, // Ref<number> - 总数
+    loading, // Ref<boolean> - 加载状态
     queryParams, // Ref<SysUserQuery> - 查询参数
-    fetchList,   // () => Promise<void> - 获取列表
-    resetParams  // () => void - 重置参数
+    fetchList, // () => Promise<void> - 获取列表
+    resetParams, // () => void - 重置参数
   } = useUserList({
     // 初始查询参数
     initialParams: {
       status: '0',
       pageNum: 1,
-      pageSize: 10
+      pageSize: 10,
     },
     // 是否立即加载，默认 true
-    immediate: true
-  })
+    immediate: true,
+  });
 
-  return { list, total, loading, queryParams, fetchList, resetParams }
+  return { list, total, loading, queryParams, fetchList, resetParams };
 }
 
 /**
  * 条件筛选用户列表
  */
 function filteredUserList() {
-  const {
-    list,
-    total,
-    loading,
-    queryParams,
-    fetchList,
-    resetParams
-  } = useUserList({
+  const { list, total, loading, queryParams, fetchList, resetParams } = useUserList({
     initialParams: {
-      status: '0',     // 只查询正常状态的用户
-      deptId: 1,      // 某部门下的用户
-      keyword: ''      // 关键词
-    }
-  })
+      status: '0', // 只查询正常状态的用户
+      deptId: 1, // 某部门下的用户
+      keyword: '', // 关键词
+    },
+  });
 
   // 监听筛选条件变化，自动重新加载
   watch(
     () => queryParams.value.status,
-    () => fetchList()
-  )
+    () => fetchList(),
+  );
 
   // 手动触发搜索
   function search(keyword: string) {
-    queryParams.value.keyword = keyword
-    fetchList()
+    queryParams.value.keyword = keyword;
+    fetchList();
   }
 
   // 按状态筛选
   function filterByStatus(status: '0' | '1') {
-    queryParams.value.status = status
-    fetchList()
+    queryParams.value.status = status;
+    fetchList();
   }
 
-  return { list, total, loading, queryParams, search, filterByStatus, resetParams }
+  return { list, total, loading, queryParams, search, filterByStatus, resetParams };
 }
 
 // ============================================================================
@@ -91,35 +79,35 @@ function filteredUserList() {
  */
 function userDetail() {
   const {
-    data,       // Ref<SysUser | null> - 用户信息
-    loading,    // Ref<boolean> - 加载状态
-    fetchDetail // (userId: number) => Promise<void> - 获取详情
-  } = useUserDetail()
+    data, // Ref<SysUser | null> - 用户信息
+    loading, // Ref<boolean> - 加载状态
+    fetchDetail, // (userId: number) => Promise<void> - 获取详情
+  } = useUserDetail();
 
   // 获取 ID 为 1 的用户详情
   async function loadUser(userId: number) {
-    await fetchDetail(userId)
+    await fetchDetail(userId);
     if (data.value) {
-      console.log('用户名:', data.value.username)
-      console.log('邮箱:', data.value.email)
+      console.log('用户名:', data.value.username);
+      console.log('邮箱:', data.value.email);
     }
   }
 
-  return { data, loading, fetchDetail: loadUser }
+  return { data, loading, fetchDetail: loadUser };
 }
 
 /**
  * 在组件中使用用户详情
  */
 function UserDetailComponent() {
-  const userId = ref(1)
-  const { data: user, loading, fetchDetail } = useUserDetail()
+  const userId = ref(1);
+  const { data: user, loading, fetchDetail } = useUserDetail();
 
   onMounted(() => {
-    fetchDetail(userId.value)
-  })
+    fetchDetail(userId.value);
+  });
 
-  return { user, loading }
+  return { user, loading };
 }
 
 // ============================================================================
@@ -131,15 +119,15 @@ function UserDetailComponent() {
  */
 function userFormOperations() {
   const {
-    data,       // Ref<SysUserForm | null> - 表单数据
+    data, // Ref<SysUserForm | null> - 表单数据
     submitting, // Ref<boolean> - 提交状态
-    create,     // (data: SysUserForm) => Promise<SysUser> - 创建用户
-    update,     // (userId: number, data: SysUserForm) => Promise<SysUser> - 更新用户
-    delete: deleteUser,                    // (userId: number) => Promise<void> - 删除用户
-    batchDelete,                           // (userIds: number[]) => Promise<void> - 批量删除
-    changeStatus,                          // (userId: number, status: '0' | '1') => Promise<void> - 修改状态
-    resetPassword                           // (userId: number, password: string) => Promise<void> - 重置密码
-  } = useUserForm()
+    create, // (data: SysUserForm) => Promise<SysUser> - 创建用户
+    update, // (userId: number, data: SysUserForm) => Promise<SysUser> - 更新用户
+    delete: deleteUser, // (userId: number) => Promise<void> - 删除用户
+    batchDelete, // (userIds: number[]) => Promise<void> - 批量删除
+    changeStatus, // (userId: number, status: '0' | '1') => Promise<void> - 修改状态
+    resetPassword, // (userId: number, password: string) => Promise<void> - 重置密码
+  } = useUserForm();
 
   // 创建新用户
   async function handleCreate() {
@@ -152,14 +140,14 @@ function userFormOperations() {
       deptId: 1,
       postId: [1],
       roleId: [1],
-      status: '0'
-    }
+      status: '0',
+    };
 
     try {
-      const result = await create(formData)
-      console.log('创建成功:', result)
+      const result = await create(formData);
+      console.log('创建成功:', result);
     } catch (error) {
-      console.error('创建失败:', error)
+      console.error('创建失败:', error);
     }
   }
 
@@ -167,56 +155,56 @@ function userFormOperations() {
   async function handleUpdate(userId: number) {
     const formData: SysUserForm = {
       nickname: '更新后的昵称',
-      email: 'updated@example.com'
-    }
+      email: 'updated@example.com',
+    };
 
     try {
-      const result = await update(userId, formData)
-      console.log('更新成功:', result)
+      const result = await update(userId, formData);
+      console.log('更新成功:', result);
     } catch (error) {
-      console.error('更新失败:', error)
+      console.error('更新失败:', error);
     }
   }
 
   // 删除用户
   async function handleDelete(userId: number) {
-    if (!confirm('确定要删除该用户吗？')) return
+    if (!confirm('确定要删除该用户吗？')) return;
 
     try {
-      await deleteUser(userId)
-      console.log('删除成功')
+      await deleteUser(userId);
+      console.log('删除成功');
     } catch (error) {
-      console.error('删除失败:', error)
+      console.error('删除失败:', error);
     }
   }
 
   // 批量删除
   async function handleBatchDelete(userIds: number[]) {
     try {
-      await batchDelete(userIds)
-      console.log('批量删除成功')
+      await batchDelete(userIds);
+      console.log('批量删除成功');
     } catch (error) {
-      console.error('批量删除失败:', error)
+      console.error('批量删除失败:', error);
     }
   }
 
   // 修改用户状态
   async function handleChangeStatus(userId: number, status: '0' | '1') {
     try {
-      await changeStatus(userId, status)
-      console.log('状态修改成功')
+      await changeStatus(userId, status);
+      console.log('状态修改成功');
     } catch (error) {
-      console.error('状态修改失败:', error)
+      console.error('状态修改失败:', error);
     }
   }
 
   // 重置密码
   async function handleResetPassword(userId: number, newPassword: string) {
     try {
-      await resetPassword(userId, newPassword)
-      console.log('密码重置成功')
+      await resetPassword(userId, newPassword);
+      console.log('密码重置成功');
     } catch (error) {
-      console.error('密码重置失败:', error)
+      console.error('密码重置失败:', error);
     }
   }
 
@@ -228,8 +216,8 @@ function userFormOperations() {
     handleDelete,
     handleBatchDelete,
     handleChangeStatus,
-    handleResetPassword
-  }
+    handleResetPassword,
+  };
 }
 
 // ============================================================================
@@ -241,40 +229,40 @@ function userFormOperations() {
  */
 function userImportExport() {
   const {
-    importing,  // Ref<boolean> - 导入状态
-    exporting,  // Ref<boolean> - 导出状态
+    importing, // Ref<boolean> - 导入状态
+    exporting, // Ref<boolean> - 导出状态
     importUsers, // (file: File) => Promise<void> - 导入用户
-    exportUsers  // (params?: SysUserQuery) => Promise<void> - 导出用户
-  } = useUserImportExport()
+    exportUsers, // (params?: SysUserQuery) => Promise<void> - 导出用户
+  } = useUserImportExport();
 
   // 导出用户列表
   async function handleExport() {
     try {
       // 导出全部用户
-      await exportUsers()
+      await exportUsers();
 
       // 或按条件导出
-      await exportUsers({ status: '0', deptId: 1 })
+      await exportUsers({ status: '0', deptId: 1 });
     } catch (error) {
-      console.error('导出失败:', error)
+      console.error('导出失败:', error);
     }
   }
 
   // 导入用户
   async function handleImport(event: Event) {
-    const input = event.target as HTMLInputElement
-    const file = input.files?.[0]
-    if (!file) return
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
 
     try {
-      await importUsers(file)
-      console.log('导入成功')
+      await importUsers(file);
+      console.log('导入成功');
     } catch (error) {
-      console.error('导入失败:', error)
+      console.error('导入失败:', error);
     }
   }
 
-  return { importing, exporting, handleExport, handleImport }
+  return { importing, exporting, handleExport, handleImport };
 }
 
 // ============================================================================
@@ -287,15 +275,15 @@ function userImportExport() {
 export function useUserManagement() {
   // 列表
   const { list, total, loading, queryParams, fetchList, resetParams } = useUserList({
-    initialParams: { status: '0' }
-  })
+    initialParams: { status: '0' },
+  });
 
   // 选中的用户
-  const selectedUsers = ref<number[]>([])
-  const currentUser = ref<SysUser | null>(null)
+  const selectedUsers = ref<number[]>([]);
+  const currentUser = ref<SysUser | null>(null);
 
   // 详情
-  const { data: userDetail, fetchDetail } = useUserDetail()
+  const { data: userDetail, fetchDetail } = useUserDetail();
 
   // 表单
   const {
@@ -304,69 +292,69 @@ export function useUserManagement() {
     update,
     delete: deleteUser,
     batchDelete,
-    changeStatus
-  } = useUserForm()
+    changeStatus,
+  } = useUserForm();
 
   // 导入导出
-  const { importing, exporting, importUsers, exportUsers } = useUserImportExport()
+  const { importing, exporting, importUsers, exportUsers } = useUserImportExport();
 
   // 分页变化
   function handlePageChange(page: number) {
-    queryParams.value.pageNum = page
-    fetchList()
+    queryParams.value.pageNum = page;
+    fetchList();
   }
 
   // 每页数量变化
   function handleSizeChange(size: number) {
-    queryParams.value.pageSize = size
-    queryParams.value.pageNum = 1
-    fetchList()
+    queryParams.value.pageSize = size;
+    queryParams.value.pageNum = 1;
+    fetchList();
   }
 
   // 搜索
   function handleSearch(keyword: string) {
-    queryParams.value.keyword = keyword
-    queryParams.value.pageNum = 1
-    fetchList()
+    queryParams.value.keyword = keyword;
+    queryParams.value.pageNum = 1;
+    fetchList();
   }
 
   // 查看详情
   async function handleViewDetail(userId: number) {
-    await fetchDetail(userId)
-    currentUser.value = userDetail.value
+    await fetchDetail(userId);
+    currentUser.value = userDetail.value;
   }
 
   // 创建用户
   async function handleCreate(formData: SysUserForm) {
-    await create(formData)
-    await fetchList()
+    await create(formData);
+    await fetchList();
   }
 
   // 更新用户
   async function handleUpdate(userId: number, formData: SysUserForm) {
-    await update(userId, formData)
-    await fetchList()
+    await update(userId, formData);
+    await fetchList();
   }
 
   // 删除用户
   async function handleDelete(userId: number) {
-    await deleteUser(userId)
-    await fetchList()
+    await deleteUser(userId);
+    await fetchList();
   }
 
   // 批量删除
   async function handleBatchDelete() {
-    if (selectedUsers.value.length === 0) return
-    await batchDelete(selectedUsers.value)
-    selectedUsers.value = []
-    await fetchList()
+    if (selectedUsers.value.length === 0) return;
+    await batchDelete(selectedUsers.value);
+    selectedUsers.value = [];
+    await fetchList();
   }
 
   // 切换状态
   async function handleToggleStatus(userId: number, currentStatus: '0' | '1') {
-    const newStatus = currentStatus === '0' ? '1' : '0'
-    await changeStatus(userId, newStatus)
-    await fetchList()
+    const newStatus = currentStatus === '0' ? '1' : '0';
+    await changeStatus(userId, newStatus);
+    await fetchList();
   }
 
   return {
@@ -401,6 +389,6 @@ export function useUserManagement() {
     importing,
     exporting,
     handleImport: importUsers,
-    handleExport: exportUsers
-  }
+    handleExport: exportUsers,
+  };
 }

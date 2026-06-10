@@ -1,11 +1,11 @@
-import zhCN from './zh-CN'
-import en from './en'
+import zhCN from './zh-CN';
+import en from './en';
 
-export { zhCN, en }
+export { zhCN, en };
 
 export const messages = {
   'zh-CN': zhCN,
-  'en': en,
-}
+  en: en,
+};
 
-export type MessageSchema = typeof zhCN
+export type MessageSchema = typeof zhCN;

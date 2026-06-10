@@ -4,10 +4,20 @@
     <el-card class="search-card">
       <el-form :model="queryParams" inline>
         <el-form-item label="表名称">
-          <el-input v-model="queryParams.tableName" placeholder="请输入表名称" clearable style="width: 150px" />
+          <el-input
+            v-model="queryParams.tableName"
+            placeholder="请输入表名称"
+            clearable
+            style="width: 150px"
+          />
         </el-form-item>
         <el-form-item label="表描述">
-          <el-input v-model="queryParams.tableComment" placeholder="请输入表描述" clearable style="width: 150px" />
+          <el-input
+            v-model="queryParams.tableComment"
+            placeholder="请输入表描述"
+            clearable
+            style="width: 150px"
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleQuery">搜索</el-button>
@@ -21,7 +31,12 @@
       <div class="toolbar">
         <div class="toolbar-left">
           <el-button type="primary" :icon="Download" @click="handleImport">导入表</el-button>
-          <el-button type="danger" :icon="Delete" :disabled="selectedIds.length === 0" @click="handleBatchDelete">
+          <el-button
+            type="danger"
+            :icon="Delete"
+            :disabled="selectedIds.length === 0"
+            @click="handleBatchDelete"
+          >
             批量删除
           </el-button>
         </div>
@@ -80,149 +95,155 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
-import type { IGenTable, IGenQuery } from '@yunshu/shared'
-import { getGenTablePage } from '@/api/tool/gen.api'
-import GenImport from './GenImport.vue'
-import GenPreview from './GenPreview.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue';
+  import type { IGenTable, IGenQuery } from '@yunshu/shared';
+  import { getGenTablePage } from '@/api/tool/gen.api';
+  import GenImport from './GenImport.vue';
+  import GenPreview from './GenPreview.vue';
 
-const router = useRouter()
+  const router = useRouter();
 
-const loading = ref(false)
-const tableData = ref<IGenTable[]>([])
-const total = ref(0)
-const selectedIds = ref<string[]>([])
-const importVisible = ref(false)
-const previewVisible = ref(false)
-const currentTableName = ref('')
+  const loading = ref(false);
+  const tableData = ref<IGenTable[]>([]);
+  const total = ref(0);
+  const selectedIds = ref<string[]>([]);
+  const importVisible = ref(false);
+  const previewVisible = ref(false);
+  const currentTableName = ref('');
 
-const queryParams = reactive<IGenQuery>({
-  page: 1,
-  limit: 10,
-  sort: 'createTime',
-  order: 'desc',
-})
+  const queryParams = reactive<IGenQuery>({
+    page: 1,
+    limit: 10,
+    sort: 'createTime',
+    order: 'desc',
+  });
 
-const formatDate = (date: string | undefined) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
-}
+  const formatDate = (date: string | undefined) => {
+    if (!date) return '-';
+    return new Date(date).toLocaleString('zh-CN');
+  };
 
-const handleQuery = async () => {
-  loading.value = true
-  try {
-    const res = await getGenTablePage(queryParams) as any
-    if (res.success) {
-      tableData.value = res.data
-      total.value = res.pagination?.total || 0
+  const handleQuery = async () => {
+    loading.value = true;
+    try {
+      const res = (await getGenTablePage(queryParams)) as any;
+      if (res.success) {
+        tableData.value = res.data;
+        total.value = res.pagination?.total || 0;
+      }
+    } catch {
+      ElMessage.error('获取表列表失败');
+    } finally {
+      loading.value = false;
     }
-  } catch {
-    ElMessage.error('获取表列表失败')
-  } finally {
-    loading.value = false
-  }
-}
+  };
 
-const handleReset = () => {
-  queryParams.page = 1
-  queryParams.limit = 10
-  queryParams.tableName = undefined
-  queryParams.tableComment = undefined
-  handleQuery()
-}
+  const handleReset = () => {
+    queryParams.page = 1;
+    queryParams.limit = 10;
+    queryParams.tableName = undefined;
+    queryParams.tableComment = undefined;
+    handleQuery();
+  };
 
-const handleRefresh = () => {
-  handleQuery()
-}
+  const handleRefresh = () => {
+    handleQuery();
+  };
 
-const handleSelectionChange = (selection: IGenTable[]) => {
-  selectedIds.value = selection.map((item) => item.tableName)
-}
+  const handleSelectionChange = (selection: IGenTable[]) => {
+    selectedIds.value = selection.map((item) => item.tableName);
+  };
 
-const handleImport = () => {
-  importVisible.value = true
-}
+  const handleImport = () => {
+    importVisible.value = true;
+  };
 
-const handleConfig = (row: any) => {
-  router.push({
-    path: '/tool/gen/config',
-    query: { tableName: row.tableName },
-  })
-}
-
-const handlePreview = (row: any) => {
-  currentTableName.value = row.tableName
-  previewVisible.value = true
-}
-
-const handleGenerate = async (row: any) => {
-  try {
-    await ElMessageBox.confirm(`确认生成表"${row.tableName}"的代码吗？`, '提示', { type: 'warning' })
+  const handleConfig = (row: any) => {
     router.push({
       path: '/tool/gen/config',
-      query: { tableName: row.tableName, generate: 'true' },
-    })
-  } catch {
-    // 用户取消
-  }
-}
+      query: { tableName: row.tableName },
+    });
+  };
 
-const handleDelete = async (_row: any) => {
-  try {
-    await ElMessageBox.confirm('确认删除该表的生成配置吗？', '提示', { type: 'warning' })
-    ElMessage.success('删除成功')
-    handleQuery()
-  } catch {
-    // 用户取消
-  }
-}
+  const handlePreview = (row: any) => {
+    currentTableName.value = row.tableName;
+    previewVisible.value = true;
+  };
 
-const handleBatchDelete = async () => {
-  try {
-    await ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 个表配置吗？`, '提示', { type: 'warning' })
-    // TODO: 调用批量删除接口
-    ElMessage.success('删除成功')
-    handleQuery()
-  } catch {
-    // 用户取消
-  }
-}
+  const handleGenerate = async (row: any) => {
+    try {
+      await ElMessageBox.confirm(`确认生成表"${row.tableName}"的代码吗？`, '提示', {
+        type: 'warning',
+      });
+      router.push({
+        path: '/tool/gen/config',
+        query: { tableName: row.tableName, generate: 'true' },
+      });
+    } catch {
+      // 用户取消
+    }
+  };
 
-onMounted(() => {
-  handleQuery()
-})
+  const handleDelete = async (_row: any) => {
+    try {
+      await ElMessageBox.confirm('确认删除该表的生成配置吗？', '提示', { type: 'warning' });
+      ElMessage.success('删除成功');
+      handleQuery();
+    } catch {
+      // 用户取消
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    try {
+      await ElMessageBox.confirm(
+        `确认删除选中的 ${selectedIds.value.length} 个表配置吗？`,
+        '提示',
+        { type: 'warning' },
+      );
+      // TODO: 调用批量删除接口
+      ElMessage.success('删除成功');
+      handleQuery();
+    } catch {
+      // 用户取消
+    }
+  };
+
+  onMounted(() => {
+    handleQuery();
+  });
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .page-container {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .toolbar-card {
-    margin-bottom: 16px;
+    .toolbar-card {
+      margin-bottom: 16px;
 
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .toolbar-left {
+      .toolbar {
         display: flex;
-        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+
+        .toolbar-left {
+          display: flex;
+          gap: 12px;
+        }
+      }
+    }
+
+    .table-card {
+      .pagination-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
       }
     }
   }
-
-  .table-card {
-    .pagination-container {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 16px;
-    }
-  }
-}
 </style>

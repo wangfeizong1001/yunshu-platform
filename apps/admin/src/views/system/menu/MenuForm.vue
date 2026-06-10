@@ -6,12 +6,7 @@
     append-to-body
     @close="handleClose"
   >
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="rules"
-      label-width="100px"
-    >
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="100px">
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="菜单类型" prop="menuType">
@@ -121,9 +116,7 @@
 
     <template #footer>
       <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">
-        确定
-      </el-button>
+      <el-button type="primary" :loading="submitting" @click="handleSubmit"> 确定 </el-button>
     </template>
 
     <!-- 图标选择弹窗 -->
@@ -132,172 +125,166 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
-import { addMenu, updateMenu } from '@/api/system/menu.api'
-import { getMenuTreeSelect } from '@/api/system/menu.api'
-import type { SysMenu } from '@yunshu/shared'
-import MenuIcon from './MenuIcon.vue'
+  import { ref, computed, watch } from 'vue';
+  import { ElMessage } from 'element-plus';
+  import type { FormInstance, FormRules } from 'element-plus';
+  import { addMenu, updateMenu } from '@/api/system/menu.api';
+  import { getMenuTreeSelect } from '@/api/system/menu.api';
+  import type { SysMenu } from '@yunshu/shared';
+  import MenuIcon from './MenuIcon.vue';
 
-interface Props {
-  modelValue: boolean
-  menuData?: SysMenu | null
-  parentMenu?: SysMenu | null
-}
-
-interface Emits {
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'refresh'): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-// 计算属性
-const visible = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
-})
-
-const isEdit = computed(() => !!props.menuData?.menuId)
-
-// 状态
-const formRef = ref<FormInstance>()
-const submitting = ref(false)
-const menuTree = ref<SysMenu[]>([])
-const showIconDialog = ref(false)
-
-// 表单数据
-const formData = ref({
-  parentId: 0,
-  menuName: '',
-  menuType: 'C' as 'M' | 'C' | 'F',
-  orderNum: 0,
-  path: '',
-  component: '',
-  icon: '',
-  query: '',
-  isFrame: false,
-  isCache: false,
-  perms: '',
-  status: '0',
-})
-
-// 表单验证规则
-const rules: FormRules = {
-  menuName: [
-    { required: true, message: '请输入菜单名称', trigger: 'blur' },
-  ],
-  menuType: [
-    { required: true, message: '请选择菜单类型', trigger: 'change' },
-  ],
-  path: [
-    { required: true, message: '请输入路由路径', trigger: 'blur' },
-  ],
-}
-
-// 加载菜单树
-async function fetchMenuTree() {
-  try {
-    const res = await getMenuTreeSelect() as SysMenu[]
-    menuTree.value = res
-  } catch (error) {
-    console.error('加载菜单树失败', error)
+  interface Props {
+    modelValue: boolean;
+    menuData?: SysMenu | null;
+    parentMenu?: SysMenu | null;
   }
-}
 
-// 填充表单数据
-function fillFormData() {
-  if (props.menuData) {
-    formData.value = {
-      parentId: props.menuData.parentId,
-      menuName: props.menuData.menuName,
-      menuType: props.menuData.menuType,
-      orderNum: props.menuData.orderNum,
-      path: props.menuData.path || '',
-      component: props.menuData.component || '',
-      icon: props.menuData.icon || '',
-      query: props.menuData.query || '',
-      isFrame: props.menuData.isFrame,
-      isCache: props.menuData.isCache,
-      perms: props.menuData.perms || '',
-      status: props.menuData.status,
-    }
-  } else if (props.parentMenu) {
-    // 新增子菜单
-    formData.value = {
-      parentId: props.parentMenu.menuId,
-      menuName: '',
-      menuType: props.parentMenu.menuType === 'F' ? 'F' : 'C',
-      orderNum: 0,
-      path: '',
-      component: '',
-      icon: '',
-      query: '',
-      isFrame: false,
-      isCache: false,
-      perms: '',
-      status: '0',
-    }
-  } else {
-    // 新增顶级菜单
-    formData.value = {
-      parentId: 0,
-      menuName: '',
-      menuType: 'M',
-      orderNum: 0,
-      path: '',
-      component: '',
-      icon: '',
-      query: '',
-      isFrame: false,
-      isCache: false,
-      perms: '',
-      status: '0',
+  interface Emits {
+    (e: 'update:modelValue', value: boolean): void;
+    (e: 'refresh'): void;
+  }
+
+  const props = defineProps<Props>();
+  const emit = defineEmits<Emits>();
+
+  // 计算属性
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  });
+
+  const isEdit = computed(() => !!props.menuData?.menuId);
+
+  // 状态
+  const formRef = ref<FormInstance>();
+  const submitting = ref(false);
+  const menuTree = ref<SysMenu[]>([]);
+  const showIconDialog = ref(false);
+
+  // 表单数据
+  const formData = ref({
+    parentId: 0,
+    menuName: '',
+    menuType: 'C' as 'M' | 'C' | 'F',
+    orderNum: 0,
+    path: '',
+    component: '',
+    icon: '',
+    query: '',
+    isFrame: false,
+    isCache: false,
+    perms: '',
+    status: '0',
+  });
+
+  // 表单验证规则
+  const rules: FormRules = {
+    menuName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
+    menuType: [{ required: true, message: '请选择菜单类型', trigger: 'change' }],
+    path: [{ required: true, message: '请输入路由路径', trigger: 'blur' }],
+  };
+
+  // 加载菜单树
+  async function fetchMenuTree() {
+    try {
+      const res = (await getMenuTreeSelect()) as SysMenu[];
+      menuTree.value = res;
+    } catch (error) {
+      console.error('加载菜单树失败', error);
     }
   }
-}
 
-// 提交表单
-async function handleSubmit() {
-  try {
-    await formRef.value?.validate()
-    submitting.value = true
-
-    if (isEdit.value) {
-      await updateMenu({ menuId: props.menuData!.menuId, ...formData.value } as any)
-      ElMessage.success('修改成功')
+  // 填充表单数据
+  function fillFormData() {
+    if (props.menuData) {
+      formData.value = {
+        parentId: props.menuData.parentId,
+        menuName: props.menuData.menuName,
+        menuType: props.menuData.menuType,
+        orderNum: props.menuData.orderNum,
+        path: props.menuData.path || '',
+        component: props.menuData.component || '',
+        icon: props.menuData.icon || '',
+        query: props.menuData.query || '',
+        isFrame: props.menuData.isFrame,
+        isCache: props.menuData.isCache,
+        perms: props.menuData.perms || '',
+        status: props.menuData.status,
+      };
+    } else if (props.parentMenu) {
+      // 新增子菜单
+      formData.value = {
+        parentId: props.parentMenu.menuId,
+        menuName: '',
+        menuType: props.parentMenu.menuType === 'F' ? 'F' : 'C',
+        orderNum: 0,
+        path: '',
+        component: '',
+        icon: '',
+        query: '',
+        isFrame: false,
+        isCache: false,
+        perms: '',
+        status: '0',
+      };
     } else {
-      await addMenu(formData.value as any)
-      ElMessage.success('新增成功')
+      // 新增顶级菜单
+      formData.value = {
+        parentId: 0,
+        menuName: '',
+        menuType: 'M',
+        orderNum: 0,
+        path: '',
+        component: '',
+        icon: '',
+        query: '',
+        isFrame: false,
+        isCache: false,
+        perms: '',
+        status: '0',
+      };
     }
-
-    emit('refresh')
-    handleClose()
-  } catch (error) {
-    console.error('提交失败', error)
-  } finally {
-    submitting.value = false
   }
-}
 
-// 关闭弹窗
-function handleClose() {
-  formRef.value?.resetFields()
-  visible.value = false
-}
+  // 提交表单
+  async function handleSubmit() {
+    try {
+      await formRef.value?.validate();
+      submitting.value = true;
 
-// 图标选择回调
-function handleIconSelect(icon: string) {
-  formData.value.icon = icon
-}
+      if (isEdit.value) {
+        await updateMenu({ menuId: props.menuData!.menuId, ...formData.value } as any);
+        ElMessage.success('修改成功');
+      } else {
+        await addMenu(formData.value as any);
+        ElMessage.success('新增成功');
+      }
 
-// 监听弹窗打开
-watch(visible, (val) => {
-  if (val) {
-    fetchMenuTree()
-    fillFormData()
+      emit('refresh');
+      handleClose();
+    } catch (error) {
+      console.error('提交失败', error);
+    } finally {
+      submitting.value = false;
+    }
   }
-})
+
+  // 关闭弹窗
+  function handleClose() {
+    formRef.value?.resetFields();
+    visible.value = false;
+  }
+
+  // 图标选择回调
+  function handleIconSelect(icon: string) {
+    formData.value.icon = icon;
+  }
+
+  // 监听弹窗打开
+  watch(visible, (val) => {
+    if (val) {
+      fetchMenuTree();
+      fillFormData();
+    }
+  });
 </script>

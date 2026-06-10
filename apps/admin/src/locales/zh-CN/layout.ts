@@ -56,4 +56,4 @@ export default {
     settings: '个人设置',
     logout: '退出登录',
   },
-}
+};

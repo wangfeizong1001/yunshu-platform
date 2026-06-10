@@ -19,7 +19,9 @@ program
   .name('yunshu')
   .description('云枢中台 CLI — 开箱即用的中台前端解决方案')
   .version('0.1.0')
-  .addHelpText('after', `
+  .addHelpText(
+    'after',
+    `
 ${chalk.dim('示例:')}
   ${chalk.cyan('yunshu create my-app')}              创建新项目
   ${chalk.cyan('yunshu generate page UserList')}      生成 CRUD 页面
@@ -28,7 +30,8 @@ ${chalk.dim('示例:')}
 
 ${chalk.dim('更多信息:')}
   ${chalk.underline('https://docs.yunshu.dev')}
-  `);
+  `,
+  );
 
 // ============================================================================
 // 注册命令

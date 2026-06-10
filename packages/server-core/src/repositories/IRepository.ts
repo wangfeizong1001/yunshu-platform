@@ -10,11 +10,7 @@
  * @module @yunshu/server-core/repositories/IRepository
  */
 
-import type {
-  ServiceResult,
-  PaginationParams,
-  PaginatedResult,
-} from '@yunshu/shared';
+import type { ServiceResult, PaginationParams, PaginatedResult } from '@yunshu/shared';
 
 // ============================================================================
 // 基础类型
@@ -48,17 +44,17 @@ export interface ISoftDelete {
  * 查询操作符
  */
 export type QueryOperator =
-  | 'eq'      // 等于 =
-  | 'ne'      // 不等于 <>
-  | 'gt'      // 大于 >
-  | 'gte'     // 大于等于 >=
-  | 'lt'      // 小于 <
-  | 'lte'     // 小于等于 <=
-  | 'in'      // 在数组中 IN
-  | 'nin'     // 不在数组中 NOT IN
-  | 'like'    // 模糊匹配 LIKE
-  | 'ilike'   // 大小写不敏感匹配 ILIKE
-  | 'isNull'  // 为空 IS NULL
+  | 'eq' // 等于 =
+  | 'ne' // 不等于 <>
+  | 'gt' // 大于 >
+  | 'gte' // 大于等于 >=
+  | 'lt' // 小于 <
+  | 'lte' // 小于等于 <=
+  | 'in' // 在数组中 IN
+  | 'nin' // 不在数组中 NOT IN
+  | 'like' // 模糊匹配 LIKE
+  | 'ilike' // 大小写不敏感匹配 ILIKE
+  | 'isNull' // 为空 IS NULL
   | 'isNotNull'; // 不为空 IS NOT NULL
 
 /**
@@ -167,7 +163,10 @@ export interface IRepository<T extends IEntity, TId = string> {
   /**
    * 统计数量
    */
-  count(where?: QueryCondition[], config?: { includeDeleted?: boolean }): Promise<ServiceResult<number>>;
+  count(
+    where?: QueryCondition[],
+    config?: { includeDeleted?: boolean },
+  ): Promise<ServiceResult<number>>;
 
   /**
    * 检查是否存在
@@ -241,9 +240,7 @@ export interface IRepositoryFactory {
   /**
    * 创建指定实体的 Repository
    */
-  getRepository<T extends IEntity, TId = string>(
-    entityName: string,
-  ): IRepository<T, TId>;
+  getRepository<T extends IEntity, TId = string>(entityName: string): IRepository<T, TId>;
 }
 
 // ============================================================================

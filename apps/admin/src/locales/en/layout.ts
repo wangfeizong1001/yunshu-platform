@@ -56,4 +56,4 @@ export default {
     settings: 'Settings',
     logout: 'Logout',
   },
-}
+};

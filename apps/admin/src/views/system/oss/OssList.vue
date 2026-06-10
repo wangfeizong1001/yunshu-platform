@@ -152,18 +152,9 @@
     <OssConfigDialog v-model="configVisible" @refresh="refreshTable" />
 
     <!-- 文件预览弹窗 -->
-    <el-dialog
-      v-model="previewVisible"
-      title="文件预览"
-      width="800px"
-      append-to-body
-    >
+    <el-dialog v-model="previewVisible" title="文件预览" width="800px" append-to-body>
       <div class="preview-container">
-        <img
-          v-if="isImageFile(previewFile?.fileType)"
-          :src="previewUrl"
-          class="preview-image"
-        />
+        <img v-if="isImageFile(previewFile?.fileType)" :src="previewUrl" class="preview-image" />
         <el-empty v-else description="该文件类型不支持预览，请下载后查看" />
       </div>
     </el-dialog>
@@ -171,209 +162,211 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Upload, Delete, Setting } from '@element-plus/icons-vue'
-import { getOssPage, deleteOss, batchDeleteOss, downloadOss } from '@/api/system/oss.api'
-import type { OssFile, OssFileQuery } from '@yunshu/shared'
-import OssUploadDialog from './OssUpload.vue'
-import OssConfigDialog from './OssConfig.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Upload, Delete, Setting } from '@element-plus/icons-vue';
+  import { getOssPage, deleteOss, batchDeleteOss, downloadOss } from '@/api/system/oss.api';
+  import type { OssFile, OssFileQuery } from '@yunshu/shared';
+  import OssUploadDialog from './OssUpload.vue';
+  import OssConfigDialog from './OssConfig.vue';
 
-// 状态
-const loading = ref(false)
-const fileList = ref<OssFile[]>([])
-const total = ref(0)
-const selectedRows = ref<OssFile[]>([])
-const uploadVisible = ref(false)
-const configVisible = ref(false)
-const previewVisible = ref(false)
-const previewFile = ref<OssFile | null>(null)
-const previewUrl = ref('')
+  // 状态
+  const loading = ref(false);
+  const fileList = ref<OssFile[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<OssFile[]>([]);
+  const uploadVisible = ref(false);
+  const configVisible = ref(false);
+  const previewVisible = ref(false);
+  const previewFile = ref<OssFile | null>(null);
+  const previewUrl = ref('');
 
-// 查询参数
-const queryParams = reactive<OssFileQuery>({
-  keyword: '',
-  storageType: undefined,
-  fileType: '',
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<OssFileQuery>({
+    keyword: '',
+    storageType: undefined,
+    fileType: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 格式化文件大小
-function formatFileSize(size: number): string {
-  if (size === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(size) / Math.log(k))
-  return `${(size / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`
-}
-
-// 获取存储类型名称
-function getStorageTypeName(type: string): string {
-  const typeMap: Record<string, string> = {
-    local: '本地',
-    aliyun: '阿里云OSS',
-    qcloud: '腾讯云COS',
-    qiniu: '七牛云',
+  // 格式化文件大小
+  function formatFileSize(size: number): string {
+    if (size === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(size) / Math.log(k));
+    return `${(size / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   }
-  return typeMap[type] || type
-}
 
-// 获取存储类型标签类型
-function getStorageTypeTag(type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
-  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    local: 'info',
-    aliyun: 'success',
-    qcloud: 'warning',
-    qiniu: 'danger',
+  // 获取存储类型名称
+  function getStorageTypeName(type: string): string {
+    const typeMap: Record<string, string> = {
+      local: '本地',
+      aliyun: '阿里云OSS',
+      qcloud: '腾讯云COS',
+      qiniu: '七牛云',
+    };
+    return typeMap[type] || type;
   }
-  return typeMap[type] || 'info'
-}
 
-// 判断是否为图片文件
-function isImageFile(fileType: string | undefined): boolean {
-  if (!fileType) return false
-  return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileType.toLowerCase())
-}
-
-// 加载文件列表
-async function fetchFileList() {
-  loading.value = true
-  try {
-    const res = await getOssPage(queryParams) as any
-    fileList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
+  // 获取存储类型标签类型
+  function getStorageTypeTag(
+    type: string,
+  ): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
+    const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
+      local: 'info',
+      aliyun: 'success',
+      qcloud: 'warning',
+      qiniu: 'danger',
+    };
+    return typeMap[type] || 'info';
   }
-}
 
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchFileList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.storageType = undefined
-  queryParams.fileType = ''
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchFileList()
-}
-
-// 上传
-function handleUpload() {
-  uploadVisible.value = true
-}
-
-// 配置
-function handleConfig() {
-  configVisible.value = true
-}
-
-// 预览
-async function handlePreview(row: any) {
-  previewFile.value = row
-  if (isImageFile(row.fileType)) {
-    previewUrl.value = row.url
-    previewVisible.value = true
-  } else {
-    previewVisible.value = true
+  // 判断是否为图片文件
+  function isImageFile(fileType: string | undefined): boolean {
+    if (!fileType) return false;
+    return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileType.toLowerCase());
   }
-}
 
-// 下载
-async function handleDownload(row: any) {
-  try {
-    await downloadOss(row.id)
-    ElMessage.success('下载成功')
-  } catch (error) {
-    ElMessage.error('下载失败')
-  }
-}
-
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除文件"${row.fileName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteOss(row.id)
-    ElMessage.success('删除成功')
-    fetchFileList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载文件列表
+  async function fetchFileList() {
+    loading.value = true;
+    try {
+      const res = (await getOssPage(queryParams)) as any;
+      fileList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 批量删除
-async function handleBatchDelete() {
-  try {
-    await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个文件？`, '提示', {
-      type: 'warning',
-    })
-    const ids = selectedRows.value.map((row: any) => row.id)
-    await batchDeleteOss(ids)
-    ElMessage.success('删除成功')
-    fetchFileList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchFileList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.storageType = undefined;
+    queryParams.fileType = '';
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchFileList();
+  }
+
+  // 上传
+  function handleUpload() {
+    uploadVisible.value = true;
+  }
+
+  // 配置
+  function handleConfig() {
+    configVisible.value = true;
+  }
+
+  // 预览
+  async function handlePreview(row: any) {
+    previewFile.value = row;
+    if (isImageFile(row.fileType)) {
+      previewUrl.value = row.url;
+      previewVisible.value = true;
+    } else {
+      previewVisible.value = true;
     }
   }
-}
 
-// 批量选择
-function handleSelectionChange(selection: OssFile[]) {
-  selectedRows.value = selection
-}
+  // 下载
+  async function handleDownload(row: any) {
+    try {
+      await downloadOss(row.id);
+      ElMessage.success('下载成功');
+    } catch (error) {
+      ElMessage.error('下载失败');
+    }
+  }
 
-// 初始化
-onMounted(() => {
-  fetchFileList()
-})
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除文件"${row.fileName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteOss(row.id);
+      ElMessage.success('删除成功');
+      fetchFileList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 批量删除
+  async function handleBatchDelete() {
+    try {
+      await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个文件？`, '提示', {
+        type: 'warning',
+      });
+      const ids = selectedRows.value.map((row: any) => row.id);
+      await batchDeleteOss(ids);
+      ElMessage.success('删除成功');
+      fetchFileList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 批量选择
+  function handleSelectionChange(selection: OssFile[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchFileList();
+  });
 </script>
 
 <style scoped lang="scss">
-.oss-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .oss-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .preview-container {
+      display: flex;
+      justify-content: center;
       align-items: center;
+      min-height: 400px;
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+      }
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-
-  .preview-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 400px;
-
-    .preview-image {
-      max-width: 100%;
-      max-height: 70vh;
-      object-fit: contain;
-    }
-  }
-}
 </style>

@@ -33,15 +33,13 @@ describe('用户管理模块 /api/system/user', () => {
   });
 
   it('POST /api/system/user 应创建用户并返回 201/200 且 success=true', async () => {
-    const res = await request
-      .post('/api/system/user')
-      .send({
-        userName: 'testuser_' + Date.now(),
-        nickName: '测试用户',
-        email: 'test@yunshu.com',
-        phone: '13800000001',
-        sex: '1',
-      });
+    const res = await request.post('/api/system/user').send({
+      userName: 'testuser_' + Date.now(),
+      nickName: '测试用户',
+      email: 'test@yunshu.com',
+      phone: '13800000001',
+      sex: '1',
+    });
     expect([200, 201]).toContain(res.status);
     expect(res.body.success).toBe(true);
     expect(res.body).toHaveProperty('data');
@@ -72,12 +70,10 @@ describe('用户管理模块 /api/system/user', () => {
     const listRes = await request.get('/api/system/user/list?limit=1');
     if (listRes.body.data && listRes.body.data.length > 0) {
       const user = listRes.body.data[0];
-      const res = await request
-        .put('/api/system/user')
-        .send({
-          userId: user.userId,
-          nickName: '更新后的昵称_' + Date.now(),
-        });
+      const res = await request.put('/api/system/user').send({
+        userId: user.userId,
+        nickName: '更新后的昵称_' + Date.now(),
+      });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     }

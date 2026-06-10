@@ -59,15 +59,7 @@
     "*.ts"
   ],
 
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.js",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ],
+  "exclude": ["node_modules", "dist", "**/*.js", "**/*.spec.ts", "**/*.test.ts"],
 
-  "references": [
-    { "path": "./tsconfig.node.json" }
-  ]
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

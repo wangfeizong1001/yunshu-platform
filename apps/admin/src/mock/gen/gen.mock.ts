@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/gen
  */
 
-import type { IGenTable, IGenColumn, IGenConfig, IGenPreview } from '@yunshu/shared'
+import type { IGenTable, IGenColumn, IGenConfig, IGenPreview } from '@yunshu/shared';
 
 /** Mock 数据库表数据 */
 export const genTableMockData: IGenTable[] = [
@@ -50,7 +50,7 @@ export const genTableMockData: IGenTable[] = [
     engine: 'PostgreSQL',
     createTime: '2024-03-05 09:00:00',
   },
-]
+];
 
 /** Mock 字段数据 */
 export const genColumnMockData: IGenColumn[] = [
@@ -193,7 +193,7 @@ export const genColumnMockData: IGenColumn[] = [
     isFill: false,
     displayType: 'textarea',
   },
-]
+];
 
 /** Mock 生成配置 */
 export const genConfigMockData: IGenConfig = {
@@ -211,7 +211,7 @@ export const genConfigMockData: IGenConfig = {
   generateTypeScript: true,
   businessName: '用户管理',
   functionName: '用户管理',
-}
+};
 
 /** Mock 代码预览数据 */
 export const genPreviewMockData: IGenPreview = {
@@ -356,4 +356,4 @@ export function deleteSysUser(userId: number) {
 }`,
     },
   ],
-}
+};

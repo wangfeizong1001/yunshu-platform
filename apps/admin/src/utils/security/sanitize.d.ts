@@ -9,17 +9,20 @@
  * @module @yunshu/admin/utils/security/sanitize
  */
 export interface SanitizeOptions {
-    /** 额外允许的标签 */
-    ALLOWED_TAGS?: string[];
-    /** 额外允许的属性 */
-    ALLOWED_ATTR?: string[];
-    /** 是否允许 data: URI（默认 false —— 避免 SVG XSS） */
-    ALLOW_DATA_URI?: boolean;
+  /** 额外允许的标签 */
+  ALLOWED_TAGS?: string[];
+  /** 额外允许的属性 */
+  ALLOWED_ATTR?: string[];
+  /** 是否允许 data: URI（默认 false —— 避免 SVG XSS） */
+  ALLOW_DATA_URI?: boolean;
 }
 /**
  * 清理富文本内容，返回可安全 v-html 的字符串
  */
-export declare function sanitizeHtml(dirty: string | null | undefined, options?: SanitizeOptions): string;
+export declare function sanitizeHtml(
+  dirty: string | null | undefined,
+  options?: SanitizeOptions,
+): string;
 /**
  * 剥除全部 HTML 标签，返回纯文本（用于搜索/摘要）
  */

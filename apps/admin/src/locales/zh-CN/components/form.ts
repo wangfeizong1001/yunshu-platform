@@ -29,4 +29,4 @@ export default {
     confirmPassword: '请确认密码',
     passwordNotMatch: '两次输入密码不一致',
   },
-}
+};

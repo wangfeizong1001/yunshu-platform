@@ -325,9 +325,7 @@ export class ConfigService {
   private async tryLoadDotenv(): Promise<void> {
     try {
       const dotenvModuleName = 'dotenv';
-      const dotenv = (await import(
-        /* @vite-ignore */ dotenvModuleName as string
-      )) as {
+      const dotenv = (await import(/* @vite-ignore */ dotenvModuleName as string)) as {
         config?: () => { parsed?: Record<string, string> | undefined } | undefined;
       };
       if (typeof dotenv.config === 'function') {
@@ -384,8 +382,7 @@ export class ConfigService {
       auth: {
         jwtSecret: env.JWT_SECRET ?? DEFAULT_CONFIG.auth.jwtSecret,
         jwtExpiresIn: env.JWT_EXPIRES_IN ?? DEFAULT_CONFIG.auth.jwtExpiresIn,
-        jwtRefreshExpiresIn:
-          env.JWT_REFRESH_EXPIRES_IN ?? DEFAULT_CONFIG.auth.jwtRefreshExpiresIn,
+        jwtRefreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN ?? DEFAULT_CONFIG.auth.jwtRefreshExpiresIn,
         bcryptRounds: parseIntValue(env.BCRYPT_ROUNDS, DEFAULT_CONFIG.auth.bcryptRounds),
       },
       app: {
@@ -452,7 +449,12 @@ export class ConfigService {
       return defaultValue;
     }
     const normalized = value.trim().toLowerCase();
-    if (normalized === 'debug' || normalized === 'info' || normalized === 'warn' || normalized === 'error') {
+    if (
+      normalized === 'debug' ||
+      normalized === 'info' ||
+      normalized === 'warn' ||
+      normalized === 'error'
+    ) {
       return normalized;
     }
     return defaultValue;
@@ -484,11 +486,7 @@ export class ConfigService {
     let current: unknown = this.config;
 
     for (const part of parts) {
-      if (
-      current === null ||
-      current === undefined ||
-      typeof current !== 'object'
-      ) {
+      if (current === null || current === undefined || typeof current !== 'object') {
         return (defaultValue ?? undefined) as T;
       }
       current = (current as Record<string, unknown>)[part];
@@ -531,9 +529,7 @@ export class ConfigService {
     const missing = this.validate();
     const isProd = this.get('app').env === 'production';
     if (missing.length > 0 && (isProd || force)) {
-      throw new Error(
-        `[Config] 缺少必填字段: ${missing.join(', ')}`,
-      );
+      throw new Error(`[Config] 缺少必填字段: ${missing.join(', ')}`);
     }
   }
 

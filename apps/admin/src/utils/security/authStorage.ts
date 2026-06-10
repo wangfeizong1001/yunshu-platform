@@ -72,7 +72,10 @@ export function hasToken(): boolean {
  * 写入用户资料（序列化为 JSON 存 Cookie）
  * 注意：只存非敏感字段（id / nickname / avatar 等）
  */
-export function setUserProfile<T extends Record<string, unknown>>(profile: T, remember = false): void {
+export function setUserProfile<T extends Record<string, unknown>>(
+  profile: T,
+  remember = false,
+): void {
   const payload = JSON.stringify(profile);
   if (remember) {
     Cookies.set(PROFILE_KEY, payload, { ...SECURE_COOKIE_ATTRS, expires: REMEMBER_DAYS });
@@ -84,7 +87,9 @@ export function setUserProfile<T extends Record<string, unknown>>(profile: T, re
 /**
  * 读取用户资料
  */
-export function getUserProfile<T extends Record<string, unknown> = Record<string, unknown>>(): T | null {
+export function getUserProfile<
+  T extends Record<string, unknown> = Record<string, unknown>,
+>(): T | null {
   const raw = Cookies.get(PROFILE_KEY);
   if (!raw) {
     return null;

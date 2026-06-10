@@ -15,22 +15,22 @@ import dept from './views/system/dept';
 import post from './views/system/post';
 import monitor from './views/monitor';
 const en = {
-    ...common,
-    ...layout,
-    ...messages,
-    ...errors,
-    ...table,
-    ...dialog,
-    ...pagination,
-    ...form,
-    ...login,
-    ...dashboard,
-    ...user,
-    ...role,
-    ...menu,
-    ...dept,
-    ...post,
-    ...monitor,
+  ...common,
+  ...layout,
+  ...messages,
+  ...errors,
+  ...table,
+  ...dialog,
+  ...pagination,
+  ...form,
+  ...login,
+  ...dashboard,
+  ...user,
+  ...role,
+  ...menu,
+  ...dept,
+  ...post,
+  ...monitor,
 };
 export default en;
 //# sourceMappingURL=index.js.map

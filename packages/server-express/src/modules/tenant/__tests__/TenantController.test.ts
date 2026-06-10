@@ -104,9 +104,7 @@ describe('TenantController', () => {
       if (keyword) {
         const kw = (keyword as string).toLowerCase();
         filtered = filtered.filter(
-          (t) =>
-            t.tenantName.toLowerCase().includes(kw) ||
-            t.tenantCode.toLowerCase().includes(kw)
+          (t) => t.tenantName.toLowerCase().includes(kw) || t.tenantCode.toLowerCase().includes(kw),
         );
       }
 
@@ -137,9 +135,7 @@ describe('TenantController', () => {
       if (keyword) {
         const kw = (keyword as string).toLowerCase();
         filtered = filtered.filter(
-          (t) =>
-            t.tenantName.toLowerCase().includes(kw) ||
-            t.tenantCode.toLowerCase().includes(kw)
+          (t) => t.tenantName.toLowerCase().includes(kw) || t.tenantCode.toLowerCase().includes(kw),
         );
       }
 
@@ -154,10 +150,8 @@ describe('TenantController', () => {
 
       expect(ctx.success).toHaveBeenCalledWith(
         expect.objectContaining({
-          rows: expect.arrayContaining([
-            expect.objectContaining({ tenantName: '云枢科技' }),
-          ]),
-        })
+          rows: expect.arrayContaining([expect.objectContaining({ tenantName: '云枢科技' })]),
+        }),
       );
     });
 
@@ -171,9 +165,7 @@ describe('TenantController', () => {
       if (keyword) {
         const kw = (keyword as string).toLowerCase();
         filtered = filtered.filter(
-          (t) =>
-            t.tenantName.toLowerCase().includes(kw) ||
-            t.tenantCode.toLowerCase().includes(kw)
+          (t) => t.tenantName.toLowerCase().includes(kw) || t.tenantCode.toLowerCase().includes(kw),
         );
       }
 
@@ -187,10 +179,8 @@ describe('TenantController', () => {
 
       expect(ctx.success).toHaveBeenCalledWith(
         expect.objectContaining({
-          rows: expect.arrayContaining([
-            expect.objectContaining({ status: '0' }),
-          ]),
-        })
+          rows: expect.arrayContaining([expect.objectContaining({ status: '0' })]),
+        }),
       );
     });
   });
@@ -212,7 +202,7 @@ describe('TenantController', () => {
         expect.objectContaining({
           tenantId: 1,
           tenantName: '云枢科技',
-        })
+        }),
       );
     });
 
@@ -265,7 +255,7 @@ describe('TenantController', () => {
           tenantName: '新租户',
           tenantCode: 'newtenant',
           status: '0',
-        })
+        }),
       );
     });
   });
@@ -276,9 +266,7 @@ describe('TenantController', () => {
       ctx.params = { tenantId: '1' };
       ctx.body = { tenantName: '更新后的名称' };
 
-      const index = mockTenants.findIndex(
-        (t) => t.tenantId === Number(ctx.params.tenantId)
-      );
+      const index = mockTenants.findIndex((t) => t.tenantId === Number(ctx.params.tenantId));
 
       if (index !== -1) {
         const updated = {
@@ -294,7 +282,7 @@ describe('TenantController', () => {
       expect(ctx.success).toHaveBeenCalledWith(
         expect.objectContaining({
           tenantName: '更新后的名称',
-        })
+        }),
       );
     });
 
@@ -303,9 +291,7 @@ describe('TenantController', () => {
       ctx.params = { tenantId: '999' };
       ctx.body = { tenantName: '更新后的名称' };
 
-      const index = mockTenants.findIndex(
-        (t) => t.tenantId === Number(ctx.params.tenantId)
-      );
+      const index = mockTenants.findIndex((t) => t.tenantId === Number(ctx.params.tenantId));
 
       if (index !== -1) {
         ctx.success(mockTenants[index]);
@@ -322,9 +308,7 @@ describe('TenantController', () => {
       const ctx = createMockContext();
       ctx.params = { tenantId: '2' };
 
-      const index = mockTenants.findIndex(
-        (t) => t.tenantId === Number(ctx.params.tenantId)
-      );
+      const index = mockTenants.findIndex((t) => t.tenantId === Number(ctx.params.tenantId));
 
       if (index !== -1) {
         ctx.success(null);
@@ -339,9 +323,7 @@ describe('TenantController', () => {
       const ctx = createMockContext();
       ctx.params = { tenantId: '999' };
 
-      const index = mockTenants.findIndex(
-        (t) => t.tenantId === Number(ctx.params.tenantId)
-      );
+      const index = mockTenants.findIndex((t) => t.tenantId === Number(ctx.params.tenantId));
 
       if (index !== -1) {
         ctx.success(null);

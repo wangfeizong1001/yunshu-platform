@@ -16,8 +16,4 @@ export type {
   MigrationResult,
 } from './MigrationUtils';
 
-export {
-  AUDIT_COLUMNS,
-  AUDIT_INDEXES,
-  createAuditableTable,
-} from './MigrationUtils';
+export { AUDIT_COLUMNS, AUDIT_INDEXES, createAuditableTable } from './MigrationUtils';

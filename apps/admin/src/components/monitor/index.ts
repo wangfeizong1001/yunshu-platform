@@ -4,6 +4,6 @@
  * @module @yunshu/admin/components/monitor
  */
 
-export { default as LogTable } from './LogTable.vue'
-export { default as ServerInfo } from './ServerInfo.vue'
-export { default as JobLogDrawer } from './JobLogDrawer.vue'
+export { default as LogTable } from './LogTable.vue';
+export { default as ServerInfo } from './ServerInfo.vue';
+export { default as JobLogDrawer } from './JobLogDrawer.vue';

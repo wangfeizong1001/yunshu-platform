@@ -124,124 +124,124 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Expand, Fold } from '@element-plus/icons-vue'
-import { getMenuTree, deleteMenu } from '@/api/system/menu.api'
-import type { SysMenu, SysMenuQuery } from '@yunshu/shared'
-import MenuForm from './MenuForm.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus, Expand, Fold } from '@element-plus/icons-vue';
+  import { getMenuTree, deleteMenu } from '@/api/system/menu.api';
+  import type { SysMenu, SysMenuQuery } from '@yunshu/shared';
+  import MenuForm from './MenuForm.vue';
 
-// 状态
-const loading = ref(false)
-const menuList = ref<SysMenu[]>([])
-const isExpandAll = ref(true)
-const formVisible = ref(false)
-const currentMenu = ref<SysMenu | null>(null)
-const parentMenu = ref<SysMenu | null>(null)
+  // 状态
+  const loading = ref(false);
+  const menuList = ref<SysMenu[]>([]);
+  const isExpandAll = ref(true);
+  const formVisible = ref(false);
+  const currentMenu = ref<SysMenu | null>(null);
+  const parentMenu = ref<SysMenu | null>(null);
 
-// 查询参数
-const queryParams = reactive<SysMenuQuery>({
-  keyword: '',
-  status: undefined,
-})
+  // 查询参数
+  const queryParams = reactive<SysMenuQuery>({
+    keyword: '',
+    status: undefined,
+  });
 
-// 加载菜单树
-async function fetchMenuList() {
-  loading.value = true
-  try {
-    const res = await getMenuTree(queryParams) as SysMenu[]
-    menuList.value = res
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  fetchMenuList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.status = undefined
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchMenuList()
-}
-
-// 展开全部
-function expandAll() {
-  isExpandAll.value = true
-}
-
-// 折叠全部
-function collapseAll() {
-  isExpandAll.value = false
-}
-
-// 新增顶级菜单
-function handleAdd() {
-  currentMenu.value = null
-  parentMenu.value = null
-  formVisible.value = true
-}
-
-// 新增子菜单
-function handleAddSub(row: SysMenu) {
-  currentMenu.value = null
-  parentMenu.value = row
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: SysMenu) {
-  currentMenu.value = { ...row }
-  parentMenu.value = null
-  formVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: SysMenu) {
-  if (row.children && row.children.length > 0) {
-    ElMessage.warning('该菜单存在下级菜单，无法删除')
-    return
-  }
-  try {
-    await ElMessageBox.confirm(`是否确认删除菜单"${row.menuName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteMenu(row.menuId)
-    ElMessage.success('删除成功')
-    fetchMenuList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载菜单树
+  async function fetchMenuList() {
+    loading.value = true;
+    try {
+      const res = (await getMenuTree(queryParams)) as SysMenu[];
+      menuList.value = res;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 初始化
-onMounted(() => {
-  fetchMenuList()
-})
+  // 查询
+  function handleQuery() {
+    fetchMenuList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.status = undefined;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchMenuList();
+  }
+
+  // 展开全部
+  function expandAll() {
+    isExpandAll.value = true;
+  }
+
+  // 折叠全部
+  function collapseAll() {
+    isExpandAll.value = false;
+  }
+
+  // 新增顶级菜单
+  function handleAdd() {
+    currentMenu.value = null;
+    parentMenu.value = null;
+    formVisible.value = true;
+  }
+
+  // 新增子菜单
+  function handleAddSub(row: SysMenu) {
+    currentMenu.value = null;
+    parentMenu.value = row;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: SysMenu) {
+    currentMenu.value = { ...row };
+    parentMenu.value = null;
+    formVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: SysMenu) {
+    if (row.children && row.children.length > 0) {
+      ElMessage.warning('该菜单存在下级菜单，无法删除');
+      return;
+    }
+    try {
+      await ElMessageBox.confirm(`是否确认删除菜单"${row.menuName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteMenu(row.menuId);
+      ElMessage.success('删除成功');
+      fetchMenuList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchMenuList();
+  });
 </script>
 
 <style scoped lang="scss">
-.menu-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .menu-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
     }
   }
-}
 </style>

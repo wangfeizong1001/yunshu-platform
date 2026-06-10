@@ -606,7 +606,10 @@ function capitalize(str: string): string {
  * 下划线转帕斯卡命名（大驼峰）
  */
 function toPascalCase(str: string): string {
-  return str.split('_').map(part => capitalize(part.toLowerCase())).join('');
+  return str
+    .split('_')
+    .map((part) => capitalize(part.toLowerCase()))
+    .join('');
 }
 
 /**
@@ -689,29 +692,39 @@ export class GenService {
   /**
    * 获取数据库表分页列表
    */
-  async getTablePage(params: IGenQuery): Promise<{ data: IGenTable[]; pagination: ReturnType<typeof calcPaginationMeta> }> {
-    const { search, tableName, tableComment, page = 1, limit = 10, sort = 'createTime', order = 'desc' } = params;
+  async getTablePage(
+    params: IGenQuery,
+  ): Promise<{ data: IGenTable[]; pagination: ReturnType<typeof calcPaginationMeta> }> {
+    const {
+      search,
+      tableName,
+      tableComment,
+      page = 1,
+      limit = 10,
+      sort = 'createTime',
+      order = 'desc',
+    } = params;
 
     let filteredTables = [...MOCK_TABLES];
 
     if (search) {
       const keyword = search.toLowerCase();
       filteredTables = filteredTables.filter(
-        table =>
+        (table) =>
           table.tableName.toLowerCase().includes(keyword) ||
-          table.tableComment?.toLowerCase().includes(keyword)
+          table.tableComment?.toLowerCase().includes(keyword),
       );
     }
 
     if (tableName) {
-      filteredTables = filteredTables.filter(table =>
-        table.tableName.toLowerCase().includes(tableName.toLowerCase())
+      filteredTables = filteredTables.filter((table) =>
+        table.tableName.toLowerCase().includes(tableName.toLowerCase()),
       );
     }
 
     if (tableComment) {
-      filteredTables = filteredTables.filter(table =>
-        table.tableComment?.toLowerCase().includes(tableComment.toLowerCase())
+      filteredTables = filteredTables.filter((table) =>
+        table.tableComment?.toLowerCase().includes(tableComment.toLowerCase()),
       );
     }
 
@@ -967,7 +980,7 @@ export class GenService {
     return {
       tableName: config.tableName,
       fileCount: preview.files.length,
-      files: preview.files.map(f => f.filePath),
+      files: preview.files.map((f) => f.filePath),
     };
   }
 
@@ -979,7 +992,7 @@ export class GenService {
 
     // 简单的 ZIP 文件生成（不依赖外部库）
     // 注意：这是最小化的 ZIP 实现，实际项目推荐使用 archiver
-    const fileEntries: Array<{ name: string; data: Buffer }> = preview.files.map(file => ({
+    const fileEntries: Array<{ name: string; data: Buffer }> = preview.files.map((file) => ({
       name: file.filePath,
       data: Buffer.from(file.content, 'utf-8'),
     }));

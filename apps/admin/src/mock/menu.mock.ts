@@ -2,7 +2,7 @@
  * 菜单 Mock 数据
  */
 
-import type { SysMenu } from '@yunshu/shared'
+import type { SysMenu } from '@yunshu/shared';
 
 // 生成 Mock 菜单数据
 export const mockMenuList: SysMenu[] = [
@@ -207,11 +207,11 @@ export const mockMenuList: SysMenu[] = [
       },
     ],
   },
-]
+];
 
 // 获取菜单树 Mock
 export function getMockMenuTree(params?: any): SysMenu[] {
-  let menuList = mockMenuList
+  let menuList = mockMenuList;
 
   // 关键词过滤
   if (params?.menuName) {
@@ -221,9 +221,9 @@ export function getMockMenuTree(params?: any): SysMenu[] {
         .map((menu) => ({
           ...menu,
           children: menu.children ? filterMenus(menu.children) : undefined,
-        }))
-    }
-    menuList = filterMenus(menuList)
+        }));
+    };
+    menuList = filterMenus(menuList);
   }
 
   // 状态过滤
@@ -234,25 +234,25 @@ export function getMockMenuTree(params?: any): SysMenu[] {
         .map((menu) => ({
           ...menu,
           children: menu.children ? filterByStatus(menu.children) : undefined,
-        }))
-    }
-    menuList = filterByStatus(menuList)
+        }));
+    };
+    menuList = filterByStatus(menuList);
   }
 
-  return menuList
+  return menuList;
 }
 
 // 获取菜单详情 Mock
 export function getMockMenuDetail(menuId: number): SysMenu | undefined {
   const findMenu = (menus: SysMenu[]): SysMenu | undefined => {
     for (const menu of menus) {
-      if (menu.menuId === menuId) return menu
+      if (menu.menuId === menuId) {return menu;}
       if (menu.children) {
-        const found = findMenu(menu.children)
-        if (found) return found
+        const found = findMenu(menu.children);
+        if (found) {return found;}
       }
     }
-    return undefined
-  }
-  return findMenu(mockMenuList)
+    return undefined;
+  };
+  return findMenu(mockMenuList);
 }

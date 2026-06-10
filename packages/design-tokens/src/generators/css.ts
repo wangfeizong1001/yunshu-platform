@@ -8,13 +8,7 @@
  */
 
 import { spacing, spacingSemantic, fontSize, fontWeight, lineHeight } from '../tokens/base';
-import {
-  borderRadius,
-  boxShadow,
-  transition,
-  zIndex,
-  breakpoint,
-} from '../tokens/base';
+import { borderRadius, boxShadow, transition, zIndex, breakpoint } from '../tokens/base';
 import { lightColors, darkColors, type IColorTokens } from '../tokens/colors';
 
 // ============================================================================

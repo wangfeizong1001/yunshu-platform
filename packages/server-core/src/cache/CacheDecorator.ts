@@ -408,16 +408,8 @@ async function doProcess<TArgs extends unknown[], TResult>(
     enableBloomFilter: boolean;
   },
 ): Promise<TResult> {
-  const {
-    ttl,
-    ttlJitter,
-    cacheNull,
-    nullTtl,
-    enableL1,
-    l1Ttl,
-    enableL2,
-    enableBloomFilter,
-  } = config;
+  const { ttl, ttlJitter, cacheNull, nullTtl, enableL1, l1Ttl, enableL2, enableBloomFilter } =
+    config;
 
   // TTL 抖动：防止缓存雪崩
   const effectiveTtl = applyTtlJitter(ttl, ttlJitter);
@@ -435,11 +427,11 @@ async function doProcess<TArgs extends unknown[], TResult>(
 
       // 更新 L1 平均响应时间
       latencyCounter.l1Count++;
-      cacheStats.l1LatencyMs = cacheStats.l1LatencyMs +
-        (l1Latency - cacheStats.l1LatencyMs) / latencyCounter.l1Count;
+      cacheStats.l1LatencyMs =
+        cacheStats.l1LatencyMs + (l1Latency - cacheStats.l1LatencyMs) / latencyCounter.l1Count;
 
       // 检查是否为空值标记
-      if (l1Result === NULL_MARKER as unknown as TResult) {
+      if (l1Result === (NULL_MARKER as unknown as TResult)) {
         cacheStats.nullHits++;
         return null as TResult;
       }
@@ -459,8 +451,8 @@ async function doProcess<TArgs extends unknown[], TResult>(
           cacheStats.l2Hits++;
           const l2Latency = Date.now() - l2Start;
           latencyCounter.l2Count++;
-          cacheStats.l2LatencyMs = cacheStats.l2LatencyMs +
-            (l2Latency - cacheStats.l2LatencyMs) / latencyCounter.l2Count;
+          cacheStats.l2LatencyMs =
+            cacheStats.l2LatencyMs + (l2Latency - cacheStats.l2LatencyMs) / latencyCounter.l2Count;
 
           // 检查是否为空值标记
           if (l2Result === NULL_MARKER) {
@@ -503,7 +495,8 @@ async function doProcess<TArgs extends unknown[], TResult>(
     const result = await fn(...args);
     const missLatency = Date.now() - missStart;
     latencyCounter.missCount++;
-    cacheStats.missLatencyMs = cacheStats.missLatencyMs +
+    cacheStats.missLatencyMs =
+      cacheStats.missLatencyMs +
       (missLatency - cacheStats.missLatencyMs) / latencyCounter.missCount;
 
     // 4. 缓存结果
@@ -550,7 +543,6 @@ async function doProcess<TArgs extends unknown[], TResult>(
     }
 
     return result;
-
   } catch (error) {
     // 函数执行失败，不缓存
     throw error;
@@ -631,8 +623,21 @@ export async function invalidateCacheByPrefix(prefix: string): Promise<number> {
  * 获取缓存统计
  */
 export function getCacheStats(): CacheReport {
-  const { total, hits, misses, l1Hits, l2Hits, nullHits, bloomFiltered, hotKeyProtected, errors,
-    totalLatencyMs, l1LatencyMs, l2LatencyMs, missLatencyMs } = cacheStats;
+  const {
+    total,
+    hits,
+    misses,
+    l1Hits,
+    l2Hits,
+    nullHits,
+    bloomFiltered,
+    hotKeyProtected,
+    errors,
+    totalLatencyMs,
+    l1LatencyMs,
+    l2LatencyMs,
+    missLatencyMs,
+  } = cacheStats;
 
   const hitRate = total > 0 ? hits / total : 0;
   const l1HitRate = total > 0 ? l1Hits / total : 0;
@@ -798,9 +803,8 @@ export async function warmupCache<T>(
       try {
         const redis = getRedisClient();
         if (redis) {
-          const serialized = typeof item.value === 'string'
-            ? item.value
-            : JSON.stringify(item.value);
+          const serialized =
+            typeof item.value === 'string' ? item.value : JSON.stringify(item.value);
           await redis.setex(item.key, effectiveTtl, serialized);
         }
       } catch (error) {

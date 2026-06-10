@@ -9,21 +9,21 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+  import { useRouter } from 'vue-router';
 
-const router = useRouter()
+  const router = useRouter();
 
-function goHome() {
-  router.push('/')
-}
+  function goHome() {
+    router.push('/');
+  }
 </script>
 
 <style scoped lang="scss">
-.error-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #f0f2f5;
-}
+  .error-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+  }
 </style>

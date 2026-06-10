@@ -8,7 +8,7 @@
  * @param ms 延迟毫秒数，默认300ms
  */
 export function delay(ms: number = 300): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -17,8 +17,8 @@ export function delay(ms: number = 300): Promise<void> {
  * @param maxMs 最大毫秒数，默认700ms
  */
 export function randomDelay(minMs: number = 200, maxMs: number = 700): Promise<void> {
-  const ms = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs
-  return delay(ms)
+  const ms = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+  return delay(ms);
 }
 
 /**
@@ -27,6 +27,6 @@ export function randomDelay(minMs: number = 200, maxMs: number = 700): Promise<v
  */
 export function unstableDelay(baseMs: number = 300): Promise<void> {
   // 90%概率正常延迟，10%概率2-3倍延迟
-  const multiplier = Math.random() > 0.9 ? Math.floor(Math.random() * 2) + 2 : 1
-  return delay(baseMs * multiplier)
+  const multiplier = Math.random() > 0.9 ? Math.floor(Math.random() * 2) + 2 : 1;
+  return delay(baseMs * multiplier);
 }

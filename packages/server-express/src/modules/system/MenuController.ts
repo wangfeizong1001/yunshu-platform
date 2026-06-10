@@ -324,9 +324,12 @@ export class MenuController extends BaseController {
     const perms = typeof body.perms === 'string' ? body.perms.slice(0, 200) : '';
     const icon = typeof body.icon === 'string' ? body.icon.slice(0, 100) : '#';
 
-    const parentId = body.parentId !== undefined
-      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
-      : null;
+    const parentId =
+      body.parentId !== undefined
+        ? body.parentId === null || body.parentId === ''
+          ? null
+          : String(body.parentId).slice(0, MAX_FIELD_LENGTH)
+        : null;
 
     const menuId = `m-${Date.now()}`;
     const newMenu: Menu = {
@@ -383,13 +386,17 @@ export class MenuController extends BaseController {
     if (!isValidBinary(isCache)) return this.badRequest(res, 'isCache 必须是 0 或 1');
 
     const path = typeof body.path === 'string' ? body.path.slice(0, 200) : exist.path;
-    const component = typeof body.component === 'string' ? body.component.slice(0, 200) : exist.component;
+    const component =
+      typeof body.component === 'string' ? body.component.slice(0, 200) : exist.component;
     const query = typeof body.query === 'string' ? body.query.slice(0, 200) : exist.query;
     const perms = typeof body.perms === 'string' ? body.perms.slice(0, 200) : exist.perms;
     const icon = typeof body.icon === 'string' ? body.icon.slice(0, 100) : exist.icon;
-    const parentId = body.parentId !== undefined
-      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
-      : exist.parentId;
+    const parentId =
+      body.parentId !== undefined
+        ? body.parentId === null || body.parentId === ''
+          ? null
+          : String(body.parentId).slice(0, MAX_FIELD_LENGTH)
+        : exist.parentId;
 
     mockMenus[idx] = {
       menuId: exist.menuId,

@@ -8,10 +8,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -41,11 +38,56 @@ interface SysMessage {
 let messageIdSeed = 5;
 
 const messages: SysMessage[] = [
-  { messageId: 1, title: '系统升级通知', content: '系统将于今晚进行版本升级，请合理安排工作时间。', type: 'system', receiver: 'admin', sender: 'system', status: '0', created_at: '2024-01-15 09:00:00' },
-  { messageId: 2, title: '新工单提醒', content: '您有一条新的工单待处理，工单编号 WO-2024-00123。', type: 'notice', receiver: 'admin', sender: 'workflow', status: '0', created_at: '2024-01-15 10:30:00' },
-  { messageId: 3, title: '密码即将过期', content: '您的登录密码将于 7 天后过期，请及时更换。', type: 'warn', receiver: 'admin', sender: 'system', status: '1', created_at: '2024-01-14 14:00:00' },
-  { messageId: 4, title: '数据备份完成', content: '每日数据备份任务已成功执行，备份文件大小 1.2GB。', type: 'system', receiver: 'operator', sender: 'backup', status: '1', created_at: '2024-01-15 02:00:00' },
-  { messageId: 5, title: '权限变更通知', content: '您的账号已被授予新的角色权限，请重新登录后生效。', type: 'notice', receiver: 'admin', sender: 'security', status: '0', created_at: '2024-01-15 16:00:00' },
+  {
+    messageId: 1,
+    title: '系统升级通知',
+    content: '系统将于今晚进行版本升级，请合理安排工作时间。',
+    type: 'system',
+    receiver: 'admin',
+    sender: 'system',
+    status: '0',
+    created_at: '2024-01-15 09:00:00',
+  },
+  {
+    messageId: 2,
+    title: '新工单提醒',
+    content: '您有一条新的工单待处理，工单编号 WO-2024-00123。',
+    type: 'notice',
+    receiver: 'admin',
+    sender: 'workflow',
+    status: '0',
+    created_at: '2024-01-15 10:30:00',
+  },
+  {
+    messageId: 3,
+    title: '密码即将过期',
+    content: '您的登录密码将于 7 天后过期，请及时更换。',
+    type: 'warn',
+    receiver: 'admin',
+    sender: 'system',
+    status: '1',
+    created_at: '2024-01-14 14:00:00',
+  },
+  {
+    messageId: 4,
+    title: '数据备份完成',
+    content: '每日数据备份任务已成功执行，备份文件大小 1.2GB。',
+    type: 'system',
+    receiver: 'operator',
+    sender: 'backup',
+    status: '1',
+    created_at: '2024-01-15 02:00:00',
+  },
+  {
+    messageId: 5,
+    title: '权限变更通知',
+    content: '您的账号已被授予新的角色权限，请重新登录后生效。',
+    type: 'notice',
+    receiver: 'admin',
+    sender: 'security',
+    status: '0',
+    created_at: '2024-01-15 16:00:00',
+  },
 ];
 
 // ============================================================================
@@ -78,20 +120,16 @@ export class MessageController extends BaseController {
     const receiverParam = this.safeParam(req.query.receiver, MAX_QUERY_PARAM_LENGTH);
 
     let filtered = [...messages];
-    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
-    if (typeParam) filtered = filtered.filter(i => i.type === typeParam);
-    if (receiverParam) filtered = filtered.filter(i => i.receiver.includes(receiverParam));
+    if (statusParam) filtered = filtered.filter((i) => i.status === statusParam);
+    if (typeParam) filtered = filtered.filter((i) => i.type === typeParam);
+    if (receiverParam) filtered = filtered.filter((i) => i.receiver.includes(receiverParam));
 
     filtered.sort((a, b) => b.created_at.localeCompare(a.created_at));
     const total = filtered.length;
     const start = (page - 1) * limit;
     const data = filtered.slice(start, start + limit);
 
-    return this.paginate(
-      res,
-      createPaginatedResult(data, page, limit, total),
-      '查询成功',
-    );
+    return this.paginate(res, createPaginatedResult(data, page, limit, total), '查询成功');
   }
 
   /**
@@ -100,7 +138,7 @@ export class MessageController extends BaseController {
   async getById(req: Request, res: Response) {
     const messageId = Number(req.params.messageId);
     if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
-    const item = messages.find(i => i.messageId === messageId);
+    const item = messages.find((i) => i.messageId === messageId);
     if (!item) return this.notFound(res, '消息不存在');
     return this.success(res, item, '查询成功');
   }
@@ -118,18 +156,13 @@ export class MessageController extends BaseController {
     const type = body.type ?? 'notice';
     if (!isValidMessageType(type)) return this.badRequest(res, 'type 必须是 system/notice/warn');
 
-    const receiver = typeof body.receiver === 'string'
-      ? body.receiver.slice(0, 64)
-      : '';
+    const receiver = typeof body.receiver === 'string' ? body.receiver.slice(0, 64) : '';
     if (receiver.trim().length === 0) return this.badRequest(res, 'receiver 必填');
 
-    const sender = typeof body.sender === 'string'
-      ? body.sender.slice(0, 64)
-      : 'system';
+    const sender = typeof body.sender === 'string' ? body.sender.slice(0, 64) : 'system';
 
-    const content = typeof body.content === 'string'
-      ? body.content.slice(0, MAX_CONTENT_LENGTH)
-      : '';
+    const content =
+      typeof body.content === 'string' ? body.content.slice(0, MAX_CONTENT_LENGTH) : '';
 
     const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
     const item: SysMessage = {
@@ -154,7 +187,7 @@ export class MessageController extends BaseController {
     const messageId = Number(body.messageId);
     if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
 
-    const item = messages.find(i => i.messageId === messageId);
+    const item = messages.find((i) => i.messageId === messageId);
     if (!item) return this.notFound(res, '消息不存在');
 
     item.status = '1';
@@ -171,7 +204,7 @@ export class MessageController extends BaseController {
     const messageId = Number(req.params.messageId);
     if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
 
-    const idx = messages.findIndex(i => i.messageId === messageId);
+    const idx = messages.findIndex((i) => i.messageId === messageId);
     if (idx === -1) return this.notFound(res, '消息不存在');
     const removed = messages.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');

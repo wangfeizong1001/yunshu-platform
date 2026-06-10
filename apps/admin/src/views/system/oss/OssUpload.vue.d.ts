@@ -1,12 +1,34 @@
 interface Props {
-    modelValue: boolean;
+  modelValue: boolean;
 }
-declare const _default: import("vue").DefineComponent<Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+declare const _default: import('vue').DefineComponent<
+  Props,
+  {},
+  {},
+  {},
+  {},
+  import('vue').ComponentOptionsMixin,
+  import('vue').ComponentOptionsMixin,
+  {
     refresh: () => any;
-    "update:modelValue": (value: boolean) => any;
-}, string, import("vue").PublicProps, Readonly<Props> & Readonly<{
-    onRefresh?: (() => any) | undefined;
-    "onUpdate:modelValue"?: ((value: boolean) => any) | undefined;
-}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
+    'update:modelValue': (value: boolean) => any;
+  },
+  string,
+  import('vue').PublicProps,
+  Readonly<Props> &
+    Readonly<{
+      onRefresh?: (() => any) | undefined;
+      'onUpdate:modelValue'?: ((value: boolean) => any) | undefined;
+    }>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  import('vue').ComponentProvideOptions,
+  false,
+  {},
+  any
+>;
 export default _default;
 //# sourceMappingURL=OssUpload.vue.d.ts.map

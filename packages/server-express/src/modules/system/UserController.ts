@@ -168,9 +168,7 @@ export class UserController extends BaseController {
         ? first
         : undefined;
     }
-    return typeof value === 'string' && value.length > 0 && value.length <= max
-      ? value
-      : undefined;
+    return typeof value === 'string' && value.length > 0 && value.length <= max ? value : undefined;
   }
 
   async list(req: Request, res: Response) {
@@ -179,7 +177,7 @@ export class UserController extends BaseController {
 
     const userName = this.extractQueryParam(query.userName);
     const statusRaw = this.extractQueryParam(query.status, 1);
-    const status = (statusRaw === '0' || statusRaw === '1') ? statusRaw : undefined;
+    const status = statusRaw === '0' || statusRaw === '1' ? statusRaw : undefined;
     const deptId = this.extractQueryParam(query.deptId);
 
     const filtered = mockUsers.filter((u) => {
@@ -202,11 +200,7 @@ export class UserController extends BaseController {
     const isAdmin = this.isCurrentUserAdmin(req);
     const sanitizedList = list.map((u) => this.sanitizeUser(u, isAdmin));
 
-    return this.paginate(
-      res,
-      createPaginatedResult(sanitizedList, page, limit, total),
-      '查询成功',
-    );
+    return this.paginate(res, createPaginatedResult(sanitizedList, page, limit, total), '查询成功');
   }
 
   async getById(req: Request, res: Response) {
@@ -256,9 +250,9 @@ export class UserController extends BaseController {
     }
 
     const sexRaw = body.sex !== undefined ? String(body.sex) : '2';
-    const sex: UserSex = (sexRaw === '0' || sexRaw === '1' || sexRaw === '2') ? sexRaw : '2';
+    const sex: UserSex = sexRaw === '0' || sexRaw === '1' || sexRaw === '2' ? sexRaw : '2';
     const statusRaw = body.status !== undefined ? String(body.status) : '0';
-    const status: UserStatus = (statusRaw === '0' || statusRaw === '1') ? statusRaw : '0';
+    const status: UserStatus = statusRaw === '0' || statusRaw === '1' ? statusRaw : '0';
 
     const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
     const userId = `u-${Date.now().toString().padStart(32, '0')}`;

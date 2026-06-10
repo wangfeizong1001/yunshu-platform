@@ -208,7 +208,6 @@ export class PostgresClientManager {
       } finally {
         client.release();
       }
-
     } catch (error) {
       this.connected = false;
       this.pool = null;
@@ -267,7 +266,6 @@ export class PostgresClientManager {
       await client.query('COMMIT');
 
       return result;
-
     } catch (error) {
       // 回滚事务
       await client.query('ROLLBACK');
@@ -306,7 +304,6 @@ export class PostgresClientManager {
           waiting: this.pool.waitingCount,
         },
       };
-
     } catch (error) {
       return {
         healthy: false,

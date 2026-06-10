@@ -3,23 +3,24 @@ debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_ctx = {};
 let __VLS_components;
 let __VLS_directives;
-// CSS variable injection 
-// CSS variable injection end 
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "page-container" },
+// CSS variable injection
+// CSS variable injection end
+__VLS_asFunctionalElement(
+  __VLS_intrinsicElements.div,
+  __VLS_intrinsicElements.div,
+)({
+  ...{ class: 'page-container' },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.h1, __VLS_intrinsicElements.h1)({});
-/** @type {__VLS_StyleScopedClasses['page-container']} */ ;
-var __VLS_dollars;
+/** @type {__VLS_StyleScopedClasses['page-container']} */ var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
-    setup() {
-        return {};
-    },
+  setup() {
+    return {};
+  },
 });
 export default (await import('vue')).defineComponent({
-    setup() {
-        return {};
-    },
-});
-; /* PartiallyEnd: #4569/main.vue */
+  setup() {
+    return {};
+  },
+}); /* PartiallyEnd: #4569/main.vue */
 //# sourceMappingURL=index.vue.js.map

@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IServer } from '@yunshu/shared'
+import type { IServer } from '@yunshu/shared';
 
 export const serverMockData: IServer = {
   serverName: '云枢生产服务器',
@@ -27,4 +27,4 @@ export const serverMockData: IServer = {
   projectPath: '/app/yunshu-platform',
   hostName: 'yunshu-server-01',
   collectTime: new Date().toISOString(),
-}
+};

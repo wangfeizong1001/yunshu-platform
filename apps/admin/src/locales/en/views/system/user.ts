@@ -85,4 +85,4 @@ export default {
     enableConfirm: 'Are you sure you want to enable this user?',
     disableConfirm: 'Are you sure you want to disable this user?',
   },
-}
+};

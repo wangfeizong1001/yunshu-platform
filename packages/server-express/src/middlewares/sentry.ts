@@ -10,11 +10,25 @@
  * @module @yunshu/server-express/middlewares/sentry
  */
 
-import type { Request, Response, NextFunction, Express, ErrorRequestHandler, RequestHandler } from 'express';
+import type {
+  Request,
+  Response,
+  NextFunction,
+  Express,
+  ErrorRequestHandler,
+  RequestHandler,
+} from 'express';
 
 const SENSITIVE_FIELDS: ReadonlyArray<string> = [
-  'password', 'secret', 'token', 'authorization', 'cookie', 'jwt',
-  'credit', 'card', 'cvv',
+  'password',
+  'secret',
+  'token',
+  'authorization',
+  'cookie',
+  'jwt',
+  'credit',
+  'card',
+  'cvv',
 ];
 
 let initialized = false;
@@ -69,7 +83,10 @@ export function initSentry(dsn?: string): boolean {
     initialized = true;
     return true;
   } catch (err) {
-    console.warn('[sentry] 初始化失败，请确认已安装 @sentry/node：', err instanceof Error ? err.message : String(err));
+    console.warn(
+      '[sentry] 初始化失败，请确认已安装 @sentry/node：',
+      err instanceof Error ? err.message : String(err),
+    );
     return false;
   }
 }
@@ -96,7 +113,12 @@ export const sentryErrorHandler: ErrorRequestHandler = (
   next: NextFunction,
 ): void => {
   if (errorHandlerRef) {
-    (errorHandlerRef as (e: unknown, r: Request, s: Response, n: NextFunction) => void)(err, req, res, next);
+    (errorHandlerRef as (e: unknown, r: Request, s: Response, n: NextFunction) => void)(
+      err,
+      req,
+      res,
+      next,
+    );
   } else {
     next(err as Error);
   }

@@ -140,4 +140,4 @@ export default {
     tool: 'System Tools',
     documentation: 'Documentation',
   },
-}
+};

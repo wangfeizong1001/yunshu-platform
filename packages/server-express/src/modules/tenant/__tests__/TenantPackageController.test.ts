@@ -121,9 +121,7 @@ describe('TenantPackageController', () => {
       if (keyword) {
         const kw = (keyword as string).toLowerCase();
         filtered = filtered.filter(
-          (p) =>
-            p.packageName.toLowerCase().includes(kw) ||
-            p.remark.toLowerCase().includes(kw)
+          (p) => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw),
         );
       }
 
@@ -158,9 +156,7 @@ describe('TenantPackageController', () => {
       if (keyword) {
         const kw = (keyword as string).toLowerCase();
         filtered = filtered.filter(
-          (p) =>
-            p.packageName.toLowerCase().includes(kw) ||
-            p.remark.toLowerCase().includes(kw)
+          (p) => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw),
         );
       }
 
@@ -178,10 +174,8 @@ describe('TenantPackageController', () => {
 
       expect(ctx.success).toHaveBeenCalledWith(
         expect.objectContaining({
-          rows: expect.arrayContaining([
-            expect.objectContaining({ packageName: '基础版' }),
-          ]),
-        })
+          rows: expect.arrayContaining([expect.objectContaining({ packageName: '基础版' })]),
+        }),
       );
     });
 
@@ -195,9 +189,7 @@ describe('TenantPackageController', () => {
       if (keyword) {
         const kw = (keyword as string).toLowerCase();
         filtered = filtered.filter(
-          (p) =>
-            p.packageName.toLowerCase().includes(kw) ||
-            p.remark.toLowerCase().includes(kw)
+          (p) => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw),
         );
       }
 
@@ -215,10 +207,8 @@ describe('TenantPackageController', () => {
 
       expect(ctx.success).toHaveBeenCalledWith(
         expect.objectContaining({
-          rows: expect.arrayContaining([
-            expect.objectContaining({ status: '0' }),
-          ]),
-        })
+          rows: expect.arrayContaining([expect.objectContaining({ status: '0' })]),
+        }),
       );
     });
 
@@ -232,9 +222,7 @@ describe('TenantPackageController', () => {
       if (keyword) {
         const kw = (keyword as string).toLowerCase();
         filtered = filtered.filter(
-          (p) =>
-            p.packageName.toLowerCase().includes(kw) ||
-            p.remark.toLowerCase().includes(kw)
+          (p) => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw),
         );
       }
 
@@ -252,10 +240,8 @@ describe('TenantPackageController', () => {
 
       expect(ctx.success).toHaveBeenCalledWith(
         expect.objectContaining({
-          rows: expect.arrayContaining([
-            expect.objectContaining({ packageType: '0' }),
-          ]),
-        })
+          rows: expect.arrayContaining([expect.objectContaining({ packageType: '0' })]),
+        }),
       );
     });
   });
@@ -277,9 +263,7 @@ describe('TenantPackageController', () => {
       ctx.success(filtered);
 
       expect(ctx.success).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ status: '0' }),
-        ])
+        expect.arrayContaining([expect.objectContaining({ status: '0' })]),
       );
     });
 
@@ -299,9 +283,7 @@ describe('TenantPackageController', () => {
       ctx.success(filtered);
 
       expect(ctx.success).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ status: '0' }),
-        ])
+        expect.arrayContaining([expect.objectContaining({ status: '0' })]),
       );
     });
   });
@@ -323,7 +305,7 @@ describe('TenantPackageController', () => {
         expect.objectContaining({
           packageId: 1,
           packageName: '免费版',
-        })
+        }),
       );
     });
 
@@ -373,7 +355,7 @@ describe('TenantPackageController', () => {
         expect.objectContaining({
           packageName: '测试套餐',
           status: '0',
-        })
+        }),
       );
     });
   });
@@ -384,9 +366,7 @@ describe('TenantPackageController', () => {
       ctx.params = { packageId: '1' };
       ctx.body = { packageName: '更新后的名称', price: 3999 };
 
-      const index = mockPackages.findIndex(
-        (p) => p.packageId === Number(ctx.params.packageId)
-      );
+      const index = mockPackages.findIndex((p) => p.packageId === Number(ctx.params.packageId));
 
       if (index !== -1) {
         const updated = {
@@ -403,7 +383,7 @@ describe('TenantPackageController', () => {
         expect.objectContaining({
           packageName: '更新后的名称',
           price: 3999,
-        })
+        }),
       );
     });
 
@@ -412,9 +392,7 @@ describe('TenantPackageController', () => {
       ctx.params = { packageId: '999' };
       ctx.body = { packageName: '更新后的名称' };
 
-      const index = mockPackages.findIndex(
-        (p) => p.packageId === Number(ctx.params.packageId)
-      );
+      const index = mockPackages.findIndex((p) => p.packageId === Number(ctx.params.packageId));
 
       if (index !== -1) {
         ctx.success(mockPackages[index]);
@@ -431,9 +409,7 @@ describe('TenantPackageController', () => {
       const ctx = createMockContext();
       ctx.params = { packageId: '4' };
 
-      const index = mockPackages.findIndex(
-        (p) => p.packageId === Number(ctx.params.packageId)
-      );
+      const index = mockPackages.findIndex((p) => p.packageId === Number(ctx.params.packageId));
 
       if (index !== -1) {
         ctx.success(null);
@@ -448,9 +424,7 @@ describe('TenantPackageController', () => {
       const ctx = createMockContext();
       ctx.params = { packageId: '999' };
 
-      const index = mockPackages.findIndex(
-        (p) => p.packageId === Number(ctx.params.packageId)
-      );
+      const index = mockPackages.findIndex((p) => p.packageId === Number(ctx.params.packageId));
 
       if (index !== -1) {
         ctx.success(null);

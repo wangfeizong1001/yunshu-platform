@@ -4,77 +4,77 @@
  * 提供岗位列表、详情、新增、编辑、删除等操作
  */
 
-import { ref } from 'vue'
-import type { Ref } from 'vue'
-import { HttpClient } from '../core/HttpClient'
-import type { SysPost, SysPostQuery, SysPostForm, PageResp } from '@yunshu/shared'
+import { ref } from 'vue';
+import type { Ref } from 'vue';
+import { HttpClient } from '../core/HttpClient';
+import type { SysPost, SysPostQuery, SysPostForm, PageResp } from '@yunshu/shared';
 
-type SysPostPageResp = PageResp<SysPost>
+type SysPostPageResp = PageResp<SysPost>;
 
 /** 岗位列表 Hook 选项 */
 export interface UsePostListOptions {
   /** 初始查询参数 */
-  initialParams?: Partial<SysPostQuery>
+  initialParams?: Partial<SysPostQuery>;
   /** 是否立即加载 */
-  immediate?: boolean
+  immediate?: boolean;
 }
 
 /** 岗位列表 Hook 返回 */
 export interface UsePostListReturn {
   /** 岗位列表 */
-  list: Ref<SysPost[]>
+  list: Ref<SysPost[]>;
   /** 总数 */
-  total: Ref<number>
+  total: Ref<number>;
   /** 加载状态 */
-  loading: Ref<boolean>
+  loading: Ref<boolean>;
   /** 查询参数 */
-  queryParams: Ref<SysPostQuery>
+  queryParams: Ref<SysPostQuery>;
   /** 获取岗位列表 */
-  fetchList: () => Promise<void>
+  fetchList: () => Promise<void>;
   /** 重置查询参数 */
-  resetParams: () => void
+  resetParams: () => void;
   /** 获取岗位详情 */
-  fetchDetail: (postId: number) => Promise<SysPost>
+  fetchDetail: (postId: number) => Promise<SysPost>;
   /** 创建岗位 */
-  create: (data: SysPostForm) => Promise<SysPost>
+  create: (data: SysPostForm) => Promise<SysPost>;
   /** 更新岗位 */
-  update: (postId: number, data: SysPostForm) => Promise<SysPost>
+  update: (postId: number, data: SysPostForm) => Promise<SysPost>;
   /** 删除岗位 */
-  delete: (postId: number) => Promise<void>
+  delete: (postId: number) => Promise<void>;
   /** 批量删除岗位 */
-  batchDelete: (postIds: number[]) => Promise<void>
+  batchDelete: (postIds: number[]) => Promise<void>;
   /** 修改岗位状态 */
-  changeStatus: (postId: number, status: '0' | '1') => Promise<void>
+  changeStatus: (postId: number, status: '0' | '1') => Promise<void>;
   /** 获取岗位下拉列表 */
-  getPostSelect: () => Promise<SysPost[]>
+  getPostSelect: () => Promise<SysPost[]>;
 }
 
 // 创建岗位 API 实例
-const postAPI = new HttpClient({ baseURL: '/api/system/post' })
+const postAPI = new HttpClient({ baseURL: '/api/system/post' });
 
 /**
  * 岗位列表 Hook
  */
 export function usePostList(options: UsePostListOptions = {}): UsePostListReturn {
-  const { initialParams = {}, immediate = true } = options
+  const { initialParams = {}, immediate = true } = options;
 
-  const loading = ref(false)
-  const list = ref<SysPost[]>([]) as Ref<SysPost[]>
-  const total = ref(0)
+  const loading = ref(false);
+  const list = ref<SysPost[]>([]) as Ref<SysPost[]>;
+  const total = ref(0);
   const queryParams = ref<SysPostQuery>({
     pageNum: 1,
     pageSize: 10,
     ...initialParams,
-  })
+  });
 
   async function fetchList() {
-    loading.value = true
+    loading.value = true;
     try {
-      const resp = await postAPI.get<SysPostPageResp>('/list', queryParams.value)
-      list.value = resp.data.rows
-      total.value = resp.data.total
+      const resp = await postAPI.get<SysPostPageResp>('/list', queryParams.value);
+      list.value = resp.data.rows;
+      total.value = resp.data.total;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
@@ -83,43 +83,43 @@ export function usePostList(options: UsePostListOptions = {}): UsePostListReturn
       pageNum: 1,
       pageSize: 10,
       ...initialParams,
-    }
+    };
   }
 
   async function fetchDetail(postId: number): Promise<SysPost> {
-    const resp = await postAPI.get<SysPost>(`/${postId}`)
-    return resp.data
+    const resp = await postAPI.get<SysPost>(`/${postId}`);
+    return resp.data;
   }
 
   async function create(formData: SysPostForm): Promise<SysPost> {
-    const resp = await postAPI.post<SysPost>('/', formData)
-    return resp.data
+    const resp = await postAPI.post<SysPost>('/', formData);
+    return resp.data;
   }
 
   async function update(postId: number, formData: SysPostForm): Promise<SysPost> {
-    const resp = await postAPI.put<SysPost>(`/${postId}`, formData)
-    return resp.data
+    const resp = await postAPI.put<SysPost>(`/${postId}`, formData);
+    return resp.data;
   }
 
   async function deletePost(postId: number): Promise<void> {
-    await postAPI.delete(`/${postId}`)
+    await postAPI.delete(`/${postId}`);
   }
 
   async function batchDelete(postIds: number[]): Promise<void> {
-    await postAPI.delete('/batch', { data: { postIds } })
+    await postAPI.delete('/batch', { data: { postIds } });
   }
 
   async function changeStatus(postId: number, status: '0' | '1'): Promise<void> {
-    await postAPI.put(`/${postId}/status`, { status })
+    await postAPI.put(`/${postId}/status`, { status });
   }
 
   async function getPostSelect(): Promise<SysPost[]> {
-    const resp = await postAPI.get<SysPost[]>('/select')
-    return resp.data
+    const resp = await postAPI.get<SysPost[]>('/select');
+    return resp.data;
   }
 
   if (immediate) {
-    fetchList()
+    fetchList();
   }
 
   return {
@@ -136,5 +136,5 @@ export function usePostList(options: UsePostListOptions = {}): UsePostListReturn
     batchDelete,
     changeStatus,
     getPostSelect,
-  }
+  };
 }

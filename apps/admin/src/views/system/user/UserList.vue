@@ -151,164 +151,160 @@
     <UserForm v-model="formVisible" :user-data="currentUser" @refresh="handleQuery" />
 
     <!-- 分配角色弹窗 -->
-    <AssignRoleDialog
-      v-model="assignRoleVisible"
-      :user-id="currentUserId"
-      @refresh="handleQuery"
-    />
+    <AssignRoleDialog v-model="assignRoleVisible" :user-id="currentUserId" @refresh="handleQuery" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue'
-import { getUserPage, deleteUser, exportUser } from '@/api/system/user.api'
-import { getDeptTreeSelect } from '@/api/system/dept.api'
-import type { SysUser, SysDept } from '@yunshu/shared'
-import UserForm from './UserForm.vue'
-import AssignRoleDialog from './AssignRoleDialog.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue';
+  import { getUserPage, deleteUser, exportUser } from '@/api/system/user.api';
+  import { getDeptTreeSelect } from '@/api/system/dept.api';
+  import type { SysUser, SysDept } from '@yunshu/shared';
+  import UserForm from './UserForm.vue';
+  import AssignRoleDialog from './AssignRoleDialog.vue';
 
-// 状态
-const loading = ref(false)
-const userList = ref<SysUser[]>([])
-const total = ref(0)
-const deptTree = ref<SysDept[]>([])
-const selectedRows = ref<SysUser[]>([])
-const formVisible = ref(false)
-const assignRoleVisible = ref(false)
-const currentUser = ref<SysUser | null>(null)
-const currentUserId = ref<number>()
+  // 状态
+  const loading = ref(false);
+  const userList = ref<SysUser[]>([]);
+  const total = ref(0);
+  const deptTree = ref<SysDept[]>([]);
+  const selectedRows = ref<SysUser[]>([]);
+  const formVisible = ref(false);
+  const assignRoleVisible = ref(false);
+  const currentUser = ref<SysUser | null>(null);
+  const currentUserId = ref<number>();
 
-// 查询参数
-const queryParams = reactive({
-  keyword: '',
-  status: '',
-  deptId: undefined as number | undefined,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive({
+    keyword: '',
+    status: '',
+    deptId: undefined as number | undefined,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 加载用户列表
-async function fetchUserList() {
-  loading.value = true
-  try {
-    const res = await getUserPage(queryParams) as any
-    userList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 加载部门树
-async function fetchDeptTree() {
-  try {
-    deptTree.value = (await getDeptTreeSelect()) as any
-  } catch (error) {
-    console.error('加载部门树失败', error)
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchUserList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.status = ''
-  queryParams.deptId = undefined
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchUserList()
-}
-
-// 新增
-function handleAdd() {
-  currentUser.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: any) {
-  currentUser.value = { ...row }
-  formVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteUser(row.userId)
-    ElMessage.success('删除成功')
-    fetchUserList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载用户列表
+  async function fetchUserList() {
+    loading.value = true;
+    try {
+      const res = (await getUserPage(queryParams)) as any;
+      userList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 重置密码
-function handleResetPassword(row: any) {
-  ElMessage.info(`重置密码功能开发中，用户ID: ${row.userId}`)
-}
-
-// 分配角色
-function handleAssignRole(row: any) {
-  currentUserId.value = row.userId
-  assignRoleVisible.value = true
-}
-
-// 导出
-async function handleExport() {
-  try {
-    await exportUser(queryParams)
-    ElMessage.success('导出成功')
-  } catch (error) {
-    console.error('导出失败', error)
+  // 加载部门树
+  async function fetchDeptTree() {
+    try {
+      deptTree.value = (await getDeptTreeSelect()) as any;
+    } catch (error) {
+      console.error('加载部门树失败', error);
+    }
   }
-}
 
-// 批量选择
-function handleSelectionChange(selection: SysUser[]) {
-  selectedRows.value = selection
-}
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchUserList();
+  }
 
-// 初始化
-onMounted(() => {
-  fetchUserList()
-  fetchDeptTree()
-})
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.status = '';
+    queryParams.deptId = undefined;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchUserList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentUser.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: any) {
+    currentUser.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteUser(row.userId);
+      ElMessage.success('删除成功');
+      fetchUserList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 重置密码
+  function handleResetPassword(row: any) {
+    ElMessage.info(`重置密码功能开发中，用户ID: ${row.userId}`);
+  }
+
+  // 分配角色
+  function handleAssignRole(row: any) {
+    currentUserId.value = row.userId;
+    assignRoleVisible.value = true;
+  }
+
+  // 导出
+  async function handleExport() {
+    try {
+      await exportUser(queryParams);
+      ElMessage.success('导出成功');
+    } catch (error) {
+      console.error('导出失败', error);
+    }
+  }
+
+  // 批量选择
+  function handleSelectionChange(selection: SysUser[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchUserList();
+    fetchDeptTree();
+  });
 </script>
 
 <style scoped lang="scss">
-.user-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .user-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

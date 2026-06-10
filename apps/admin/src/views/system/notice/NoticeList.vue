@@ -60,7 +60,12 @@
       >
         <el-table-column type="selection" width="50" fixed />
         <el-table-column prop="noticeId" label="公告编号" width="100" />
-        <el-table-column prop="noticeTitle" label="公告标题" min-width="200" show-overflow-tooltip />
+        <el-table-column
+          prop="noticeTitle"
+          label="公告标题"
+          min-width="200"
+          show-overflow-tooltip
+        />
         <el-table-column prop="noticeType" label="公告类型" width="100">
           <template #default="{ row }">
             <el-tag :type="row.noticeType === '1' ? 'primary' : 'info'">
@@ -148,165 +153,165 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import {
-  getNoticePage,
-  deleteNotice,
-  publishNotice,
-  withdrawNotice,
-} from '@/api/system/notice.api'
-import type { SysNotice, SysNoticeQuery } from '@yunshu/shared'
-import NoticeForm from './NoticeForm.vue'
-import NoticeDetail from './NoticeDetail.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus } from '@element-plus/icons-vue';
+  import {
+    getNoticePage,
+    deleteNotice,
+    publishNotice,
+    withdrawNotice,
+  } from '@/api/system/notice.api';
+  import type { SysNotice, SysNoticeQuery } from '@yunshu/shared';
+  import NoticeForm from './NoticeForm.vue';
+  import NoticeDetail from './NoticeDetail.vue';
 
-// 状态
-const loading = ref(false)
-const noticeList = ref<SysNotice[]>([])
-const total = ref(0)
-const selectedRows = ref<SysNotice[]>([])
-const formVisible = ref(false)
-const detailVisible = ref(false)
-const currentNotice = ref<SysNotice | null>(null)
-const currentNoticeId = ref<number>()
+  // 状态
+  const loading = ref(false);
+  const noticeList = ref<SysNotice[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<SysNotice[]>([]);
+  const formVisible = ref(false);
+  const detailVisible = ref(false);
+  const currentNotice = ref<SysNotice | null>(null);
+  const currentNoticeId = ref<number>();
 
-// 查询参数
-const queryParams = reactive<SysNoticeQuery>({
-  keyword: '',
-  noticeType: undefined,
-  status: undefined,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<SysNoticeQuery>({
+    keyword: '',
+    noticeType: undefined,
+    status: undefined,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 加载公告列表
-async function fetchNoticeList() {
-  loading.value = true
-  try {
-    const res = await getNoticePage(queryParams) as { rows: SysNotice[]; total: number }
-    noticeList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchNoticeList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.noticeType = undefined
-  queryParams.status = undefined
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchNoticeList()
-}
-
-// 新增
-function handleAdd() {
-  currentNotice.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: SysNotice) {
-  currentNotice.value = { ...row }
-  formVisible.value = true
-}
-
-// 查看
-function handleView(row: SysNotice) {
-  currentNoticeId.value = row.noticeId
-  detailVisible.value = true
-}
-
-// 发布
-async function handlePublish(row: SysNotice) {
-  try {
-    await ElMessageBox.confirm(`是否确认发布公告"${row.noticeTitle}"？`, '提示', {
-      type: 'warning',
-    })
-    await publishNotice(row.noticeId)
-    ElMessage.success('发布成功')
-    fetchNoticeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('发布失败', error)
+  // 加载公告列表
+  async function fetchNoticeList() {
+    loading.value = true;
+    try {
+      const res = (await getNoticePage(queryParams)) as { rows: SysNotice[]; total: number };
+      noticeList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 撤回
-async function handleWithdraw(row: SysNotice) {
-  try {
-    await ElMessageBox.confirm(`是否确认撤回公告"${row.noticeTitle}"？`, '提示', {
-      type: 'warning',
-    })
-    await withdrawNotice(row.noticeId)
-    ElMessage.success('撤回成功')
-    fetchNoticeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('撤回失败', error)
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchNoticeList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.noticeType = undefined;
+    queryParams.status = undefined;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchNoticeList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentNotice.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: SysNotice) {
+    currentNotice.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 查看
+  function handleView(row: SysNotice) {
+    currentNoticeId.value = row.noticeId;
+    detailVisible.value = true;
+  }
+
+  // 发布
+  async function handlePublish(row: SysNotice) {
+    try {
+      await ElMessageBox.confirm(`是否确认发布公告"${row.noticeTitle}"？`, '提示', {
+        type: 'warning',
+      });
+      await publishNotice(row.noticeId);
+      ElMessage.success('发布成功');
+      fetchNoticeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('发布失败', error);
+      }
     }
   }
-}
 
-// 删除
-async function handleDelete(row: SysNotice) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除公告"${row.noticeTitle}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteNotice(row.noticeId)
-    ElMessage.success('删除成功')
-    fetchNoticeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 撤回
+  async function handleWithdraw(row: SysNotice) {
+    try {
+      await ElMessageBox.confirm(`是否确认撤回公告"${row.noticeTitle}"？`, '提示', {
+        type: 'warning',
+      });
+      await withdrawNotice(row.noticeId);
+      ElMessage.success('撤回成功');
+      fetchNoticeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('撤回失败', error);
+      }
     }
   }
-}
 
-// 批量选择
-function handleSelectionChange(selection: SysNotice[]) {
-  selectedRows.value = selection
-}
+  // 删除
+  async function handleDelete(row: SysNotice) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除公告"${row.noticeTitle}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteNotice(row.noticeId);
+      ElMessage.success('删除成功');
+      fetchNoticeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
 
-// 初始化
-onMounted(() => {
-  fetchNoticeList()
-})
+  // 批量选择
+  function handleSelectionChange(selection: SysNotice[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchNoticeList();
+  });
 </script>
 
 <style scoped lang="scss">
-.notice-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .notice-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

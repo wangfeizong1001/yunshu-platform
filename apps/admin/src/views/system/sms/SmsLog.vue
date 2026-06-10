@@ -93,94 +93,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { Search, Refresh } from '@element-plus/icons-vue'
-import { getSmsLogList } from '@/api/system/sms.api'
-import type { SmsLog, SmsLogQuery } from '@yunshu/shared'
+  import { ref, reactive, onMounted } from 'vue';
+  import { Search, Refresh } from '@element-plus/icons-vue';
+  import { getSmsLogList } from '@/api/system/sms.api';
+  import type { SmsLog, SmsLogQuery } from '@yunshu/shared';
 
-// 状态
-const loading = ref(false)
-const logList = ref<SmsLog[]>([])
-const total = ref(0)
-const dateRange = ref<string[]>([])
+  // 状态
+  const loading = ref(false);
+  const logList = ref<SmsLog[]>([]);
+  const total = ref(0);
+  const dateRange = ref<string[]>([]);
 
-// 查询参数
-const queryParams = reactive<SmsLogQuery>({
-  mobile: '',
-  templateCode: '',
-  status: undefined,
-  startDate: '',
-  endDate: '',
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<SmsLogQuery>({
+    mobile: '',
+    templateCode: '',
+    status: undefined,
+    startDate: '',
+    endDate: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 加载日志列表
-async function fetchLogList() {
-  loading.value = true
-  try {
-    // 处理日期范围
-    if (dateRange.value && dateRange.value.length === 2) {
-      queryParams.startDate = dateRange.value[0]
-      queryParams.endDate = dateRange.value[1]
-    } else {
-      queryParams.startDate = ''
-      queryParams.endDate = ''
+  // 加载日志列表
+  async function fetchLogList() {
+    loading.value = true;
+    try {
+      // 处理日期范围
+      if (dateRange.value && dateRange.value.length === 2) {
+        queryParams.startDate = dateRange.value[0];
+        queryParams.endDate = dateRange.value[1];
+      } else {
+        queryParams.startDate = '';
+        queryParams.endDate = '';
+      }
+
+      const res = (await getSmsLogList(queryParams)) as { rows: SmsLog[]; total: number };
+      logList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
-
-    const res = await getSmsLogList(queryParams) as { rows: SmsLog[]; total: number }
-    logList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
   }
-}
 
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchLogList()
-}
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchLogList();
+  }
 
-// 重置查询
-function resetQuery() {
-  queryParams.mobile = ''
-  queryParams.templateCode = ''
-  queryParams.status = undefined
-  dateRange.value = []
-  queryParams.pageNum = 1
-  handleQuery()
-}
+  // 重置查询
+  function resetQuery() {
+    queryParams.mobile = '';
+    queryParams.templateCode = '';
+    queryParams.status = undefined;
+    dateRange.value = [];
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
 
-// 刷新表格
-function refreshTable() {
-  fetchLogList()
-}
+  // 刷新表格
+  function refreshTable() {
+    fetchLogList();
+  }
 
-// 初始化
-onMounted(() => {
-  fetchLogList()
-})
+  // 初始化
+  onMounted(() => {
+    fetchLogList();
+  });
 </script>
 
 <style scoped lang="scss">
-.sms-log {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .sms-log {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .card-header {
+    .table-card {
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

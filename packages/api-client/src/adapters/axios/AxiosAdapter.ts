@@ -85,9 +85,7 @@ export class AxiosAdapter implements IHttpAdapter {
     }
   }
 
-  private async loadDefaultInstance(
-    options: AxiosAdapterOptions,
-  ): Promise<{
+  private async loadDefaultInstance(options: AxiosAdapterOptions): Promise<{
     request: (config: AxiosRequestConfigLike) => Promise<AxiosResponseLike>;
   }> {
     let mod: AxiosModuleLike | undefined;
@@ -100,9 +98,7 @@ export class AxiosAdapter implements IHttpAdapter {
     }
 
     if (!mod) {
-      throw new Error(
-        'AxiosAdapter 需要项目中已安装 axios；若无 axios，请改用 FetchAdapter。',
-      );
+      throw new Error('AxiosAdapter 需要项目中已安装 axios；若无 axios，请改用 FetchAdapter。');
     }
 
     const create =
@@ -176,11 +172,7 @@ export class AxiosAdapter implements IHttpAdapter {
         throw new RequestError(message, status, code, body);
       }
 
-      throw new RequestError(
-        error instanceof Error ? error.message : '未知错误',
-        0,
-        'UNKNOWN',
-      );
+      throw new RequestError(error instanceof Error ? error.message : '未知错误', 0, 'UNKNOWN');
     }
   }
 }

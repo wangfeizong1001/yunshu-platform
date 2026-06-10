@@ -73,4 +73,4 @@ export default {
     typeError: 'File type not allowed',
     damaged: 'File is corrupted',
   },
-}
+};

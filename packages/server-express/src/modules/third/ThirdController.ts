@@ -164,11 +164,11 @@ export class ThirdController extends BaseController {
     let filtered = [...mockThirdConfigs];
 
     if (params.platform) {
-      filtered = filtered.filter(c => c.platform === params.platform);
+      filtered = filtered.filter((c) => c.platform === params.platform);
     }
 
     if (params.status) {
-      filtered = filtered.filter(c => c.status === params.status);
+      filtered = filtered.filter((c) => c.status === params.status);
     }
 
     return this.success(res, filtered);
@@ -179,7 +179,7 @@ export class ThirdController extends BaseController {
    */
   async getConfigById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const config = mockThirdConfigs.find(c => c.id === Number(id));
+    const config = mockThirdConfigs.find((c) => c.id === Number(id));
 
     if (!config) {
       return this.notFound(res, '第三方登录配置不存在');
@@ -192,7 +192,7 @@ export class ThirdController extends BaseController {
    * 获取所有启用的第三方登录配置
    */
   async getEnabledConfigs(_req: Request, res: Response): Promise<Response> {
-    const configs = mockThirdConfigs.filter(c => c.status === '1');
+    const configs = mockThirdConfigs.filter((c) => c.status === '1');
     return this.success(res, configs);
   }
 
@@ -207,7 +207,7 @@ export class ThirdController extends BaseController {
     }
 
     const newConfig: ThirdLoginConfig = {
-      id: Math.max(...mockThirdConfigs.map(c => c.id)) + 1,
+      id: Math.max(...mockThirdConfigs.map((c) => c.id)) + 1,
       platform: data.platform as ThirdPlatform,
       appId: data.appId,
       appSecret: data.appSecret,
@@ -231,7 +231,7 @@ export class ThirdController extends BaseController {
   async updateConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     const data = req.body;
-    const index = mockThirdConfigs.findIndex(c => c.id === Number(id));
+    const index = mockThirdConfigs.findIndex((c) => c.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '第三方登录配置不存在');
@@ -258,7 +258,7 @@ export class ThirdController extends BaseController {
    */
   async deleteConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const index = mockThirdConfigs.findIndex(c => c.id === Number(id));
+    const index = mockThirdConfigs.findIndex((c) => c.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '第三方登录配置不存在');
@@ -273,7 +273,7 @@ export class ThirdController extends BaseController {
    */
   async changeConfigStatus(req: Request, res: Response): Promise<Response> {
     const { id, status } = req.body;
-    const config = mockThirdConfigs.find(c => c.id === Number(id));
+    const config = mockThirdConfigs.find((c) => c.id === Number(id));
 
     if (!config) {
       return this.notFound(res, '第三方登录配置不存在');
@@ -292,7 +292,7 @@ export class ThirdController extends BaseController {
   async getAuthorizeUrl(req: Request, res: Response): Promise<Response> {
     const { platform } = req.query;
 
-    const config = mockThirdConfigs.find(c => c.platform === platform && c.status === '1');
+    const config = mockThirdConfigs.find((c) => c.platform === platform && c.status === '1');
     if (!config) {
       return this.notFound(res, '第三方登录配置不存在或未启用');
     }
@@ -329,7 +329,7 @@ export class ThirdController extends BaseController {
   async handleCallback(req: Request, res: Response): Promise<Response> {
     const { code, platform } = req.query;
 
-    const config = mockThirdConfigs.find(c => c.platform === platform);
+    const config = mockThirdConfigs.find((c) => c.platform === platform);
     if (!config) {
       return this.notFound(res, '第三方登录配置不存在');
     }
@@ -341,7 +341,7 @@ export class ThirdController extends BaseController {
     const openId = `mock_openid_${Date.now()}`;
 
     const log: ThirdLoginLog = {
-      id: Math.max(...mockThirdLogs.map(l => l.id)) + 1,
+      id: Math.max(...mockThirdLogs.map((l) => l.id)) + 1,
       platform: platform as ThirdPlatform,
       openId,
       ip: req.ip || '127.0.0.1',
@@ -353,7 +353,7 @@ export class ThirdController extends BaseController {
     return this.success(res, {
       openId,
       platform,
-      hasBound: mockThirdBinds.some(b => b.platform === platform && b.openId === openId),
+      hasBound: mockThirdBinds.some((b) => b.platform === platform && b.openId === openId),
     });
   }
 
@@ -375,7 +375,7 @@ export class ThirdController extends BaseController {
       return this.badRequest(res, '注册新账号需要提供用户名和密码');
     }
 
-    const config = mockThirdConfigs.find(c => c.platform === data.platform);
+    const config = mockThirdConfigs.find((c) => c.platform === data.platform);
     if (!config) {
       return this.notFound(res, '第三方登录配置不存在');
     }
@@ -383,7 +383,7 @@ export class ThirdController extends BaseController {
     const openId = `mock_openid_${Date.now()}`;
 
     const bind: ThirdBind = {
-      id: Math.max(...mockThirdBinds.map(b => b.id)) + 1,
+      id: Math.max(...mockThirdBinds.map((b) => b.id)) + 1,
       platform: data.platform,
       openId,
       userId: 1,
@@ -393,11 +393,15 @@ export class ThirdController extends BaseController {
 
     mockThirdBinds.push(bind);
 
-    return this.success(res, {
-      bindId: bind.id,
-      userId: bind.userId,
-      userName: bind.userName,
-    }, '账号绑定成功');
+    return this.success(
+      res,
+      {
+        bindId: bind.id,
+        userId: bind.userId,
+        userName: bind.userName,
+      },
+      '账号绑定成功',
+    );
   }
 
   /**
@@ -406,7 +410,9 @@ export class ThirdController extends BaseController {
   async unbindAccount(req: Request, res: Response): Promise<Response> {
     const { platform, userId } = req.body;
 
-    const index = mockThirdBinds.findIndex(b => b.platform === platform && b.userId === Number(userId));
+    const index = mockThirdBinds.findIndex(
+      (b) => b.platform === platform && b.userId === Number(userId),
+    );
 
     if (index === -1) {
       return this.notFound(res, '绑定关系不存在');
@@ -422,11 +428,11 @@ export class ThirdController extends BaseController {
   async getUserBinds(req: Request, res: Response): Promise<Response> {
     const { userId } = req.params;
 
-    const binds = mockThirdBinds.filter(b => b.userId === Number(userId));
+    const binds = mockThirdBinds.filter((b) => b.userId === Number(userId));
     const configs = mockThirdConfigs;
 
-    const result = configs.map(config => {
-      const bind = binds.find(b => b.platform === config.platform);
+    const result = configs.map((config) => {
+      const bind = binds.find((b) => b.platform === config.platform);
       return {
         platform: config.platform,
         status: config.status,
@@ -457,23 +463,25 @@ export class ThirdController extends BaseController {
     let filtered = [...mockThirdLogs];
 
     if (params.platform) {
-      filtered = filtered.filter(l => l.platform === params.platform);
+      filtered = filtered.filter((l) => l.platform === params.platform);
     }
 
     if (params.username) {
-      filtered = filtered.filter(l => l.username?.toLowerCase().includes((params.username ?? '').toLowerCase()));
+      filtered = filtered.filter((l) =>
+        l.username?.toLowerCase().includes((params.username ?? '').toLowerCase()),
+      );
     }
 
     if (params.status) {
-      filtered = filtered.filter(l => l.status === params.status);
+      filtered = filtered.filter((l) => l.status === params.status);
     }
 
     if (params.startDate) {
-      filtered = filtered.filter(l => l.loginTime >= (params.startDate ?? ''));
+      filtered = filtered.filter((l) => l.loginTime >= (params.startDate ?? ''));
     }
 
     if (params.endDate) {
-      filtered = filtered.filter(l => l.loginTime <= (params.endDate ?? ''));
+      filtered = filtered.filter((l) => l.loginTime <= (params.endDate ?? ''));
     }
 
     const total = filtered.length;
@@ -491,7 +499,7 @@ export class ThirdController extends BaseController {
    */
   async getLogById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const log = mockThirdLogs.find(l => l.id === Number(id));
+    const log = mockThirdLogs.find((l) => l.id === Number(id));
 
     if (!log) {
       return this.notFound(res, '登录日志不存在');
@@ -506,13 +514,13 @@ export class ThirdController extends BaseController {
   async getLoginStats(_req: Request, res: Response): Promise<Response> {
     const stats = {
       total: mockThirdLogs.length,
-      success: mockThirdLogs.filter(l => l.status === '1').length,
-      failed: mockThirdLogs.filter(l => l.status === '0').length,
+      success: mockThirdLogs.filter((l) => l.status === '1').length,
+      failed: mockThirdLogs.filter((l) => l.status === '0').length,
       byPlatform: {
-        wechat: mockThirdLogs.filter(l => l.platform === 'wechat').length,
-        github: mockThirdLogs.filter(l => l.platform === 'github').length,
-        wecom: mockThirdLogs.filter(l => l.platform === 'wecom').length,
-        dingtalk: mockThirdLogs.filter(l => l.platform === 'dingtalk').length,
+        wechat: mockThirdLogs.filter((l) => l.platform === 'wechat').length,
+        github: mockThirdLogs.filter((l) => l.platform === 'github').length,
+        wecom: mockThirdLogs.filter((l) => l.platform === 'wecom').length,
+        dingtalk: mockThirdLogs.filter((l) => l.platform === 'dingtalk').length,
       },
       recentTrend: [
         { date: '2024-06-10', count: 5 },

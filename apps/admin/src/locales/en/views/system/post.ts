@@ -57,4 +57,4 @@ export default {
     codeExists: 'Post code already exists',
     nameExists: 'Post name already exists',
   },
-}
+};

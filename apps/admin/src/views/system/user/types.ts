@@ -2,24 +2,24 @@
  * 用户类型定义
  */
 
-import type { SysUser, SysUserQuery } from '@yunshu/shared'
+import type { SysUser, SysUserQuery } from '@yunshu/shared';
 
-export { SysUser, SysUserQuery }
+export { SysUser, SysUserQuery };
 
-export type { SysUserForm } from '@yunshu/shared'
+export type { SysUserForm } from '@yunshu/shared';
 
 /** 用户状态枚举 */
 export const UserStatusOptions = [
   { label: '正常', value: '0' },
   { label: '停用', value: '1' },
-]
+];
 
 /** 用户性别枚举 */
 export const SexOptions = [
   { label: '男', value: '0' },
   { label: '女', value: '1' },
   { label: '未知', value: '2' },
-]
+];
 
 /** 表格列定义 */
 export const tableColumns = [
@@ -34,4 +34,4 @@ export const tableColumns = [
   { prop: 'loginDate', label: '最后登录', width: '180' },
   { prop: 'createTime', label: '创建时间', width: '180' },
   { prop: 'action', label: '操作', width: '200', fixed: 'right' },
-]
+];

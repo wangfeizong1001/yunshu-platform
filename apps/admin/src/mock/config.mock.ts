@@ -2,7 +2,7 @@
  * 参数配置 Mock 数据
  */
 
-import type { SysConfig, SysConfigPageResp } from '@yunshu/shared'
+import type { SysConfig, SysConfigPageResp } from '@yunshu/shared';
 
 // 参数配置 Mock 数据
 export const mockConfigList: SysConfig[] = [
@@ -94,45 +94,45 @@ export const mockConfigList: SysConfig[] = [
     updateTime: '2023-01-01 00:00:00',
     createBy: 'admin',
   },
-]
+];
 
 // 获取参数配置分页列表 Mock
 export function getMockConfigPage(params: any): SysConfigPageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', configType = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', configType = '' } = params;
 
-  let filteredList = mockConfigList
+  let filteredList = mockConfigList;
 
   if (keyword) {
     filteredList = filteredList.filter(
       (item) =>
         item.configName.includes(keyword) ||
         item.configKey.includes(keyword) ||
-        item.configValue.includes(keyword)
-    )
+        item.configValue.includes(keyword),
+    );
   }
 
   if (configType) {
-    filteredList = filteredList.filter((item) => item.configType === configType)
+    filteredList = filteredList.filter((item) => item.configType === configType);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取参数配置详情 Mock
 export function getMockConfigDetail(configId: number): SysConfig | undefined {
-  return mockConfigList.find((item) => item.configId === configId)
+  return mockConfigList.find((item) => item.configId === configId);
 }
 
 // 根据键名获取参数 Mock
 export function getMockConfigByKey(configKey: string): SysConfig | undefined {
-  return mockConfigList.find((item) => item.configKey === configKey)
+  return mockConfigList.find((item) => item.configKey === configKey);
 }
 
 // 新增参数配置 Mock
@@ -147,27 +147,34 @@ export function addMockConfig(data: Partial<SysConfig>): SysConfig {
     createTime: new Date().toLocaleString(),
     updateTime: new Date().toLocaleString(),
     createBy: 'admin',
-  }
-  mockConfigList.push(newItem)
-  return newItem
+  };
+  mockConfigList.push(newItem);
+  return newItem;
 }
 
 // 更新参数配置 Mock
-export function updateMockConfig(configId: number, data: Partial<SysConfig>): SysConfig | undefined {
-  const index = mockConfigList.findIndex((u) => u.configId === configId)
+export function updateMockConfig(
+  configId: number,
+  data: Partial<SysConfig>,
+): SysConfig | undefined {
+  const index = mockConfigList.findIndex((u) => u.configId === configId);
   if (index !== -1) {
-    mockConfigList[index] = { ...mockConfigList[index], ...data, updateTime: new Date().toLocaleString() }
-    return mockConfigList[index]
+    mockConfigList[index] = {
+      ...mockConfigList[index],
+      ...data,
+      updateTime: new Date().toLocaleString(),
+    };
+    return mockConfigList[index];
   }
-  return undefined
+  return undefined;
 }
 
 // 删除参数配置 Mock
 export function deleteMockConfig(configId: number): boolean {
-  const index = mockConfigList.findIndex((u) => u.configId === configId)
+  const index = mockConfigList.findIndex((u) => u.configId === configId);
   if (index !== -1) {
-    mockConfigList.splice(index, 1)
-    return true
+    mockConfigList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }

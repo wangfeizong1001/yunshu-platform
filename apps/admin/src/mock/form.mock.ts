@@ -2,7 +2,7 @@
  * 表单 Mock 数据
  */
 
-import type { FormInfo, FormPageResp } from '@/api/system/form.api'
+import type { FormInfo, FormPageResp } from '@/api/system/form.api';
 
 // 生成 Mock 表单数据
 export const mockFormList: FormInfo[] = [
@@ -24,7 +24,7 @@ export const mockFormList: FormInfo[] = [
         placeholder: '请输入姓名',
         required: true,
         disabled: false,
-        rules: []
+        rules: [],
       },
       {
         id: '2',
@@ -38,8 +38,8 @@ export const mockFormList: FormInfo[] = [
           { label: '技术部', value: 'tech' },
           { label: '产品部', value: 'product' },
           { label: '设计部', value: 'design' },
-          { label: '市场部', value: 'market' }
-        ]
+          { label: '市场部', value: 'market' },
+        ],
       },
       {
         id: '3',
@@ -48,7 +48,7 @@ export const mockFormList: FormInfo[] = [
         field: 'entryDate',
         placeholder: '请选择入职日期',
         required: true,
-        disabled: false
+        disabled: false,
       },
       {
         id: '4',
@@ -58,7 +58,7 @@ export const mockFormList: FormInfo[] = [
         placeholder: '请输入联系电话',
         required: true,
         disabled: false,
-        rules: ['phone']
+        rules: ['phone'],
       },
       {
         id: '5',
@@ -67,9 +67,9 @@ export const mockFormList: FormInfo[] = [
         field: 'remark',
         placeholder: '请输入备注信息',
         required: false,
-        disabled: false
-      }
-    ]
+        disabled: false,
+      },
+    ],
   },
   {
     formId: 2,
@@ -93,8 +93,8 @@ export const mockFormList: FormInfo[] = [
           { label: '事假', value: 'personal' },
           { label: '病假', value: 'sick' },
           { label: '年假', value: 'annual' },
-          { label: '婚假', value: 'marriage' }
-        ]
+          { label: '婚假', value: 'marriage' },
+        ],
       },
       {
         id: '2',
@@ -103,7 +103,7 @@ export const mockFormList: FormInfo[] = [
         field: 'startTime',
         placeholder: '请选择开始时间',
         required: true,
-        disabled: false
+        disabled: false,
       },
       {
         id: '3',
@@ -112,7 +112,7 @@ export const mockFormList: FormInfo[] = [
         field: 'endTime',
         placeholder: '请选择结束时间',
         required: true,
-        disabled: false
+        disabled: false,
       },
       {
         id: '4',
@@ -121,9 +121,9 @@ export const mockFormList: FormInfo[] = [
         field: 'reason',
         placeholder: '请输入请假理由',
         required: true,
-        disabled: false
-      }
-    ]
+        disabled: false,
+      },
+    ],
   },
   {
     formId: 3,
@@ -142,7 +142,7 @@ export const mockFormList: FormInfo[] = [
         field: 'reason',
         placeholder: '请输入报销事由',
         required: true,
-        disabled: false
+        disabled: false,
       },
       {
         id: '2',
@@ -153,7 +153,7 @@ export const mockFormList: FormInfo[] = [
         required: true,
         disabled: false,
         min: 0.01,
-        step: 0.01
+        step: 0.01,
       },
       {
         id: '3',
@@ -162,7 +162,7 @@ export const mockFormList: FormInfo[] = [
         field: 'expenseDate',
         placeholder: '请选择消费日期',
         required: true,
-        disabled: false
+        disabled: false,
       },
       {
         id: '4',
@@ -173,7 +173,7 @@ export const mockFormList: FormInfo[] = [
         required: true,
         disabled: false,
         accept: 'image/*',
-        maxCount: 5
+        maxCount: 5,
       },
       {
         id: '5',
@@ -182,44 +182,42 @@ export const mockFormList: FormInfo[] = [
         field: 'remark',
         placeholder: '请输入备注信息',
         required: false,
-        disabled: false
-      }
-    ]
-  }
-]
+        disabled: false,
+      },
+    ],
+  },
+];
 
 // 获取表单分页列表 Mock
 export function getMockFormPage(params: any): FormPageResp {
-  const { pageNum = 1, pageSize = 10, formName = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, formName = '', status = '' } = params;
 
-  let filteredList = mockFormList
+  let filteredList = mockFormList;
 
   // 表单名称过滤
   if (formName) {
-    filteredList = filteredList.filter((form) =>
-      form.formName.includes(formName)
-    )
+    filteredList = filteredList.filter((form) => form.formName.includes(formName));
   }
 
   // 状态过滤
   if (status) {
-    filteredList = filteredList.filter((form) => form.status === status)
+    filteredList = filteredList.filter((form) => form.status === status);
   }
 
   // 分页
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
-    rows
-  }
+    rows,
+  };
 }
 
 // 获取表单详情 Mock
 export function getMockFormDetail(formId: number): FormInfo | undefined {
-  return mockFormList.find((form) => form.formId === formId)
+  return mockFormList.find((form) => form.formId === formId);
 }
 
 // 新增表单 Mock
@@ -233,42 +231,39 @@ export function addMockForm(form: Partial<FormInfo>): FormInfo {
     createTime: new Date().toLocaleString(),
     updateTime: new Date().toLocaleString(),
     remark: form.remark || '',
-    components: form.components || []
-  }
-  mockFormList.push(newForm)
-  return newForm
+    components: form.components || [],
+  };
+  mockFormList.push(newForm);
+  return newForm;
 }
 
 // 更新表单 Mock
-export function updateMockForm(
-  formId: number,
-  form: Partial<FormInfo>
-): FormInfo | undefined {
-  const index = mockFormList.findIndex((f) => f.formId === formId)
+export function updateMockForm(formId: number, form: Partial<FormInfo>): FormInfo | undefined {
+  const index = mockFormList.findIndex((f) => f.formId === formId);
   if (index !== -1) {
     mockFormList[index] = {
       ...mockFormList[index],
       ...form,
-      updateTime: new Date().toLocaleString()
-    }
-    return mockFormList[index]
+      updateTime: new Date().toLocaleString(),
+    };
+    return mockFormList[index];
   }
-  return undefined
+  return undefined;
 }
 
 // 删除表单 Mock
 export function deleteMockForm(formId: number): boolean {
-  const index = mockFormList.findIndex((f) => f.formId === formId)
+  const index = mockFormList.findIndex((f) => f.formId === formId);
   if (index !== -1) {
-    mockFormList.splice(index, 1)
-    return true
+    mockFormList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }
 
 // 复制表单 Mock
 export function copyMockForm(formId: number): FormInfo | undefined {
-  const sourceForm = mockFormList.find((f) => f.formId === formId)
+  const sourceForm = mockFormList.find((f) => f.formId === formId);
   if (sourceForm) {
     const newForm: FormInfo = {
       ...sourceForm,
@@ -277,10 +272,10 @@ export function copyMockForm(formId: number): FormInfo | undefined {
       formCode: sourceForm.formCode + '_COPY',
       status: '0',
       createTime: new Date().toLocaleString(),
-      updateTime: new Date().toLocaleString()
-    }
-    mockFormList.push(newForm)
-    return newForm
+      updateTime: new Date().toLocaleString(),
+    };
+    mockFormList.push(newForm);
+    return newForm;
   }
-  return undefined
+  return undefined;
 }

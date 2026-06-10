@@ -2,7 +2,7 @@
  * 用户 Mock 数据
  */
 
-import type { SysUser, SysUserPageResp } from '@yunshu/shared'
+import type { SysUser, SysUserPageResp } from '@yunshu/shared';
 
 // 生成 Mock 用户数据
 export const mockUserList: SysUser[] = [
@@ -96,13 +96,13 @@ export const mockUserList: SysUser[] = [
     createTime: '2023-09-01 09:00:00',
     remark: '实习生',
   },
-]
+];
 
 // 获取用户分页列表 Mock
 export function getMockUserPage(params: any): SysUserPageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', status = '' } = params;
 
-  let filteredList = mockUserList
+  let filteredList = mockUserList;
 
   // 关键词过滤
   if (keyword) {
@@ -110,29 +110,29 @@ export function getMockUserPage(params: any): SysUserPageResp {
       (user) =>
         user.username.includes(keyword) ||
         user.nickname.includes(keyword) ||
-        user.phone.includes(keyword)
-    )
+        user.phone.includes(keyword),
+    );
   }
 
   // 状态过滤
   if (status) {
-    filteredList = filteredList.filter((user) => user.status === status)
+    filteredList = filteredList.filter((user) => user.status === status);
   }
 
   // 分页
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取用户详情 Mock
 export function getMockUserDetail(userId: number): SysUser | undefined {
-  return mockUserList.find((user) => user.userId === userId)
+  return mockUserList.find((user) => user.userId === userId);
 }
 
 // 新增用户 Mock
@@ -153,27 +153,27 @@ export function addMockUser(user: Partial<SysUser>): SysUser {
     loginDate: '',
     createTime: new Date().toLocaleString(),
     remark: user.remark || '',
-  }
-  mockUserList.push(newUser)
-  return newUser
+  };
+  mockUserList.push(newUser);
+  return newUser;
 }
 
 // 更新用户 Mock
 export function updateMockUser(userId: number, user: Partial<SysUser>): SysUser | undefined {
-  const index = mockUserList.findIndex((u) => u.userId === userId)
+  const index = mockUserList.findIndex((u) => u.userId === userId);
   if (index !== -1) {
-    mockUserList[index] = { ...mockUserList[index], ...user }
-    return mockUserList[index]
+    mockUserList[index] = { ...mockUserList[index], ...user };
+    return mockUserList[index];
   }
-  return undefined
+  return undefined;
 }
 
 // 删除用户 Mock
 export function deleteMockUser(userId: number): boolean {
-  const index = mockUserList.findIndex((u) => u.userId === userId)
+  const index = mockUserList.findIndex((u) => u.userId === userId);
   if (index !== -1) {
-    mockUserList.splice(index, 1)
-    return true
+    mockUserList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }

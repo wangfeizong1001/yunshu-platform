@@ -2,54 +2,54 @@
  * 用户管理相关 API
  */
 
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 // 用户查询参数
 export interface UserQuery {
-  pageNum?: number
-  pageSize?: number
-  username?: string
-  nickname?: string
-  phone?: string
-  status?: string
-  deptId?: number
+  pageNum?: number;
+  pageSize?: number;
+  username?: string;
+  nickname?: string;
+  phone?: string;
+  status?: string;
+  deptId?: number;
 }
 
 // 用户表单
 export interface UserForm {
-  userId?: number
-  username?: string
-  nickname?: string
-  email?: string
-  phone?: string
-  sex?: string
-  avatar?: string
-  deptId?: number
-  postIds?: number[]
-  roleIds?: number[]
-  status?: string
-  remark?: string
+  userId?: number;
+  username?: string;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  sex?: string;
+  avatar?: string;
+  deptId?: number;
+  postIds?: number[];
+  roleIds?: number[];
+  status?: string;
+  remark?: string;
 }
 
 // 用户信息
 export interface UserInfo {
-  userId: number
-  username: string
-  nickname: string
-  email: string
-  phone: string
-  sex: string
-  avatar: string
-  deptId: number
-  deptName: string
-  posts: string[]
-  roles: string[]
-  roleId: number[]
-  status: string
-  loginIp: string
-  loginDate: string
-  createTime: string
-  remark: string
+  userId: number;
+  username: string;
+  nickname: string;
+  email: string;
+  phone: string;
+  sex: string;
+  avatar: string;
+  deptId: number;
+  deptName: string;
+  posts: string[];
+  roles: string[];
+  roleId: number[];
+  status: string;
+  loginIp: string;
+  loginDate: string;
+  createTime: string;
+  remark: string;
 }
 
 // 获取用户列表
@@ -57,8 +57,8 @@ export function getUserList(params: UserQuery) {
   return request({
     url: '/system/user/list',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 
 // 获取用户分页列表
@@ -66,16 +66,16 @@ export function getUserPage(params: UserQuery) {
   return request({
     url: '/system/user/page',
     method: 'get',
-    params
-  })
+    params,
+  });
 }
 
 // 获取用户详情
 export function getUser(userId: number) {
   return request({
     url: `/system/user/${userId}`,
-    method: 'get'
-  })
+    method: 'get',
+  });
 }
 
 // 新增用户
@@ -83,8 +83,8 @@ export function addUser(data: UserForm) {
   return request({
     url: '/system/user',
     method: 'post',
-    data
-  })
+    data,
+  });
 }
 
 // 修改用户
@@ -92,16 +92,16 @@ export function updateUser(data: UserForm) {
   return request({
     url: '/system/user',
     method: 'put',
-    data
-  })
+    data,
+  });
 }
 
 // 删除用户
 export function deleteUser(userId: number) {
   return request({
     url: `/system/user/${userId}`,
-    method: 'delete'
-  })
+    method: 'delete',
+  });
 }
 
 // 批量删除用户
@@ -109,8 +109,8 @@ export function batchDeleteUser(userIds: number[]) {
   return request({
     url: '/system/user/batch',
     method: 'delete',
-    data: userIds
-  })
+    data: userIds,
+  });
 }
 
 // 修改用户状态
@@ -118,8 +118,8 @@ export function changeUserStatus(userId: number, status: string) {
   return request({
     url: '/system/user/changeStatus',
     method: 'put',
-    params: { userId, status }
-  })
+    params: { userId, status },
+  });
 }
 
 // 重置用户密码
@@ -127,8 +127,8 @@ export function resetUserPwd(userId: number, password: string) {
   return request({
     url: '/system/user/resetPwd',
     method: 'put',
-    data: { userId, password }
-  })
+    data: { userId, password },
+  });
 }
 
 // 导出用户
@@ -137,8 +137,8 @@ export function exportUser(params: UserQuery) {
     url: '/system/user/export',
     method: 'get',
     params,
-    responseType: 'blob'
-  })
+    responseType: 'blob',
+  });
 }
 
 // 导入用户模板下载
@@ -146,8 +146,8 @@ export function importTemplate() {
   return request({
     url: '/system/user/importTemplate',
     method: 'get',
-    responseType: 'blob'
-  })
+    responseType: 'blob',
+  });
 }
 
 // 导入用户
@@ -157,17 +157,17 @@ export function importUser(data: FormData) {
     method: 'post',
     data,
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 }
 
 // 获取所有角色列表
 export function getAllRoles() {
   return request({
     url: '/system/role/list',
-    method: 'get'
-  })
+    method: 'get',
+  });
 }
 
 // 分配用户角色
@@ -175,14 +175,14 @@ export function assignUserRole(userId: number, roleIds: number[]) {
   return request({
     url: '/system/user/assignRole',
     method: 'put',
-    data: { userId, roleIds }
-  })
+    data: { userId, roleIds },
+  });
 }
 
 // 获取用户角色列表
 export function getUserRoles(userId: number) {
   return request({
     url: `/system/user/${userId}/roles`,
-    method: 'get'
-  })
+    method: 'get',
+  });
 }

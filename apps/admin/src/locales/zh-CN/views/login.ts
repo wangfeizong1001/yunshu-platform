@@ -32,4 +32,4 @@ export default {
     forgotPassword: '忘记密码？',
     register: '注册账号',
   },
-}
+};

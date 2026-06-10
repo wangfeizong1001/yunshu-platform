@@ -1,7 +1,13 @@
 /**
  * OSS 文件存储 Mock 数据
  */
-import type { OssConfig, OssFile, OssFilePageResp, OssConfigResp, OssUploadResp } from '@yunshu/shared';
+import type {
+  OssConfig,
+  OssFile,
+  OssFilePageResp,
+  OssConfigResp,
+  OssUploadResp,
+} from '@yunshu/shared';
 export declare const mockOssConfig: OssConfig;
 export declare const mockOssConfigList: OssConfig[];
 export declare const mockOssFileList: OssFile[];

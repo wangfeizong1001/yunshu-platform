@@ -96,116 +96,121 @@
     </el-card>
 
     <!-- 部门表单弹窗 -->
-    <DeptForm v-model="formVisible" :dept-data="currentDept" :parent-dept="parentDept" @refresh="fetchDeptTree" />
+    <DeptForm
+      v-model="formVisible"
+      :dept-data="currentDept"
+      :parent-dept="parentDept"
+      @refresh="fetchDeptTree"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import { getDeptTree, deleteDept } from '@/api/system/dept.api'
-import type { DeptQuery } from '@/api/system/dept.api'
-import type { SysDept } from '@yunshu/shared'
-import DeptForm from './DeptForm.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus } from '@element-plus/icons-vue';
+  import { getDeptTree, deleteDept } from '@/api/system/dept.api';
+  import type { DeptQuery } from '@/api/system/dept.api';
+  import type { SysDept } from '@yunshu/shared';
+  import DeptForm from './DeptForm.vue';
 
-// 状态
-const loading = ref(false)
-const deptList = ref<SysDept[]>([])
-const formVisible = ref(false)
-const currentDept = ref<SysDept | null>(null)
-const parentDept = ref<SysDept | null>(null)
+  // 状态
+  const loading = ref(false);
+  const deptList = ref<SysDept[]>([]);
+  const formVisible = ref(false);
+  const currentDept = ref<SysDept | null>(null);
+  const parentDept = ref<SysDept | null>(null);
 
-// 查询参数
-const queryParams = reactive<DeptQuery>({
-  deptName: '',
-  status: '',
-})
+  // 查询参数
+  const queryParams = reactive<DeptQuery>({
+    deptName: '',
+    status: '',
+  });
 
-// 加载部门树
-async function fetchDeptTree() {
-  loading.value = true
-  try {
-    const res = await getDeptTree(queryParams) as SysDept[]
-    deptList.value = res
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  fetchDeptTree()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.deptName = ''
-  queryParams.status = ''
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchDeptTree()
-}
-
-// 新增
-function handleAdd(row?: SysDept) {
-  if (row) {
-    parentDept.value = row
-  } else {
-    parentDept.value = null
-  }
-  currentDept.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: SysDept) {
-  currentDept.value = { ...row }
-  parentDept.value = null
-  formVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: SysDept) {
-  if (row.children?.length) {
-    ElMessage.warning('该部门存在下级部门，无法删除')
-    return
-  }
-  try {
-    await ElMessageBox.confirm(`是否确认删除部门"${row.deptName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteDept(row.deptId)
-    ElMessage.success('删除成功')
-    fetchDeptTree()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载部门树
+  async function fetchDeptTree() {
+    loading.value = true;
+    try {
+      const res = (await getDeptTree(queryParams)) as SysDept[];
+      deptList.value = res;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 初始化
-onMounted(() => {
-  fetchDeptTree()
-})
+  // 查询
+  function handleQuery() {
+    fetchDeptTree();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.deptName = '';
+    queryParams.status = '';
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchDeptTree();
+  }
+
+  // 新增
+  function handleAdd(row?: SysDept) {
+    if (row) {
+      parentDept.value = row;
+    } else {
+      parentDept.value = null;
+    }
+    currentDept.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: SysDept) {
+    currentDept.value = { ...row };
+    parentDept.value = null;
+    formVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: SysDept) {
+    if (row.children?.length) {
+      ElMessage.warning('该部门存在下级部门，无法删除');
+      return;
+    }
+    try {
+      await ElMessageBox.confirm(`是否确认删除部门"${row.deptName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteDept(row.deptId);
+      ElMessage.success('删除成功');
+      fetchDeptTree();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchDeptTree();
+  });
 </script>
 
 <style scoped lang="scss">
-.dept-tree {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .dept-tree {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
     }
   }
-}
 </style>

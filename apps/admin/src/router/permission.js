@@ -9,13 +9,13 @@
  * @returns 是否有权限
  */
 export function checkPermission(value, hasPermissions) {
-    if (!value || value.length === 0) {
-        return true;
-    }
-    if (!hasPermissions || hasPermissions.length === 0) {
-        return false;
-    }
-    return value.some(permission => hasPermissions.includes(permission));
+  if (!value || value.length === 0) {
+    return true;
+  }
+  if (!hasPermissions || hasPermissions.length === 0) {
+    return false;
+  }
+  return value.some((permission) => hasPermissions.includes(permission));
 }
 /**
  * 检查是否有任意一个指定权限
@@ -24,7 +24,7 @@ export function checkPermission(value, hasPermissions) {
  * @returns 是否有权限
  */
 export function hasPermiOr(permissions, hasPermissions) {
-    return checkPermission(permissions, hasPermissions);
+  return checkPermission(permissions, hasPermissions);
 }
 /**
  * 检查是否拥有所有指定权限
@@ -33,13 +33,13 @@ export function hasPermiOr(permissions, hasPermissions) {
  * @returns 是否拥有所有权限
  */
 export function hasPermiAnd(permissions, hasPermissions) {
-    if (!permissions || permissions.length === 0) {
-        return true;
-    }
-    if (!hasPermissions || hasPermissions.length === 0) {
-        return false;
-    }
-    return permissions.every(permission => hasPermissions.includes(permission));
+  if (!permissions || permissions.length === 0) {
+    return true;
+  }
+  if (!hasPermissions || hasPermissions.length === 0) {
+    return false;
+  }
+  return permissions.every((permission) => hasPermissions.includes(permission));
 }
 /**
  * 检查是否有指定角色
@@ -48,13 +48,13 @@ export function hasPermiAnd(permissions, hasPermissions) {
  * @returns 是否有角色
  */
 export function hasRole(value, hasRoles) {
-    if (!value || value.length === 0) {
-        return true;
-    }
-    if (!hasRoles || hasRoles.length === 0) {
-        return false;
-    }
-    return value.some(role => hasRoles.includes(role));
+  if (!value || value.length === 0) {
+    return true;
+  }
+  if (!hasRoles || hasRoles.length === 0) {
+    return false;
+  }
+  return value.some((role) => hasRoles.includes(role));
 }
 /**
  * 检查是否有任意一个指定角色
@@ -63,7 +63,7 @@ export function hasRole(value, hasRoles) {
  * @returns 是否有角色
  */
 export function hasRoleOr(roles, hasRoles) {
-    return hasRole(roles, hasRoles);
+  return hasRole(roles, hasRoles);
 }
 /**
  * 检查是否拥有所有指定角色
@@ -72,13 +72,13 @@ export function hasRoleOr(roles, hasRoles) {
  * @returns 是否拥有所有角色
  */
 export function hasRoleAll(roles, hasRoles) {
-    if (!roles || roles.length === 0) {
-        return true;
-    }
-    if (!hasRoles || hasRoles.length === 0) {
-        return false;
-    }
-    return roles.every(role => hasRoles.includes(role));
+  if (!roles || roles.length === 0) {
+    return true;
+  }
+  if (!hasRoles || hasRoles.length === 0) {
+    return false;
+  }
+  return roles.every((role) => hasRoles.includes(role));
 }
 /**
  * 判断是否为超级管理员
@@ -86,6 +86,6 @@ export function hasRoleAll(roles, hasRoles) {
  * @returns 是否为超级管理员
  */
 export function isSuperAdmin(roles) {
-    return roles.includes('admin');
+  return roles.includes('admin');
 }
 //# sourceMappingURL=permission.js.map

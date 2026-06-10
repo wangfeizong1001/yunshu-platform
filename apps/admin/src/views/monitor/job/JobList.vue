@@ -4,17 +4,32 @@
     <el-card class="search-card">
       <el-form :model="queryParams" inline>
         <el-form-item label="任务名称">
-          <el-input v-model="queryParams.jobName" placeholder="请输入任务名称" clearable style="width: 140px" />
+          <el-input
+            v-model="queryParams.jobName"
+            placeholder="请输入任务名称"
+            clearable
+            style="width: 140px"
+          />
         </el-form-item>
         <el-form-item label="任务分组">
-          <el-select v-model="queryParams.jobGroup" placeholder="请选择" clearable style="width: 120px">
+          <el-select
+            v-model="queryParams.jobGroup"
+            placeholder="请选择"
+            clearable
+            style="width: 120px"
+          >
             <el-option label="默认" value="default" />
             <el-option label="系统" value="system" />
             <el-option label="自定义" value="custom" />
           </el-select>
         </el-form-item>
         <el-form-item label="任务状态">
-          <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 120px">
+          <el-select
+            v-model="queryParams.status"
+            placeholder="请选择"
+            clearable
+            style="width: 120px"
+          >
             <el-option label="正常" value="0" />
             <el-option label="暂停" value="1" />
             <el-option label="删除" value="2" />
@@ -32,7 +47,12 @@
       <div class="toolbar">
         <div class="toolbar-left">
           <el-button type="primary" :icon="Plus" @click="handleAdd">新增任务</el-button>
-          <el-button type="danger" :icon="Delete" :disabled="selectedIds.length === 0" @click="handleBatchDelete">
+          <el-button
+            type="danger"
+            :icon="Delete"
+            :disabled="selectedIds.length === 0"
+            @click="handleBatchDelete"
+          >
             批量删除
           </el-button>
         </div>
@@ -44,7 +64,11 @@
 
     <!-- 数据表格 -->
     <el-card class="table-card">
-      <el-table v-loading="loading" :data="tableData" @selection-change="(selection: any) => handleSelectionChange(selection)">
+      <el-table
+        v-loading="loading"
+        :data="tableData"
+        @selection-change="(selection: any) => handleSelectionChange(selection)"
+      >
         <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="任务ID" prop="jobId" width="80" align="center" />
         <el-table-column label="任务名称" prop="jobName" width="140" align="center" />
@@ -53,7 +77,12 @@
             <el-tag>{{ getGroupName(row.jobGroup) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="调用目标" prop="invokeTarget" min-width="180" show-overflow-tooltip />
+        <el-table-column
+          label="调用目标"
+          prop="invokeTarget"
+          min-width="180"
+          show-overflow-tooltip
+        />
         <el-table-column label="cron表达式" prop="cronExpression" width="140" align="center" />
         <el-table-column label="执行策略" prop="misfirePolicy" width="100" align="center">
           <template #default="{ row }">
@@ -122,185 +151,191 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Delete, Plus } from '@element-plus/icons-vue'
-import type { IJob } from '@yunshu/shared'
-import type { JobInfo, JobQuery } from '@/api/monitor/job.api'
-import * as jobApi from '@/api/monitor/job.api'
-import JobForm from './JobForm.vue'
-import JobLogDrawer from './JobLogDrawer.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Delete, Plus } from '@element-plus/icons-vue';
+  import type { IJob } from '@yunshu/shared';
+  import type { JobInfo, JobQuery } from '@/api/monitor/job.api';
+  import * as jobApi from '@/api/monitor/job.api';
+  import JobForm from './JobForm.vue';
+  import JobLogDrawer from './JobLogDrawer.vue';
 
-const loading = ref(false)
-const tableData = ref<JobInfo[]>([])
-const total = ref(0)
-const selectedIds = ref<string[]>([])
-const formVisible = ref(false)
-const logDrawerVisible = ref(false)
-const currentJob = ref<JobInfo | null>(null)
+  const loading = ref(false);
+  const tableData = ref<JobInfo[]>([]);
+  const total = ref(0);
+  const selectedIds = ref<string[]>([]);
+  const formVisible = ref(false);
+  const logDrawerVisible = ref(false);
+  const currentJob = ref<JobInfo | null>(null);
 
-const queryParams = reactive<JobQuery>({
-  pageNum: 1,
-  pageSize: 10,
-})
+  const queryParams = reactive<JobQuery>({
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-const getGroupName = (group: string) => {
-  const map: Record<string, string> = {
-    default: '默认',
-    system: '系统',
-    custom: '自定义',
-  }
-  return map[group] || group
-}
+  const getGroupName = (group: string) => {
+    const map: Record<string, string> = {
+      default: '默认',
+      system: '系统',
+      custom: '自定义',
+    };
+    return map[group] || group;
+  };
 
-const getMisfirePolicyName = (policy: string) => {
-  const map: Record<string, string> = {
-    '0': '默认策略',
-    '1': '立即执行',
-    '2': '执行一次',
-  }
-  return map[policy] || policy
-}
+  const getMisfirePolicyName = (policy: string) => {
+    const map: Record<string, string> = {
+      '0': '默认策略',
+      '1': '立即执行',
+      '2': '执行一次',
+    };
+    return map[policy] || policy;
+  };
 
-const getMisfirePolicyType = (policy: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
-  const map: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    '0': 'info',
-    '1': 'success',
-    '2': 'warning',
-  }
-  return map[policy]
-}
+  const getMisfirePolicyType = (
+    policy: string,
+  ): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
+    const map: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
+      '0': 'info',
+      '1': 'success',
+      '2': 'warning',
+    };
+    return map[policy];
+  };
 
-const formatDate = (date: string | undefined) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
-}
+  const formatDate = (date: string | undefined) => {
+    if (!date) return '-';
+    return new Date(date).toLocaleString('zh-CN');
+  };
 
-const handleQuery = async () => {
-  loading.value = true
-  try {
-    const res = await jobApi.getJobPage(queryParams)
-    const responseData = res as Record<string, unknown>
-    if (responseData.success) {
-      tableData.value = responseData.data as JobInfo[]
-      const pagination = responseData.pagination as Record<string, unknown>
-      total.value = Number(pagination.total) || 0
+  const handleQuery = async () => {
+    loading.value = true;
+    try {
+      const res = await jobApi.getJobPage(queryParams);
+      const responseData = res as Record<string, unknown>;
+      if (responseData.success) {
+        tableData.value = responseData.data as JobInfo[];
+        const pagination = responseData.pagination as Record<string, unknown>;
+        total.value = Number(pagination.total) || 0;
+      }
+    } catch {
+      ElMessage.error('获取定时任务失败');
+    } finally {
+      loading.value = false;
     }
-  } catch {
-    ElMessage.error('获取定时任务失败')
-  } finally {
-    loading.value = false
-  }
-}
+  };
 
-const handleReset = () => {
-  queryParams.pageNum = 1
-  queryParams.pageSize = 10
-  queryParams.jobName = undefined
-  queryParams.jobGroup = undefined
-  queryParams.status = undefined
-  handleQuery()
-}
+  const handleReset = () => {
+    queryParams.pageNum = 1;
+    queryParams.pageSize = 10;
+    queryParams.jobName = undefined;
+    queryParams.jobGroup = undefined;
+    queryParams.status = undefined;
+    handleQuery();
+  };
 
-const handleRefresh = () => {
-  handleQuery()
-}
+  const handleRefresh = () => {
+    handleQuery();
+  };
 
-const handleSelectionChange = (selection: any[]) => {
-  selectedIds.value = selection.map((item: any) => item.jobId)
-}
+  const handleSelectionChange = (selection: any[]) => {
+    selectedIds.value = selection.map((item: any) => item.jobId);
+  };
 
-const handleAdd = () => {
-  currentJob.value = null
-  formVisible.value = true
-}
+  const handleAdd = () => {
+    currentJob.value = null;
+    formVisible.value = true;
+  };
 
-const handleEdit = (row: JobInfo) => {
-  currentJob.value = row
-  formVisible.value = true
-}
+  const handleEdit = (row: JobInfo) => {
+    currentJob.value = row;
+    formVisible.value = true;
+  };
 
-const handleDelete = async (row: JobInfo) => {
-  try {
-    await ElMessageBox.confirm('确认删除该任务吗？', '提示', { type: 'warning' })
-    await jobApi.deleteJob(row.jobId)
-    ElMessage.success('删除成功')
-    handleQuery()
-  } catch {
-    // 用户取消
-  }
-}
-
-const handleBatchDelete = async () => {
-  try {
-    await ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 个任务吗？`, '提示', { type: 'warning' })
-    for (const id of selectedIds.value) {
-      await jobApi.deleteJob(Number(id))
+  const handleDelete = async (row: JobInfo) => {
+    try {
+      await ElMessageBox.confirm('确认删除该任务吗？', '提示', { type: 'warning' });
+      await jobApi.deleteJob(row.jobId);
+      ElMessage.success('删除成功');
+      handleQuery();
+    } catch {
+      // 用户取消
     }
-    ElMessage.success('删除成功')
-    handleQuery()
-  } catch {
-    // 用户取消
-  }
-}
+  };
 
-const handleStatusChange = async (row: IJob) => {
-  try {
-    await jobApi.changeJobStatus(Number(row.jobId), row.status)
-    ElMessage.success(row.status === '0' ? '任务已启用' : '任务已暂停')
-  } catch {
-    ElMessage.error('状态修改失败')
-  }
-}
+  const handleBatchDelete = async () => {
+    try {
+      await ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 个任务吗？`, '提示', {
+        type: 'warning',
+      });
+      for (const id of selectedIds.value) {
+        await jobApi.deleteJob(Number(id));
+      }
+      ElMessage.success('删除成功');
+      handleQuery();
+    } catch {
+      // 用户取消
+    }
+  };
 
-const handleExecute = async (row: JobInfo) => {
-  try {
-    await ElMessageBox.confirm(`确认立即执行任务"${row.jobName}"吗？`, '提示', { type: 'warning' })
-    await jobApi.runJob(row.jobId)
-    ElMessage.success('任务执行成功')
-    handleQuery()
-  } catch {
-    // 用户取消
-  }
-}
+  const handleStatusChange = async (row: IJob) => {
+    try {
+      await jobApi.changeJobStatus(Number(row.jobId), row.status);
+      ElMessage.success(row.status === '0' ? '任务已启用' : '任务已暂停');
+    } catch {
+      ElMessage.error('状态修改失败');
+    }
+  };
 
-const handleViewLog = (row: JobInfo) => {
-  currentJob.value = row
-  logDrawerVisible.value = true
-}
+  const handleExecute = async (row: JobInfo) => {
+    try {
+      await ElMessageBox.confirm(`确认立即执行任务"${row.jobName}"吗？`, '提示', {
+        type: 'warning',
+      });
+      await jobApi.runJob(row.jobId);
+      ElMessage.success('任务执行成功');
+      handleQuery();
+    } catch {
+      // 用户取消
+    }
+  };
 
-onMounted(() => {
-  handleQuery()
-})
+  const handleViewLog = (row: JobInfo) => {
+    currentJob.value = row;
+    logDrawerVisible.value = true;
+  };
+
+  onMounted(() => {
+    handleQuery();
+  });
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .page-container {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .toolbar-card {
-    margin-bottom: 16px;
+    .toolbar-card {
+      margin-bottom: 16px;
 
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .toolbar-left {
+      .toolbar {
         display: flex;
-        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+
+        .toolbar-left {
+          display: flex;
+          gap: 12px;
+        }
+      }
+    }
+
+    .table-card {
+      .pagination-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
       }
     }
   }
-
-  .table-card {
-    .pagination-container {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 16px;
-    }
-  }
-}
 </style>

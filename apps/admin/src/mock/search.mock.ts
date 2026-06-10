@@ -7,8 +7,8 @@ import type {
   SearchResultItem,
   HotSearchResponse,
   SearchHistoryItem,
-  SearchType
-} from '@/api/search.api'
+  SearchType,
+} from '@/api/search.api';
 
 // Mock 搜索结果数据
 const mockSearchData: SearchResultItem[] = [
@@ -25,8 +25,8 @@ const mockSearchData: SearchResultItem[] = [
       username: 'zhangsan',
       email: 'zhangsan@example.com',
       phone: '13800138001',
-      status: '0'
-    }
+      status: '0',
+    },
   },
   {
     id: 2,
@@ -41,8 +41,8 @@ const mockSearchData: SearchResultItem[] = [
       username: 'lisi',
       email: 'lisi@example.com',
       phone: '13800138002',
-      status: '0'
-    }
+      status: '0',
+    },
   },
   {
     id: 1,
@@ -56,8 +56,8 @@ const mockSearchData: SearchResultItem[] = [
     extra: {
       leader: '王五',
       phone: '010-12345678',
-      status: '0'
-    }
+      status: '0',
+    },
   },
   {
     id: 2,
@@ -71,8 +71,8 @@ const mockSearchData: SearchResultItem[] = [
     extra: {
       leader: '赵六',
       phone: '010-87654321',
-      status: '0'
-    }
+      status: '0',
+    },
   },
   {
     id: 1,
@@ -86,8 +86,8 @@ const mockSearchData: SearchResultItem[] = [
     extra: {
       icon: 'user',
       path: '/system/user',
-      component: 'system/user/index'
-    }
+      component: 'system/user/index',
+    },
   },
   {
     id: 2,
@@ -101,8 +101,8 @@ const mockSearchData: SearchResultItem[] = [
     extra: {
       icon: 'role',
       path: '/system/role',
-      component: 'system/role/index'
-    }
+      component: 'system/role/index',
+    },
   },
   {
     id: 1,
@@ -116,8 +116,8 @@ const mockSearchData: SearchResultItem[] = [
     extra: {
       roleKey: 'admin',
       status: '0',
-      dataScope: '1'
-    }
+      dataScope: '1',
+    },
   },
   {
     id: 2,
@@ -131,22 +131,23 @@ const mockSearchData: SearchResultItem[] = [
     extra: {
       roleKey: 'common',
       status: '0',
-      dataScope: '3'
-    }
+      dataScope: '3',
+    },
   },
   {
     id: 1,
     type: 'notice',
     title: '系统升级通知',
     description: '关于系统进行版本升级的通知',
-    content: '为了提升系统性能和用户体验，计划于2024年6月10日进行系统版本升级，请各位用户提前做好准备。',
+    content:
+      '为了提升系统性能和用户体验，计划于2024年6月10日进行系统版本升级，请各位用户提前做好准备。',
     url: '/system/notice/1',
     createTime: '2024-06-05 09:00:00',
     updateTime: '2024-06-05 09:00:00',
     extra: {
       noticeType: '1',
-      status: '0'
-    }
+      status: '0',
+    },
   },
   {
     id: 2,
@@ -159,8 +160,8 @@ const mockSearchData: SearchResultItem[] = [
     updateTime: '2024-06-03 14:00:00',
     extra: {
       noticeType: '2',
-      status: '0'
-    }
+      status: '0',
+    },
   },
   {
     id: 1,
@@ -175,8 +176,8 @@ const mockSearchData: SearchResultItem[] = [
       category: '使用指南',
       author: '技术部',
       views: 1520,
-      status: '0'
-    }
+      status: '0',
+    },
   },
   {
     id: 2,
@@ -191,10 +192,10 @@ const mockSearchData: SearchResultItem[] = [
       category: 'FAQ',
       author: '客服部',
       views: 890,
-      status: '0'
-    }
-  }
-]
+      status: '0',
+    },
+  },
+];
 
 // Mock 热门搜索数据
 const mockHotSearches = [
@@ -205,8 +206,8 @@ const mockHotSearches = [
   { keyword: '报表导出', count: 123 },
   { keyword: '通知公告', count: 102 },
   { keyword: '知识文档', count: 89 },
-  { keyword: '流程审批', count: 78 }
-]
+  { keyword: '流程审批', count: 78 },
+];
 
 // Mock 搜索历史数据
 const mockSearchHistory: SearchHistoryItem[] = [
@@ -214,88 +215,92 @@ const mockSearchHistory: SearchHistoryItem[] = [
     id: 1,
     keyword: '用户管理',
     searchTime: '2024-06-08 10:30:00',
-    type: 'all'
+    type: 'all',
   },
   {
     id: 2,
     keyword: '系统升级',
     searchTime: '2024-06-07 16:45:00',
-    type: 'notice'
+    type: 'notice',
   },
   {
     id: 3,
     keyword: '权限配置',
     searchTime: '2024-06-06 09:20:00',
-    type: 'menu'
+    type: 'menu',
   },
   {
     id: 4,
     keyword: '张三',
     searchTime: '2024-06-05 14:10:00',
-    type: 'user'
+    type: 'user',
   },
   {
     id: 5,
     keyword: '使用手册',
     searchTime: '2024-06-04 11:30:00',
-    type: 'knowledge'
-  }
-]
+    type: 'knowledge',
+  },
+];
 
 /**
  * 获取搜索结果
  */
 export function getMockSearchResults(params: {
-  keyword: string
-  type?: SearchType
-  pageNum?: number
-  pageSize?: number
+  keyword: string;
+  type?: SearchType;
+  pageNum?: number;
+  pageSize?: number;
 }): SearchResponse {
-  const { keyword, type, pageNum = 1, pageSize = 10 } = params
+  const { keyword, type, pageNum = 1, pageSize = 10 } = params;
 
-  let results = [...mockSearchData]
+  let results = [...mockSearchData];
 
   // 按类型筛选
   if (type && type !== 'all') {
-    results = results.filter(item => item.type === type)
+    results = results.filter((item) => item.type === type);
   }
 
   // 按关键词搜索
   if (keyword) {
-    const lowerKeyword = keyword.toLowerCase()
-    results = results.filter(item =>
-      item.title.toLowerCase().includes(lowerKeyword) ||
-      (item.description && item.description.toLowerCase().includes(lowerKeyword)) ||
-      (item.content && item.content.toLowerCase().includes(lowerKeyword))
-    )
+    const lowerKeyword = keyword.toLowerCase();
+    results = results.filter(
+      (item) =>
+        item.title.toLowerCase().includes(lowerKeyword) ||
+        (item.description && item.description.toLowerCase().includes(lowerKeyword)) ||
+        (item.content && item.content.toLowerCase().includes(lowerKeyword)),
+    );
 
     // 生成高亮
-    results = results.map(item => {
-      const highlights: Record<string, string> = {}
+    results = results.map((item) => {
+      const highlights: Record<string, string> = {};
       if (item.title.toLowerCase().includes(lowerKeyword)) {
-        highlights.title = item.title.replace(new RegExp(`(${keyword})`, 'gi'), '<mark>$1</mark>')
+        highlights.title = item.title.replace(new RegExp(`(${keyword})`, 'gi'), '<mark>$1</mark>');
       }
       if (item.description && item.description.toLowerCase().includes(lowerKeyword)) {
-        highlights.description = item.description.replace(new RegExp(`(${keyword})`, 'gi'), '<mark>$1</mark>')
+        highlights.description = item.description.replace(
+          new RegExp(`(${keyword})`, 'gi'),
+          '<mark>$1</mark>',
+        );
       }
-      return { ...item, highlights }
-    })
+      return { ...item, highlights };
+    });
   }
 
   // 分页
-  const total = results.length
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const list = results.slice(start, end)
+  const total = results.length;
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const list = results.slice(start, end);
 
   // 生成搜索建议
-  const suggestions: string[] = []
+  const suggestions: string[] = [];
   if (keyword) {
-    mockHotSearches.forEach(item => {
+    mockHotSearches.forEach((item) => {
       if (item.keyword.toLowerCase().includes(keyword.toLowerCase())) {
-        suggestions.push(item.keyword)
+        suggestions.push(item.keyword);
       }
-    })
+    });
   }
 
   return {
@@ -304,8 +309,8 @@ export function getMockSearchResults(params: {
     pageNum,
     pageSize,
     took: Math.floor(Math.random() * 100) + 20,
-    suggestions: suggestions.slice(0, 5)
-  }
+    suggestions: suggestions.slice(0, 5),
+  };
 }
 
 /**
@@ -313,15 +318,15 @@ export function getMockSearchResults(params: {
  */
 export function getMockHotSearches(limit = 10): HotSearchResponse {
   return {
-    keywords: mockHotSearches.slice(0, limit)
-  }
+    keywords: mockHotSearches.slice(0, limit),
+  };
 }
 
 /**
  * 获取搜索历史
  */
 export function getMockSearchHistory(limit = 20): SearchHistoryItem[] {
-  return mockSearchHistory.slice(0, limit)
+  return mockSearchHistory.slice(0, limit);
 }
 
 /**
@@ -332,11 +337,11 @@ export function saveMockSearchHistory(data: { keyword: string; type?: SearchType
     id: Date.now(),
     keyword: data.keyword,
     searchTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
-    type: data.type
-  }
-  mockSearchHistory.unshift(newItem)
+    type: data.type,
+  };
+  mockSearchHistory.unshift(newItem);
   if (mockSearchHistory.length > 50) {
-    mockSearchHistory.pop()
+    mockSearchHistory.pop();
   }
 }
 
@@ -344,9 +349,9 @@ export function saveMockSearchHistory(data: { keyword: string; type?: SearchType
  * 删除搜索历史
  */
 export function deleteMockSearchHistory(id: string | number): void {
-  const index = mockSearchHistory.findIndex(item => item.id === id)
+  const index = mockSearchHistory.findIndex((item) => item.id === id);
   if (index !== -1) {
-    mockSearchHistory.splice(index, 1)
+    mockSearchHistory.splice(index, 1);
   }
 }
 
@@ -354,7 +359,7 @@ export function deleteMockSearchHistory(id: string | number): void {
  * 清空搜索历史
  */
 export function clearMockSearchHistory(): void {
-  mockSearchHistory.length = 0
+  mockSearchHistory.length = 0;
 }
 
 /**
@@ -365,6 +370,6 @@ export function getMockSearchStats() {
     totalSearches: 12580,
     todaySearches: 256,
     activeUsers: 89,
-    indexedDocs: mockSearchData.length
-  }
+    indexedDocs: mockSearchData.length,
+  };
 }

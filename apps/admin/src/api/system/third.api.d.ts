@@ -2,19 +2,19 @@
  * 第三方登录 API
  */
 export interface ThirdConfig {
-    thirdType: string;
-    clientId: string;
-    clientSecret: string;
-    redirectUri: string;
-    authUrl: string;
-    tokenUrl: string;
-    userInfoUrl: string;
-    status: string;
+  thirdType: string;
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+  authUrl: string;
+  tokenUrl: string;
+  userInfoUrl: string;
+  status: string;
 }
 export interface ThirdLogin {
-    thirdType: string;
-    code: string;
-    state: string;
+  thirdType: string;
+  code: string;
+  state: string;
 }
 export declare const getThirdConfigList: () => Promise<unknown>;
 export declare const getThirdConfig: (thirdType: string) => Promise<unknown>;

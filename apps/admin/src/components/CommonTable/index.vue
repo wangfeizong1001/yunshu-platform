@@ -42,76 +42,76 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+  import { ref, watch } from 'vue';
 
-interface Column {
-  prop: string
-  label: string
-  width?: string | number
-  minWidth?: string | number
-  align?: 'left' | 'center' | 'right'
-  fixed?: 'left' | 'right'
-  sortable?: boolean
-  formatter?: (row: any, column: any, cellValue: any) => any
-  slot?: string
-}
-
-interface Props {
-  data: any[]
-  columns: Column[]
-  loading?: boolean
-  stripe?: boolean
-  border?: boolean
-  showSelection?: boolean
-  showPagination?: boolean
-  total?: number
-  pageSize?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  data: () => [],
-  columns: () => [],
-  loading: false,
-  stripe: true,
-  border: true,
-  showSelection: false,
-  showPagination: true,
-  total: 0,
-  pageSize: 10
-})
-
-const emit = defineEmits(['selectionChange', 'pageChange'])
-
-const currentPage = ref(1)
-
-const handleSelectionChange = (selection: any[]) => {
-  emit('selectionChange', selection)
-}
-
-const handleSizeChange = (val: number) => {
-  emit('pageChange', { page: currentPage.value, pageSize: val })
-}
-
-const handleCurrentChange = (val: number) => {
-  emit('pageChange', { page: val, pageSize: props.pageSize })
-}
-
-watch(
-  () => props.pageSize,
-  (val) => {
-    pageSize.value = val
+  interface Column {
+    prop: string;
+    label: string;
+    width?: string | number;
+    minWidth?: string | number;
+    align?: 'left' | 'center' | 'right';
+    fixed?: 'left' | 'right';
+    sortable?: boolean;
+    formatter?: (row: any, column: any, cellValue: any) => any;
+    slot?: string;
   }
-)
 
-const pageSize = ref(props.pageSize)
+  interface Props {
+    data: any[];
+    columns: Column[];
+    loading?: boolean;
+    stripe?: boolean;
+    border?: boolean;
+    showSelection?: boolean;
+    showPagination?: boolean;
+    total?: number;
+    pageSize?: number;
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    data: () => [],
+    columns: () => [],
+    loading: false,
+    stripe: true,
+    border: true,
+    showSelection: false,
+    showPagination: true,
+    total: 0,
+    pageSize: 10,
+  });
+
+  const emit = defineEmits(['selectionChange', 'pageChange']);
+
+  const currentPage = ref(1);
+
+  const handleSelectionChange = (selection: any[]) => {
+    emit('selectionChange', selection);
+  };
+
+  const handleSizeChange = (val: number) => {
+    emit('pageChange', { page: currentPage.value, pageSize: val });
+  };
+
+  const handleCurrentChange = (val: number) => {
+    emit('pageChange', { page: val, pageSize: props.pageSize });
+  };
+
+  watch(
+    () => props.pageSize,
+    (val) => {
+      pageSize.value = val;
+    },
+  );
+
+  const pageSize = ref(props.pageSize);
 </script>
 
 <style lang="scss" scoped>
-.common-table {
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
+  .common-table {
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
   }
-}
 </style>

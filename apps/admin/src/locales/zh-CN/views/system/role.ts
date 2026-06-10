@@ -70,4 +70,4 @@ export default {
     nameExists: '角色名称已存在',
     keyExists: '角色标识已存在',
   },
-}
+};

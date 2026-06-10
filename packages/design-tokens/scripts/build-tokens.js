@@ -278,7 +278,8 @@ fs.writeFileSync(path.join(cssDir, 'tokens.css'), cssContent, 'utf-8');
 console.log('✅ CSS 令牌已生成');
 
 // 生成 SCSS
-const scssContent = `/**
+const scssContent =
+  `/**
  * 云枢中台 — 设计令牌 SCSS
  *
  * 此文件由 @yunshu/design-tokens 自动生成，请勿手动编辑。
@@ -291,7 +292,9 @@ const scssContent = `/**
 /* ===== 间距系统 ===== */
 $spacing-base: 4px;
 ` +
-  Object.entries(spacing).map(([key, value]) => `$spacing-${key}: ${value}px;`).join('\n') +
+  Object.entries(spacing)
+    .map(([key, value]) => `$spacing-${key}: ${value}px;`)
+    .join('\n') +
   `
 
 /* 语义化间距 */
@@ -304,47 +307,63 @@ $spacing-2xl: $spacing-12;
 
 /* ===== 字体系统 ===== */
 ` +
-  Object.entries(fontSize).map(([key, value]) => `$font-size-${key}: ${value};`).join('\n') +
+  Object.entries(fontSize)
+    .map(([key, value]) => `$font-size-${key}: ${value};`)
+    .join('\n') +
   `
 
 ` +
-  Object.entries(fontWeight).map(([key, value]) => `$font-${key}: ${value};`).join('\n') +
+  Object.entries(fontWeight)
+    .map(([key, value]) => `$font-${key}: ${value};`)
+    .join('\n') +
   `
 
 /* ===== 圆角系统 ===== */
 ` +
-  Object.entries(borderRadius).map(([key, value]) => `$radius-${key}: ${value};`).join('\n') +
+  Object.entries(borderRadius)
+    .map(([key, value]) => `$radius-${key}: ${value};`)
+    .join('\n') +
   `
 
 /* ===== 过渡动画 ===== */
 ` +
-  Object.entries(transition).map(([key, value]) => `$transition-${key}: ${value};`).join('\n') +
+  Object.entries(transition)
+    .map(([key, value]) => `$transition-${key}: ${value};`)
+    .join('\n') +
   `
 
 /* ===== Z-Index 层级 ===== */
 ` +
-  Object.entries(zIndex).map(([key, value]) => `$z-${key}: ${value};`).join('\n') +
+  Object.entries(zIndex)
+    .map(([key, value]) => `$z-${key}: ${value};`)
+    .join('\n') +
   `
 
 /* ===== 响应式断点 ===== */
 ` +
-  Object.entries(breakpoint).map(([key, value]) => `$breakpoint-${key}: ${value}px;`).join('\n') +
+  Object.entries(breakpoint)
+    .map(([key, value]) => `$breakpoint-${key}: ${value}px;`)
+    .join('\n') +
   `
 
 /* ===== 浅色主题颜色 ===== */
 ` +
-  Object.entries(lightColors).map(([key, value]) => {
-    const scssKey = key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-    return `$${scssKey}: ${value};`;
-  }).join('\n') +
+  Object.entries(lightColors)
+    .map(([key, value]) => {
+      const scssKey = key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+      return `$${scssKey}: ${value};`;
+    })
+    .join('\n') +
   `
 
 /* ===== 深色主题颜色 ===== */
 ` +
-  Object.entries(darkColors).map(([key, value]) => {
-    const scssKey = key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-    return `$dark-${scssKey}: ${value};`;
-  }).join('\n');
+  Object.entries(darkColors)
+    .map(([key, value]) => {
+      const scssKey = key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+      return `$dark-${scssKey}: ${value};`;
+    })
+    .join('\n');
 
 fs.writeFileSync(path.join(scssDir, '_tokens.scss'), scssContent, 'utf-8');
 console.log('✅ SCSS 令牌已生成');

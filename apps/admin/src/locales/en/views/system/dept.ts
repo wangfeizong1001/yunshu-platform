@@ -68,4 +68,4 @@ export default {
     hasUser: 'Cannot delete, this department has users',
     nameExists: 'Department name already exists',
   },
-}
+};

@@ -32,4 +32,4 @@ export default {
     forgotPassword: 'Forgot password?',
     register: 'Register account',
   },
-}
+};

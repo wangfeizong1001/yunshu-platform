@@ -11,14 +11,14 @@
  */
 export function checkPermission(value: string[], hasPermissions: string[]): boolean {
   if (!value || value.length === 0) {
-    return true
+    return true;
   }
 
   if (!hasPermissions || hasPermissions.length === 0) {
-    return false
+    return false;
   }
 
-  return value.some(permission => hasPermissions.includes(permission))
+  return value.some((permission) => hasPermissions.includes(permission));
 }
 
 /**
@@ -28,7 +28,7 @@ export function checkPermission(value: string[], hasPermissions: string[]): bool
  * @returns 是否有权限
  */
 export function hasPermiOr(permissions: string[], hasPermissions: string[]): boolean {
-  return checkPermission(permissions, hasPermissions)
+  return checkPermission(permissions, hasPermissions);
 }
 
 /**
@@ -39,14 +39,14 @@ export function hasPermiOr(permissions: string[], hasPermissions: string[]): boo
  */
 export function hasPermiAnd(permissions: string[], hasPermissions: string[]): boolean {
   if (!permissions || permissions.length === 0) {
-    return true
+    return true;
   }
 
   if (!hasPermissions || hasPermissions.length === 0) {
-    return false
+    return false;
   }
 
-  return permissions.every(permission => hasPermissions.includes(permission))
+  return permissions.every((permission) => hasPermissions.includes(permission));
 }
 
 /**
@@ -57,14 +57,14 @@ export function hasPermiAnd(permissions: string[], hasPermissions: string[]): bo
  */
 export function hasRole(value: string[], hasRoles: string[]): boolean {
   if (!value || value.length === 0) {
-    return true
+    return true;
   }
 
   if (!hasRoles || hasRoles.length === 0) {
-    return false
+    return false;
   }
 
-  return value.some(role => hasRoles.includes(role))
+  return value.some((role) => hasRoles.includes(role));
 }
 
 /**
@@ -74,7 +74,7 @@ export function hasRole(value: string[], hasRoles: string[]): boolean {
  * @returns 是否有角色
  */
 export function hasRoleOr(roles: string[], hasRoles: string[]): boolean {
-  return hasRole(roles, hasRoles)
+  return hasRole(roles, hasRoles);
 }
 
 /**
@@ -85,14 +85,14 @@ export function hasRoleOr(roles: string[], hasRoles: string[]): boolean {
  */
 export function hasRoleAll(roles: string[], hasRoles: string[]): boolean {
   if (!roles || roles.length === 0) {
-    return true
+    return true;
   }
 
   if (!hasRoles || hasRoles.length === 0) {
-    return false
+    return false;
   }
 
-  return roles.every(role => hasRoles.includes(role))
+  return roles.every((role) => hasRoles.includes(role));
 }
 
 /**
@@ -101,5 +101,5 @@ export function hasRoleAll(roles: string[], hasRoles: string[]): boolean {
  * @returns 是否为超级管理员
  */
 export function isSuperAdmin(roles: string[]): boolean {
-  return roles.includes('admin')
+  return roles.includes('admin');
 }

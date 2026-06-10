@@ -6,6 +6,9 @@ export declare const mockNoticeList: SysNotice[];
 export declare function getMockNoticePage(params: any): SysNoticePageResp;
 export declare function getMockNoticeDetail(noticeId: number): SysNotice | undefined;
 export declare function addMockNotice(data: Partial<SysNotice>): SysNotice;
-export declare function updateMockNotice(noticeId: number, data: Partial<SysNotice>): SysNotice | undefined;
+export declare function updateMockNotice(
+  noticeId: number,
+  data: Partial<SysNotice>,
+): SysNotice | undefined;
 export declare function deleteMockNotice(noticeId: number): boolean;
 //# sourceMappingURL=notice.mock.d.ts.map

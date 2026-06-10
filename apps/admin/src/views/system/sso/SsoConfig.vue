@@ -116,12 +116,19 @@
       </el-form>
       <template #footer>
         <el-button @click="configVisible = false">取消</el-button>
-        <el-button type="primary" :loading="configLoading" @click="handleSaveConfig">保存</el-button>
+        <el-button type="primary" :loading="configLoading" @click="handleSaveConfig"
+          >保存</el-button
+        >
       </template>
     </el-dialog>
 
     <!-- 应用表单弹窗 -->
-    <el-dialog v-model="appVisible" :title="appForm.id ? '编辑应用' : '新增应用'" width="700px" append-to-body>
+    <el-dialog
+      v-model="appVisible"
+      :title="appForm.id ? '编辑应用' : '新增应用'"
+      width="700px"
+      append-to-body
+    >
       <el-form ref="appFormRef" :model="appForm" :rules="appRules" label-width="120px">
         <el-row :gutter="20">
           <el-col :span="12">
@@ -131,7 +138,11 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="应用编码" prop="appCode">
-              <el-input v-model="appForm.appCode" placeholder="请输入应用编码" :disabled="!!appForm.id" />
+              <el-input
+                v-model="appForm.appCode"
+                placeholder="请输入应用编码"
+                :disabled="!!appForm.id"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -158,7 +169,11 @@
           <el-input v-model="appForm.clientId" placeholder="请输入 Client ID" />
         </el-form-item>
         <el-form-item label="Client Secret" prop="clientSecret">
-          <el-input v-model="appForm.clientSecret" placeholder="请输入 Client Secret" show-password />
+          <el-input
+            v-model="appForm.clientSecret"
+            placeholder="请输入 Client Secret"
+            show-password
+          />
         </el-form-item>
         <el-form-item label="授权地址" prop="authorizationUrl">
           <el-input v-model="appForm.authorizationUrl" placeholder="请输入授权地址" />
@@ -170,7 +185,12 @@
           <el-input v-model="appForm.userInfoUrl" placeholder="请输入用户信息地址" />
         </el-form-item>
         <el-form-item label="权限范围" prop="scopes">
-          <el-select v-model="appForm.scopes" multiple placeholder="请选择权限范围" style="width: 100%">
+          <el-select
+            v-model="appForm.scopes"
+            multiple
+            placeholder="请选择权限范围"
+            style="width: 100%"
+          >
             <el-option label="user:email" value="user:email" />
             <el-option label="user:profile" value="user:profile" />
             <el-option label="snsapi_base" value="snsapi_base" />
@@ -190,219 +210,219 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Plus } from '@element-plus/icons-vue'
-import { getSsoConfig, saveSsoConfig } from '@/api/system/sso.api'
-import { getMockSsoAppPage } from '@/mock/system/sso.mock'
-import type { SsoConfig, SsoApplication, SsoAppQuery } from '@yunshu/shared'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Edit, Plus } from '@element-plus/icons-vue';
+  import { getSsoConfig, saveSsoConfig } from '@/api/system/sso.api';
+  import { getMockSsoAppPage } from '@/mock/system/sso.mock';
+  import type { SsoConfig, SsoApplication, SsoAppQuery } from '@yunshu/shared';
 
-// 全局配置相关
-const config = reactive<SsoConfig>({
-  type: 'oauth2',
-  enabled: false,
-  title: '',
-  defaultRedirectUrl: '',
-  logoutUrl: '',
-  sessionTimeout: 7200,
-})
+  // 全局配置相关
+  const config = reactive<SsoConfig>({
+    type: 'oauth2',
+    enabled: false,
+    title: '',
+    defaultRedirectUrl: '',
+    logoutUrl: '',
+    sessionTimeout: 7200,
+  });
 
-const configVisible = ref(false)
-const configLoading = ref(false)
-const configFormRef = ref()
-const configForm = reactive({ ...config })
+  const configVisible = ref(false);
+  const configLoading = ref(false);
+  const configFormRef = ref();
+  const configForm = reactive({ ...config });
 
-const configRules = {
-  type: [{ required: true, message: '请选择 SSO 类型', trigger: 'change' }],
-  title: [{ required: true, message: '请输入登录页面标题', trigger: 'blur' }],
-}
+  const configRules = {
+    type: [{ required: true, message: '请选择 SSO 类型', trigger: 'change' }],
+    title: [{ required: true, message: '请输入登录页面标题', trigger: 'blur' }],
+  };
 
-// 应用相关
-const appLoading = ref(false)
-const appList = ref<SsoApplication[]>([])
-const appTotal = ref(0)
-const appQueryParams = reactive<SsoAppQuery>({
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 应用相关
+  const appLoading = ref(false);
+  const appList = ref<SsoApplication[]>([]);
+  const appTotal = ref(0);
+  const appQueryParams = reactive<SsoAppQuery>({
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-const appVisible = ref(false)
-const appFormRef = ref()
-const appForm = reactive({
-  id: 0,
-  appName: '',
-  appCode: '',
-  appType: 'oauth2' as 'oauth2' | 'cas' | 'ldap',
-  clientId: '',
-  clientSecret: '',
-  authorizationUrl: '',
-  tokenUrl: '',
-  userInfoUrl: '',
-  scopes: [] as string[],
-  logo: '',
-  status: '1',
-  remark: '',
-})
+  const appVisible = ref(false);
+  const appFormRef = ref();
+  const appForm = reactive({
+    id: 0,
+    appName: '',
+    appCode: '',
+    appType: 'oauth2' as 'oauth2' | 'cas' | 'ldap',
+    clientId: '',
+    clientSecret: '',
+    authorizationUrl: '',
+    tokenUrl: '',
+    userInfoUrl: '',
+    scopes: [] as string[],
+    logo: '',
+    status: '1',
+    remark: '',
+  });
 
-const appRules = {
-  appName: [{ required: true, message: '请输入应用名称', trigger: 'blur' }],
-  appCode: [{ required: true, message: '请输入应用编码', trigger: 'blur' }],
-  appType: [{ required: true, message: '请选择应用类型', trigger: 'change' }],
-}
+  const appRules = {
+    appName: [{ required: true, message: '请输入应用名称', trigger: 'blur' }],
+    appCode: [{ required: true, message: '请输入应用编码', trigger: 'blur' }],
+    appType: [{ required: true, message: '请选择应用类型', trigger: 'change' }],
+  };
 
-// 获取 SSO 类型名称
-function getSsoTypeName(type: string): string {
-  const typeMap: Record<string, string> = {
-    oauth2: 'OAuth2.0',
-    cas: 'CAS',
-    ldap: 'LDAP',
+  // 获取 SSO 类型名称
+  function getSsoTypeName(type: string): string {
+    const typeMap: Record<string, string> = {
+      oauth2: 'OAuth2.0',
+      cas: 'CAS',
+      ldap: 'LDAP',
+    };
+    return typeMap[type] || type;
   }
-  return typeMap[type] || type
-}
 
-// 获取应用类型名称
-function getAppTypeName(type: string): string {
-  return getSsoTypeName(type)
-}
-
-// 加载全局配置
-async function loadConfig() {
-  try {
-    const res = await getSsoConfig()
-    Object.assign(config, res)
-    Object.assign(configForm, res)
-  } catch (error) {
-    console.error('加载配置失败', error)
+  // 获取应用类型名称
+  function getAppTypeName(type: string): string {
+    return getSsoTypeName(type);
   }
-}
 
-// 加载应用列表
-async function loadAppList() {
-  appLoading.value = true
-  try {
-    const res = getMockSsoAppPage(appQueryParams)
-    appList.value = res.rows
-    appTotal.value = res.total
-  } finally {
-    appLoading.value = false
-  }
-}
-
-// 修改全局配置
-function handleEditConfig() {
-  Object.assign(configForm, config)
-  configVisible.value = true
-}
-
-// 保存全局配置
-async function handleSaveConfig() {
-  try {
-    await configFormRef.value?.validate()
-    configLoading.value = true
-    await saveSsoConfig(configForm as any)
-    ElMessage.success('保存成功')
-    configVisible.value = false
-    loadConfig()
-  } catch (error) {
-    console.error('保存配置失败', error)
-  } finally {
-    configLoading.value = false
-  }
-}
-
-// 新增应用
-function handleAddApp() {
-  appForm.id = 0
-  appForm.appName = ''
-  appForm.appCode = ''
-  appForm.appType = 'oauth2'
-  appForm.clientId = ''
-  appForm.clientSecret = ''
-  appForm.authorizationUrl = ''
-  appForm.tokenUrl = ''
-  appForm.userInfoUrl = ''
-  appForm.scopes = []
-  appForm.logo = ''
-  appForm.status = '1'
-  appForm.remark = ''
-  appVisible.value = true
-}
-
-// 编辑应用
-function handleEditApp(row: any) {
-  Object.assign(appForm, row)
-  appVisible.value = true
-}
-
-// 保存应用
-async function handleSaveApp() {
-  try {
-    await appFormRef.value?.validate()
-    appLoading.value = true
-    ElMessage.success('保存成功')
-    appVisible.value = false
-    loadAppList()
-  } catch (error) {
-    console.error('保存应用失败', error)
-  } finally {
-    appLoading.value = false
-  }
-}
-
-// 删除应用
-async function handleDeleteApp(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除应用"${row.appName}"？`, '提示', { type: 'warning' })
-    ElMessage.success('删除成功')
-    loadAppList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除应用失败', error)
+  // 加载全局配置
+  async function loadConfig() {
+    try {
+      const res = await getSsoConfig();
+      Object.assign(config, res);
+      Object.assign(configForm, res);
+    } catch (error) {
+      console.error('加载配置失败', error);
     }
   }
-}
 
-// 授权
-async function handleAuthorize(_row: any) {
-  try {
-    ElMessage.info('授权功能开发中')
-  } catch (error) {
-    console.error('获取授权链接失败', error)
+  // 加载应用列表
+  async function loadAppList() {
+    appLoading.value = true;
+    try {
+      const res = getMockSsoAppPage(appQueryParams);
+      appList.value = res.rows;
+      appTotal.value = res.total;
+    } finally {
+      appLoading.value = false;
+    }
   }
-}
 
-// 测试连接
-async function handleTestConnection(_row: any) {
-  try {
-    ElMessage.info('测试连接功能开发中')
-  } catch (error) {
-    console.error('测试连接失败', error)
+  // 修改全局配置
+  function handleEditConfig() {
+    Object.assign(configForm, config);
+    configVisible.value = true;
   }
-}
 
-// 初始化
-onMounted(() => {
-  loadConfig()
-  loadAppList()
-})
+  // 保存全局配置
+  async function handleSaveConfig() {
+    try {
+      await configFormRef.value?.validate();
+      configLoading.value = true;
+      await saveSsoConfig(configForm as any);
+      ElMessage.success('保存成功');
+      configVisible.value = false;
+      loadConfig();
+    } catch (error) {
+      console.error('保存配置失败', error);
+    } finally {
+      configLoading.value = false;
+    }
+  }
+
+  // 新增应用
+  function handleAddApp() {
+    appForm.id = 0;
+    appForm.appName = '';
+    appForm.appCode = '';
+    appForm.appType = 'oauth2';
+    appForm.clientId = '';
+    appForm.clientSecret = '';
+    appForm.authorizationUrl = '';
+    appForm.tokenUrl = '';
+    appForm.userInfoUrl = '';
+    appForm.scopes = [];
+    appForm.logo = '';
+    appForm.status = '1';
+    appForm.remark = '';
+    appVisible.value = true;
+  }
+
+  // 编辑应用
+  function handleEditApp(row: any) {
+    Object.assign(appForm, row);
+    appVisible.value = true;
+  }
+
+  // 保存应用
+  async function handleSaveApp() {
+    try {
+      await appFormRef.value?.validate();
+      appLoading.value = true;
+      ElMessage.success('保存成功');
+      appVisible.value = false;
+      loadAppList();
+    } catch (error) {
+      console.error('保存应用失败', error);
+    } finally {
+      appLoading.value = false;
+    }
+  }
+
+  // 删除应用
+  async function handleDeleteApp(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除应用"${row.appName}"？`, '提示', { type: 'warning' });
+      ElMessage.success('删除成功');
+      loadAppList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除应用失败', error);
+      }
+    }
+  }
+
+  // 授权
+  async function handleAuthorize(_row: any) {
+    try {
+      ElMessage.info('授权功能开发中');
+    } catch (error) {
+      console.error('获取授权链接失败', error);
+    }
+  }
+
+  // 测试连接
+  async function handleTestConnection(_row: any) {
+    try {
+      ElMessage.info('测试连接功能开发中');
+    } catch (error) {
+      console.error('测试连接失败', error);
+    }
+  }
+
+  // 初始化
+  onMounted(() => {
+    loadConfig();
+    loadAppList();
+  });
 </script>
 
 <style scoped lang="scss">
-.sso-config {
-  .config-card {
-    margin-bottom: 16px;
-  }
+  .sso-config {
+    .config-card {
+      margin-bottom: 16px;
+    }
 
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
   }
-}
 </style>

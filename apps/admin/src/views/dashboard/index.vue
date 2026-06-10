@@ -267,579 +267,607 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/store/modules/user'
-import {
-  Calendar,
-  TrendCharts,
-  Monitor,
-  Cpu,
-  FolderOpened,
-  Timer,
-  ArrowRight,
-} from '@element-plus/icons-vue'
-import { getServerInfo } from '@/api/monitor/server.api'
-import { getOperlogPage } from '@/api/monitor/operlog.api'
-import { getOnlineList } from '@/api/monitor/online.api'
-import type { IServer } from '@yunshu/shared'
-import type { IOperlog } from '@yunshu/shared'
-import { formatDate } from '@/utils/format'
+  import { ref, onMounted, onUnmounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useUserStore } from '@/store/modules/user';
+  import {
+    Calendar,
+    TrendCharts,
+    Monitor,
+    Cpu,
+    FolderOpened,
+    Timer,
+    ArrowRight,
+  } from '@element-plus/icons-vue';
+  import { getServerInfo } from '@/api/monitor/server.api';
+  import { getOperlogPage } from '@/api/monitor/operlog.api';
+  import { getOnlineList } from '@/api/monitor/online.api';
+  import type { IServer } from '@yunshu/shared';
+  import type { IOperlog } from '@yunshu/shared';
+  import { formatDate } from '@/utils/format';
 
-const router = useRouter()
-const userStore = useUserStore()
+  const router = useRouter();
+  const userStore = useUserStore();
 
-// 当前日期时间
-const currentDateTime = ref('')
-let timer: ReturnType<typeof setInterval>
+  // 当前日期时间
+  const currentDateTime = ref('');
+  let timer: ReturnType<typeof setInterval>;
 
-// 统计数据
-const stats = ref({
-  userCount: 128,
-  roleCount: 8,
-  onlineCount: 12,
-  todayVisit: 1523,
-})
+  // 统计数据
+  const stats = ref({
+    userCount: 128,
+    roleCount: 8,
+    onlineCount: 12,
+    todayVisit: 1523,
+  });
 
-// 今日任务统计
-const todayStats = ref({
-  taskCount: 15,
-  completedCount: 8,
-  inProgressCount: 5,
-})
+  // 今日任务统计
+  const todayStats = ref({
+    taskCount: 15,
+    completedCount: 8,
+    inProgressCount: 5,
+  });
 
-// 服务器信息
-const serverInfo = ref<IServer>({
-  serverName: '云枢生产服务器',
-  os: 'Ubuntu 22.04 LTS',
-  osArch: 'x64',
-  cpuCount: 8,
-  cpuUsage: 35.5,
-  memoryUsed: 12.5,
-  memoryTotal: 32,
-  memoryUsage: 39.06,
-  diskUsed: 256.8,
-  diskTotal: 500,
-  diskUsage: 51.36,
-  bootTime: '',
-  uptime: 2592000,
-  jvm: '',
-  javaVersion: '17.0.9',
-  database: 'PostgreSQL 16.1',
-  databaseVersion: '16.1',
-  projectPath: '',
-  hostName: 'yunshu-server-01',
-  collectTime: '',
-})
+  // 服务器信息
+  const serverInfo = ref<IServer>({
+    serverName: '云枢生产服务器',
+    os: 'Ubuntu 22.04 LTS',
+    osArch: 'x64',
+    cpuCount: 8,
+    cpuUsage: 35.5,
+    memoryUsed: 12.5,
+    memoryTotal: 32,
+    memoryUsage: 39.06,
+    diskUsed: 256.8,
+    diskTotal: 500,
+    diskUsage: 51.36,
+    bootTime: '',
+    uptime: 2592000,
+    jvm: '',
+    javaVersion: '17.0.9',
+    database: 'PostgreSQL 16.1',
+    databaseVersion: '16.1',
+    projectPath: '',
+    hostName: 'yunshu-server-01',
+    collectTime: '',
+  });
 
-// 操作日志
-const operLogs = ref<IOperlog[]>([])
+  // 操作日志
+  const operLogs = ref<IOperlog[]>([]);
 
-// 快捷入口
-const quickEntries = ref([
-  { title: '用户管理', desc: '管理系统用户', path: '/system/user', icon: 'User', color: '#409eff' },
-  { title: '角色管理', desc: '管理角色权限', path: '/system/role', icon: 'Key', color: '#67c23a' },
-  { title: '菜单管理', desc: '管理系统菜单', path: '/system/menu', icon: 'Menu', color: '#e6a23c' },
-  { title: '系统监控', desc: '监控服务器状态', path: '/monitor/server', icon: 'Monitor', color: '#f56c6c' },
-])
+  // 快捷入口
+  const quickEntries = ref([
+    {
+      title: '用户管理',
+      desc: '管理系统用户',
+      path: '/system/user',
+      icon: 'User',
+      color: '#409eff',
+    },
+    {
+      title: '角色管理',
+      desc: '管理角色权限',
+      path: '/system/role',
+      icon: 'Key',
+      color: '#67c23a',
+    },
+    {
+      title: '菜单管理',
+      desc: '管理系统菜单',
+      path: '/system/menu',
+      icon: 'Menu',
+      color: '#e6a23c',
+    },
+    {
+      title: '系统监控',
+      desc: '监控服务器状态',
+      path: '/monitor/server',
+      icon: 'Monitor',
+      color: '#f56c6c',
+    },
+  ]);
 
-/**
- * 更新时间
- */
-const updateDateTime = () => {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  const hours = String(now.getHours()).padStart(2, '0')
-  const minutes = String(now.getMinutes()).padStart(2, '0')
-  const seconds = String(now.getSeconds()).padStart(2, '0')
-  const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-  const weekDay = weekDays[now.getDay()]
-  currentDateTime.value = `${year}年${month}月${day}日 ${weekDay} ${hours}:${minutes}:${seconds}`
-}
+  /**
+   * 更新时间
+   */
+  const updateDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    const weekDay = weekDays[now.getDay()];
+    currentDateTime.value = `${year}年${month}月${day}日 ${weekDay} ${hours}:${minutes}:${seconds}`;
+  };
 
-/**
- * 格式化时间
- */
-const formatTime = (time: string) => {
-  return formatDate(time)
-}
+  /**
+   * 格式化时间
+   */
+  const formatTime = (time: string) => {
+    return formatDate(time);
+  };
 
-/**
- * 格式化运行时长
- */
-const formatUptime = (seconds: number) => {
-  const days = Math.floor(seconds / 86400)
-  const hours = Math.floor((seconds % 86400) / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  return `${days}天 ${hours}小时 ${minutes}分钟`
-}
+  /**
+   * 格式化运行时长
+   */
+  const formatUptime = (seconds: number) => {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${days}天 ${hours}小时 ${minutes}分钟`;
+  };
 
-/**
- * 获取操作类型标签颜色
- */
-const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
-  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    查询: 'info',
-    新增: 'success',
-    修改: 'warning',
-    删除: 'danger',
-    导出: 'primary',
-    导入: 'primary',
-  }
-  return typeMap[type]
-}
+  /**
+   * 获取操作类型标签颜色
+   */
+  const getOperTypeTagType = (
+    type: string,
+  ): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
+    const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
+      查询: 'info',
+      新增: 'success',
+      修改: 'warning',
+      删除: 'danger',
+      导出: 'primary',
+      导入: 'primary',
+    };
+    return typeMap[type];
+  };
 
-/**
- * 获取进度条颜色
- */
-const getProgressColor = (percentage: number) => {
-  if (percentage < 60) return '#67c23a'
-  if (percentage < 80) return '#e6a23c'
-  return '#f56c6c'
-}
+  /**
+   * 获取进度条颜色
+   */
+  const getProgressColor = (percentage: number) => {
+    if (percentage < 60) return '#67c23a';
+    if (percentage < 80) return '#e6a23c';
+    return '#f56c6c';
+  };
 
-/**
- * 跳转到快捷入口
- */
-const handleQuickEntry = (path: string) => {
-  router.push(path)
-}
+  /**
+   * 跳转到快捷入口
+   */
+  const handleQuickEntry = (path: string) => {
+    router.push(path);
+  };
 
-/**
- * 获取服务器信息
- */
-const fetchServerInfo = async () => {
-  try {
-    const res = await getServerInfo()
-    const responseData = res as Record<string, unknown>
-    if (responseData.data) {
-      serverInfo.value = responseData.data as typeof serverInfo.value
+  /**
+   * 获取服务器信息
+   */
+  const fetchServerInfo = async () => {
+    try {
+      const res = await getServerInfo();
+      const responseData = res as Record<string, unknown>;
+      if (responseData.data) {
+        serverInfo.value = responseData.data as typeof serverInfo.value;
+      }
+    } catch {
+      // 使用默认数据
     }
-  } catch {
-    // 使用默认数据
-  }
-}
+  };
 
-/**
- * 获取操作日志
- */
-const fetchOperLogs = async () => {
-  try {
-    const res = await getOperlogPage({ pageNum: 1, pageSize: 10 })
-    const responseData = res as Record<string, unknown>
-    if (responseData.rows) {
-      operLogs.value = responseData.rows as typeof operLogs.value
+  /**
+   * 获取操作日志
+   */
+  const fetchOperLogs = async () => {
+    try {
+      const res = await getOperlogPage({ pageNum: 1, pageSize: 10 });
+      const responseData = res as Record<string, unknown>;
+      if (responseData.rows) {
+        operLogs.value = responseData.rows as typeof operLogs.value;
+      }
+    } catch {
+      // 使用默认数据
     }
-  } catch {
-    // 使用默认数据
-  }
-}
+  };
 
-/**
- * 获取在线人数
- */
-const fetchOnlineStats = async () => {
-  try {
-    const res = await getOnlineList()
-    const responseData = res as Record<string, unknown>
-    const data = responseData.data as Record<string, unknown> | undefined
-    if (data) {
-      stats.value.onlineCount = Number(data.onlineCount) || 0
+  /**
+   * 获取在线人数
+   */
+  const fetchOnlineStats = async () => {
+    try {
+      const res = await getOnlineList();
+      const responseData = res as Record<string, unknown>;
+      const data = responseData.data as Record<string, unknown> | undefined;
+      if (data) {
+        stats.value.onlineCount = Number(data.onlineCount) || 0;
+      }
+    } catch {
+      // 使用默认数据
     }
-  } catch {
-    // 使用默认数据
-  }
-}
+  };
 
-onMounted(() => {
-  updateDateTime()
-  timer = setInterval(updateDateTime, 1000)
+  onMounted(() => {
+    updateDateTime();
+    timer = setInterval(updateDateTime, 1000);
 
-  fetchServerInfo()
-  fetchOperLogs()
-  fetchOnlineStats()
-})
+    fetchServerInfo();
+    fetchOperLogs();
+    fetchOnlineStats();
+  });
 
-onUnmounted(() => {
-  if (timer) {
-    clearInterval(timer)
-  }
-})
+  onUnmounted(() => {
+    if (timer) {
+      clearInterval(timer);
+    }
+  });
 </script>
 
 <style scoped lang="scss">
-.dashboard {
-  padding: 16px;
+  .dashboard {
+    padding: 16px;
 
-  .welcome-section {
-    margin-bottom: 16px;
-  }
-
-  .welcome-card {
-    background: linear-gradient(135deg, #409eff 0%, #53a8ff 50%, #66b1ff 100%);
-    border: none;
-    color: #fff;
-
-    :deep(.el-card__body) {
-      padding: 24px;
+    .welcome-section {
+      margin-bottom: 16px;
     }
 
-    .welcome-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        gap: 16px;
-      }
-    }
-
-    .welcome-left {
-      .welcome-text {
-        h2 {
-          margin: 0 0 8px 0;
-          font-size: 24px;
-          font-weight: 600;
-        }
-
-        .date-time {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin: 0;
-          font-size: 14px;
-          opacity: 0.9;
-        }
-      }
-    }
-
-    .welcome-right {
-      .today-stats {
-        display: flex;
-        gap: 32px;
-
-        @media (max-width: 768px) {
-          gap: 16px;
-        }
-
-        .stat-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-
-          .stat-label {
-            font-size: 13px;
-            opacity: 0.8;
-            margin-bottom: 4px;
-          }
-
-          .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-
-            &.warning {
-              color: #fdf6ec;
-            }
-
-            &.success {
-              color: #f0f9eb;
-            }
-
-            &.primary {
-              color: #fff;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .stat-section {
-    margin-bottom: 16px;
-  }
-
-  .stat-card {
-    display: flex;
-    align-items: center;
-    position: relative;
-    margin-bottom: 16px;
-    transition: transform 0.3s, box-shadow 0.3s;
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 64px;
-      height: 64px;
-      border-radius: 12px;
+    .welcome-card {
+      background: linear-gradient(135deg, #409eff 0%, #53a8ff 50%, #66b1ff 100%);
+      border: none;
       color: #fff;
-      flex-shrink: 0;
-    }
 
-    .stat-info {
-      margin-left: 16px;
-      flex: 1;
-
-      .stat-value {
-        font-size: 28px;
-        font-weight: bold;
-        color: #333;
-        line-height: 1.2;
+      :deep(.el-card__body) {
+        padding: 24px;
       }
 
-      .stat-label {
-        font-size: 14px;
-        color: #909399;
-        margin-top: 4px;
-      }
-    }
-
-    .stat-trend {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-
-      &.up {
-        color: #67c23a;
-      }
-
-      &.down {
-        color: #f56c6c;
-      }
-    }
-  }
-
-  .content-section {
-    margin-bottom: 16px;
-  }
-
-  .quick-action-card {
-    margin-bottom: 16px;
-
-    .quick-entry {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-
-      @media (max-width: 1200px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      @media (max-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-
-      .quick-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px 12px;
-        background: #f5f7fa;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s;
-
-        &:hover {
-          background: #ecf5ff;
-          transform: translateY(-2px);
-
-          .quick-icon {
-            transform: scale(1.1);
-          }
-        }
-
-        .quick-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          color: #fff;
-          margin-bottom: 12px;
-          transition: transform 0.3s;
-        }
-
-        .quick-title {
-          font-size: 14px;
-          font-weight: 500;
-          color: #303133;
-          margin-bottom: 4px;
-        }
-
-        .quick-desc {
-          font-size: 12px;
-          color: #909399;
-        }
-      }
-    }
-  }
-
-  .log-card {
-    :deep(.el-card__header) {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-
-      .el-card__header-title {
-        font-weight: 600;
-      }
-    }
-  }
-
-  .server-card {
-    :deep(.el-card__header) {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-
-      .el-card__header-title {
-        font-weight: 600;
-      }
-    }
-
-    .server-info {
-      .server-header {
+      .welcome-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #ebeef5;
-        margin-bottom: 16px;
 
-        .server-name {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          color: #303133;
+        @media (max-width: 768px) {
+          flex-direction: column;
+          gap: 16px;
         }
+      }
 
-        .server-status {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 13px;
-          color: #67c23a;
+      .welcome-left {
+        .welcome-text {
+          h2 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            font-weight: 600;
+          }
 
-          .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #67c23a;
-            animation: pulse 2s infinite;
+          .date-time {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
           }
         }
       }
 
-      .server-base {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 20px;
+      .welcome-right {
+        .today-stats {
+          display: flex;
+          gap: 32px;
 
-        .base-item {
+          @media (max-width: 768px) {
+            gap: 16px;
+          }
+
+          .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .stat-label {
+              font-size: 13px;
+              opacity: 0.8;
+              margin-bottom: 4px;
+            }
+
+            .stat-value {
+              font-size: 28px;
+              font-weight: bold;
+
+              &.warning {
+                color: #fdf6ec;
+              }
+
+              &.success {
+                color: #f0f9eb;
+              }
+
+              &.primary {
+                color: #fff;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .stat-section {
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      position: relative;
+      margin-bottom: 16px;
+      transition:
+        transform 0.3s,
+        box-shadow 0.3s;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .stat-info {
+        margin-left: 16px;
+        flex: 1;
+
+        .stat-value {
+          font-size: 28px;
+          font-weight: bold;
+          color: #333;
+          line-height: 1.2;
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: #909399;
+          margin-top: 4px;
+        }
+      }
+
+      .stat-trend {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+
+        &.up {
+          color: #67c23a;
+        }
+
+        &.down {
+          color: #f56c6c;
+        }
+      }
+    }
+
+    .content-section {
+      margin-bottom: 16px;
+    }
+
+    .quick-action-card {
+      margin-bottom: 16px;
+
+      .quick-entry {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+
+        @media (max-width: 1200px) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 768px) {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+
+        .quick-item {
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          align-items: center;
+          padding: 20px 12px;
+          background: #f5f7fa;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s;
 
-          .base-label {
+          &:hover {
+            background: #ecf5ff;
+            transform: translateY(-2px);
+
+            .quick-icon {
+              transform: scale(1.1);
+            }
+          }
+
+          .quick-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            color: #fff;
+            margin-bottom: 12px;
+            transition: transform 0.3s;
+          }
+
+          .quick-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #303133;
+            margin-bottom: 4px;
+          }
+
+          .quick-desc {
             font-size: 12px;
             color: #909399;
           }
+        }
+      }
+    }
 
-          .base-value {
-            font-size: 13px;
-            color: #606266;
-          }
+    .log-card {
+      :deep(.el-card__header) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+
+        .el-card__header-title {
+          font-weight: 600;
+        }
+      }
+    }
+
+    .server-card {
+      :deep(.el-card__header) {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+
+        .el-card__header-title {
+          font-weight: 600;
         }
       }
 
-      .usage-section {
-        h4 {
-          margin: 0 0 16px 0;
-          font-size: 14px;
-          font-weight: 600;
-          color: #303133;
-        }
-
-        .usage-item {
+      .server-info {
+        .server-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 16px;
+          border-bottom: 1px solid #ebeef5;
           margin-bottom: 16px;
 
-          &:last-child {
-            margin-bottom: 0;
+          .server-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
           }
 
-          .usage-header {
+          .server-status {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            gap: 6px;
+            font-size: 13px;
+            color: #67c23a;
 
-            .usage-label {
-              display: flex;
-              align-items: center;
-              gap: 6px;
+            .status-dot {
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background-color: #67c23a;
+              animation: pulse 2s infinite;
+            }
+          }
+        }
+
+        .server-base {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+          margin-bottom: 20px;
+
+          .base-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .base-label {
+              font-size: 12px;
+              color: #909399;
+            }
+
+            .base-value {
               font-size: 13px;
               color: #606266;
             }
-
-            .usage-value {
-              font-size: 14px;
-              font-weight: 600;
-              color: #303133;
-            }
-          }
-
-          .usage-detail {
-            font-size: 12px;
-            color: #909399;
-            margin-top: 4px;
           }
         }
-      }
 
-      .uptime-section {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid #ebeef5;
-        margin-top: 16px;
-        font-size: 13px;
-        color: #606266;
+        .usage-section {
+          h4 {
+            margin: 0 0 16px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #303133;
+          }
+
+          .usage-item {
+            margin-bottom: 16px;
+
+            &:last-child {
+              margin-bottom: 0;
+            }
+
+            .usage-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 8px;
+
+              .usage-label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 13px;
+                color: #606266;
+              }
+
+              .usage-value {
+                font-size: 14px;
+                font-weight: 600;
+                color: #303133;
+              }
+            }
+
+            .usage-detail {
+              font-size: 12px;
+              color: #909399;
+              margin-top: 4px;
+            }
+          }
+        }
+
+        .uptime-section {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding-top: 16px;
+          border-top: 1px solid #ebeef5;
+          margin-top: 16px;
+          font-size: 13px;
+          color: #606266;
+        }
       }
     }
   }
-}
 
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
+  @keyframes pulse {
+    0% {
+      opacity: 1;
+    }
 
-  50% {
-    opacity: 0.5;
-  }
+    50% {
+      opacity: 0.5;
+    }
 
-  100% {
-    opacity: 1;
+    100% {
+      opacity: 1;
+    }
   }
-}
 </style>

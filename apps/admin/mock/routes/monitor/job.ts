@@ -3,10 +3,10 @@
  * @module mock/routes/monitor/job
  */
 
-import { MockMethod } from 'vite-plugin-mock'
-import { success, fail, pageResult } from '../utils/response'
-import { delay, randomDelay } from '../utils/delay'
-import { db, type Job, type JobLog } from '../utils/database'
+import { MockMethod } from 'vite-plugin-mock';
+import { success, fail, pageResult } from '../utils/response';
+import { delay, randomDelay } from '../utils/delay';
+import { db, type Job, type JobLog } from '../utils/database';
 
 export default [
   /**
@@ -15,33 +15,43 @@ export default [
   {
     url: '/api/monitor/job/page',
     method: 'get',
-    response: async ({ query }: { query: { page?: string; limit?: string; jobName?: string; jobGroup?: string; status?: string } }) => {
-      await randomDelay()
+    response: async ({
+      query,
+    }: {
+      query: {
+        page?: string;
+        limit?: string;
+        jobName?: string;
+        jobGroup?: string;
+        status?: string;
+      };
+    }) => {
+      await randomDelay();
 
-      const page = parseInt(query.page || '1')
-      const limit = parseInt(query.limit || '10')
-      const { jobName, jobGroup, status } = query
+      const page = parseInt(query.page || '1');
+      const limit = parseInt(query.limit || '10');
+      const { jobName, jobGroup, status } = query;
 
-      let list = [...db.jobs]
+      let list = [...db.jobs];
 
       if (jobName) {
-        list = list.filter(j => j.jobName.includes(jobName))
+        list = list.filter((j) => j.jobName.includes(jobName));
       }
       if (jobGroup) {
-        list = list.filter(j => j.jobGroup === jobGroup)
+        list = list.filter((j) => j.jobGroup === jobGroup);
       }
       if (status) {
-        list = list.filter(j => j.status === status)
+        list = list.filter((j) => j.status === status);
       }
 
-      list.sort((a, b) => a.createTime.localeCompare(b.createTime))
+      list.sort((a, b) => a.createTime.localeCompare(b.createTime));
 
-      const start = (page - 1) * limit
-      const end = start + limit
-      const paginatedList = list.slice(start, end)
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const paginatedList = list.slice(start, end);
 
-      return pageResult(paginatedList, list.length, page, limit)
-    }
+      return pageResult(paginatedList, list.length, page, limit);
+    },
   },
 
   /**
@@ -51,21 +61,21 @@ export default [
     url: '/api/monitor/job/list',
     method: 'get',
     response: async ({ query }: { query: { jobName?: string; status?: string } }) => {
-      await delay()
+      await delay();
 
-      const { jobName, status } = query
+      const { jobName, status } = query;
 
-      let list = [...db.jobs]
+      let list = [...db.jobs];
 
       if (jobName) {
-        list = list.filter(j => j.jobName.includes(jobName))
+        list = list.filter((j) => j.jobName.includes(jobName));
       }
       if (status) {
-        list = list.filter(j => j.status === status)
+        list = list.filter((j) => j.status === status);
       }
 
-      return success(list)
-    }
+      return success(list);
+    },
   },
 
   /**
@@ -75,15 +85,15 @@ export default [
     url: '/api/monitor/job/:jobId',
     method: 'get',
     response: async ({ params }: { params: { jobId: string } }) => {
-      await delay()
+      await delay();
 
-      const job = db.jobs.find(j => j.jobId === params.jobId)
+      const job = db.jobs.find((j) => j.jobId === params.jobId);
       if (!job) {
-        return fail('任务不存在', 404)
+        return fail('任务不存在', 404);
       }
 
-      return success(job)
-    }
+      return success(job);
+    },
   },
 
   /**
@@ -93,9 +103,9 @@ export default [
     url: '/api/monitor/job',
     method: 'post',
     response: async ({ body }: { body: any }) => {
-      await delay()
+      await delay();
 
-      const maxId = Math.max(...db.jobs.map(j => parseInt(j.jobId)))
+      const maxId = Math.max(...db.jobs.map((j) => parseInt(j.jobId)));
       const newJob: Job = {
         jobId: String(maxId + 1),
         jobName: body.jobName,
@@ -107,12 +117,12 @@ export default [
         status: body.status || '0',
         createTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
         nextValidTime: '2024-02-01 00:00:00',
-        remark: body.remark || ''
-      }
+        remark: body.remark || '',
+      };
 
-      db.jobs.push(newJob)
-      return success(null, '新增成功')
-    }
+      db.jobs.push(newJob);
+      return success(null, '新增成功');
+    },
   },
 
   /**
@@ -122,21 +132,21 @@ export default [
     url: '/api/monitor/job/:jobId',
     method: 'put',
     response: async ({ params, body }: { params: { jobId: string }; body: any }) => {
-      await delay()
+      await delay();
 
-      const index = db.jobs.findIndex(j => j.jobId === params.jobId)
+      const index = db.jobs.findIndex((j) => j.jobId === params.jobId);
       if (index === -1) {
-        return fail('任务不存在', 404)
+        return fail('任务不存在', 404);
       }
 
       db.jobs[index] = {
         ...db.jobs[index],
         ...body,
-        jobId: params.jobId
-      }
+        jobId: params.jobId,
+      };
 
-      return success(null, '修改成功')
-    }
+      return success(null, '修改成功');
+    },
   },
 
   /**
@@ -146,16 +156,16 @@ export default [
     url: '/api/monitor/job/:jobId',
     method: 'delete',
     response: async ({ params }: { params: { jobId: string } }) => {
-      await delay()
+      await delay();
 
-      const index = db.jobs.findIndex(j => j.jobId === params.jobId)
+      const index = db.jobs.findIndex((j) => j.jobId === params.jobId);
       if (index === -1) {
-        return fail('任务不存在', 404)
+        return fail('任务不存在', 404);
       }
 
-      db.jobs.splice(index, 1)
-      return success(null, '删除成功')
-    }
+      db.jobs.splice(index, 1);
+      return success(null, '删除成功');
+    },
   },
 
   /**
@@ -165,16 +175,16 @@ export default [
     url: '/api/monitor/job/:jobId/status',
     method: 'put',
     response: async ({ params, body }: { params: { jobId: string }; body: { status: string } }) => {
-      await delay()
+      await delay();
 
-      const job = db.jobs.find(j => j.jobId === params.jobId)
+      const job = db.jobs.find((j) => j.jobId === params.jobId);
       if (!job) {
-        return fail('任务不存在', 404)
+        return fail('任务不存在', 404);
       }
 
-      job.status = body.status
-      return success(null, '状态修改成功')
-    }
+      job.status = body.status;
+      return success(null, '状态修改成功');
+    },
   },
 
   /**
@@ -184,11 +194,11 @@ export default [
     url: '/api/monitor/job/:jobId/execute',
     method: 'post',
     response: async ({ params }: { params: { jobId: string } }) => {
-      await delay(1000) // 执行任务需要更长时间
+      await delay(1000); // 执行任务需要更长时间
 
-      const job = db.jobs.find(j => j.jobId === params.jobId)
+      const job = db.jobs.find((j) => j.jobId === params.jobId);
       if (!job) {
-        return fail('任务不存在', 404)
+        return fail('任务不存在', 404);
       }
 
       // 添加执行日志
@@ -203,12 +213,12 @@ export default [
         costTime: Math.floor(Math.random() * 5000) + 500,
         message: '执行成功',
         error: undefined,
-        createTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
-      }
-      db.jobLogs.unshift(newLog)
+        createTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      };
+      db.jobLogs.unshift(newLog);
 
-      return success(null, '执行成功')
-    }
+      return success(null, '执行成功');
+    },
   },
 
   /**
@@ -217,33 +227,37 @@ export default [
   {
     url: '/api/monitor/job/log/page',
     method: 'get',
-    response: async ({ query }: { query: { page?: string; limit?: string; jobName?: string; jobId?: string; status?: string } }) => {
-      await randomDelay()
+    response: async ({
+      query,
+    }: {
+      query: { page?: string; limit?: string; jobName?: string; jobId?: string; status?: string };
+    }) => {
+      await randomDelay();
 
-      const page = parseInt(query.page || '1')
-      const limit = parseInt(query.limit || '10')
-      const { jobName, jobId, status } = query
+      const page = parseInt(query.page || '1');
+      const limit = parseInt(query.limit || '10');
+      const { jobName, jobId, status } = query;
 
-      let list = [...db.jobLogs]
+      let list = [...db.jobLogs];
 
       if (jobName) {
-        list = list.filter(log => log.jobName.includes(jobName))
+        list = list.filter((log) => log.jobName.includes(jobName));
       }
       if (jobId) {
-        list = list.filter(log => log.jobId === jobId)
+        list = list.filter((log) => log.jobId === jobId);
       }
       if (status) {
-        list = list.filter(log => log.status === status)
+        list = list.filter((log) => log.status === status);
       }
 
-      list.sort((a, b) => b.executeTime.localeCompare(a.executeTime))
+      list.sort((a, b) => b.executeTime.localeCompare(a.executeTime));
 
-      const start = (page - 1) * limit
-      const end = start + limit
-      const paginatedList = list.slice(start, end)
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const paginatedList = list.slice(start, end);
 
-      return pageResult(paginatedList, list.length, page, limit)
-    }
+      return pageResult(paginatedList, list.length, page, limit);
+    },
   },
 
   /**
@@ -253,10 +267,10 @@ export default [
     url: '/api/monitor/job/log/clean',
     method: 'delete',
     response: async () => {
-      await delay()
-      const count = db.jobLogs.length
-      db.jobLogs = []
-      return success(null, `清空成功${count}条`)
-    }
-  }
-] as MockMethod[]
+      await delay();
+      const count = db.jobLogs.length;
+      db.jobLogs = [];
+      return success(null, `清空成功${count}条`);
+    },
+  },
+] as MockMethod[];

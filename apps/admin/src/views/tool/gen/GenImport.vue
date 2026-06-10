@@ -42,7 +42,13 @@
         </span>
       </div>
       <div class="toolbar-right">
-        <el-button type="primary" size="small" :loading="importing" :disabled="selectedTables.length === 0" @click="handleImport">
+        <el-button
+          type="primary"
+          size="small"
+          :loading="importing"
+          :disabled="selectedTables.length === 0"
+          @click="handleImport"
+        >
           导入选中表
         </el-button>
       </div>
@@ -123,179 +129,177 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Tickets } from '@element-plus/icons-vue'
-import type { IGenTable, IGenQuery } from '@yunshu/shared'
-import { getGenDbList, importGenTable } from '@/api/tool/gen.api'
+  import { ref, reactive, watch } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Tickets } from '@element-plus/icons-vue';
+  import type { IGenTable, IGenQuery } from '@yunshu/shared';
+  import { getGenDbList, importGenTable } from '@/api/tool/gen.api';
 
-const props = defineProps<{
-  modelValue: boolean
-}>()
+  const props = defineProps<{
+    modelValue: boolean;
+  }>();
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'success'): void
-}>()
+  const emit = defineEmits<{
+    (e: 'update:modelValue', value: boolean): void;
+    (e: 'success'): void;
+  }>();
 
-const visible = ref(false)
-const loading = ref(false)
-const importing = ref(false)
-const tableData = ref<IGenTable[]>([])
-const selectedTables = ref<IGenTable[]>([])
-const total = ref(0)
+  const visible = ref(false);
+  const loading = ref(false);
+  const importing = ref(false);
+  const tableData = ref<IGenTable[]>([]);
+  const selectedTables = ref<IGenTable[]>([]);
+  const total = ref(0);
 
-const queryParams = reactive<IGenQuery>({
-  page: 1,
-  limit: 20,
-  sort: 'createTime',
-  order: 'desc'
-})
+  const queryParams = reactive<IGenQuery>({
+    page: 1,
+    limit: 20,
+    sort: 'createTime',
+    order: 'desc',
+  });
 
-watch(() => props.modelValue, (val) => {
-  visible.value = val
-  if (val) {
-    loadTableList()
-  }
-})
+  watch(
+    () => props.modelValue,
+    (val) => {
+      visible.value = val;
+      if (val) {
+        loadTableList();
+      }
+    },
+  );
 
-watch(visible, (val) => {
-  emit('update:modelValue', val)
-})
+  watch(visible, (val) => {
+    emit('update:modelValue', val);
+  });
 
-const formatDate = (date: string | undefined): string => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
-}
+  const formatDate = (date: string | undefined): string => {
+    if (!date) return '-';
+    return new Date(date).toLocaleString('zh-CN');
+  };
 
-const loadTableList = async () => {
-  loading.value = true
-  try {
-    const res = await getGenDbList(queryParams)
-    if (res.success) {
-      tableData.value = res.data || []
-      total.value = res.pagination?.total || 0
+  const loadTableList = async () => {
+    loading.value = true;
+    try {
+      const res = await getGenDbList(queryParams);
+      if (res.success) {
+        tableData.value = res.data || [];
+        total.value = res.pagination?.total || 0;
+      }
+    } catch {
+      ElMessage.error('获取表列表失败');
+    } finally {
+      loading.value = false;
     }
-  } catch {
-    ElMessage.error('获取表列表失败')
-  } finally {
-    loading.value = false
-  }
-}
+  };
 
-const handleQuery = () => {
-  queryParams.page = 1
-  loadTableList()
-}
+  const handleQuery = () => {
+    queryParams.page = 1;
+    loadTableList();
+  };
 
-const handleReset = () => {
-  queryParams.page = 1
-  queryParams.limit = 20
-  queryParams.tableName = undefined
-  queryParams.tableComment = undefined
-  loadTableList()
-}
+  const handleReset = () => {
+    queryParams.page = 1;
+    queryParams.limit = 20;
+    queryParams.tableName = undefined;
+    queryParams.tableComment = undefined;
+    loadTableList();
+  };
 
-const handleSelectionChange = (selection: IGenTable[]) => {
-  selectedTables.value = selection
-}
+  const handleSelectionChange = (selection: IGenTable[]) => {
+    selectedTables.value = selection;
+  };
 
-const doImport = async (tables: IGenTable[]) => {
-  if (tables.length === 0) {
-    ElMessage.warning('请选择要导入的表')
-    return
-  }
+  const doImport = async (tables: IGenTable[]) => {
+    if (tables.length === 0) {
+      ElMessage.warning('请选择要导入的表');
+      return;
+    }
 
-  try {
-    await ElMessageBox.confirm(
-      `确定要导入 ${tables.length} 个表吗？`,
-      '提示',
-      {
+    try {
+      await ElMessageBox.confirm(`确定要导入 ${tables.length} 个表吗？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
+      });
+
+      importing.value = true;
+      const tableNames = tables.map((t) => t.tableName);
+      const res = await importGenTable(tableNames);
+
+      if (res.success) {
+        ElMessage.success(`成功导入 ${tables.length} 个表`);
+        emit('success');
+        handleClose();
       }
-    )
-
-    importing.value = true
-    const tableNames = tables.map(t => t.tableName)
-    const res = await importGenTable(tableNames)
-
-    if (res.success) {
-      ElMessage.success(`成功导入 ${tables.length} 个表`)
-      emit('success')
-      handleClose()
+    } catch (error: any) {
+      if (error !== 'cancel') {
+        ElMessage.error(error.message || '导入失败');
+      }
+    } finally {
+      importing.value = false;
     }
-  } catch (error: any) {
-    if (error !== 'cancel') {
-      ElMessage.error(error.message || '导入失败')
-    }
-  } finally {
-    importing.value = false
-  }
-}
+  };
 
-const handleImport = () => {
-  doImport(selectedTables.value)
-}
+  const handleImport = () => {
+    doImport(selectedTables.value);
+  };
 
-const handleSingleImport = (table: IGenTable) => {
-  doImport([table])
-}
+  const handleSingleImport = (table: IGenTable) => {
+    doImport([table]);
+  };
 
-const handleClose = () => {
-  visible.value = false
-  selectedTables.value = []
-}
+  const handleClose = () => {
+    visible.value = false;
+    selectedTables.value = [];
+  };
 </script>
 
 <style lang="scss" scoped>
-.import-dialog {
-  :deep(.el-dialog__body) {
-    padding: 15px 20px;
-  }
+  .import-dialog {
+    :deep(.el-dialog__body) {
+      padding: 15px 20px;
+    }
 
-  .search-card {
-    margin-bottom: 16px;
-    background: #f5f7fa;
-  }
+    .search-card {
+      margin-bottom: 16px;
+      background: #f5f7fa;
+    }
 
-  .toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
 
-    .toolbar-left {
-      .selected-info {
-        color: #606266;
-        font-size: 14px;
+      .toolbar-left {
+        .selected-info {
+          color: #606266;
+          font-size: 14px;
+        }
       }
     }
-  }
 
-  .pagination-container {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
+    .pagination-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
 
-  .table-name-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    .table-name-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
 
-    .el-icon {
-      color: #409eff;
+      .el-icon {
+        color: #409eff;
+      }
+    }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
     }
   }
-
-  .dialog-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-}
 </style>
-

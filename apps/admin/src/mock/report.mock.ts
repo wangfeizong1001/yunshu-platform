@@ -2,7 +2,7 @@
  * 报表 Mock 数据
  */
 
-import type { ReportInfo } from '@/api/report.api'
+import type { ReportInfo } from '@/api/report.api';
 
 // 生成 Mock 报表数据
 export const mockReportList: ReportInfo[] = [
@@ -23,14 +23,14 @@ export const mockReportList: ReportInfo[] = [
         { month: '3月', sales: 101, target: 105 },
         { month: '4月', sales: 134, target: 120 },
         { month: '5月', sales: 90, target: 100 },
-        { month: '6月', sales: 230, target: 180 }
-      ]
+        { month: '6月', sales: 230, target: 180 },
+      ],
     }),
     status: '0',
     createTime: '2024-01-15 10:30:00',
     updateTime: '2024-01-20 14:20:00',
     createBy: 'admin',
-    remark: '用于销售部门月度分析'
+    remark: '用于销售部门月度分析',
   },
   {
     reportId: 2,
@@ -50,14 +50,14 @@ export const mockReportList: ReportInfo[] = [
         { date: '周四', newUsers: 134, activeUsers: 900 },
         { date: '周五', newUsers: 90, activeUsers: 920 },
         { date: '周六', newUsers: 230, activeUsers: 1200 },
-        { date: '周日', newUsers: 210, activeUsers: 1150 }
-      ]
+        { date: '周日', newUsers: 210, activeUsers: 1150 },
+      ],
     }),
     status: '0',
     createTime: '2024-01-10 09:15:00',
     updateTime: '2024-01-18 16:45:00',
     createBy: 'admin',
-    remark: '产品部门关注指标'
+    remark: '产品部门关注指标',
   },
   {
     reportId: 3,
@@ -72,21 +72,21 @@ export const mockReportList: ReportInfo[] = [
         { field: 'totalCount', title: '总人数', width: 100 },
         { field: 'maleCount', title: '男性', width: 100 },
         { field: 'femaleCount', title: '女性', width: 100 },
-        { field: 'avgAge', title: '平均年龄', width: 120 }
+        { field: 'avgAge', title: '平均年龄', width: 120 },
       ],
       data: [
         { deptName: '技术部', totalCount: 45, maleCount: 35, femaleCount: 10, avgAge: 28 },
         { deptName: '产品部', totalCount: 12, maleCount: 6, femaleCount: 6, avgAge: 26 },
         { deptName: '设计部', totalCount: 8, maleCount: 2, femaleCount: 6, avgAge: 25 },
         { deptName: '市场部', totalCount: 20, maleCount: 10, femaleCount: 10, avgAge: 27 },
-        { deptName: '财务部', totalCount: 6, maleCount: 2, femaleCount: 4, avgAge: 30 }
-      ]
+        { deptName: '财务部', totalCount: 6, maleCount: 2, femaleCount: 4, avgAge: 30 },
+      ],
     }),
     status: '0',
     createTime: '2024-01-05 11:20:00',
     updateTime: '2024-01-15 09:30:00',
     createBy: 'admin',
-    remark: '人力资源统计'
+    remark: '人力资源统计',
   },
   {
     reportId: 4,
@@ -102,54 +102,52 @@ export const mockReportList: ReportInfo[] = [
         { category: '服装', value: 735 },
         { category: '食品', value: 580 },
         { category: '家居', value: 484 },
-        { category: '其他', value: 300 }
-      ]
+        { category: '其他', value: 300 },
+      ],
     }),
     status: '1',
     createTime: '2024-01-08 15:40:00',
     updateTime: '2024-01-12 10:15:00',
     createBy: 'admin',
-    remark: '待审核'
-  }
-]
+    remark: '待审核',
+  },
+];
 
 // 获取报表分页列表 Mock
 export function getMockReportPage(params: any): { total: number; rows: ReportInfo[] } {
-  const { pageNum = 1, pageSize = 10, reportName = '', reportType = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, reportName = '', reportType = '', status = '' } = params;
 
-  let filteredList = mockReportList
+  let filteredList = mockReportList;
 
   // 报表名称过滤
   if (reportName) {
-    filteredList = filteredList.filter((report) =>
-      report.reportName.includes(reportName)
-    )
+    filteredList = filteredList.filter((report) => report.reportName.includes(reportName));
   }
 
   // 报表类型过滤
   if (reportType) {
-    filteredList = filteredList.filter((report) => report.reportType === reportType)
+    filteredList = filteredList.filter((report) => report.reportType === reportType);
   }
 
   // 状态过滤
   if (status) {
-    filteredList = filteredList.filter((report) => report.status === status)
+    filteredList = filteredList.filter((report) => report.status === status);
   }
 
   // 分页
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
-    rows
-  }
+    rows,
+  };
 }
 
 // 获取报表详情 Mock
 export function getMockReportDetail(reportId: number): ReportInfo | undefined {
-  return mockReportList.find((report) => report.reportId === reportId)
+  return mockReportList.find((report) => report.reportId === reportId);
 }
 
 // 新增报表 Mock
@@ -165,41 +163,48 @@ export function addMockReport(report: Partial<ReportInfo>): ReportInfo {
     createTime: new Date().toLocaleString(),
     updateTime: new Date().toLocaleString(),
     createBy: 'admin',
-    remark: report.remark || ''
-  }
-  mockReportList.push(newReport)
-  return newReport
+    remark: report.remark || '',
+  };
+  mockReportList.push(newReport);
+  return newReport;
 }
 
 // 更新报表 Mock
-export function updateMockReport(reportId: number, report: Partial<ReportInfo>): ReportInfo | undefined {
-  const index = mockReportList.findIndex((r) => r.reportId === reportId)
+export function updateMockReport(
+  reportId: number,
+  report: Partial<ReportInfo>,
+): ReportInfo | undefined {
+  const index = mockReportList.findIndex((r) => r.reportId === reportId);
   if (index !== -1) {
-    mockReportList[index] = { ...mockReportList[index], ...report, updateTime: new Date().toLocaleString() }
-    return mockReportList[index]
+    mockReportList[index] = {
+      ...mockReportList[index],
+      ...report,
+      updateTime: new Date().toLocaleString(),
+    };
+    return mockReportList[index];
   }
-  return undefined
+  return undefined;
 }
 
 // 删除报表 Mock
 export function deleteMockReport(reportId: number): boolean {
-  const index = mockReportList.findIndex((r) => r.reportId === reportId)
+  const index = mockReportList.findIndex((r) => r.reportId === reportId);
   if (index !== -1) {
-    mockReportList.splice(index, 1)
-    return true
+    mockReportList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }
 
 // 获取报表数据 Mock
 export function getMockReportData(reportId: number): any {
-  const report = mockReportList.find((r) => r.reportId === reportId)
+  const report = mockReportList.find((r) => r.reportId === reportId);
   if (report) {
     try {
-      return JSON.parse(report.config)
+      return JSON.parse(report.config);
     } catch {
-      return null
+      return null;
     }
   }
-  return null
+  return null;
 }

@@ -7,7 +7,7 @@ import type {
   ThirdLoginLog,
   ThirdLoginLogPageResp,
   ThirdAuthorizeResp,
-} from '@yunshu/shared'
+} from '@yunshu/shared';
 
 // 第三方登录配置 Mock 数据
 export const mockThirdConfigList: ThirdLoginConfig[] = [
@@ -67,7 +67,7 @@ export const mockThirdConfigList: ThirdLoginConfig[] = [
     updateBy: 'admin',
     updateTime: '2024-01-18 11:00:00',
   },
-]
+];
 
 // 第三方登录日志 Mock 数据
 export const mockThirdLoginLogList: ThirdLoginLog[] = [
@@ -155,64 +155,74 @@ export const mockThirdLoginLogList: ThirdLoginLog[] = [
     errorMsg: '应用已禁用',
     loginTime: '2024-01-15 15:00:00',
   },
-]
+];
 
 // 获取第三方登录配置列表 Mock
 export function getMockThirdConfigList(): ThirdLoginConfig[] {
-  return mockThirdConfigList
+  return mockThirdConfigList;
 }
 
 // 获取第三方登录配置 Mock
 export function getMockThirdConfig(platform: string): ThirdLoginConfig | undefined {
-  return mockThirdConfigList.find((item) => item.platform === platform)
+  return mockThirdConfigList.find((item) => item.platform === platform);
 }
 
 // 获取第三方登录日志列表 Mock
 export function getMockThirdLoginLogPage(params: any): ThirdLoginLogPageResp {
-  const { pageNum = 1, pageSize = 10, platform = '', username = '', status = '', startDate = '', endDate = '' } = params
+  const {
+    pageNum = 1,
+    pageSize = 10,
+    platform = '',
+    username = '',
+    status = '',
+    startDate = '',
+    endDate = '',
+  } = params;
 
-  let filteredList = [...mockThirdLoginLogList]
+  let filteredList = [...mockThirdLoginLogList];
 
   if (platform) {
-    filteredList = filteredList.filter((item) => item.platform === platform)
+    filteredList = filteredList.filter((item) => item.platform === platform);
   }
 
   if (username) {
-    filteredList = filteredList.filter((item) => item.username?.includes(username) || item.nickname?.includes(username))
+    filteredList = filteredList.filter(
+      (item) => item.username?.includes(username) || item.nickname?.includes(username),
+    );
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
   if (startDate) {
-    filteredList = filteredList.filter((item) => item.loginTime >= startDate)
+    filteredList = filteredList.filter((item) => item.loginTime >= startDate);
   }
 
   if (endDate) {
-    filteredList = filteredList.filter((item) => item.loginTime <= endDate)
+    filteredList = filteredList.filter((item) => item.loginTime <= endDate);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取授权链接 Mock
 export function getMockThirdAuthorizeUrl(platform: string): ThirdAuthorizeResp {
-  const config = mockThirdConfigList.find((item) => item.platform === platform)
+  const config = mockThirdConfigList.find((item) => item.platform === platform);
 
   if (!config) {
     return {
       success: false,
       url: '',
       errorMsg: '配置不存在',
-    }
+    };
   }
 
   if (config.status === '0') {
@@ -220,43 +230,47 @@ export function getMockThirdAuthorizeUrl(platform: string): ThirdAuthorizeResp {
       success: false,
       url: '',
       errorMsg: '该登录方式已禁用',
-    }
+    };
   }
 
   // 模拟生成授权 URL
-  const state = `${platform}_${Date.now()}`
-  let url = ''
+  const state = `${platform}_${Date.now()}`;
+  let url = '';
 
   switch (platform) {
     case 'wechat':
-      url = `https://open.weixin.qq.com/connect/qrconnect?appid=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&response_type=code&scope=${config.scopes.join(',')}&state=${state}#wechat_redirect`
-      break
+      url = `https://open.weixin.qq.com/connect/qrconnect?appid=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&response_type=code&scope=${config.scopes.join(',')}&state=${state}#wechat_redirect`;
+      break;
     case 'github':
-      url = `https://github.com/login/oauth/authorize?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&scope=${config.scopes.join(' ')}&state=${state}`
-      break
+      url = `https://github.com/login/oauth/authorize?client_id=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&scope=${config.scopes.join(' ')}&state=${state}`;
+      break;
     case 'wecom':
-      url = `https://open.work.weixin.qq.com/wwopen/sso/9?appid=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&usertype=member&state=${state}`
-      break
+      url = `https://open.work.weixin.qq.com/wwopen/sso/9?appid=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&usertype=member&state=${state}`;
+      break;
     case 'dingtalk':
-      url = `https://oapi.dingtalk.com/connect/oauth2/authorize?appid=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&response_type=code&scope=${config.scopes.join(',')}&state=${state}`
-      break
+      url = `https://oapi.dingtalk.com/connect/oauth2/authorize?appid=${config.appId}&redirect_uri=${encodeURIComponent(config.callbackUrl)}&response_type=code&scope=${config.scopes.join(',')}&state=${state}`;
+      break;
   }
 
   return {
     success: true,
     url,
-  }
+  };
 }
 
 // 处理第三方登录回调 Mock
-export function handleMockThirdCallback(platform: string, code: string, _state?: string): { token: string; isBind: boolean } {
+export function handleMockThirdCallback(
+  platform: string,
+  code: string,
+  _state?: string,
+): { token: string; isBind: boolean } {
   if (!code) {
-    throw new Error('授权码无效')
+    throw new Error('授权码无效');
   }
 
   // 模拟返回 token
   return {
     token: `mock_third_token_${platform}_${Date.now()}`,
     isBind: true,
-  }
+  };
 }

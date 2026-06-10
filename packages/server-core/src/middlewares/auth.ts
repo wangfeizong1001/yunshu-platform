@@ -56,11 +56,7 @@ export interface AuthMiddlewareConfig {
 // ============================================================================
 
 function base64UrlEncode(input: Buffer): string {
-  return input
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+  return input.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 function base64UrlDecode(input: string): Buffer {
@@ -93,24 +89,20 @@ function builtInVerifier(secret: string): TokenVerifier {
     try {
       // 1) 校验签名
       const signingInput = `${headerB64}.${payloadB64}`;
-      const expected = crypto
-        .createHmac('sha256', secret)
-        .update(signingInput, 'utf8')
-        .digest();
+      const expected = crypto.createHmac('sha256', secret).update(signingInput, 'utf8').digest();
       const actual = base64UrlDecode(signatureB64);
       if (expected.length !== actual.length) return null;
       if (!crypto.timingSafeEqual(expected, actual)) return null;
 
       // 2) header 校验
-      const header = JSON.parse(
-        base64UrlDecode(headerB64).toString('utf8'),
-      ) as { alg?: string };
+      const header = JSON.parse(base64UrlDecode(headerB64).toString('utf8')) as { alg?: string };
       if (header.alg !== 'HS256') return null;
 
       // 3) payload 解析与过期校验
-      const payload = JSON.parse(
-        base64UrlDecode(payloadB64).toString('utf8'),
-      ) as Record<string, unknown>;
+      const payload = JSON.parse(base64UrlDecode(payloadB64).toString('utf8')) as Record<
+        string,
+        unknown
+      >;
 
       const now = Math.floor(Date.now() / 1000);
       if (typeof payload.exp === 'number' && payload.exp <= now) return null;
@@ -136,11 +128,7 @@ function defaultTokenExtractor(req: AuthRequestLike): string | null {
 /**
  * 兼容两种风格的 JSON 写入 helper。
  */
-function sendJson(
-  res: AuthResponseLike,
-  status: number,
-  body: unknown,
-): void {
+function sendJson(res: AuthResponseLike, status: number, body: unknown): void {
   const statusFn = res.status;
   const jsonFn = res.json;
   if (statusFn && jsonFn) {
@@ -170,11 +158,7 @@ export function verifyToken(config: AuthMiddlewareConfig = {}) {
   const verifier: TokenVerifier = config.verifier ?? builtInVerifier(secret);
   const extractor = config.tokenExtractor ?? defaultTokenExtractor;
 
-  return async (
-    req: AuthRequestLike,
-    res: AuthResponseLike,
-    next: AuthNext,
-  ): Promise<void> => {
+  return async (req: AuthRequestLike, res: AuthResponseLike, next: AuthNext): Promise<void> => {
     try {
       const token = extractor(req);
       if (!token) {
@@ -217,11 +201,7 @@ export function optionalVerifyToken(config: AuthMiddlewareConfig = {}) {
   const verifier: TokenVerifier = config.verifier ?? builtInVerifier(secret);
   const extractor = config.tokenExtractor ?? defaultTokenExtractor;
 
-  return async (
-    req: AuthRequestLike,
-    res: AuthResponseLike,
-    next: AuthNext,
-  ): Promise<void> => {
+  return async (req: AuthRequestLike, res: AuthResponseLike, next: AuthNext): Promise<void> => {
     try {
       const token = extractor(req);
       if (!token) {
@@ -251,11 +231,7 @@ export function optionalVerifyToken(config: AuthMiddlewareConfig = {}) {
  * 需要先调用 `verifyToken` 以确保 `req.user` 已被挂载。
  */
 export function requireRole(allowedRoles: string[]) {
-  return (
-    req: AuthRequestLike,
-    res: AuthResponseLike,
-    next: AuthNext,
-  ): void => {
+  return (req: AuthRequestLike, res: AuthResponseLike, next: AuthNext): void => {
     const user = req.user as Record<string, unknown> | undefined;
     if (!user) {
       sendJson(res, 401, { success: false, message: '请先登录' });
@@ -263,11 +239,7 @@ export function requireRole(allowedRoles: string[]) {
     }
 
     const role = user.role as string | string[] | undefined;
-    const roles: string[] = Array.isArray(role)
-      ? role
-      : typeof role === 'string'
-        ? [role]
-        : [];
+    const roles: string[] = Array.isArray(role) ? role : typeof role === 'string' ? [role] : [];
 
     const hasAccess = roles.some((r) => allowedRoles.includes(String(r)));
     if (!hasAccess) {

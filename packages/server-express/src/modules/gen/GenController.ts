@@ -22,8 +22,8 @@ export class GenController extends BaseController {
       tableComment: req.query.tableComment as string,
       page: Number(req.query.page) || 1,
       limit: Number(req.query.limit) || 10,
-      sort: req.query.sort as string || 'createTime',
-      order: req.query.order as 'asc' | 'desc' || 'desc',
+      sort: (req.query.sort as string) || 'createTime',
+      order: (req.query.order as 'asc' | 'desc') || 'desc',
     };
 
     const result = await genService.getTablePage(params);
@@ -172,11 +172,11 @@ export class GenController extends BaseController {
     // 从查询参数构建配置
     const config: IGenConfig = {
       tableName,
-      tableComment: req.query.tableComment as string || '',
-      className: req.query.className as string || '',
-      moduleName: req.query.moduleName as string || '',
-      packageName: req.query.packageName as string || 'com.yunshu.generator',
-      author: req.query.author as string || '云枢',
+      tableComment: (req.query.tableComment as string) || '',
+      className: (req.query.className as string) || '',
+      moduleName: (req.query.moduleName as string) || '',
+      packageName: (req.query.packageName as string) || 'com.yunshu.generator',
+      author: (req.query.author as string) || '云枢',
       email: req.query.email as string,
       generateType: (req.query.generateType as any) || 'single',
       generateMenu: req.query.generateMenu !== 'false',

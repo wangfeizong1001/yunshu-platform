@@ -31,7 +31,13 @@
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="processList" stripe border @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        :data="processList"
+        stripe
+        border
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" fixed />
         <el-table-column prop="name" label="流程名称" min-width="150" />
         <el-table-column prop="key" label="流程标识" width="180" />
@@ -49,12 +55,7 @@
         <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleDesign(row)">设计</el-button>
-            <el-button
-              v-if="row.status === 'draft'"
-              link
-              type="success"
-              @click="handleDeploy(row)"
-            >
+            <el-button v-if="row.status === 'draft'" link type="success" @click="handleDeploy(row)">
               发布
             </el-button>
             <el-button
@@ -77,10 +78,20 @@
               <el-button link type="primary">更多</el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="handleEdit(row as ProcessDefinition)">编辑</el-dropdown-item>
-                  <el-dropdown-item @click="handleCopy(row as ProcessDefinition)">复制</el-dropdown-item>
-                  <el-dropdown-item @click="handleExport(row as ProcessDefinition)">导出</el-dropdown-item>
-                  <el-dropdown-item divided @click="handleDelete(row as ProcessDefinition)" type="danger">
+                  <el-dropdown-item @click="handleEdit(row as ProcessDefinition)"
+                    >编辑</el-dropdown-item
+                  >
+                  <el-dropdown-item @click="handleCopy(row as ProcessDefinition)"
+                    >复制</el-dropdown-item
+                  >
+                  <el-dropdown-item @click="handleExport(row as ProcessDefinition)"
+                    >导出</el-dropdown-item
+                  >
+                  <el-dropdown-item
+                    divided
+                    @click="handleDelete(row as ProcessDefinition)"
+                    type="danger"
+                  >
                     删除
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -104,11 +115,7 @@
     </el-card>
 
     <!-- 流程表单对话框 -->
-    <el-dialog
-      v-model="formDialogVisible"
-      :title="isEdit ? '编辑流程' : '新建流程'"
-      width="500px"
-    >
+    <el-dialog v-model="formDialogVisible" :title="isEdit ? '编辑流程' : '新建流程'" width="500px">
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
         <el-form-item label="流程名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入流程名称" />
@@ -143,236 +150,231 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import {
-  type ProcessDefinition,
-  type ProcessDefinitionForm,
-} from '@/api/workflow.api'
-import {
-  getMockProcessDefinitionPage,
-} from '@/mock/workflow.mock'
-import { useRouter } from 'vue-router'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+  import { Search, Refresh, Plus } from '@element-plus/icons-vue';
+  import { type ProcessDefinition, type ProcessDefinitionForm } from '@/api/workflow.api';
+  import { getMockProcessDefinitionPage } from '@/mock/workflow.mock';
+  import { useRouter } from 'vue-router';
 
-const router = useRouter()
+  const router = useRouter();
 
-// 状态
-const loading = ref(false)
-const processList = ref<ProcessDefinition[]>([])
-const total = ref(0)
-const selectedRows = ref<ProcessDefinition[]>([])
-const formDialogVisible = ref(false)
-const isEdit = ref(false)
-const formRef = ref<FormInstance>()
-const formData = reactive<ProcessDefinitionForm>({
-  id: '',
-  name: '',
-  key: '',
-  category: '',
-  description: '',
-})
-
-// 查询参数
-const queryParams = reactive({
-  name: '',
-  status: '',
-  pageNum: 1,
-  pageSize: 10,
-})
-
-// 表单验证规则
-const formRules: FormRules<ProcessDefinitionForm> = {
-  name: [{ required: true, message: '请输入流程名称', trigger: 'blur' }],
-  key: [{ required: true, message: '请输入流程标识', trigger: 'blur' }],
-}
-
-// 获取流程定义列表
-async function fetchProcessList() {
-  loading.value = true
-  try {
-    // 使用 Mock 数据
-    const res = getMockProcessDefinitionPage(queryParams)
-    processList.value = res.rows
-    total.value = res.total
-  } catch (error) {
-    console.error('获取流程列表失败', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-// 获取状态类型
-function getStatusType(status: string) {
-  const typeMap: Record<string, any> = {
-    draft: 'info',
-    active: 'success',
-    suspended: 'warning',
-  }
-  return typeMap[status] || 'info'
-}
-
-// 获取状态标签
-function getStatusLabel(status: string) {
-  const labelMap: Record<string, string> = {
-    draft: '草稿',
-    active: '已发布',
-    suspended: '已挂起',
-  }
-  return labelMap[status] || status
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchProcessList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.name = ''
-  queryParams.status = ''
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchProcessList()
-}
-
-// 新增
-function handleAdd() {
-  isEdit.value = false
-  Object.assign(formData, {
+  // 状态
+  const loading = ref(false);
+  const processList = ref<ProcessDefinition[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<ProcessDefinition[]>([]);
+  const formDialogVisible = ref(false);
+  const isEdit = ref(false);
+  const formRef = ref<FormInstance>();
+  const formData = reactive<ProcessDefinitionForm>({
     id: '',
     name: '',
     key: '',
     category: '',
     description: '',
-  })
-  formDialogVisible.value = true
-}
+  });
 
-// 编辑
-function handleEdit(row: ProcessDefinition) {
-  isEdit.value = true
-  Object.assign(formData, row)
-  formDialogVisible.value = true
-}
+  // 查询参数
+  const queryParams = reactive({
+    name: '',
+    status: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 设计
-function handleDesign(row: any) {
-  router.push(`/workflow/process/design/${row.id}`)
-}
+  // 表单验证规则
+  const formRules: FormRules<ProcessDefinitionForm> = {
+    name: [{ required: true, message: '请输入流程名称', trigger: 'blur' }],
+    key: [{ required: true, message: '请输入流程标识', trigger: 'blur' }],
+  };
 
-// 发布
-async function handleDeploy(row: any) {
-  try {
-    await ElMessageBox.confirm(`确认发布流程"${row.name}"吗？`, '提示', {
-      type: 'warning',
-    })
-    ElMessage.success('发布成功')
-    refreshTable()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('发布失败', error)
+  // 获取流程定义列表
+  async function fetchProcessList() {
+    loading.value = true;
+    try {
+      // 使用 Mock 数据
+      const res = getMockProcessDefinitionPage(queryParams);
+      processList.value = res.rows;
+      total.value = res.total;
+    } catch (error) {
+      console.error('获取流程列表失败', error);
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 挂起
-async function handleSuspend(row: any) {
-  try {
-    await ElMessageBox.confirm(`确认挂起流程"${row.name}"吗？`, '提示', {
-      type: 'warning',
-    })
-    ElMessage.success('挂起成功')
-    refreshTable()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('挂起失败', error)
+  // 获取状态类型
+  function getStatusType(status: string) {
+    const typeMap: Record<string, any> = {
+      draft: 'info',
+      active: 'success',
+      suspended: 'warning',
+    };
+    return typeMap[status] || 'info';
+  }
+
+  // 获取状态标签
+  function getStatusLabel(status: string) {
+    const labelMap: Record<string, string> = {
+      draft: '草稿',
+      active: '已发布',
+      suspended: '已挂起',
+    };
+    return labelMap[status] || status;
+  }
+
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchProcessList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.name = '';
+    queryParams.status = '';
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchProcessList();
+  }
+
+  // 新增
+  function handleAdd() {
+    isEdit.value = false;
+    Object.assign(formData, {
+      id: '',
+      name: '',
+      key: '',
+      category: '',
+      description: '',
+    });
+    formDialogVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: ProcessDefinition) {
+    isEdit.value = true;
+    Object.assign(formData, row);
+    formDialogVisible.value = true;
+  }
+
+  // 设计
+  function handleDesign(row: any) {
+    router.push(`/workflow/process/design/${row.id}`);
+  }
+
+  // 发布
+  async function handleDeploy(row: any) {
+    try {
+      await ElMessageBox.confirm(`确认发布流程"${row.name}"吗？`, '提示', {
+        type: 'warning',
+      });
+      ElMessage.success('发布成功');
+      refreshTable();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('发布失败', error);
+      }
     }
   }
-}
 
-// 激活
-async function handleActivate(row: any) {
-  try {
-    await ElMessageBox.confirm(`确认激活流程"${row.name}"吗？`, '提示', {
-      type: 'warning',
-    })
-    ElMessage.success('激活成功')
-    refreshTable()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('激活失败', error)
+  // 挂起
+  async function handleSuspend(row: any) {
+    try {
+      await ElMessageBox.confirm(`确认挂起流程"${row.name}"吗？`, '提示', {
+        type: 'warning',
+      });
+      ElMessage.success('挂起成功');
+      refreshTable();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('挂起失败', error);
+      }
     }
   }
-}
 
-// 复制
-function handleCopy(_row: any) {
-  ElMessage.info('复制功能开发中')
-}
-
-// 导出
-function handleExport(_row: any) {
-  ElMessage.info('导出功能开发中')
-}
-
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`确认删除流程"${row.name}"吗？`, '提示', {
-      type: 'warning',
-    })
-    ElMessage.success('删除成功')
-    refreshTable()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 激活
+  async function handleActivate(row: any) {
+    try {
+      await ElMessageBox.confirm(`确认激活流程"${row.name}"吗？`, '提示', {
+        type: 'warning',
+      });
+      ElMessage.success('激活成功');
+      refreshTable();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('激活失败', error);
+      }
     }
   }
-}
 
-// 表单提交
-async function handleFormSubmit() {
-  await formRef.value?.validate()
-  ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
-  formDialogVisible.value = false
-  refreshTable()
-}
+  // 复制
+  function handleCopy(_row: any) {
+    ElMessage.info('复制功能开发中');
+  }
 
-// 选择变化
-function handleSelectionChange(selection: ProcessDefinition[]) {
-  selectedRows.value = selection
-}
+  // 导出
+  function handleExport(_row: any) {
+    ElMessage.info('导出功能开发中');
+  }
 
-// 初始化
-onMounted(() => {
-  fetchProcessList()
-})
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`确认删除流程"${row.name}"吗？`, '提示', {
+        type: 'warning',
+      });
+      ElMessage.success('删除成功');
+      refreshTable();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 表单提交
+  async function handleFormSubmit() {
+    await formRef.value?.validate();
+    ElMessage.success(isEdit.value ? '更新成功' : '创建成功');
+    formDialogVisible.value = false;
+    refreshTable();
+  }
+
+  // 选择变化
+  function handleSelectionChange(selection: ProcessDefinition[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchProcessList();
+  });
 </script>
 
 <style scoped lang="scss">
-.process-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .process-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

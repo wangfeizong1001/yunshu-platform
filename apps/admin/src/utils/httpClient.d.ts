@@ -11,17 +11,28 @@
  */
 import { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 export interface ApiResponse<T = unknown> {
-    readonly success: boolean;
-    readonly code?: number;
-    readonly message?: string;
-    readonly data?: T;
-    readonly [key: string]: unknown;
+  readonly success: boolean;
+  readonly code?: number;
+  readonly message?: string;
+  readonly data?: T;
+  readonly [key: string]: unknown;
 }
 declare const service: AxiosInstance;
 export declare function request<T = unknown>(config: AxiosRequestConfig): Promise<T>;
 export declare function httpGet<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>;
-export declare function httpPost<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
-export declare function httpPut<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T>;
-export declare function httpDelete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T>;
+export declare function httpPost<T = unknown>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T>;
+export declare function httpPut<T = unknown>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T>;
+export declare function httpDelete<T = unknown>(
+  url: string,
+  config?: AxiosRequestConfig,
+): Promise<T>;
 export default service;
 //# sourceMappingURL=httpClient.d.ts.map

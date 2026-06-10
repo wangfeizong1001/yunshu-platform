@@ -1,5 +1,5 @@
-import LanguageSwitch from './index.vue'
+import LanguageSwitch from './index.vue';
 
-export { LanguageSwitch }
+export { LanguageSwitch };
 
-export default LanguageSwitch
+export default LanguageSwitch;

@@ -29,7 +29,12 @@
       </el-form-item>
 
       <el-form-item label="标题" prop="title">
-        <el-input v-model="formData.title" placeholder="请输入标题" maxlength="100" show-word-limit />
+        <el-input
+          v-model="formData.title"
+          placeholder="请输入标题"
+          maxlength="100"
+          show-word-limit
+        />
       </el-form-item>
 
       <el-form-item label="类型" prop="type">
@@ -70,108 +75,108 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { sendMessage, type MessageForm as MessageFormType } from '@/api/system/message.api'
+  import { ref, reactive, computed } from 'vue';
+  import { ElMessage } from 'element-plus';
+  import { sendMessage, type MessageForm as MessageFormType } from '@/api/system/message.api';
 
-interface UserOption {
-  userId: number
-  username: string
-  nickname?: string
-}
+  interface UserOption {
+    userId: number;
+    username: string;
+    nickname?: string;
+  }
 
-const props = defineProps<{
-  modelValue: boolean
-}>()
+  const props = defineProps<{
+    modelValue: boolean;
+  }>();
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'refresh'): void
-}>()
+  const emit = defineEmits<{
+    (e: 'update:modelValue', value: boolean): void;
+    (e: 'refresh'): void;
+  }>();
 
-const visible = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  });
 
-const formRef = ref()
-const submitLoading = ref(false)
-const userLoading = ref(false)
-const userOptions = ref<UserOption[]>([])
+  const formRef = ref();
+  const submitLoading = ref(false);
+  const userLoading = ref(false);
+  const userOptions = ref<UserOption[]>([]);
 
-const defaultFormData: MessageFormType = {
-  receiverIds: [],
-  title: '',
-  type: 'normal',
-  priority: 'medium',
-  content: ''
-}
+  const defaultFormData: MessageFormType = {
+    receiverIds: [],
+    title: '',
+    type: 'normal',
+    priority: 'medium',
+    content: '',
+  };
 
-const formData = reactive<MessageFormType>({ ...defaultFormData })
+  const formData = reactive<MessageFormType>({ ...defaultFormData });
 
-const rules = {
-  receiverIds: [{ required: true, message: '请选择接收人', trigger: 'change' }],
-  title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择类型', trigger: 'change' }],
-  priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
-  content: [{ required: true, message: '请输入消息内容', trigger: 'blur' }]
-}
+  const rules = {
+    receiverIds: [{ required: true, message: '请选择接收人', trigger: 'change' }],
+    title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
+    type: [{ required: true, message: '请选择类型', trigger: 'change' }],
+    priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
+    content: [{ required: true, message: '请输入消息内容', trigger: 'blur' }],
+  };
 
-async function handleRemoteSearch(query: string) {
-  if (query) {
-    userLoading.value = true
+  async function handleRemoteSearch(query: string) {
+    if (query) {
+      userLoading.value = true;
+      try {
+        userOptions.value = [
+          { userId: 1, username: 'admin', nickname: '管理员' },
+          { userId: 2, username: 'test', nickname: '测试用户' },
+          { userId: 3, username: 'user1', nickname: '用户1' },
+        ].filter(
+          (user) =>
+            user.username.includes(query) || (user.nickname && user.nickname.includes(query)),
+        );
+      } finally {
+        userLoading.value = false;
+      }
+    } else {
+      userOptions.value = [];
+    }
+  }
+
+  function resetForm() {
+    Object.assign(formData, { ...defaultFormData });
+    formRef.value?.resetFields();
+  }
+
+  async function handleSubmit() {
     try {
-      userOptions.value = [
-        { userId: 1, username: 'admin', nickname: '管理员' },
-        { userId: 2, username: 'test', nickname: '测试用户' },
-        { userId: 3, username: 'user1', nickname: '用户1' }
-      ].filter(user =>
-        user.username.includes(query) ||
-        (user.nickname && user.nickname.includes(query))
-      )
+      await formRef.value?.validate();
+      submitLoading.value = true;
+      await sendMessage(formData);
+      ElMessage.success('发送成功');
+      visible.value = false;
+      emit('refresh');
+    } catch (error) {
+      if (error !== false) {
+        console.error('发送失败:', error);
+      }
     } finally {
-      userLoading.value = false
+      submitLoading.value = false;
     }
-  } else {
-    userOptions.value = []
   }
-}
 
-function resetForm() {
-  Object.assign(formData, { ...defaultFormData })
-  formRef.value?.resetFields()
-}
-
-async function handleSubmit() {
-  try {
-    await formRef.value?.validate()
-    submitLoading.value = true
-    await sendMessage(formData)
-    ElMessage.success('发送成功')
-    visible.value = false
-    emit('refresh')
-  } catch (error) {
-    if (error !== false) {
-      console.error('发送失败:', error)
-    }
-  } finally {
-    submitLoading.value = false
+  function handleCancel() {
+    visible.value = false;
   }
-}
 
-function handleCancel() {
-  visible.value = false
-}
-
-function handleClosed() {
-  resetForm()
-}
+  function handleClosed() {
+    resetForm();
+  }
 </script>
 
 <style scoped lang="scss">
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
 </style>

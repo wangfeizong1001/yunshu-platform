@@ -65,7 +65,9 @@
         <el-table-column prop="dictName" label="字典名称" width="150" />
         <el-table-column prop="dictType" label="字典类型" width="200">
           <template #default="{ row }">
-            <el-link type="primary" @click="handleViewData(row as SysDictType)">{{ row.dictType }}</el-link>
+            <el-link type="primary" @click="handleViewData(row as SysDictType)">{{
+              row.dictType
+            }}</el-link>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
@@ -122,135 +124,135 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
-import { getDictTypePage, deleteDictType, exportDictType } from '@/api/system/dict.api'
-import type { SysDictType, SysDictTypeQuery } from '@yunshu/shared'
-import DictTypeForm from './DictTypeForm.vue'
-import DictDataList from './DictDataList.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue';
+  import { getDictTypePage, deleteDictType, exportDictType } from '@/api/system/dict.api';
+  import type { SysDictType, SysDictTypeQuery } from '@yunshu/shared';
+  import DictTypeForm from './DictTypeForm.vue';
+  import DictDataList from './DictDataList.vue';
 
-// 状态
-const loading = ref(false)
-const dictTypeList = ref<SysDictType[]>([])
-const total = ref(0)
-const selectedRows = ref<SysDictType[]>([])
-const formVisible = ref(false)
-const dataVisible = ref(false)
-const currentDictType = ref<SysDictType | null>(null)
+  // 状态
+  const loading = ref(false);
+  const dictTypeList = ref<SysDictType[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<SysDictType[]>([]);
+  const formVisible = ref(false);
+  const dataVisible = ref(false);
+  const currentDictType = ref<SysDictType | null>(null);
 
-// 查询参数
-const queryParams = reactive<SysDictTypeQuery>({
-  keyword: '',
-  status: undefined,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<SysDictTypeQuery>({
+    keyword: '',
+    status: undefined,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 加载字典类型列表
-async function fetchDictTypeList() {
-  loading.value = true
-  try {
-    const res = await getDictTypePage(queryParams) as { rows: SysDictType[]; total: number }
-    dictTypeList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchDictTypeList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.status = undefined
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchDictTypeList()
-}
-
-// 新增
-function handleAdd() {
-  currentDictType.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: SysDictType) {
-  currentDictType.value = { ...row }
-  formVisible.value = true
-}
-
-// 查看字典数据
-function handleViewData(row: SysDictType) {
-  currentDictType.value = row
-  dataVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: SysDictType) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除字典"${row.dictName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteDictType(row.dictId)
-    ElMessage.success('删除成功')
-    fetchDictTypeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载字典类型列表
+  async function fetchDictTypeList() {
+    loading.value = true;
+    try {
+      const res = (await getDictTypePage(queryParams)) as { rows: SysDictType[]; total: number };
+      dictTypeList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 导出
-async function handleExport() {
-  try {
-    await exportDictType(queryParams)
-    ElMessage.success('导出成功')
-  } catch (error) {
-    console.error('导出失败', error)
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchDictTypeList();
   }
-}
 
-// 批量选择
-function handleSelectionChange(selection: SysDictType[]) {
-  selectedRows.value = selection
-}
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.status = undefined;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
 
-// 初始化
-onMounted(() => {
-  fetchDictTypeList()
-})
+  // 刷新表格
+  function refreshTable() {
+    fetchDictTypeList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentDictType.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: SysDictType) {
+    currentDictType.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 查看字典数据
+  function handleViewData(row: SysDictType) {
+    currentDictType.value = row;
+    dataVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: SysDictType) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除字典"${row.dictName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteDictType(row.dictId);
+      ElMessage.success('删除成功');
+      fetchDictTypeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 导出
+  async function handleExport() {
+    try {
+      await exportDictType(queryParams);
+      ElMessage.success('导出成功');
+    } catch (error) {
+      console.error('导出失败', error);
+    }
+  }
+
+  // 批量选择
+  function handleSelectionChange(selection: SysDictType[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchDictTypeList();
+  });
 </script>
 
 <style scoped lang="scss">
-.dict-type-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .dict-type-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

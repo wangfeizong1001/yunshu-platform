@@ -4,38 +4,38 @@
 import request from '@/utils/request';
 // 获取验证码
 export function getCaptchaApi() {
-    return request({
-        url: '/auth/captcha',
-        method: 'get'
-    });
+  return request({
+    url: '/auth/captcha',
+    method: 'get',
+  });
 }
 // 登录
 export function loginApi(data) {
-    return request({
-        url: '/auth/login',
-        method: 'post',
-        data
-    });
+  return request({
+    url: '/auth/login',
+    method: 'post',
+    data,
+  });
 }
 // 退出登录
 export function logoutApi() {
-    return request({
-        url: '/auth/logout',
-        method: 'post'
-    });
+  return request({
+    url: '/auth/logout',
+    method: 'post',
+  });
 }
 // 获取用户信息
 export function getUserInfoApi() {
-    return request({
-        url: '/auth/getInfo',
-        method: 'get'
-    });
+  return request({
+    url: '/auth/getInfo',
+    method: 'get',
+  });
 }
 // 获取路由菜单
 export function getRoutersApi() {
-    return request({
-        url: '/system/menu/getRouters',
-        method: 'get'
-    });
+  return request({
+    url: '/system/menu/getRouters',
+    method: 'get',
+  });
 }
 //# sourceMappingURL=auth.js.map

@@ -2,23 +2,23 @@
  * 登录日志 API
  */
 export interface LogininforQuery {
-    pageNum?: number;
-    pageSize?: number;
-    userName?: string;
-    status?: string;
-    startTime?: string;
-    endTime?: string;
+  pageNum?: number;
+  pageSize?: number;
+  userName?: string;
+  status?: string;
+  startTime?: string;
+  endTime?: string;
 }
 export interface LogininforInfo {
-    infoId: number;
-    userName: string;
-    ipaddr: string;
-    loginLocation: string;
-    browser: string;
-    os: string;
-    status: string;
-    msg: string;
-    loginTime: string;
+  infoId: number;
+  userName: string;
+  ipaddr: string;
+  loginLocation: string;
+  browser: string;
+  os: string;
+  status: string;
+  msg: string;
+  loginTime: string;
 }
 export declare const getLogininforList: (params?: LogininforQuery) => Promise<unknown>;
 export declare const getLogininforPage: (params?: LogininforQuery) => Promise<unknown>;

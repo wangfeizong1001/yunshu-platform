@@ -88,18 +88,16 @@ export class FileController extends BaseController {
     if (params.keyword) {
       const kw = params.keyword.toLowerCase();
       filtered = filtered.filter(
-        f =>
-          f.fileName.toLowerCase().includes(kw) ||
-          f.originalName?.toLowerCase().includes(kw),
+        (f) => f.fileName.toLowerCase().includes(kw) || f.originalName?.toLowerCase().includes(kw),
       );
     }
 
     if (params.storageType) {
-      filtered = filtered.filter(f => f.storageType === params.storageType);
+      filtered = filtered.filter((f) => f.storageType === params.storageType);
     }
 
     if (params.fileType) {
-      filtered = filtered.filter(f => f.fileType === params.fileType);
+      filtered = filtered.filter((f) => f.fileType === params.fileType);
     }
 
     const total = filtered.length;
@@ -117,7 +115,7 @@ export class FileController extends BaseController {
    */
   async getById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const file = mockFiles.find(f => f.fileId === Number(id));
+    const file = mockFiles.find((f) => f.fileId === Number(id));
 
     if (!file) {
       return this.notFound(res, '文件不存在');
@@ -130,14 +128,16 @@ export class FileController extends BaseController {
    * 上传文件
    */
   async upload(req: Request, res: Response): Promise<Response> {
-    const file = (req as unknown as { file?: { originalname: string; size: number; path?: string } }).file;
+    const file = (
+      req as unknown as { file?: { originalname: string; size: number; path?: string } }
+    ).file;
 
     if (!file) {
       return this.badRequest(res, '请选择要上传的文件');
     }
 
     const newFile: SysFile = {
-      fileId: Math.max(...mockFiles.map(f => f.fileId)) + 1,
+      fileId: Math.max(...mockFiles.map((f) => f.fileId)) + 1,
       fileName: file.originalname,
       originalName: file.originalname,
       filePath: `/uploads/${Date.now()}-${file.originalname}`,
@@ -152,13 +152,17 @@ export class FileController extends BaseController {
 
     mockFiles.push(newFile);
 
-    return this.created(res, {
-      fileId: newFile.fileId,
-      fileName: newFile.fileName,
-      filePath: newFile.filePath,
-      fileSize: newFile.fileSize,
-      fileType: newFile.fileType,
-    }, '上传成功');
+    return this.created(
+      res,
+      {
+        fileId: newFile.fileId,
+        fileName: newFile.fileName,
+        filePath: newFile.filePath,
+        fileSize: newFile.fileSize,
+        fileType: newFile.fileType,
+      },
+      '上传成功',
+    );
   }
 
   /**
@@ -166,7 +170,7 @@ export class FileController extends BaseController {
    */
   async download(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const file = mockFiles.find(f => f.fileId === Number(id));
+    const file = mockFiles.find((f) => f.fileId === Number(id));
 
     if (!file) {
       return this.notFound(res, '文件不存在');
@@ -185,7 +189,7 @@ export class FileController extends BaseController {
    */
   async delete(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const index = mockFiles.findIndex(f => f.fileId === Number(id));
+    const index = mockFiles.findIndex((f) => f.fileId === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '文件不存在');
@@ -205,8 +209,8 @@ export class FileController extends BaseController {
       return this.badRequest(res, '请选择要删除的文件');
     }
 
-    ids.forEach(id => {
-      const index = mockFiles.findIndex(f => f.fileId === id);
+    ids.forEach((id) => {
+      const index = mockFiles.findIndex((f) => f.fileId === id);
       if (index !== -1) {
         mockFiles.splice(index, 1);
       }
@@ -221,7 +225,7 @@ export class FileController extends BaseController {
   async update(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     const { remark } = req.body;
-    const file = mockFiles.find(f => f.fileId === Number(id));
+    const file = mockFiles.find((f) => f.fileId === Number(id));
 
     if (!file) {
       return this.notFound(res, '文件不存在');
@@ -241,15 +245,40 @@ export class FileController extends BaseController {
       totalFiles: mockFiles.length,
       totalSize: mockFiles.reduce((sum, f) => sum + f.fileSize, 0),
       byStorageType: {
-        local: mockFiles.filter(f => f.storageType === 'local').length,
-        oss: mockFiles.filter(f => f.storageType === 'oss').length,
-        cos: mockFiles.filter(f => f.storageType === 'cos').length,
+        local: mockFiles.filter((f) => f.storageType === 'local').length,
+        oss: mockFiles.filter((f) => f.storageType === 'oss').length,
+        cos: mockFiles.filter((f) => f.storageType === 'cos').length,
       },
       byFileType: {
-        image: mockFiles.filter(f => ['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(f.fileType)).length,
-        video: mockFiles.filter(f => ['.mp4', '.avi', '.mov', '.wmv'].includes(f.fileType)).length,
-        document: mockFiles.filter(f => ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(f.fileType)).length,
-        other: mockFiles.filter(f => !['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.mp4', '.avi', '.mov', '.wmv', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(f.fileType)).length,
+        image: mockFiles.filter((f) =>
+          ['.jpg', '.jpeg', '.png', '.gif', '.bmp'].includes(f.fileType),
+        ).length,
+        video: mockFiles.filter((f) => ['.mp4', '.avi', '.mov', '.wmv'].includes(f.fileType))
+          .length,
+        document: mockFiles.filter((f) =>
+          ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(f.fileType),
+        ).length,
+        other: mockFiles.filter(
+          (f) =>
+            ![
+              '.jpg',
+              '.jpeg',
+              '.png',
+              '.gif',
+              '.bmp',
+              '.mp4',
+              '.avi',
+              '.mov',
+              '.wmv',
+              '.pdf',
+              '.doc',
+              '.docx',
+              '.xls',
+              '.xlsx',
+              '.ppt',
+              '.pptx',
+            ].includes(f.fileType),
+        ).length,
       },
     };
 

@@ -68,4 +68,4 @@ export default {
     hasUser: '部门下存在用户，无法删除',
     nameExists: '部门名称已存在',
   },
-}
+};

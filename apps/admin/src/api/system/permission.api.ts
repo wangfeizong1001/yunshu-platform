@@ -2,21 +2,21 @@
  * 权限管理 API
  */
 
-import { request } from '@/utils/request'
+import { request } from '@/utils/request';
 
 /** 权限信息 */
 export interface PermissionInfo {
   /** 权限标识列表 */
-  permissions: string[]
+  permissions: string[];
   /** 角色列表 */
-  roles: string[]
+  roles: string[];
   /** 用户信息 */
   user: {
-    userId: number
-    username: string
-    nickname: string
-    avatar: string
-  }
+    userId: number;
+    username: string;
+    nickname: string;
+    avatar: string;
+  };
 }
 
 /**
@@ -26,7 +26,7 @@ export function getCurrentPermission() {
   return request<PermissionInfo>({
     url: '/system/permission/current',
     method: 'get',
-  })
+  });
 }
 
 /**
@@ -36,38 +36,38 @@ export function getRouters() {
   return request<MenuRoute[]>({
     url: '/system/permission/routers',
     method: 'get',
-  })
+  });
 }
 
 /** 路由菜单 */
 export interface MenuRoute {
   /** 路由名称 */
-  name: string
+  name: string;
   /** 路由路径 */
-  path: string
+  path: string;
   /** 组件路径 */
-  component?: string
+  component?: string;
   /** 路由参数 */
-  query?: string
+  query?: string;
   /** 元信息 */
   meta: {
     /** 菜单名称 */
-    title: string
+    title: string;
     /** 菜单图标 */
-    icon?: string
+    icon?: string;
     /** 是否隐藏 */
-    hidden?: boolean
+    hidden?: boolean;
     /** 是否缓存 */
-    noCache?: boolean
+    noCache?: boolean;
     /** 是否总是显示 */
-    alwaysShow?: boolean
+    alwaysShow?: boolean;
     /** 权限标识 */
-    permissions?: string[]
+    permissions?: string[];
     /** 角色标识 */
-    roles?: string[]
-  }
+    roles?: string[];
+  };
   /** 子路由 */
-  children?: MenuRoute[]
+  children?: MenuRoute[];
 }
 
 /**
@@ -77,5 +77,5 @@ export function refreshPermission() {
   return request<PermissionInfo>({
     url: '/system/permission/refresh',
     method: 'post',
-  })
+  });
 }

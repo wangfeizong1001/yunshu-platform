@@ -135,141 +135,141 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
-import { getRolePage, deleteRole } from '@/api/system/role.api'
-import type { SysRole } from '@yunshu/shared'
-import RoleForm from './RoleForm.vue'
-import RolePermission from './RolePermission.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue';
+  import { getRolePage, deleteRole } from '@/api/system/role.api';
+  import type { SysRole } from '@yunshu/shared';
+  import RoleForm from './RoleForm.vue';
+  import RolePermission from './RolePermission.vue';
 
-// 状态
-const loading = ref(false)
-const exporting = ref(false)
-const roleList = ref<SysRole[]>([])
-const total = ref(0)
-const selectedRows = ref<SysRole[]>([])
-const formVisible = ref(false)
-const permissionVisible = ref(false)
-const currentRole = ref<SysRole | null>(null)
-const currentRoleId = ref<number>()
+  // 状态
+  const loading = ref(false);
+  const exporting = ref(false);
+  const roleList = ref<SysRole[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<SysRole[]>([]);
+  const formVisible = ref(false);
+  const permissionVisible = ref(false);
+  const currentRole = ref<SysRole | null>(null);
+  const currentRoleId = ref<number>();
 
-// 查询参数
-const queryParams = reactive<any>({
-  roleName: '',
-  roleKey: '',
-  status: undefined,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<any>({
+    roleName: '',
+    roleKey: '',
+    status: undefined,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 加载角色列表
-async function fetchRoleList() {
-  loading.value = true
-  try {
-    const res = await getRolePage(queryParams) as any
-    roleList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchRoleList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.roleName = ''
-  queryParams.roleKey = ''
-  queryParams.status = undefined
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchRoleList()
-}
-
-// 新增
-function handleAdd() {
-  currentRole.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: any) {
-  currentRole.value = { ...row }
-  formVisible.value = true
-}
-
-// 权限分配
-function handlePermission(row: any) {
-  currentRoleId.value = row.roleId
-  permissionVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除角色"${row.roleName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteRole(row.roleId)
-    ElMessage.success('删除成功')
-    fetchRoleList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载角色列表
+  async function fetchRoleList() {
+    loading.value = true;
+    try {
+      const res = (await getRolePage(queryParams)) as any;
+      roleList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 导出
-async function handleExport() {
-  try {
-    exporting.value = true
-    ElMessage.info('导出功能开发中')
-  } catch (error) {
-    console.error('导出失败', error)
-  } finally {
-    exporting.value = false
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchRoleList();
   }
-}
 
-// 批量选择
-function handleSelectionChange(selection: SysRole[]) {
-  selectedRows.value = selection
-}
+  // 重置查询
+  function resetQuery() {
+    queryParams.roleName = '';
+    queryParams.roleKey = '';
+    queryParams.status = undefined;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
 
-// 初始化
-onMounted(() => {
-  fetchRoleList()
-})
+  // 刷新表格
+  function refreshTable() {
+    fetchRoleList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentRole.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: any) {
+    currentRole.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 权限分配
+  function handlePermission(row: any) {
+    currentRoleId.value = row.roleId;
+    permissionVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除角色"${row.roleName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteRole(row.roleId);
+      ElMessage.success('删除成功');
+      fetchRoleList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 导出
+  async function handleExport() {
+    try {
+      exporting.value = true;
+      ElMessage.info('导出功能开发中');
+    } catch (error) {
+      console.error('导出失败', error);
+    } finally {
+      exporting.value = false;
+    }
+  }
+
+  // 批量选择
+  function handleSelectionChange(selection: SysRole[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchRoleList();
+  });
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .page-container {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

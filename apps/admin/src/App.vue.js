@@ -4,39 +4,36 @@ import { usePermissionStore } from '@/store/modules/permission';
 const permissionStore = usePermissionStore();
 // 初始化权限信息
 onMounted(async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        try {
-            await permissionStore.generateRoutes();
-        }
-        catch (error) {
-            console.error('获取权限信息失败', error);
-        }
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      await permissionStore.generateRoutes();
+    } catch (error) {
+      console.error('获取权限信息失败', error);
     }
+  }
 });
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_ctx = {};
 let __VLS_components;
 let __VLS_directives;
-// CSS variable injection 
-// CSS variable injection end 
+// CSS variable injection
+// CSS variable injection end
 const __VLS_0 = {}.RouterView;
-/** @type {[typeof __VLS_components.RouterView, typeof __VLS_components.routerView, ]} */ ;
-// @ts-ignore
+/** @type {[typeof __VLS_components.RouterView, typeof __VLS_components.routerView, ]} */ // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({}));
 const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
 var __VLS_4 = {};
 var __VLS_3;
 var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
-    setup() {
-        return {};
-    },
+  setup() {
+    return {};
+  },
 });
 export default (await import('vue')).defineComponent({
-    setup() {
-        return {};
-    },
-});
-; /* PartiallyEnd: #4569/main.vue */
+  setup() {
+    return {};
+  },
+}); /* PartiallyEnd: #4569/main.vue */
 //# sourceMappingURL=App.vue.js.map

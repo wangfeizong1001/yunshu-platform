@@ -114,4 +114,4 @@ export default {
     groupExists: 'Task group already exists',
     cronInvalid: 'Cron expression is invalid',
   },
-}
+};

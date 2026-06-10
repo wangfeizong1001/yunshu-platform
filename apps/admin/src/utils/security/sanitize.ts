@@ -23,14 +23,70 @@ export interface SanitizeOptions {
 
 const DEFAULT_CONFIG: Config = {
   ALLOWED_TAGS: [
-    'a', 'b', 'br', 'code', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'hr', 'i', 'img', 'li', 'ol', 'p', 'pre', 'small', 'span', 'strong',
-    'sub', 'sup', 'table', 'tbody', 'td', 'th', 'thead', 'tr', 'u', 'ul',
+    'a',
+    'b',
+    'br',
+    'code',
+    'div',
+    'em',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'hr',
+    'i',
+    'img',
+    'li',
+    'ol',
+    'p',
+    'pre',
+    'small',
+    'span',
+    'strong',
+    'sub',
+    'sup',
+    'table',
+    'tbody',
+    'td',
+    'th',
+    'thead',
+    'tr',
+    'u',
+    'ul',
   ],
   ALLOWED_ATTR: ['href', 'title', 'alt', 'src', 'target', 'class', 'id', 'name', 'rel'],
   ALLOW_DATA_ATTR: false,
-  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'button', 'select', 'option', 'link', 'meta'],
-  FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'ondblclick', 'onkeydown', 'onkeypress', 'onkeyup'],
+  FORBID_TAGS: [
+    'script',
+    'style',
+    'iframe',
+    'object',
+    'embed',
+    'form',
+    'input',
+    'textarea',
+    'button',
+    'select',
+    'option',
+    'link',
+    'meta',
+  ],
+  FORBID_ATTR: [
+    'onclick',
+    'onload',
+    'onerror',
+    'onmouseover',
+    'onfocus',
+    'onblur',
+    'onchange',
+    'onsubmit',
+    'ondblclick',
+    'onkeydown',
+    'onkeypress',
+    'onkeyup',
+  ],
   // 对 target=_blank 的链接自动注入 noopener/noreferrer
   ADD_ATTR: ['target'],
 };
@@ -38,7 +94,10 @@ const DEFAULT_CONFIG: Config = {
 /**
  * 清理富文本内容，返回可安全 v-html 的字符串
  */
-export function sanitizeHtml(dirty: string | null | undefined, options: SanitizeOptions = {}): string {
+export function sanitizeHtml(
+  dirty: string | null | undefined,
+  options: SanitizeOptions = {},
+): string {
   if (!dirty) {
     return '';
   }
@@ -75,7 +134,11 @@ export function stripHtml(html: string | null | undefined): string {
   if (!html) {
     return '';
   }
-  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').replace(/\s+/g, ' ').trim();
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**

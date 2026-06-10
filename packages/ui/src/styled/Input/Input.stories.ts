@@ -7,7 +7,11 @@ const meta: Meta<typeof YunInput> = {
   component: YunInput,
   tags: ['autodocs'],
   argTypes: {
-    type: { control: 'select', options: ['text', 'password', 'email', 'number'], description: '输入类型' },
+    type: {
+      control: 'select',
+      options: ['text', 'password', 'email', 'number'],
+      description: '输入类型',
+    },
     placeholder: { control: 'text', description: '占位提示' },
     disabled: { control: 'boolean', description: '是否禁用' },
     readonly: { control: 'boolean', description: '是否只读' },
@@ -22,7 +26,10 @@ type Story = StoryObj<typeof YunInput>;
 export const Default: Story = {
   render: () => ({
     components: { YunInput },
-    setup: () => { const val = ref(''); return { val }; },
+    setup: () => {
+      const val = ref('');
+      return { val };
+    },
     template: '<YunInput v-model="val" placeholder="请输入内容" />',
   }),
 };
@@ -30,7 +37,10 @@ export const Default: Story = {
 export const WithError: Story = {
   render: () => ({
     components: { YunInput },
-    setup: () => { const val = ref('bad'); return { val }; },
+    setup: () => {
+      const val = ref('bad');
+      return { val };
+    },
     template: '<YunInput v-model="val" error="此字段格式不正确" />',
   }),
 };
@@ -48,7 +58,10 @@ export const Clearable: Story = {
   args: { clearable: true },
   render: (args) => ({
     components: { YunInput },
-    setup: () => { const val = ref('点击右侧✕清除'); return { val, args }; },
+    setup: () => {
+      const val = ref('点击右侧✕清除');
+      return { val, args };
+    },
     template: '<YunInput v-model="val" v-bind="args" />',
   }),
 };

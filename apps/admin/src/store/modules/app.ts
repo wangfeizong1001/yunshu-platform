@@ -1,30 +1,30 @@
-import { defineStore } from 'pinia'
-import { useLocalStorage } from '@vueuse/core'
+import { defineStore } from 'pinia';
+import { useLocalStorage } from '@vueuse/core';
 
 interface AppState {
-  sidebarCollapsed: boolean
-  language: string
-  size: string
+  sidebarCollapsed: boolean;
+  language: string;
+  size: string;
 }
 
-export type { AppState }
+export type { AppState };
 
 export const useAppStore = defineStore('app', () => {
-  const sidebarCollapsed = useLocalStorage('sidebar-collapsed', false)
-  const language = useLocalStorage('language', 'zh-CN')
-  const size = useLocalStorage('size', 'default')
+  const sidebarCollapsed = useLocalStorage('sidebar-collapsed', false);
+  const language = useLocalStorage('language', 'zh-CN');
+  const size = useLocalStorage('size', 'default');
 
   const toggleSidebar = () => {
-    sidebarCollapsed.value = !sidebarCollapsed.value
-  }
+    sidebarCollapsed.value = !sidebarCollapsed.value;
+  };
 
   const setLanguage = (lang: string) => {
-    language.value = lang
-  }
+    language.value = lang;
+  };
 
   const setSize = (newSize: string) => {
-    size.value = newSize
-  }
+    size.value = newSize;
+  };
 
   return {
     sidebarCollapsed,
@@ -32,6 +32,6 @@ export const useAppStore = defineStore('app', () => {
     size,
     toggleSidebar,
     setLanguage,
-    setSize
-  }
-})
+    setSize,
+  };
+});

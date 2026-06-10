@@ -298,17 +298,19 @@ export class HttpClient {
       return response.data;
     }
 
-    const requestPromise = this.request<T>(config).then((response) => {
-      if (cacheOptions?.enabled ?? this.options.cache.enabled) {
-        const ttl = cacheOptions?.ttl ?? this.options.cache.ttl!;
-        this.memoryCache.set(requestKey, response.data, ttl);
-      }
-      setTimeout(() => this.dedupCache.delete(requestKey), this.options.dedup.window);
-      return response;
-    }).catch((error) => {
-      this.dedupCache.delete(requestKey);
-      throw error;
-    });
+    const requestPromise = this.request<T>(config)
+      .then((response) => {
+        if (cacheOptions?.enabled ?? this.options.cache.enabled) {
+          const ttl = cacheOptions?.ttl ?? this.options.cache.ttl!;
+          this.memoryCache.set(requestKey, response.data, ttl);
+        }
+        setTimeout(() => this.dedupCache.delete(requestKey), this.options.dedup.window);
+        return response;
+      })
+      .catch((error) => {
+        this.dedupCache.delete(requestKey);
+        throw error;
+      });
 
     this.dedupCache.set(requestKey, requestPromise);
     const response = await requestPromise;
@@ -320,11 +322,7 @@ export class HttpClient {
    */
   async post<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
     if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
-      throw new RequestError(
-        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
-        413,
-        'PAYLOAD_TOO_LARGE',
-      );
+      throw new RequestError(`请求体过大（限制 ${DATA_MAX_SIZE} 字节）`, 413, 'PAYLOAD_TOO_LARGE');
     }
     const response = await this.request<T>({ method: 'POST', url, data });
     return response.data;
@@ -335,11 +333,7 @@ export class HttpClient {
    */
   async put<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
     if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
-      throw new RequestError(
-        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
-        413,
-        'PAYLOAD_TOO_LARGE',
-      );
+      throw new RequestError(`请求体过大（限制 ${DATA_MAX_SIZE} 字节）`, 413, 'PAYLOAD_TOO_LARGE');
     }
     const response = await this.request<T>({ method: 'PUT', url, data });
     return response.data;
@@ -350,11 +344,7 @@ export class HttpClient {
    */
   async patch<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
     if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
-      throw new RequestError(
-        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
-        413,
-        'PAYLOAD_TOO_LARGE',
-      );
+      throw new RequestError(`请求体过大（限制 ${DATA_MAX_SIZE} 字节）`, 413, 'PAYLOAD_TOO_LARGE');
     }
     const response = await this.request<T>({ method: 'PATCH', url, data });
     return response.data;
@@ -365,11 +355,7 @@ export class HttpClient {
    */
   async delete<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
     if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
-      throw new RequestError(
-        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
-        413,
-        'PAYLOAD_TOO_LARGE',
-      );
+      throw new RequestError(`请求体过大（限制 ${DATA_MAX_SIZE} 字节）`, 413, 'PAYLOAD_TOO_LARGE');
     }
     const response = await this.request<T>({ method: 'DELETE', url, data });
     return response.data;

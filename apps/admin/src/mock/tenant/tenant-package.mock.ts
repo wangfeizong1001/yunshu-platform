@@ -2,11 +2,7 @@
  * 租户套餐 Mock 数据
  */
 
-import type {
-  TenantPackage,
-  TenantPackageQuery,
-  TenantPackagePageResp,
-} from '@yunshu/shared'
+import type { TenantPackage, TenantPackageQuery, TenantPackagePageResp } from '@yunshu/shared';
 
 /** 模拟套餐数据 */
 const mockPackages: TenantPackage[] = [
@@ -90,103 +86,101 @@ const mockPackages: TenantPackage[] = [
     createTime: '2024-03-01 00:00:00',
     updateTime: '2024-03-01 00:00:00',
   },
-]
+];
 
 /** 分页查询套餐 */
-export function getPackagePage(
-  params: TenantPackageQuery
-): TenantPackagePageResp {
-  const { keyword, status, packageType, pageNum = 1, pageSize = 10 } = params || {}
+export function getPackagePage(params: TenantPackageQuery): TenantPackagePageResp {
+  const { keyword, status, packageType, pageNum = 1, pageSize = 10 } = params || {};
 
-  let filtered = [...mockPackages]
+  let filtered = [...mockPackages];
 
   if (keyword) {
-    const kw = keyword.toLowerCase()
+    const kw = keyword.toLowerCase();
     filtered = filtered.filter(
-      p => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw)
-    )
+      (p) => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw),
+    );
   }
 
   if (status) {
-    filtered = filtered.filter(p => p.status === status)
+    filtered = filtered.filter((p) => p.status === status);
   }
 
   if (packageType) {
-    filtered = filtered.filter(p => p.packageType === packageType)
+    filtered = filtered.filter((p) => p.packageType === packageType);
   }
 
-  const total = filtered.length
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filtered.slice(start, end)
+  const total = filtered.length;
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filtered.slice(start, end);
 
-  return { total, rows }
+  return { total, rows };
 }
 
 /** 获取套餐列表 */
 export function getPackageList(params?: TenantPackageQuery): TenantPackage[] {
-  const { keyword, status, packageType } = params || {}
+  const { keyword, status, packageType } = params || {};
 
-  let filtered = [...mockPackages]
+  let filtered = [...mockPackages];
 
   if (keyword) {
-    const kw = keyword.toLowerCase()
+    const kw = keyword.toLowerCase();
     filtered = filtered.filter(
-      p => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw)
-    )
+      (p) => p.packageName.toLowerCase().includes(kw) || p.remark.toLowerCase().includes(kw),
+    );
   }
 
   if (status) {
-    filtered = filtered.filter(p => p.status === status)
+    filtered = filtered.filter((p) => p.status === status);
   }
 
   if (packageType) {
-    filtered = filtered.filter(p => p.packageType === packageType)
+    filtered = filtered.filter((p) => p.packageType === packageType);
   }
 
-  return filtered.filter(p => p.status === '0')
+  return filtered.filter((p) => p.status === '0');
 }
 
 /** 获取套餐详情 */
 export function getPackageById(packageId: number): TenantPackage | undefined {
-  return mockPackages.find(p => p.packageId === packageId)
+  return mockPackages.find((p) => p.packageId === packageId);
 }
 
 /** 新增套餐 */
 export function createPackage(
-  data: Omit<TenantPackage, 'packageId' | 'createTime' | 'updateTime'>
+  data: Omit<TenantPackage, 'packageId' | 'createTime' | 'updateTime'>,
 ): TenantPackage {
   const newPackage: TenantPackage = {
     ...data,
-    packageId: Math.max(...mockPackages.map(p => p.packageId)) + 1,
+    packageId: Math.max(...mockPackages.map((p) => p.packageId)) + 1,
     createTime: new Date().toLocaleString('zh-CN'),
     updateTime: new Date().toLocaleString('zh-CN'),
-  }
-  mockPackages.push(newPackage)
-  return newPackage
+  };
+  mockPackages.push(newPackage);
+  return newPackage;
 }
 
 /** 更新套餐 */
 export function updatePackageById(
   packageId: number,
-  data: Partial<Omit<TenantPackage, 'packageId' | 'createTime'>>
+  data: Partial<Omit<TenantPackage, 'packageId' | 'createTime'>>,
 ): TenantPackage | undefined {
-  const index = mockPackages.findIndex(p => p.packageId === packageId)
-  if (index === -1) return undefined
+  const index = mockPackages.findIndex((p) => p.packageId === packageId);
+  if (index === -1) {return undefined;}
 
   mockPackages[index] = {
     ...mockPackages[index],
     ...data,
     updateTime: new Date().toLocaleString('zh-CN'),
-  }
-  return mockPackages[index]
+  };
+  return mockPackages[index];
 }
 
 /** 删除套餐 */
 export function deletePackageById(packageId: number): boolean {
-  const index = mockPackages.findIndex(p => p.packageId === packageId)
-  if (index === -1) return false
+  const index = mockPackages.findIndex((p) => p.packageId === packageId);
+  if (index === -1) {return false;}
 
-  mockPackages.splice(index, 1)
-  return true
+  mockPackages.splice(index, 1);
+  return true;
 }

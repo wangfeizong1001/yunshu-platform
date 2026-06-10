@@ -14,9 +14,9 @@ export default {
     componentName: 'Component Name',
     menuType: 'Menu Type',
     menuTypeMap: {
-      'M': 'Directory',
-      'C': 'Menu',
-      'F': 'Button',
+      M: 'Directory',
+      C: 'Menu',
+      F: 'Button',
     },
     visible: 'Visible',
     visibleMap: {
@@ -77,4 +77,4 @@ export default {
     existMenu: 'Menu already exists',
     nameExists: 'Menu name already exists',
   },
-}
+};

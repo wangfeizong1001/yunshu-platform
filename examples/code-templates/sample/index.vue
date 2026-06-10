@@ -78,116 +78,112 @@
       </div>
     </el-card>
 
-    <UserForm
-      v-model:visible="formVisible"
-      :user-id="currentUserId"
-      @success="handleSuccess"
-    />
+    <UserForm v-model:visible="formVisible" :user-id="currentUserId" @success="handleSuccess" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import type { User } from './types'
-import * as api from './api'
-import UserForm from './form.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus } from '@element-plus/icons-vue';
+  import type { User } from './types';
+  import * as api from './api';
+  import UserForm from './form.vue';
 
-const loading = ref(false)
-const tableData = ref<User[]>([])
-const total = ref(0)
-const selectedIds = ref<number[]>([])
-const formVisible = ref(false)
-const currentUserId = ref<number | null>(null)
+  const loading = ref(false);
+  const tableData = ref<User[]>([]);
+  const total = ref(0);
+  const selectedIds = ref<number[]>([]);
+  const formVisible = ref(false);
+  const currentUserId = ref<number | null>(null);
 
-const queryParams = reactive({
-  page: 1,
-  limit: 10,
-  username: '',
-  nickname: '',
-  status: undefined as number | undefined
-})
+  const queryParams = reactive({
+    page: 1,
+    limit: 10,
+    username: '',
+    nickname: '',
+    status: undefined as number | undefined,
+  });
 
-const handleQuery = async () => {
-  loading.value = true
-  try {
-    const res = await api.getUserList(queryParams)
-    if (res.success) {
-      tableData.value = res.data.list
-      total.value = res.data.total
+  const handleQuery = async () => {
+    loading.value = true;
+    try {
+      const res = await api.getUserList(queryParams);
+      if (res.success) {
+        tableData.value = res.data.list;
+        total.value = res.data.total;
+      }
+    } catch {
+      ElMessage.error('获取列表失败');
+    } finally {
+      loading.value = false;
     }
-  } catch {
-    ElMessage.error('获取列表失败')
-  } finally {
-    loading.value = false
-  }
-}
+  };
 
-const handleReset = () => {
-  queryParams.page = 1
-  queryParams.username = ''
-  queryParams.nickname = ''
-  queryParams.status = undefined
-  handleQuery()
-}
+  const handleReset = () => {
+    queryParams.page = 1;
+    queryParams.username = '';
+    queryParams.nickname = '';
+    queryParams.status = undefined;
+    handleQuery();
+  };
 
-const handleSelectionChange = (selection: User[]) => {
-  selectedIds.value = selection.map(item => item.id!)
-}
+  const handleSelectionChange = (selection: User[]) => {
+    selectedIds.value = selection.map((item) => item.id!);
+  };
 
-const handleAdd = () => {
-  currentUserId.value = null
-  formVisible.value = true
-}
+  const handleAdd = () => {
+    currentUserId.value = null;
+    formVisible.value = true;
+  };
 
-const handleEdit = (row: User) => {
-  currentUserId.value = row.id!
-  formVisible.value = true
-}
+  const handleEdit = (row: User) => {
+    currentUserId.value = row.id!;
+    formVisible.value = true;
+  };
 
-const handleDelete = async (row: User) => {
-  try {
-    await ElMessageBox.confirm('确定要删除该用户吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    await api.deleteUser(row.id!)
-    ElMessage.success('删除成功')
-    handleQuery()
-  } catch {
-    // 用户取消
-  }
-}
+  const handleDelete = async (row: User) => {
+    try {
+      await ElMessageBox.confirm('确定要删除该用户吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      });
+      await api.deleteUser(row.id!);
+      ElMessage.success('删除成功');
+      handleQuery();
+    } catch {
+      // 用户取消
+    }
+  };
 
-const handleSuccess = () => {
-  handleQuery()
-}
+  const handleSuccess = () => {
+    handleQuery();
+  };
 
-onMounted(() => {
-  handleQuery()
-})
+  onMounted(() => {
+    handleQuery();
+  });
 </script>
 
 <style lang="scss" scoped>
-.page-container {
-  .search-card {
-    margin-bottom: 16px;
-  }
-
-  .table-card {
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+  .page-container {
+    .search-card {
+      margin-bottom: 16px;
     }
 
-    .pagination-container {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 16px;
+    .table-card {
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .pagination-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+      }
     }
   }
-}
 </style>

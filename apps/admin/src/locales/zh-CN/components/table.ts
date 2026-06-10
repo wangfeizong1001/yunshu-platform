@@ -16,4 +16,4 @@ export default {
     showFilter: '显示筛选',
     hideFilter: '隐藏筛选',
   },
-}
+};

@@ -57,4 +57,4 @@ export default {
     codeExists: '岗位编码已存在',
     nameExists: '岗位名称已存在',
   },
-}
+};

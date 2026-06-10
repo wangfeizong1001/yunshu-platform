@@ -2,7 +2,7 @@
  * 工作流 Mock 数据
  */
 
-import type { ProcessDefinition, ProcessInstance, Task } from '../api/workflow.api'
+import type { ProcessDefinition, ProcessInstance, Task } from '../api/workflow.api';
 
 // 流程定义 Mock 数据
 export const mockProcessDefinitions: ProcessDefinition[] = [
@@ -61,7 +61,7 @@ export const mockProcessDefinitions: ProcessDefinition[] = [
     createTime: '2024-03-10 09:00:00',
     updateTime: '2024-03-10 09:00:00',
   },
-]
+];
 
 // 流程实例 Mock 数据
 export const mockProcessInstances: ProcessInstance[] = [
@@ -108,7 +108,7 @@ export const mockProcessInstances: ProcessInstance[] = [
     startTime: '2024-05-25 16:00:00',
     status: 'terminated',
   },
-]
+];
 
 // 待办任务 Mock 数据
 export const mockTodoTasks: Task[] = [
@@ -140,7 +140,7 @@ export const mockTodoTasks: Task[] = [
     businessKey: 'EXPENSE_20240602001',
     processDefinitionName: '报销审批',
   },
-]
+];
 
 // 已办任务 Mock 数据
 export const mockDoneTasks: Task[] = [
@@ -174,7 +174,7 @@ export const mockDoneTasks: Task[] = [
     businessKey: 'EXPENSE_20240525001',
     processDefinitionName: '报销审批',
   },
-]
+];
 
 // 流程历史记录 Mock
 export const mockProcessHistory = [
@@ -195,99 +195,99 @@ export const mockProcessHistory = [
     comment: '',
     outcome: 'pending',
   },
-]
+];
 
 // 获取流程定义分页 Mock
 export function getMockProcessDefinitionPage(params: any) {
-  const { pageNum = 1, pageSize = 10, name = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, name = '', status = '' } = params;
 
-  let filteredList = [...mockProcessDefinitions]
+  let filteredList = [...mockProcessDefinitions];
 
   if (name) {
-    filteredList = filteredList.filter((item) => item.name.includes(name))
+    filteredList = filteredList.filter((item) => item.name.includes(name));
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取流程实例分页 Mock
 export function getMockProcessInstancePage(params: any) {
-  const { pageNum = 1, pageSize = 10, processDefinitionName = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, processDefinitionName = '', status = '' } = params;
 
-  let filteredList = [...mockProcessInstances]
+  let filteredList = [...mockProcessInstances];
 
   if (processDefinitionName) {
     filteredList = filteredList.filter((item) =>
-      item.processDefinitionName.includes(processDefinitionName)
-    )
+      item.processDefinitionName.includes(processDefinitionName),
+    );
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取待办任务分页 Mock
 export function getMockTodoTaskPage(params: any) {
-  const { pageNum = 1, pageSize = 10, name = '' } = params
+  const { pageNum = 1, pageSize = 10, name = '' } = params;
 
-  let filteredList = [...mockTodoTasks]
+  let filteredList = [...mockTodoTasks];
 
   if (name) {
-    filteredList = filteredList.filter((item) => item.name.includes(name))
+    filteredList = filteredList.filter((item) => item.name.includes(name));
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取已办任务分页 Mock
 export function getMockDoneTaskPage(params: any) {
-  const { pageNum = 1, pageSize = 10, name = '' } = params
+  const { pageNum = 1, pageSize = 10, name = '' } = params;
 
-  let filteredList = [...mockDoneTasks]
+  let filteredList = [...mockDoneTasks];
 
   if (name) {
-    filteredList = filteredList.filter((item) => item.name.includes(name))
+    filteredList = filteredList.filter((item) => item.name.includes(name));
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取流程历史记录 Mock
 export function getMockProcessHistory(_processInstanceId: string) {
-  return mockProcessHistory
+  return mockProcessHistory;
 }

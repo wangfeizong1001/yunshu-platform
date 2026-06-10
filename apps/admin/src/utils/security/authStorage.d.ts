@@ -36,11 +36,16 @@ export declare function hasToken(): boolean;
  * 写入用户资料（序列化为 JSON 存 Cookie）
  * 注意：只存非敏感字段（id / nickname / avatar 等）
  */
-export declare function setUserProfile<T extends Record<string, unknown>>(profile: T, remember?: boolean): void;
+export declare function setUserProfile<T extends Record<string, unknown>>(
+  profile: T,
+  remember?: boolean,
+): void;
 /**
  * 读取用户资料
  */
-export declare function getUserProfile<T extends Record<string, unknown> = Record<string, unknown>>(): T | null;
+export declare function getUserProfile<
+  T extends Record<string, unknown> = Record<string, unknown>,
+>(): T | null;
 /**
  * 清理用户资料
  */

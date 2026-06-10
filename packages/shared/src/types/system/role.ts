@@ -3,10 +3,10 @@
  */
 
 /** 角色状态 */
-export type RoleStatus = '0' | '1'
+export type RoleStatus = '0' | '1';
 
 /** 角色数据权限范围 */
-export type RoleDataScope = '1' | '2' | '3' | '4' | '5'
+export type RoleDataScope = '1' | '2' | '3' | '4' | '5';
 /**
  * 1=全部数据权限
  * 2=自定数据权限
@@ -18,93 +18,93 @@ export type RoleDataScope = '1' | '2' | '3' | '4' | '5'
 /** 角色信息 */
 export interface SysRole {
   /** 角色ID */
-  roleId: number
+  roleId: number;
   /** 角色名称 */
-  roleName: string
+  roleName: string;
   /** 角色权限字符串 */
-  roleKey: string
+  roleKey: string;
   /** 显示顺序 */
-  roleSort: number
+  roleSort: number;
   /** 数据权限范围 */
-  dataScope: RoleDataScope
+  dataScope: RoleDataScope;
   /** 菜单树选择范围是否关联显示 */
-  menuCheckStrictly: boolean
+  menuCheckStrictly: boolean;
   /** 部门树选择范围是否关联显示 */
-  deptCheckStrictly: boolean
+  deptCheckStrictly: boolean;
   /** 状态: 0=正常, 1=停用 */
-  status: RoleStatus
+  status: RoleStatus;
   /** 角色权限列表 */
-  permissions: string[]
+  permissions: string[];
   /** 备注 */
-  remark: string
+  remark: string;
   /** 创建时间 */
-  createTime?: string
+  createTime?: string;
 }
 
 /** 角色查询参数 */
 export interface SysRoleQuery {
   /** 关键词 */
-  keyword?: string
+  keyword?: string;
   /** 角色状态 */
-  status?: RoleStatus
+  status?: RoleStatus;
   /** 角色权限字符串 */
-  roleKey?: string
+  roleKey?: string;
   /** 开始日期 */
-  startDate?: string
+  startDate?: string;
   /** 结束日期 */
-  endDate?: string
+  endDate?: string;
   /** 页码 */
-  pageNum?: number
+  pageNum?: number;
   /** 每页数量 */
-  pageSize?: number
+  pageSize?: number;
 }
 
 /** 角色表单数据 */
 export interface SysRoleForm {
   /** 角色ID */
-  roleId?: number
+  roleId?: number;
   /** 角色名称 */
-  roleName: string
+  roleName: string;
   /** 角色权限字符串 */
-  roleKey: string
+  roleKey: string;
   /** 显示顺序 */
-  roleSort: number
+  roleSort: number;
   /** 数据权限范围 */
-  dataScope?: RoleDataScope
+  dataScope?: RoleDataScope;
   /** 菜单树选择范围是否关联显示 */
-  menuCheckStrictly?: boolean
+  menuCheckStrictly?: boolean;
   /** 部门树选择范围是否关联显示 */
-  deptCheckStrictly?: boolean
+  deptCheckStrictly?: boolean;
   /** 状态 */
-  status?: RoleStatus
+  status?: RoleStatus;
   /** 角色权限列表 */
-  permissions?: string[]
+  permissions?: string[];
   /** 备注 */
-  remark?: string
+  remark?: string;
 }
 
 /** 角色分页响应 */
 export interface SysRolePageResp {
   /** 总记录数 */
-  total: number
+  total: number;
   /** 列表数据 */
-  rows: SysRole[]
+  rows: SysRole[];
 }
 
 /** 角色菜单权限 */
 export interface SysRoleMenu {
   /** 角色ID */
-  roleId: number
+  roleId: number;
   /** 菜单ID列表 */
-  menuIds: number[]
+  menuIds: number[];
 }
 
 /** 角色数据权限 */
 export interface SysRoleDataScope {
   /** 角色ID */
-  roleId: number
+  roleId: number;
   /** 数据权限范围 */
-  dataScope: RoleDataScope
+  dataScope: RoleDataScope;
   /** 部门ID列表 */
-  deptIds?: number[]
+  deptIds?: number[];
 }

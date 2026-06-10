@@ -3,132 +3,132 @@
  */
 
 /** SSO 类型 */
-export type SsoType = 'oauth2' | 'cas' | 'ldap'
+export type SsoType = 'oauth2' | 'cas' | 'ldap';
 
 /** SSO 应用 */
 export interface SsoApplication {
   /** 应用ID */
-  id: number
+  id: number;
   /** 应用名称 */
-  appName: string
+  appName: string;
   /** 应用编码 */
-  appCode: string
+  appCode: string;
   /** 应用类型 */
-  appType: SsoType
+  appType: SsoType;
   /** Client ID */
-  clientId: string
+  clientId: string;
   /** Client Secret */
-  clientSecret: string
+  clientSecret: string;
   /** 授权地址 */
-  authorizationUrl: string
+  authorizationUrl: string;
   /** Token 地址 */
-  tokenUrl: string
+  tokenUrl: string;
   /** 用户信息地址 */
-  userInfoUrl: string
+  userInfoUrl: string;
   /** 权限范围 */
-  scopes: string[]
+  scopes: string[];
   /** 应用Logo */
-  logo: string
+  logo: string;
   /** 状态 (0-禁用 1-启用) */
-  status: '0' | '1'
+  status: '0' | '1';
   /** 备注 */
-  remark: string
+  remark: string;
   /** 创建者 */
-  createBy?: string
+  createBy?: string;
   /** 创建时间 */
-  createTime?: string
+  createTime?: string;
   /** 更新者 */
-  updateBy?: string
+  updateBy?: string;
   /** 更新时间 */
-  updateTime?: string
+  updateTime?: string;
 }
 
 /** SSO 应用查询参数 */
 export interface SsoAppQuery {
   /** 关键词 */
-  keyword?: string
+  keyword?: string;
   /** 应用类型 */
-  appType?: SsoType
+  appType?: SsoType;
   /** 状态 */
-  status?: '0' | '1'
+  status?: '0' | '1';
   /** 页码 */
-  pageNum?: number
+  pageNum?: number;
   /** 每页数量 */
-  pageSize?: number
+  pageSize?: number;
 }
 
 /** SSO 配置 */
 export interface SsoConfig {
   /** SSO 类型 */
-  type: SsoType
+  type: SsoType;
   /** 是否启用 */
-  enabled: boolean
+  enabled: boolean;
   /** 登录页面标题 */
-  title: string
+  title: string;
   /** 默认跳转URL */
-  defaultRedirectUrl: string
+  defaultRedirectUrl: string;
   /** 登出地址 */
-  logoutUrl: string
+  logoutUrl: string;
   /** 会话超时时间(秒) */
-  sessionTimeout: number
+  sessionTimeout: number;
   /** CAS Server URL (CAS类型) */
-  casServerUrl?: string
+  casServerUrl?: string;
   /** LDAP 服务器地址 (LDAP类型) */
-  ldapServerUrl?: string
+  ldapServerUrl?: string;
   /** LDAP Base DN (LDAP类型) */
-  ldapBaseDn?: string
+  ldapBaseDn?: string;
 }
 
 /** SSO 授权响应 */
 export interface SsoAuthorizeResp {
   /** 授权地址 */
-  url: string
+  url: string;
   /** 状态 */
-  success: boolean
+  success: boolean;
   /** 错误信息 */
-  errorMsg?: string
+  errorMsg?: string;
 }
 
 /** SSO 令牌响应 */
 export interface SsoTokenResp {
   /** Access Token */
-  accessToken: string
+  accessToken: string;
   /** Token 类型 */
-  tokenType: string
+  tokenType: string;
   /** 过期时间 */
-  expiresIn: number
+  expiresIn: number;
   /** Refresh Token */
-  refreshToken?: string
+  refreshToken?: string;
   /** 错误信息 */
-  error?: string
+  error?: string;
   /** 错误描述 */
-  errorDescription?: string
+  errorDescription?: string;
 }
 
 /** SSO 用户信息 */
 export interface SsoUserInfo {
   /** 用户ID */
-  userId: string
+  userId: string;
   /** 用户名 */
-  username: string
+  username: string;
   /** 邮箱 */
-  email?: string
+  email?: string;
   /** 手机号 */
-  mobile?: string
+  mobile?: string;
   /** 头像 */
-  avatar?: string
+  avatar?: string;
   /** 姓名 */
-  realName?: string
+  realName?: string;
   /** 所属组织 */
-  organization?: string
+  organization?: string;
   /** 权限列表 */
-  permissions?: string[]
+  permissions?: string[];
 }
 
 /** SSO 应用分页响应 */
 export interface SsoAppPageResp {
   /** 总记录数 */
-  total: number
+  total: number;
   /** 列表数据 */
-  rows: SsoApplication[]
+  rows: SsoApplication[];
 }

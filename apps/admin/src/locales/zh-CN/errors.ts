@@ -73,4 +73,4 @@ export default {
     typeError: '文件类型不允许',
     damaged: '文件已损坏',
   },
-}
+};

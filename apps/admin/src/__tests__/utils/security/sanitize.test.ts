@@ -22,7 +22,9 @@ vi.mock('dompurify', () => ({
 
 describe('utils/security/sanitize', () => {
   beforeEach(() => {
-    vi.mocked(DOMPurify.sanitize).mockImplementation((dirty: string | Node): string => String(dirty));
+    vi.mocked(DOMPurify.sanitize).mockImplementation((dirty: string | Node): string =>
+      String(dirty),
+    );
   });
 
   describe('sanitizeHtml', () => {

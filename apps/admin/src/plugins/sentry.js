@@ -10,69 +10,70 @@
  * @module @yunshu/admin/plugins/sentry
  */
 const SENSITIVE_FIELDS = [
-    'password', 'secret', 'token', 'authorization', 'cookie', 'jwt',
-    'credit', 'card', 'cvv',
+  'password',
+  'secret',
+  'token',
+  'authorization',
+  'cookie',
+  'jwt',
+  'credit',
+  'card',
+  'cvv',
 ];
 function scrubSensitiveData(value) {
-    if (value === null || value === undefined)
-        return value;
-    if (typeof value !== 'object')
-        return value;
-    if (Array.isArray(value))
-        return value.map(scrubSensitiveData);
-    const result = {};
-    for (const [k, v] of Object.entries(value)) {
-        const lower = k.toLowerCase();
-        if (SENSITIVE_FIELDS.some((s) => lower.includes(s))) {
-            result[k] = '[Filtered]';
-        }
-        else if (typeof v === 'object' && v !== null) {
-            result[k] = scrubSensitiveData(v);
-        }
-        else {
-            result[k] = v;
-        }
+  if (value === null || value === undefined) return value;
+  if (typeof value !== 'object') return value;
+  if (Array.isArray(value)) return value.map(scrubSensitiveData);
+  const result = {};
+  for (const [k, v] of Object.entries(value)) {
+    const lower = k.toLowerCase();
+    if (SENSITIVE_FIELDS.some((s) => lower.includes(s))) {
+      result[k] = '[Filtered]';
+    } else if (typeof v === 'object' && v !== null) {
+      result[k] = scrubSensitiveData(v);
+    } else {
+      result[k] = v;
     }
-    return result;
+  }
+  return result;
 }
 /**
  * 初始化 Sentry。无 DSN 时不做任何事。
  */
 export async function initSentry(_app, router, opts = {}) {
-    const dsn = opts.dsn ?? import.meta.env.VITE_SENTRY_DSN;
-    if (!dsn)
-        return;
-    try {
-        // 动态导入 —— 避免未配置 DSN 时仍打包 sentry 依赖
-        const SentryVue = await import('@sentry/vue');
-        SentryVue.init({
-            app: _app,
-            dsn,
-            release: opts.release ?? import.meta.env.VITE_SENTRY_RELEASE,
-            environment: opts.environment ?? import.meta.env.MODE,
-            integrations: [
-                SentryVue.browserTracingIntegration({ router }),
-            ],
-            tracesSampleRate: opts.tracesSampleRate ?? 0.2,
-            replaysSessionSampleRate: opts.replaysSessionSampleRate ?? 0.1,
-            replaysOnErrorSampleRate: opts.replaysOnErrorSampleRate ?? 1.0,
-            beforeSend(event) {
-                if (event.request?.headers) {
-                    event.request.headers = scrubSensitiveData(event.request.headers);
-                }
-                if (event.request?.cookies) {
-                    event.request.cookies = {};
-                }
-                if (event.extra) {
-                    event.extra = scrubSensitiveData(event.extra);
-                }
-                return event;
-            },
-        });
-    }
-    catch (err) {
-        // 降级：仅 warn，不阻断应用启动
-        console.warn('[sentry] 初始化失败，请检查 @sentry/vue 是否已安装：', err instanceof Error ? err.message : String(err));
-    }
+  const dsn = opts.dsn ?? import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+  try {
+    // 动态导入 —— 避免未配置 DSN 时仍打包 sentry 依赖
+    const SentryVue = await import('@sentry/vue');
+    SentryVue.init({
+      app: _app,
+      dsn,
+      release: opts.release ?? import.meta.env.VITE_SENTRY_RELEASE,
+      environment: opts.environment ?? import.meta.env.MODE,
+      integrations: [SentryVue.browserTracingIntegration({ router })],
+      tracesSampleRate: opts.tracesSampleRate ?? 0.2,
+      replaysSessionSampleRate: opts.replaysSessionSampleRate ?? 0.1,
+      replaysOnErrorSampleRate: opts.replaysOnErrorSampleRate ?? 1.0,
+      beforeSend(event) {
+        if (event.request?.headers) {
+          event.request.headers = scrubSensitiveData(event.request.headers);
+        }
+        if (event.request?.cookies) {
+          event.request.cookies = {};
+        }
+        if (event.extra) {
+          event.extra = scrubSensitiveData(event.extra);
+        }
+        return event;
+      },
+    });
+  } catch (err) {
+    // 降级：仅 warn，不阻断应用启动
+    console.warn(
+      '[sentry] 初始化失败，请检查 @sentry/vue 是否已安装：',
+      err instanceof Error ? err.message : String(err),
+    );
+  }
 }
 //# sourceMappingURL=sentry.js.map

@@ -2,28 +2,28 @@
  * 岗位管理 API
  */
 export interface PostQuery {
-    pageNum?: number;
-    pageSize?: number;
-    postName?: string;
-    postCode?: string;
-    status?: string;
+  pageNum?: number;
+  pageSize?: number;
+  postName?: string;
+  postCode?: string;
+  status?: string;
 }
 export interface PostForm {
-    postId?: number;
-    postName?: string;
-    postCode?: string;
-    postSort?: number;
-    status?: string;
-    remark?: string;
+  postId?: number;
+  postName?: string;
+  postCode?: string;
+  postSort?: number;
+  status?: string;
+  remark?: string;
 }
 export interface PostInfo {
-    postId: number;
-    postName: string;
-    postCode: string;
-    postSort: number;
-    status: string;
-    remark: string;
-    createTime: string;
+  postId: number;
+  postName: string;
+  postCode: string;
+  postSort: number;
+  status: string;
+  remark: string;
+  createTime: string;
 }
 export declare const getPostList: (params?: PostQuery) => Promise<unknown>;
 export declare const getPostPage: (params?: PostQuery) => Promise<unknown>;

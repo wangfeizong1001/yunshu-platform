@@ -50,9 +50,7 @@ interface UseTableReturn<T> {
  * });
  * ```
  */
-export function useTable<T>(
-  options: UseTableOptions<T>,
-): UseTableReturn<T> {
+export function useTable<T>(options: UseTableOptions<T>): UseTableReturn<T> {
   const { fetchFn, defaultPageSize = 10, defaultSort } = options;
 
   const data: Ref<T[]> = ref([]);
@@ -113,9 +111,21 @@ export function useTable<T>(
   }
 
   return {
-    data, total, loading, error,
-    page, pageSize, sortField, sortOrder,
-    selectedRows, totalPages, hasMore,
-    loadData, setPage, setSort, onSelectionChange, refresh,
+    data,
+    total,
+    loading,
+    error,
+    page,
+    pageSize,
+    sortField,
+    sortOrder,
+    selectedRows,
+    totalPages,
+    hasMore,
+    loadData,
+    setPage,
+    setSort,
+    onSelectionChange,
+    refresh,
   };
 }

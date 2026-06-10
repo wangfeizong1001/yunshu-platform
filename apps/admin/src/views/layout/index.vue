@@ -4,9 +4,25 @@
     <aside class="sidebar" :class="{ 'is-collapse': isCollapse }">
       <div class="sidebar-header">
         <div class="logo">
-          <svg class="logo-img" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-label="logo">
+          <svg
+            class="logo-img"
+            viewBox="0 0 40 40"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="logo"
+          >
             <rect width="40" height="40" rx="8" fill="#409eff" />
-            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="bold" fill="#fff" font-family="Arial, sans-serif">云</text>
+            <text
+              x="50%"
+              y="55%"
+              dominant-baseline="middle"
+              text-anchor="middle"
+              font-size="18"
+              font-weight="bold"
+              fill="#fff"
+              font-family="Arial, sans-serif"
+            >
+              云
+            </text>
           </svg>
           <span v-show="!isCollapse" class="logo-text">云枢中台</span>
         </div>
@@ -38,10 +54,7 @@
       <!-- 顶部导航栏 -->
       <header class="navbar">
         <div class="navbar-left">
-          <hamburger
-            :is-active="isCollapse"
-            @toggle="toggleSidebar"
-          />
+          <hamburger :is-active="isCollapse" @toggle="toggleSidebar" />
           <breadcrumb />
         </div>
 
@@ -100,204 +113,204 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElMessageBox } from 'element-plus'
-import { useUserStore } from '@/store/modules/user'
-import { usePermissionStore } from '@/store/modules/permission'
-import SidebarItem from './components/SidebarItem.vue'
-import Breadcrumb from './components/Breadcrumb.vue'
-import Hamburger from './components/Hamburger.vue'
-import FullScreen from './components/FullScreen.vue'
-import LanguageSwitch from '@/components/LanguageSwitch/index.vue'
-import Search from './components/Search.vue'
-import TagsView from './components/TagsView.vue'
+  import { ref, computed } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import { ElMessageBox } from 'element-plus';
+  import { useUserStore } from '@/store/modules/user';
+  import { usePermissionStore } from '@/store/modules/permission';
+  import SidebarItem from './components/SidebarItem.vue';
+  import Breadcrumb from './components/Breadcrumb.vue';
+  import Hamburger from './components/Hamburger.vue';
+  import FullScreen from './components/FullScreen.vue';
+  import LanguageSwitch from '@/components/LanguageSwitch/index.vue';
+  import Search from './components/Search.vue';
+  import TagsView from './components/TagsView.vue';
 
-const route = useRoute()
-const router = useRouter()
-const userStore = useUserStore()
-const permissionStore = usePermissionStore()
+  const route = useRoute();
+  const router = useRouter();
+  const userStore = useUserStore();
+  const permissionStore = usePermissionStore();
 
-const isCollapse = ref(false)
+  const isCollapse = ref(false);
 
-// 获取菜单路由
-const menuRoutes = computed(() => {
-  return permissionStore.routes.filter(item => {
-    return item.meta && !item.meta.hidden
-  })
-})
+  // 获取菜单路由
+  const menuRoutes = computed(() => {
+    return permissionStore.routes.filter((item) => {
+      return item.meta && !item.meta.hidden;
+    });
+  });
 
-// 当前激活的菜单
-const activeMenu = computed(() => {
-  const { path } = route
-  return path
-})
+  // 当前激活的菜单
+  const activeMenu = computed(() => {
+    const { path } = route;
+    return path;
+  });
 
-// 缓存的视图
-const cachedViews = computed(() => {
-  return permissionStore.cachedViews || []
-})
+  // 缓存的视图
+  const cachedViews = computed(() => {
+    return permissionStore.cachedViews || [];
+  });
 
-// 切换侧边栏
-const toggleSidebar = () => {
-  isCollapse.value = !isCollapse.value
-}
+  // 切换侧边栏
+  const toggleSidebar = () => {
+    isCollapse.value = !isCollapse.value;
+  };
 
-// 用户菜单命令处理
-const handleUserCommand = async (command: string) => {
-  switch (command) {
-    case 'profile':
-      router.push('/user/profile/index')
-      break
-    case 'setting':
-      router.push('/user/profile/index')
-      break
-    case 'logout':
-      try {
-        await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
+  // 用户菜单命令处理
+  const handleUserCommand = async (command: string) => {
+    switch (command) {
+      case 'profile':
+        router.push('/user/profile/index');
+        break;
+      case 'setting':
+        router.push('/user/profile/index');
+        break;
+      case 'logout':
+        try {
+          await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          });
 
-        await userStore.logout()
-        router.push('/login')
-      } catch {
-        // 取消操作
-      }
-      break
-  }
-}
+          await userStore.logout();
+          router.push('/login');
+        } catch {
+          // 取消操作
+        }
+        break;
+    }
+  };
 </script>
 
 <style lang="scss" scoped>
-.layout-container {
-  display: flex;
-  height: 100vh;
-}
-
-.sidebar {
-  width: 210px;
-  height: 100vh;
-  background-color: #304156;
-  transition: width 0.3s;
-  overflow: hidden;
-
-  &.is-collapse {
-    width: 64px;
+  .layout-container {
+    display: flex;
+    height: 100vh;
   }
 
-  .sidebar-header {
+  .sidebar {
+    width: 210px;
+    height: 100vh;
+    background-color: #304156;
+    transition: width 0.3s;
+    overflow: hidden;
+
+    &.is-collapse {
+      width: 64px;
+    }
+
+    .sidebar-header {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #2b3a4a;
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .logo-img {
+          width: 32px;
+          height: 32px;
+        }
+
+        .logo-text {
+          font-size: 18px;
+          font-weight: 600;
+          color: #fff;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    .sidebar-scrollbar {
+      height: calc(100vh - 60px);
+
+      :deep(.el-scrollbar__wrap) {
+        overflow-x: hidden;
+      }
+    }
+  }
+
+  .main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .navbar {
     height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: #2b3a4a;
+    justify-content: space-between;
+    padding: 0 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    z-index: 10;
 
-    .logo {
+    .navbar-left {
       display: flex;
       align-items: center;
-      gap: 10px;
-
-      .logo-img {
-        width: 32px;
-        height: 32px;
-      }
-
-      .logo-text {
-        font-size: 18px;
-        font-weight: 600;
-        color: #fff;
-        white-space: nowrap;
-      }
+      gap: 15px;
     }
-  }
 
-  .sidebar-scrollbar {
-    height: calc(100vh - 60px);
-
-    :deep(.el-scrollbar__wrap) {
-      overflow-x: hidden;
-    }
-  }
-}
-
-.main-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.navbar {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-  z-index: 10;
-
-  .navbar-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-
-    .navbar-item {
+    .navbar-right {
       display: flex;
       align-items: center;
-      padding: 0 12px;
-      cursor: pointer;
-      color: #5a5e66;
-      transition: color 0.3s;
+      gap: 15px;
 
-      &:hover {
-        color: #409eff;
-      }
-    }
-
-    .user-dropdown {
-      .user-info {
+      .navbar-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        padding: 0 12px;
+        cursor: pointer;
+        color: #5a5e66;
+        transition: color 0.3s;
 
-        .username {
-          font-size: 14px;
-          color: #333;
+        &:hover {
+          color: #409eff;
+        }
+      }
+
+      .user-dropdown {
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .username {
+            font-size: 14px;
+            color: #333;
+          }
         }
       }
     }
   }
-}
 
-.main-content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  background-color: #f5f7fa;
-}
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #f5f7fa;
+  }
 
-// 页面切换动画
-.fade-transform-enter-active,
-.fade-transform-leave-active {
-  transition: all 0.3s;
-}
+  // 页面切换动画
+  .fade-transform-enter-active,
+  .fade-transform-leave-active {
+    transition: all 0.3s;
+  }
 
-.fade-transform-enter-from {
-  opacity: 0;
-  transform: translateX(-20px);
-}
+  .fade-transform-enter-from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
 
-.fade-transform-leave-to {
-  opacity: 0;
-  transform: translateX(20px);
-}
+  .fade-transform-leave-to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 </style>

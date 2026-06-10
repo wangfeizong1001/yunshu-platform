@@ -21,10 +21,17 @@
         <el-input v-model="formData.invokeTarget" placeholder="请输入调用目标" />
       </el-form-item>
       <el-form-item label="cron表达式" prop="cronExpression">
-        <el-input v-model="formData.cronExpression" placeholder="请输入cron表达式, 如: 0 0 2 * * ?" />
+        <el-input
+          v-model="formData.cronExpression"
+          placeholder="请输入cron表达式, 如: 0 0 2 * * ?"
+        />
       </el-form-item>
       <el-form-item label="执行策略" prop="misfirePolicy">
-        <el-select v-model="formData.misfirePolicy" placeholder="请选择执行策略" style="width: 100%">
+        <el-select
+          v-model="formData.misfirePolicy"
+          placeholder="请选择执行策略"
+          style="width: 100%"
+        >
           <el-option label="默认策略" value="0" />
           <el-option label="立即执行" value="1" />
           <el-option label="执行一次" value="2" />
@@ -55,107 +62,107 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import type { IJob } from '@yunshu/shared'
-import type { JobForm } from '@/api/monitor/job.api'
-import * as jobApi from '@/api/monitor/job.api'
+  import { ref, computed, watch } from 'vue';
+  import { ElMessage } from 'element-plus';
+  import type { IJob } from '@yunshu/shared';
+  import type { JobForm } from '@/api/monitor/job.api';
+  import * as jobApi from '@/api/monitor/job.api';
 
-const props = defineProps<{
-  modelValue: boolean
-  jobData: IJob | null
-}>()
+  const props = defineProps<{
+    modelValue: boolean;
+    jobData: IJob | null;
+  }>();
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'success'): void
-}>()
+  const emit = defineEmits<{
+    (e: 'update:modelValue', value: boolean): void;
+    (e: 'success'): void;
+  }>();
 
-const formRef = ref()
-const submitLoading = ref(false)
+  const formRef = ref();
+  const submitLoading = ref(false);
 
-const visible = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
-})
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  });
 
-const isEdit = computed(() => !!props.jobData)
+  const isEdit = computed(() => !!props.jobData);
 
-const formData = ref<JobForm>({
-  jobName: '',
-  jobGroup: 'default',
-  cronExpression: '',
-  concurrent: '0',
-  status: '0',
-  remark: '',
-  invokeTarget: '',
-  misfirePolicy: '0',
-})
+  const formData = ref<JobForm>({
+    jobName: '',
+    jobGroup: 'default',
+    cronExpression: '',
+    concurrent: '0',
+    status: '0',
+    remark: '',
+    invokeTarget: '',
+    misfirePolicy: '0',
+  });
 
-const rules = {
-  jobName: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
-  jobGroup: [{ required: true, message: '请选择任务分组', trigger: 'change' }],
-  cronExpression: [{ required: true, message: '请输入cron表达式', trigger: 'blur' }],
-}
+  const rules = {
+    jobName: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
+    jobGroup: [{ required: true, message: '请选择任务分组', trigger: 'change' }],
+    cronExpression: [{ required: true, message: '请输入cron表达式', trigger: 'blur' }],
+  };
 
-watch(
-  () => props.jobData,
-  (val) => {
-    if (val) {
-      const jobInfo = val as unknown as JobForm
-      formData.value = {
-        jobId: Number(val.jobId),
-        jobName: val.jobName,
-        jobGroup: val.jobGroup,
-        cronExpression: val.cronExpression,
-        concurrent: val.concurrent,
-        status: val.status,
-        remark: val.remark || '',
-        targetBean: jobInfo.targetBean || '',
-        targetMethod: jobInfo.targetMethod || '',
-        invokeTarget: (val as any).invokeTarget || '',
-        misfirePolicy: (val as any).misfirePolicy || '0',
+  watch(
+    () => props.jobData,
+    (val) => {
+      if (val) {
+        const jobInfo = val as unknown as JobForm;
+        formData.value = {
+          jobId: Number(val.jobId),
+          jobName: val.jobName,
+          jobGroup: val.jobGroup,
+          cronExpression: val.cronExpression,
+          concurrent: val.concurrent,
+          status: val.status,
+          remark: val.remark || '',
+          targetBean: jobInfo.targetBean || '',
+          targetMethod: jobInfo.targetMethod || '',
+          invokeTarget: (val as any).invokeTarget || '',
+          misfirePolicy: (val as any).misfirePolicy || '0',
+        };
+      } else {
+        formData.value = {
+          jobName: '',
+          jobGroup: 'default',
+          cronExpression: '',
+          concurrent: '0',
+          status: '0',
+          remark: '',
+          invokeTarget: '',
+          misfirePolicy: '0',
+        };
       }
-    } else {
-      formData.value = {
-        jobName: '',
-        jobGroup: 'default',
-        cronExpression: '',
-        concurrent: '0',
-        status: '0',
-        remark: '',
-        invokeTarget: '',
-        misfirePolicy: '0',
+    },
+    { immediate: true },
+  );
+
+  const handleClose = () => {
+    formRef.value?.resetFields();
+    visible.value = false;
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await formRef.value?.validate();
+      submitLoading.value = true;
+
+      if (isEdit.value) {
+        await jobApi.updateJob(formData.value);
+        ElMessage.success('更新成功');
+      } else {
+        await jobApi.addJob(formData.value);
+        ElMessage.success('创建成功');
       }
+
+      emit('success');
+      handleClose();
+    } catch {
+      // 校验失败
+    } finally {
+      submitLoading.value = false;
     }
-  },
-  { immediate: true },
-)
-
-const handleClose = () => {
-  formRef.value?.resetFields()
-  visible.value = false
-}
-
-const handleSubmit = async () => {
-  try {
-    await formRef.value?.validate()
-    submitLoading.value = true
-
-    if (isEdit.value) {
-      await jobApi.updateJob(formData.value)
-      ElMessage.success('更新成功')
-    } else {
-      await jobApi.addJob(formData.value)
-      ElMessage.success('创建成功')
-    }
-
-    emit('success')
-    handleClose()
-  } catch {
-    // 校验失败
-  } finally {
-    submitLoading.value = false
-  }
-}
+  };
 </script>

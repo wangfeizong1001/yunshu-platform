@@ -4,66 +4,69 @@
  * 提供响应式的缓存管理能力
  */
 
-import { ref, computed, watch, type Ref, type ComputedRef } from 'vue'
-import cache, { CacheOptions } from '@/utils/cache'
+import { ref, computed, watch, type Ref, type ComputedRef } from 'vue';
+import type { CacheOptions } from '@/utils/cache';
+import cache from '@/utils/cache';
 
 export interface UseCacheOptions extends CacheOptions {
   /** 是否在初始化时自动从缓存读取 */
-  autoLoad?: boolean
+  autoLoad?: boolean;
   /** 是否在值变化时自动保存到缓存 */
-  autoSave?: boolean
+  autoSave?: boolean;
 }
 
 export interface UseCacheReturn<T> {
-  data: Ref<any>
-  hasCache: ComputedRef<any>
-  set: (value: T, newOptions?: CacheOptions) => void
-  get: () => T | undefined
-  remove: () => void
-  refresh: () => void
+  data: Ref<any>;
+  hasCache: ComputedRef<any>;
+  set: (value: T, newOptions?: CacheOptions) => void;
+  get: () => T | undefined;
+  remove: () => void;
+  refresh: () => void;
 }
 
 export function useCache<T = any>(
   key: string,
   defaultValue?: T,
-  options: UseCacheOptions = {}
+  options: UseCacheOptions = {},
 ): UseCacheReturn<T> {
-  const { autoLoad = true, autoSave = true, ...cacheOptions } = options
+  const { autoLoad = true, autoSave = true, ...cacheOptions } = options;
 
-  const data = ref<T | undefined>(autoLoad ? cache.get<T>(key, defaultValue, cacheOptions) : defaultValue)
+  const data = ref<T | undefined>(
+    autoLoad ? cache.get<T>(key, defaultValue, cacheOptions) : defaultValue,
+  );
 
-  const hasCache = computed(() => cache.has(key, cacheOptions))
+  const hasCache = computed(() => cache.has(key, cacheOptions));
 
   const set = (value: T, newOptions?: CacheOptions) => {
-    data.value = value
-    cache.set(key, value, { ...cacheOptions, ...newOptions })
-  }
+    data.value = value;
+    cache.set(key, value, { ...cacheOptions, ...newOptions });
+  };
 
   const get = () => {
-    const value = cache.get<T>(key, defaultValue, cacheOptions)
-    data.value = value
-    return value
-  }
+    const value = cache.get<T>(key, defaultValue, cacheOptions);
+    data.value = value;
+    return value;
+  };
 
   const remove = () => {
-    data.value = undefined
-    cache.remove(key, cacheOptions)
-  }
+    data.value = undefined;
+    cache.remove(key, cacheOptions);
+  };
 
   const refresh = () => {
-    get()
-  }
+    get();
+  };
 
   if (autoSave) {
     watch(
       data,
       (newValue) => {
         if (newValue !== undefined) {
-          cache.set(key, newValue, cacheOptions)
+          cache.set(key, newValue, cacheOptions);
         }
       },
-      { deep: true }
-    )
+      { deep: true },
+    );
   }
 
   return {
@@ -72,8 +75,8 @@ export function useCache<T = any>(
     set,
     get,
     remove,
-    refresh
-  }
+    refresh,
+  };
 }
 
-export default useCache
+export default useCache;

@@ -177,42 +177,55 @@ export abstract class BaseController {
   /** 400 — 请求参数错误 */
   protected badRequest(res: Response, message = '请求参数错误', details?: unknown) {
     return res.status(400).json({
-      success: false, message, details, timestamp: new Date().toISOString(),
+      success: false,
+      message,
+      details,
+      timestamp: new Date().toISOString(),
     });
   }
 
   /** 401 — 未认证 */
   protected unauthorized(res: Response, message = '请先登录') {
     return res.status(401).json({
-      success: false, message, timestamp: new Date().toISOString(),
+      success: false,
+      message,
+      timestamp: new Date().toISOString(),
     });
   }
 
   /** 403 — 权限不足 */
   protected forbidden(res: Response, message = '没有权限执行此操作') {
     return res.status(403).json({
-      success: false, message, timestamp: new Date().toISOString(),
+      success: false,
+      message,
+      timestamp: new Date().toISOString(),
     });
   }
 
   /** 404 — 资源不存在 */
   protected notFound(res: Response, message = '请求的资源不存在') {
     return res.status(404).json({
-      success: false, message, timestamp: new Date().toISOString(),
+      success: false,
+      message,
+      timestamp: new Date().toISOString(),
     });
   }
 
   /** 409 — 资源冲突 */
   protected conflict(res: Response, message = '资源冲突') {
     return res.status(409).json({
-      success: false, message, timestamp: new Date().toISOString(),
+      success: false,
+      message,
+      timestamp: new Date().toISOString(),
     });
   }
 
   /** 500 — 服务器错误 */
   protected serverError(res: Response, message = '服务器内部错误') {
     return res.status(500).json({
-      success: false, message, timestamp: new Date().toISOString(),
+      success: false,
+      message,
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -253,10 +266,7 @@ export abstract class BaseController {
    * - isAdmin=true：原样返回（拥有者可见全部字段）
    * - isAdmin=false：移除 email、phone、loginIp、loginDate、password、token 等敏感字段
    */
-  protected sanitizeUser<T extends object>(
-    user: T,
-    isAdmin: boolean,
-  ): Partial<T> {
+  protected sanitizeUser<T extends object>(user: T, isAdmin: boolean): Partial<T> {
     if (isAdmin) return { ...user };
 
     const sensitive = new Set(['email', 'phone', 'loginIp', 'loginDate', 'password', 'token']);
@@ -284,11 +294,7 @@ export abstract class BaseController {
   /**
    * 安全读取字符串参数（非 string / 超长 / 不匹配正则 均视为非法，返回 null）。
    */
-  protected safeParam(
-    value: unknown,
-    maxLength = 100,
-    regex?: RegExp,
-  ): string | null {
+  protected safeParam(value: unknown, maxLength = 100, regex?: RegExp): string | null {
     if (typeof value !== 'string') return null;
     const trimmed = value.trim();
     if (trimmed.length === 0 || trimmed.length > maxLength) return null;

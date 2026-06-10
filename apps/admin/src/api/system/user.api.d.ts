@@ -2,46 +2,46 @@
  * 用户管理相关 API
  */
 export interface UserQuery {
-    pageNum?: number;
-    pageSize?: number;
-    username?: string;
-    nickname?: string;
-    phone?: string;
-    status?: string;
-    deptId?: number;
+  pageNum?: number;
+  pageSize?: number;
+  username?: string;
+  nickname?: string;
+  phone?: string;
+  status?: string;
+  deptId?: number;
 }
 export interface UserForm {
-    userId?: number;
-    username?: string;
-    nickname?: string;
-    email?: string;
-    phone?: string;
-    sex?: string;
-    avatar?: string;
-    deptId?: number;
-    postIds?: number[];
-    roleIds?: number[];
-    status?: string;
-    remark?: string;
+  userId?: number;
+  username?: string;
+  nickname?: string;
+  email?: string;
+  phone?: string;
+  sex?: string;
+  avatar?: string;
+  deptId?: number;
+  postIds?: number[];
+  roleIds?: number[];
+  status?: string;
+  remark?: string;
 }
 export interface UserInfo {
-    userId: number;
-    username: string;
-    nickname: string;
-    email: string;
-    phone: string;
-    sex: string;
-    avatar: string;
-    deptId: number;
-    deptName: string;
-    posts: string[];
-    roles: string[];
-    roleId: number[];
-    status: string;
-    loginIp: string;
-    loginDate: string;
-    createTime: string;
-    remark: string;
+  userId: number;
+  username: string;
+  nickname: string;
+  email: string;
+  phone: string;
+  sex: string;
+  avatar: string;
+  deptId: number;
+  deptName: string;
+  posts: string[];
+  roles: string[];
+  roleId: number[];
+  status: string;
+  loginIp: string;
+  loginDate: string;
+  createTime: string;
+  remark: string;
 }
 export declare function getUserList(params: UserQuery): Promise<unknown>;
 export declare function getUserPage(params: UserQuery): Promise<unknown>;

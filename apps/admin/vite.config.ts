@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import { viteMockServe } from 'vite-plugin-mock'
-import { resolve } from 'path'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import { viteMockServe } from 'vite-plugin-mock';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
@@ -12,11 +12,11 @@ export default defineConfig({
     AutoImport({
       imports: ['vue', 'vue-router', 'pinia'],
       resolvers: [ElementPlusResolver()],
-      dts: 'src/auto-imports.d.ts'
+      dts: 'src/auto-imports.d.ts',
     }),
     Components({
       resolvers: [ElementPlusResolver()],
-      dts: 'src/components.d.ts'
+      dts: 'src/components.d.ts',
     }),
     // Mock 服务配置
     viteMockServe({
@@ -26,23 +26,23 @@ export default defineConfig({
       injectCode: `
         import { setupMockServer } from '../mock'
         setupMockServer()
-      `
-    })
+      `,
+    }),
   ],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@yunshu/shared': resolve(__dirname, '../../packages/shared/src')
-    }
+      '@yunshu/shared': resolve(__dirname, '../../packages/shared/src'),
+    },
   },
   server: {
     port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
-        changeOrigin: true
-      }
-    }
+        changeOrigin: true,
+      },
+    },
   },
   // ==================== 构建优化配置 ====================
   build: {
@@ -62,15 +62,15 @@ export default defineConfig({
           // UI 工具库
           'ui-vendor': ['@vueuse/core', '@element-plus/icons-vue'],
           // ECharts 图表库
-          'echarts': ['echarts', 'vue-echarts'],
+          echarts: ['echarts', 'vue-echarts'],
           // 工具函数库
-          'utils-vendor': ['axios', 'dayjs', 'nprogress']
+          'utils-vendor': ['axios', 'dayjs', 'nprogress'],
         },
         // 资源文件名格式
         chunkFileNames: 'static/js/[name]-[hash].js',
         entryFileNames: 'static/js/[name]-[hash].js',
-        assetFileNames: 'static/[ext]/[name]-[hash].[ext]'
-      }
+        assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+      },
     },
     // 打包文件大小限制
     chunkSizeWarningLimit: 1000,
@@ -80,28 +80,20 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
-        pure_funcs: ['console.log']
-      }
-    }
+        pure_funcs: ['console.log'],
+      },
+    },
   },
   // ==================== 性能优化配置 ====================
   optimizeDeps: {
     // 预构建依赖
-    include: [
-      'vue',
-      'vue-router',
-      'pinia',
-      'element-plus',
-      'axios',
-      'dayjs',
-      '@vueuse/core'
-    ],
+    include: ['vue', 'vue-router', 'pinia', 'element-plus', 'axios', 'dayjs', '@vueuse/core'],
     // 排除不需要预构建的依赖
-    exclude: []
+    exclude: [],
   },
   // ==================== CSS 配置 ====================
   css: {
-    devSourcemap: false
+    devSourcemap: false,
   },
   // ==================== 缓存配置 ====================
   // 启用文件系统缓存
@@ -112,8 +104,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
-        changeOrigin: true
-      }
-    }
-  }
-})
+        changeOrigin: true,
+      },
+    },
+  },
+});

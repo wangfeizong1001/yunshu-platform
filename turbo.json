@@ -12,7 +12,14 @@
     },
     "test": {
       "dependsOn": ["build"],
-      "inputs": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "test/**/*.ts", "**/*.test.ts", "**/*.spec.ts"]
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.vue",
+        "test/**/*.ts",
+        "**/*.test.ts",
+        "**/*.spec.ts"
+      ]
     },
     "test:coverage": {
       "dependsOn": ["build"],

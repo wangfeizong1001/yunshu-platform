@@ -3,10 +3,10 @@
  */
 
 /** 菜单状态 */
-export type MenuStatus = '0' | '1'
+export type MenuStatus = '0' | '1';
 
 /** 菜单类型 */
-export type MenuType = 'M' | 'C' | 'F'
+export type MenuType = 'M' | 'C' | 'F';
 /**
  * M=目录
  * C=菜单
@@ -16,81 +16,81 @@ export type MenuType = 'M' | 'C' | 'F'
 /** 菜单信息 */
 export interface SysMenu {
   /** 菜单ID */
-  menuId: number
+  menuId: number;
   /** 菜单名称 */
-  menuName: string
+  menuName: string;
   /** 父菜单ID */
-  parentId: number
+  parentId: number;
   /** 路由路径 */
-  path: string
+  path: string;
   /** 组件路径 */
-  component?: string
+  component?: string;
   /** 路由参数 */
-  query?: string
+  query?: string;
   /** 是否为外链 */
-  isFrame: boolean
+  isFrame: boolean;
   /** 是否缓存 */
-  isCache: boolean
+  isCache: boolean;
   /** 菜单类型 */
-  menuType: MenuType
+  menuType: MenuType;
   /** 显示状态: 0=显示, 1=隐藏 */
-  visible: MenuStatus
+  visible: MenuStatus;
   /** 菜单状态: 0=正常, 1=停用 */
-  status: MenuStatus
+  status: MenuStatus;
   /** 权限标识 */
-  perms?: string
+  perms?: string;
   /** 菜单图标 */
-  icon: string
+  icon: string;
   /** 显示顺序 */
-  orderNum: number
+  orderNum: number;
   /** 子菜单 */
-  children?: SysMenu[]
+  children?: SysMenu[];
   /** 创建时间 */
-  createTime?: string
+  createTime?: string;
 }
 
 /** 菜单查询参数 */
 export interface SysMenuQuery {
   /** 关键词 */
-  keyword?: string
+  keyword?: string;
   /** 菜单状态 */
-  status?: MenuStatus
+  status?: MenuStatus;
   /** 菜单类型 */
-  menuType?: MenuType
+  menuType?: MenuType;
   /** 父菜单ID */
-  parentId?: number
+  parentId?: number;
 }
 
 /** 菜单表单数据 */
 export interface SysMenuForm {
   /** 菜单ID */
-  menuId?: number
+  menuId?: number;
   /** 父菜单ID */
-  parentId: number
+  parentId: number;
   /** 菜单名称 */
-  menuName: string
+  menuName: string;
   /** 路由路径 */
-  path?: string
+  path?: string;
   /** 组件路径 */
-  component?: string
+  component?: string;
   /** 路由参数 */
-  query?: string
+  query?: string;
   /** 是否为外链 */
-  isFrame?: boolean
+  isFrame?: boolean;
   /** 是否缓存 */
-  isCache?: boolean
+  isCache?: boolean;
   /** 菜单类型 */
-  menuType: MenuType
+  menuType: MenuType;
   /** 显示状态 */
-  visible?: MenuStatus
+  visible?: MenuStatus;
   /** 菜单状态 */
-  status?: MenuStatus
+  status?: MenuStatus;
   /** 权限标识 */
-  perms?: string
+  perms?: string;
   /** 菜单图标 */
-  icon?: string
+  icon?: string;
   /** 显示顺序 */
-  orderNum?: number
+  orderNum?: number;
   /** 备注 */
-  remark?: string
+  remark?: string;
 }

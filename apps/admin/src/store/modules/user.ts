@@ -3,41 +3,41 @@
  * 负责用户登录、登出和用户信息管理
  */
 
-import { defineStore } from 'pinia'
-import { loginApi, logoutApi, getUserInfoApi } from '@/api/auth'
-import { getToken, setToken, removeToken } from '@/utils/auth'
-import cache, { CACHE_KEYS } from '@/utils/cache'
+import { defineStore } from 'pinia';
+import { loginApi, logoutApi, getUserInfoApi } from '@/api/auth';
+import { getToken, setToken, removeToken } from '@/utils/auth';
+import cache, { CACHE_KEYS } from '@/utils/cache';
 
 interface UserState {
-  token: string
-  userId: string
-  username: string
-  nickname: string
-  avatar: string
-  email: string
-  phone: string
-  deptId: string
-  deptName: string
-  roles: string[]
-  roleId: number[]
-  permissions: string[]
+  token: string;
+  userId: string;
+  username: string;
+  nickname: string;
+  avatar: string;
+  email: string;
+  phone: string;
+  deptId: string;
+  deptName: string;
+  roles: string[];
+  roleId: number[];
+  permissions: string[];
 }
 
 export interface UserInfo {
-  userId: string
-  username: string
-  nickname?: string
-  avatar?: string
-  email?: string
-  phone?: string
-  deptId?: string
-  deptName?: string
-  roleId?: number[]
+  userId: string;
+  username: string;
+  nickname?: string;
+  avatar?: string;
+  email?: string;
+  phone?: string;
+  deptId?: string;
+  deptName?: string;
+  roleId?: number[];
 }
 
 export const useUserStore = defineStore('user', {
   state: (): UserState => {
-    const cachedUserInfo = cache.get<UserState>(CACHE_KEYS.USER_INFO)
+    const cachedUserInfo = cache.get<UserState>(CACHE_KEYS.USER_INFO);
     return {
       token: getToken() || '',
       userId: cachedUserInfo?.userId || '',
@@ -50,8 +50,8 @@ export const useUserStore = defineStore('user', {
       deptName: cachedUserInfo?.deptName || '',
       roles: cachedUserInfo?.roles || [],
       roleId: cachedUserInfo?.roleId || [],
-      permissions: cachedUserInfo?.permissions || []
-    }
+      permissions: cachedUserInfo?.permissions || [],
+    };
   },
 
   actions: {
@@ -60,8 +60,8 @@ export const useUserStore = defineStore('user', {
      */
     saveToCache() {
       cache.set(CACHE_KEYS.USER_INFO, this.$state, {
-        ttl: 24 * 60 * 60 * 1000 // 24小时过期
-      })
+        ttl: 24 * 60 * 60 * 1000, // 24小时过期
+      });
     },
 
     /**
@@ -69,15 +69,15 @@ export const useUserStore = defineStore('user', {
      */
     async login(userInfo: { username: string; password: string; code?: string; uuid?: string }) {
       try {
-        const res = await loginApi(userInfo)
-        const data = (res as Record<string, unknown>).data as Record<string, unknown>
+        const res = await loginApi(userInfo);
+        const data = (res as Record<string, unknown>).data as Record<string, unknown>;
 
-        this.token = String(data.token || '')
-        setToken(String(data.token || ''))
+        this.token = String(data.token || '');
+        setToken(String(data.token || ''));
 
-        return data
+        return data;
       } catch (error) {
-        throw error
+        throw error;
       }
     },
 
@@ -86,27 +86,27 @@ export const useUserStore = defineStore('user', {
      */
     async getUserInfo() {
       try {
-        const res = await getUserInfoApi()
-        const data = (res as Record<string, unknown>).data as Record<string, unknown>
-        const user = data.user as Record<string, unknown> || {}
+        const res = await getUserInfoApi();
+        const data = (res as Record<string, unknown>).data as Record<string, unknown>;
+        const user = (data.user as Record<string, unknown>) || {};
 
-        this.userId = String(user.userId || '')
-        this.username = String(user.username || '')
-        this.nickname = String(user.nickname || user.username || '')
-        this.avatar = String(user.avatar || '')
-        this.email = String(user.email || '')
-        this.phone = String(user.phone || '')
-        this.deptId = String(user.deptId || '')
-        this.deptName = String(user.deptName || '')
-        this.roles = (data.roles as string[]) || []
-        this.roleId = ((user.roleId as number[]) || []).map(Number)
-        this.permissions = (data.permissions as string[]) || []
+        this.userId = String(user.userId || '');
+        this.username = String(user.username || '');
+        this.nickname = String(user.nickname || user.username || '');
+        this.avatar = String(user.avatar || '');
+        this.email = String(user.email || '');
+        this.phone = String(user.phone || '');
+        this.deptId = String(user.deptId || '');
+        this.deptName = String(user.deptName || '');
+        this.roles = (data.roles as string[]) || [];
+        this.roleId = ((user.roleId as number[]) || []).map(Number);
+        this.permissions = (data.permissions as string[]) || [];
 
-        this.saveToCache()
+        this.saveToCache();
 
-        return data
+        return data;
       } catch (error) {
-        throw error
+        throw error;
       }
     },
 
@@ -115,11 +115,11 @@ export const useUserStore = defineStore('user', {
      */
     async logout() {
       try {
-        await logoutApi()
+        await logoutApi();
       } finally {
-        this.resetState()
-        removeToken()
-        cache.remove(CACHE_KEYS.USER_INFO)
+        this.resetState();
+        removeToken();
+        cache.remove(CACHE_KEYS.USER_INFO);
       }
     },
 
@@ -127,18 +127,18 @@ export const useUserStore = defineStore('user', {
      * 重置用户状态
      */
     resetState() {
-      this.token = ''
-      this.userId = ''
-      this.username = ''
-      this.nickname = ''
-      this.avatar = ''
-      this.email = ''
-      this.phone = ''
-      this.deptId = ''
-      this.deptName = ''
-      this.roles = []
-      this.roleId = []
-      this.permissions = []
-    }
-  }
-})
+      this.token = '';
+      this.userId = '';
+      this.username = '';
+      this.nickname = '';
+      this.avatar = '';
+      this.email = '';
+      this.phone = '';
+      this.deptId = '';
+      this.deptName = '';
+      this.roles = [];
+      this.roleId = [];
+      this.permissions = [];
+    },
+  },
+});

@@ -11,7 +11,7 @@ export default {
     growth: '增长率',
     visits: '访问量',
     orders: '订单数',
-   销售额: '销售额',
+    销售额: '销售额',
     returnRate: '退货率',
   },
 
@@ -49,4 +49,4 @@ export default {
     evening: '晚上好',
     welcomeBack: '欢迎回来',
   },
-}
+};

@@ -270,10 +270,7 @@ export class CacheWarmupManager {
 
     try {
       // 带超时执行
-      const items = await this.executeWithTimeout(
-        task.loader(),
-        this.config.taskTimeout,
-      );
+      const items = await this.executeWithTimeout(task.loader(), this.config.taskTimeout);
 
       // 写入缓存
       const count = await this.writeToCache(items, task.keyPrefix, task.ttl);
@@ -289,7 +286,6 @@ export class CacheWarmupManager {
       console.log(`[Warmup] 任务 "${name}" 完成，预热 ${count} 条数据`);
 
       return count;
-
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
 
@@ -304,7 +300,6 @@ export class CacheWarmupManager {
       console.error(`[Warmup] 任务 "${name}" 失败:`, err.message);
 
       return 0;
-
     } finally {
       status.running = false;
     }
@@ -313,15 +308,10 @@ export class CacheWarmupManager {
   /**
    * 带超时执行
    */
-  private async executeWithTimeout<T>(
-    promise: Promise<T>,
-    timeout: number,
-  ): Promise<T> {
+  private async executeWithTimeout<T>(promise: Promise<T>, timeout: number): Promise<T> {
     return Promise.race([
       promise,
-      new Promise<T>((_, reject) =>
-        setTimeout(() => reject(new Error('预热任务超时')), timeout),
-      ),
+      new Promise<T>((_, reject) => setTimeout(() => reject(new Error('预热任务超时')), timeout)),
     ]);
   }
 
@@ -347,9 +337,8 @@ export class CacheWarmupManager {
           for (const item of items) {
             const fullKey = `${prefix}${item.key}`;
             const itemTtl = item.ttl ?? ttl;
-            const serialized = typeof item.value === 'string'
-              ? item.value
-              : JSON.stringify(item.value);
+            const serialized =
+              typeof item.value === 'string' ? item.value : JSON.stringify(item.value);
 
             pipeline.setex(fullKey, itemTtl, serialized);
             count++;

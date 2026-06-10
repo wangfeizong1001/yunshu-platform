@@ -22,8 +22,13 @@ export function useInput(props: UseInputProps = {}) {
   const hasError = computed(() => !!props.error);
   const isValid = computed(() => isDirty.value && !props.error);
 
-  function onFocus() { isFocused.value = true; }
-  function onBlur() { isFocused.value = false; isDirty.value = true; }
+  function onFocus() {
+    isFocused.value = true;
+  }
+  function onBlur() {
+    isFocused.value = false;
+    isDirty.value = true;
+  }
 
   return {
     isFocused,

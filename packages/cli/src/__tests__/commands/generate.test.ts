@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  generators,
-  toPascalCase,
-  toCamelCase,
-  toKebabCase,
-} from '../../commands/generate';
+import { generators, toPascalCase, toCamelCase, toKebabCase } from '../../commands/generate';
 
 describe('generate', () => {
   describe('命名转换工具函数', () => {

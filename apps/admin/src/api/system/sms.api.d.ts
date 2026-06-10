@@ -2,36 +2,36 @@
  * 短信服务 API
  */
 export interface SmsQuery {
-    pageNum?: number;
-    pageSize?: number;
-    phone?: string;
-    type?: string;
+  pageNum?: number;
+  pageSize?: number;
+  phone?: string;
+  type?: string;
 }
 export interface SmsForm {
-    smsId?: number;
-    phone?: string;
-    type?: string;
-    content?: string;
-    status?: string;
-    sendTime?: string;
-    remark?: string;
+  smsId?: number;
+  phone?: string;
+  type?: string;
+  content?: string;
+  status?: string;
+  sendTime?: string;
+  remark?: string;
 }
 export interface SmsInfo {
-    smsId: number;
-    phone: string;
-    type: string;
-    content: string;
-    status: string;
-    sendTime: string;
-    remark: string;
+  smsId: number;
+  phone: string;
+  type: string;
+  content: string;
+  status: string;
+  sendTime: string;
+  remark: string;
 }
 export interface SmsConfig {
-    smsType: string;
-    accessKey: string;
-    secretKey: string;
-    region: string;
-    signName: string;
-    templateCode: string;
+  smsType: string;
+  accessKey: string;
+  secretKey: string;
+  region: string;
+  signName: string;
+  templateCode: string;
 }
 export declare const getSmsList: (params?: SmsQuery) => Promise<unknown>;
 export declare const getSmsPage: (params?: SmsQuery) => Promise<unknown>;

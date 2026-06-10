@@ -34,6 +34,7 @@
     "@yunshu/shared": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^20.10.0",
     "@yunshu/tsconfig": "workspace:*",
     "tsup": "^8.0.0"
   },
@@ -42,7 +43,11 @@
     "react": "^18.0.0"
   },
   "peerDependenciesMeta": {
-    "vue": { "optional": true },
-    "react": { "optional": true }
+    "vue": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
   }
 }

@@ -9,9 +9,14 @@ export declare function getPackageList(params?: TenantPackageQuery): TenantPacka
 /** 获取套餐详情 */
 export declare function getPackageById(packageId: number): TenantPackage | undefined;
 /** 新增套餐 */
-export declare function createPackage(data: Omit<TenantPackage, 'packageId' | 'createTime' | 'updateTime'>): TenantPackage;
+export declare function createPackage(
+  data: Omit<TenantPackage, 'packageId' | 'createTime' | 'updateTime'>,
+): TenantPackage;
 /** 更新套餐 */
-export declare function updatePackageById(packageId: number, data: Partial<Omit<TenantPackage, 'packageId' | 'createTime'>>): TenantPackage | undefined;
+export declare function updatePackageById(
+  packageId: number,
+  data: Partial<Omit<TenantPackage, 'packageId' | 'createTime'>>,
+): TenantPackage | undefined;
 /** 删除套餐 */
 export declare function deletePackageById(packageId: number): boolean;
 //# sourceMappingURL=tenant-package.mock.d.ts.map

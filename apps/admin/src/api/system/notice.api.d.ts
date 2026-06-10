@@ -2,28 +2,28 @@
  * 通知公告 API
  */
 export interface NoticeQuery {
-    pageNum?: number;
-    pageSize?: number;
-    noticeTitle?: string;
-    noticeType?: string;
-    status?: string;
+  pageNum?: number;
+  pageSize?: number;
+  noticeTitle?: string;
+  noticeType?: string;
+  status?: string;
 }
 export interface NoticeForm {
-    noticeId?: number;
-    noticeTitle?: string;
-    noticeType?: string;
-    noticeContent?: string;
-    status?: string;
-    remark?: string;
+  noticeId?: number;
+  noticeTitle?: string;
+  noticeType?: string;
+  noticeContent?: string;
+  status?: string;
+  remark?: string;
 }
 export interface NoticeInfo {
-    noticeId: number;
-    noticeTitle: string;
-    noticeType: string;
-    noticeContent: string;
-    status: string;
-    remark: string;
-    createTime: string;
+  noticeId: number;
+  noticeTitle: string;
+  noticeType: string;
+  noticeContent: string;
+  status: string;
+  remark: string;
+  createTime: string;
 }
 export declare const getNoticeList: (params?: NoticeQuery) => Promise<unknown>;
 export declare const getNoticePage: (params?: NoticeQuery) => Promise<unknown>;

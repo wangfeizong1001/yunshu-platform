@@ -100,105 +100,108 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { Search, Refresh } from '@element-plus/icons-vue'
-import { getThirdLoginLogList } from '@/api/system/third.api'
-import type { ThirdLoginLog, ThirdLoginLogQuery } from '@yunshu/shared'
+  import { ref, reactive, onMounted } from 'vue';
+  import { Search, Refresh } from '@element-plus/icons-vue';
+  import { getThirdLoginLogList } from '@/api/system/third.api';
+  import type { ThirdLoginLog, ThirdLoginLogQuery } from '@yunshu/shared';
 
-// 状态
-const loading = ref(false)
-const logList = ref<ThirdLoginLog[]>([])
-const total = ref(0)
-const dateRange = ref<string[]>([])
+  // 状态
+  const loading = ref(false);
+  const logList = ref<ThirdLoginLog[]>([]);
+  const total = ref(0);
+  const dateRange = ref<string[]>([]);
 
-// 查询参数
-const queryParams = reactive<ThirdLoginLogQuery>({
-  platform: undefined,
-  username: '',
-  status: undefined,
-  startDate: '',
-  endDate: '',
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<ThirdLoginLogQuery>({
+    platform: undefined,
+    username: '',
+    status: undefined,
+    startDate: '',
+    endDate: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 获取平台名称
-function getPlatformName(platform: string): string {
-  const platformMap: Record<string, string> = {
-    wechat: '微信',
-    github: 'GitHub',
-    wecom: '企业微信',
-    dingtalk: '钉钉',
+  // 获取平台名称
+  function getPlatformName(platform: string): string {
+    const platformMap: Record<string, string> = {
+      wechat: '微信',
+      github: 'GitHub',
+      wecom: '企业微信',
+      dingtalk: '钉钉',
+    };
+    return platformMap[platform] || platform;
   }
-  return platformMap[platform] || platform
-}
 
-// 加载日志列表
-async function fetchLogList() {
-  loading.value = true
-  try {
-    // 处理日期范围
-    if (dateRange.value && dateRange.value.length === 2) {
-      queryParams.startDate = dateRange.value[0]
-      queryParams.endDate = dateRange.value[1]
-    } else {
-      queryParams.startDate = ''
-      queryParams.endDate = ''
+  // 加载日志列表
+  async function fetchLogList() {
+    loading.value = true;
+    try {
+      // 处理日期范围
+      if (dateRange.value && dateRange.value.length === 2) {
+        queryParams.startDate = dateRange.value[0];
+        queryParams.endDate = dateRange.value[1];
+      } else {
+        queryParams.startDate = '';
+        queryParams.endDate = '';
+      }
+
+      const res = (await getThirdLoginLogList(queryParams)) as {
+        rows: ThirdLoginLog[];
+        total: number;
+      };
+      logList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
-
-    const res = await getThirdLoginLogList(queryParams) as { rows: ThirdLoginLog[]; total: number }
-    logList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
   }
-}
 
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchLogList()
-}
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchLogList();
+  }
 
-// 重置查询
-function resetQuery() {
-  queryParams.platform = undefined
-  queryParams.username = ''
-  queryParams.status = undefined
-  dateRange.value = []
-  queryParams.pageNum = 1
-  handleQuery()
-}
+  // 重置查询
+  function resetQuery() {
+    queryParams.platform = undefined;
+    queryParams.username = '';
+    queryParams.status = undefined;
+    dateRange.value = [];
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
 
-// 刷新表格
-function refreshTable() {
-  fetchLogList()
-}
+  // 刷新表格
+  function refreshTable() {
+    fetchLogList();
+  }
 
-// 初始化
-onMounted(() => {
-  fetchLogList()
-})
+  // 初始化
+  onMounted(() => {
+    fetchLogList();
+  });
 </script>
 
 <style scoped lang="scss">
-.third-log {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .third-log {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .card-header {
+    .table-card {
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

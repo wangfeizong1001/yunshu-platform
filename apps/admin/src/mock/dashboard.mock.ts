@@ -7,8 +7,8 @@ import type {
   DashboardStats,
   SalesTrendData,
   RegionSalesData,
-  CategoryData
-} from '@/api/dashboard.api'
+  CategoryData,
+} from '@/api/dashboard.api';
 
 // 生成 Mock 大屏看板数据
 export const mockDashboardList: DashboardInfo[] = [
@@ -19,13 +19,13 @@ export const mockDashboardList: DashboardInfo[] = [
     description: '企业整体运营数据监控大屏',
     config: JSON.stringify({
       title: '企业运营监控大屏',
-      widgets: []
+      widgets: [],
     }),
     status: '0',
     createTime: '2024-01-15 10:30:00',
     updateTime: '2024-01-20 14:20:00',
     createBy: 'admin',
-    remark: '默认运营监控'
+    remark: '默认运营监控',
   },
   {
     dashboardId: 2,
@@ -34,15 +34,15 @@ export const mockDashboardList: DashboardInfo[] = [
     description: '销售数据实时监控与分析',
     config: JSON.stringify({
       title: '销售数据分析大屏',
-      widgets: []
+      widgets: [],
     }),
     status: '0',
     createTime: '2024-01-10 09:15:00',
     updateTime: '2024-01-18 16:45:00',
     createBy: 'admin',
-    remark: '销售部门使用'
-  }
-]
+    remark: '销售部门使用',
+  },
+];
 
 // 获取大屏统计数据 Mock
 export function getMockDashboardStats(): DashboardStats {
@@ -54,23 +54,36 @@ export function getMockDashboardStats(): DashboardStats {
     userGrowthRate: 12.5,
     orderGrowthRate: 8.3,
     revenueGrowthRate: 15.2,
-    onlineUsers: 1256
-  }
+    onlineUsers: 1256,
+  };
 }
 
 // 获取销售趋势数据 Mock
 export function getMockSalesTrendData(): SalesTrendData[] {
-  const data: SalesTrendData[] = []
-  const dates = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+  const data: SalesTrendData[] = [];
+  const dates = [
+    '1月',
+    '2月',
+    '3月',
+    '4月',
+    '5月',
+    '6月',
+    '7月',
+    '8月',
+    '9月',
+    '10月',
+    '11月',
+    '12月',
+  ];
   dates.forEach((date) => {
     data.push({
       date,
       sales: Math.floor(Math.random() * 200000) + 50000,
       orders: Math.floor(Math.random() * 5000) + 1000,
-      visitors: Math.floor(Math.random() * 10000) + 3000
-    })
-  })
-  return data
+      visitors: Math.floor(Math.random() * 10000) + 3000,
+    });
+  });
+  return data;
 }
 
 // 获取区域销售数据 Mock
@@ -83,8 +96,8 @@ export function getMockRegionSalesData(): RegionSalesData[] {
     { name: '杭州', value: 65400, longitude: 120.19, latitude: 30.26 },
     { name: '成都', value: 54200, longitude: 104.06, latitude: 30.67 },
     { name: '武汉', value: 48300, longitude: 114.31, latitude: 30.52 },
-    { name: '西安', value: 39800, longitude: 108.95, latitude: 34.27 }
-  ]
+    { name: '西安', value: 39800, longitude: 108.95, latitude: 34.27 },
+  ];
 }
 
 // 获取分类占比数据 Mock
@@ -94,8 +107,8 @@ export function getMockCategoryData(): CategoryData[] {
     { name: '服装', value: 25 },
     { name: '食品', value: 18 },
     { name: '家居', value: 12 },
-    { name: '其他', value: 10 }
-  ]
+    { name: '其他', value: 10 },
+  ];
 }
 
 // 获取实时数据 Mock
@@ -105,33 +118,33 @@ export function getMockRealTimeData() {
     data: {
       currentOrders: Math.floor(Math.random() * 100) + 50,
       currentUsers: Math.floor(Math.random() * 50) + 20,
-      currentRevenue: Math.floor(Math.random() * 10000) + 5000
-    }
-  }
+      currentRevenue: Math.floor(Math.random() * 10000) + 5000,
+    },
+  };
 }
 
 // 获取大屏看板列表 Mock
 export function getMockDashboardList(params: any): { total: number; rows: DashboardInfo[] } {
-  const { pageNum = 1, pageSize = 10, dashboardName = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, dashboardName = '', status = '' } = params;
 
-  let filteredList = mockDashboardList
+  let filteredList = mockDashboardList;
 
   if (dashboardName) {
     filteredList = filteredList.filter((dashboard) =>
-      dashboard.dashboardName.includes(dashboardName)
-    )
+      dashboard.dashboardName.includes(dashboardName),
+    );
   }
 
   if (status) {
-    filteredList = filteredList.filter((dashboard) => dashboard.status === status)
+    filteredList = filteredList.filter((dashboard) => dashboard.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
-    rows
-  }
+    rows,
+  };
 }

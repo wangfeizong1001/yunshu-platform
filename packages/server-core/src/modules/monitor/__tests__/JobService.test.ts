@@ -77,7 +77,7 @@ describe('JobService', () => {
         const job = result.data.data[0];
         expect(
           job.jobName.toLowerCase().includes('备份') ||
-          job.invokeTarget.toLowerCase().includes('备份')
+            job.invokeTarget.toLowerCase().includes('备份'),
         ).toBe(true);
       }
     });
@@ -107,7 +107,12 @@ describe('JobService', () => {
     });
 
     it('应支持升序排序', async () => {
-      const result = await service.findWithPagination({ sort: 'jobName', order: 'asc', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        sort: 'jobName',
+        order: 'asc',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
   });
@@ -217,7 +222,12 @@ describe('JobService', () => {
     it('应支持时间范围筛选', async () => {
       const beginTime = new Date(Date.now() - 3600000).toISOString();
       const endTime = new Date().toISOString();
-      const result = await service.findLogsWithPagination({ beginTime, endTime, page: 1, limit: 10 });
+      const result = await service.findLogsWithPagination({
+        beginTime,
+        endTime,
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
   });

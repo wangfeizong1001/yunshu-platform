@@ -54,7 +54,11 @@
         </el-table-column>
         <el-table-column prop="currentTaskNames" label="当前节点" min-width="150">
           <template #default="{ row }">
-            <el-tag v-if="row.currentTaskNames && row.currentTaskNames.length > 0" type="info" size="small">
+            <el-tag
+              v-if="row.currentTaskNames && row.currentTaskNames.length > 0"
+              type="info"
+              size="small"
+            >
               {{ row.currentTaskNames[0] }}
             </el-tag>
             <span v-else>-</span>
@@ -88,22 +92,32 @@
       </div>
     </el-card>
 
-    <el-drawer
-      v-model="viewDrawerVisible"
-      title="流程实例详情"
-      size="60%"
-    >
+    <el-drawer v-model="viewDrawerVisible" title="流程实例详情" size="60%">
       <div v-if="currentInstance" class="instance-detail">
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="流程名称">{{ currentInstance.processDefinitionName }}</el-descriptions-item>
-          <el-descriptions-item label="业务编号">{{ currentInstance.businessKey }}</el-descriptions-item>
-          <el-descriptions-item label="发起人">{{ currentInstance.startUserId }}</el-descriptions-item>
-          <el-descriptions-item label="开始时间">{{ currentInstance.startTime }}</el-descriptions-item>
-          <el-descriptions-item label="结束时间">{{ currentInstance.endTime || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="流程名称">{{
+            currentInstance.processDefinitionName
+          }}</el-descriptions-item>
+          <el-descriptions-item label="业务编号">{{
+            currentInstance.businessKey
+          }}</el-descriptions-item>
+          <el-descriptions-item label="发起人">{{
+            currentInstance.startUserId
+          }}</el-descriptions-item>
+          <el-descriptions-item label="开始时间">{{
+            currentInstance.startTime
+          }}</el-descriptions-item>
+          <el-descriptions-item label="结束时间">{{
+            currentInstance.endTime || '-'
+          }}</el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag v-if="currentInstance.status === 'running'" type="primary">运行中</el-tag>
-            <el-tag v-else-if="currentInstance.status === 'completed'" type="success">已完成</el-tag>
-            <el-tag v-else-if="currentInstance.status === 'terminated'" type="danger">已终止</el-tag>
+            <el-tag v-else-if="currentInstance.status === 'completed'" type="success"
+              >已完成</el-tag
+            >
+            <el-tag v-else-if="currentInstance.status === 'terminated'" type="danger"
+              >已终止</el-tag
+            >
           </el-descriptions-item>
         </el-descriptions>
 
@@ -185,144 +199,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh } from '@element-plus/icons-vue'
-import { type ProcessInstance } from '@/api/workflow.api'
-import { getMockProcessInstancePage } from '@/mock/workflow.mock'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh } from '@element-plus/icons-vue';
+  import { type ProcessInstance } from '@/api/workflow.api';
+  import { getMockProcessInstancePage } from '@/mock/workflow.mock';
 
-const loading = ref(false)
-const instanceList = ref<ProcessInstance[]>([])
-const total = ref(0)
+  const loading = ref(false);
+  const instanceList = ref<ProcessInstance[]>([]);
+  const total = ref(0);
 
-const queryParams = reactive({
-  processName: '',
-  businessKey: '',
-  status: '',
-  pageNum: 1,
-  pageSize: 10,
-})
+  const queryParams = reactive({
+    processName: '',
+    businessKey: '',
+    status: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-const viewDrawerVisible = ref(false)
-const currentInstance = ref<ProcessInstance | null>(null)
+  const viewDrawerVisible = ref(false);
+  const currentInstance = ref<ProcessInstance | null>(null);
 
-// 流程进度节点
-interface FlowNodeItem {
-  id: string
-  name: string
-  type: string
-  icon: string
-  assignee?: string
-  status: 'done' | 'current' | 'pending'
-}
-
-const instanceFlowNodes = ref<FlowNodeItem[]>([])
-
-// 流程变量
-interface ProcessVariable {
-  name: string
-  type: string
-  value: string
-  updateTime: string
-}
-
-const instanceVariables = ref<ProcessVariable[]>([])
-
-// 审批历史
-interface HistoryItem {
-  taskName: string
-  assignee: string
-  action: string
-  actionText: string
-  comment?: string
-  duration?: string
-  endTime: string
-}
-
-const instanceHistory = ref<HistoryItem[]>([
-  {
-    taskName: '发起申请',
-    assignee: '张三',
-    action: 'start',
-    actionText: '发起申请',
-    comment: '申请年假3天，从6月1日到6月3日',
-    duration: '0分钟',
-    endTime: '2024-06-01 09:00:00',
-  },
-  {
-    taskName: '部门经理审批',
-    assignee: '李四',
-    action: 'approve',
-    actionText: '审批通过',
-    comment: '同意申请',
-    duration: '2小时30分钟',
-    endTime: '2024-06-01 11:30:00',
-  },
-])
-
-async function fetchInstanceList() {
-  loading.value = true
-  try {
-    const res = getMockProcessInstancePage(queryParams)
-    instanceList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchInstanceList()
-}
-
-function resetQuery() {
-  queryParams.processName = ''
-  queryParams.businessKey = ''
-  queryParams.status = ''
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-function refreshTable() {
-  fetchInstanceList()
-}
-
-function handleView(row: ProcessInstance) {
-  currentInstance.value = row
-  loadInstanceDetail(row)
-  viewDrawerVisible.value = true
-}
-
-function loadInstanceDetail(row: ProcessInstance) {
-  // 模拟加载流程进度节点
-  if (row.status === 'running') {
-    instanceFlowNodes.value = [
-      { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
-      { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
-      { id: '3', name: '部门经理审批', type: 'task', icon: '▢', assignee: '李四', status: 'current' },
-      { id: '4', name: '结束', type: 'end', icon: '◉', status: 'pending' },
-    ]
-  } else {
-    instanceFlowNodes.value = [
-      { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
-      { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
-      { id: '3', name: '部门经理审批', type: 'task', icon: '▢', assignee: '李四', status: 'done' },
-      { id: '4', name: '结束', type: 'end', icon: '◉', status: 'done' },
-    ]
+  // 流程进度节点
+  interface FlowNodeItem {
+    id: string;
+    name: string;
+    type: string;
+    icon: string;
+    assignee?: string;
+    status: 'done' | 'current' | 'pending';
   }
 
-  // 模拟加载流程变量
-  instanceVariables.value = [
-    { name: 'days', type: 'Integer', value: '3', updateTime: '2024-06-01 09:00:00' },
-    { name: 'startDate', type: 'Date', value: '2024-06-01', updateTime: '2024-06-01 09:00:00' },
-    { name: 'endDate', type: 'Date', value: '2024-06-03', updateTime: '2024-06-01 09:00:00' },
-    { name: 'reason', type: 'String', value: '年假', updateTime: '2024-06-01 09:00:00' },
-    { name: 'amount', type: 'Double', value: '0.0', updateTime: '2024-06-01 09:00:00' },
-  ]
+  const instanceFlowNodes = ref<FlowNodeItem[]>([]);
 
-  // 模拟加载审批历史
-  instanceHistory.value = [
+  // 流程变量
+  interface ProcessVariable {
+    name: string;
+    type: string;
+    value: string;
+    updateTime: string;
+  }
+
+  const instanceVariables = ref<ProcessVariable[]>([]);
+
+  // 审批历史
+  interface HistoryItem {
+    taskName: string;
+    assignee: string;
+    action: string;
+    actionText: string;
+    comment?: string;
+    duration?: string;
+    endTime: string;
+  }
+
+  const instanceHistory = ref<HistoryItem[]>([
     {
       taskName: '发起申请',
       assignee: '张三',
@@ -341,157 +272,255 @@ function loadInstanceDetail(row: ProcessInstance) {
       duration: '2小时30分钟',
       endTime: '2024-06-01 11:30:00',
     },
-  ]
-}
+  ]);
 
-function getActionType(action: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
-  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    start: 'success',
-    approve: 'primary',
-    reject: 'danger',
-    delegate: 'warning',
-    addSign: 'info',
-  }
-  return typeMap[action] || 'info'
-}
-
-async function handleTerminate(_row: ProcessInstance) {
-  try {
-    await ElMessageBox.confirm('确定要终止该流程实例吗？', '提示', {
-      type: 'warning',
-    })
-    ElMessage.success('终止成功')
-    refreshTable()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('终止失败', error)
+  async function fetchInstanceList() {
+    loading.value = true;
+    try {
+      const res = getMockProcessInstancePage(queryParams);
+      instanceList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-onMounted(() => {
-  fetchInstanceList()
-})
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchInstanceList();
+  }
+
+  function resetQuery() {
+    queryParams.processName = '';
+    queryParams.businessKey = '';
+    queryParams.status = '';
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  function refreshTable() {
+    fetchInstanceList();
+  }
+
+  function handleView(row: ProcessInstance) {
+    currentInstance.value = row;
+    loadInstanceDetail(row);
+    viewDrawerVisible.value = true;
+  }
+
+  function loadInstanceDetail(row: ProcessInstance) {
+    // 模拟加载流程进度节点
+    if (row.status === 'running') {
+      instanceFlowNodes.value = [
+        { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
+        { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
+        {
+          id: '3',
+          name: '部门经理审批',
+          type: 'task',
+          icon: '▢',
+          assignee: '李四',
+          status: 'current',
+        },
+        { id: '4', name: '结束', type: 'end', icon: '◉', status: 'pending' },
+      ];
+    } else {
+      instanceFlowNodes.value = [
+        { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
+        { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
+        {
+          id: '3',
+          name: '部门经理审批',
+          type: 'task',
+          icon: '▢',
+          assignee: '李四',
+          status: 'done',
+        },
+        { id: '4', name: '结束', type: 'end', icon: '◉', status: 'done' },
+      ];
+    }
+
+    // 模拟加载流程变量
+    instanceVariables.value = [
+      { name: 'days', type: 'Integer', value: '3', updateTime: '2024-06-01 09:00:00' },
+      { name: 'startDate', type: 'Date', value: '2024-06-01', updateTime: '2024-06-01 09:00:00' },
+      { name: 'endDate', type: 'Date', value: '2024-06-03', updateTime: '2024-06-01 09:00:00' },
+      { name: 'reason', type: 'String', value: '年假', updateTime: '2024-06-01 09:00:00' },
+      { name: 'amount', type: 'Double', value: '0.0', updateTime: '2024-06-01 09:00:00' },
+    ];
+
+    // 模拟加载审批历史
+    instanceHistory.value = [
+      {
+        taskName: '发起申请',
+        assignee: '张三',
+        action: 'start',
+        actionText: '发起申请',
+        comment: '申请年假3天，从6月1日到6月3日',
+        duration: '0分钟',
+        endTime: '2024-06-01 09:00:00',
+      },
+      {
+        taskName: '部门经理审批',
+        assignee: '李四',
+        action: 'approve',
+        actionText: '审批通过',
+        comment: '同意申请',
+        duration: '2小时30分钟',
+        endTime: '2024-06-01 11:30:00',
+      },
+    ];
+  }
+
+  function getActionType(action: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
+    const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
+      start: 'success',
+      approve: 'primary',
+      reject: 'danger',
+      delegate: 'warning',
+      addSign: 'info',
+    };
+    return typeMap[action] || 'info';
+  }
+
+  async function handleTerminate(_row: ProcessInstance) {
+    try {
+      await ElMessageBox.confirm('确定要终止该流程实例吗？', '提示', {
+        type: 'warning',
+      });
+      ElMessage.success('终止成功');
+      refreshTable();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('终止失败', error);
+      }
+    }
+  }
+
+  onMounted(() => {
+    fetchInstanceList();
+  });
 </script>
 
 <style scoped lang="scss">
-.process-instance {
-  .search-card {
-    margin-bottom: 16px;
-  }
-
-  .table-card {
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .title {
-        font-size: 16px;
-        font-weight: 600;
-      }
-      .count-tag {
-        margin-left: 8px;
-      }
-    }
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-
-  .instance-detail {
-    .flow-chart-section,
-    .variables-section,
-    .history-section {
-      margin-top: 24px;
-      h4 {
-        margin-bottom: 16px;
-      }
+  .process-instance {
+    .search-card {
+      margin-bottom: 16px;
     }
 
-    .flow-chart,
-    .flow-chart-simple {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 24px;
-      background: #f5f7fa;
-      border-radius: 8px;
-      flex-wrap: wrap;
-      .flow-node {
+    .table-card {
+      .table-header {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
         align-items: center;
-        gap: 8px;
-        min-width: 80px;
-        .node-icon {
-          font-size: 24px;
+        .title {
+          font-size: 16px;
+          font-weight: 600;
         }
-        .node-label {
-          font-size: 12px;
+        .count-tag {
+          margin-left: 8px;
         }
-        .node-assignee {
-          font-size: 10px;
-          color: #909399;
+      }
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .instance-detail {
+      .flow-chart-section,
+      .variables-section,
+      .history-section {
+        margin-top: 24px;
+        h4 {
+          margin-bottom: 16px;
         }
-        &.start .node-icon {
-          color: #67c23a;
-        }
-        &.done .node-icon {
-          color: #67c23a;
-        }
-        &.done .node-label {
-          color: #67c23a;
-        }
-        &.current {
+      }
+
+      .flow-chart,
+      .flow-chart-simple {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 24px;
+        background: #f5f7fa;
+        border-radius: 8px;
+        flex-wrap: wrap;
+        .flow-node {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          min-width: 80px;
           .node-icon {
-            color: #409eff;
-            animation: pulse 2s infinite;
+            font-size: 24px;
           }
           .node-label {
-            color: #409eff;
-            font-weight: 600;
+            font-size: 12px;
+          }
+          .node-assignee {
+            font-size: 10px;
+            color: #909399;
+          }
+          &.start .node-icon {
+            color: #67c23a;
+          }
+          &.done .node-icon {
+            color: #67c23a;
+          }
+          &.done .node-label {
+            color: #67c23a;
+          }
+          &.current {
+            .node-icon {
+              color: #409eff;
+              animation: pulse 2s infinite;
+            }
+            .node-label {
+              color: #409eff;
+              font-weight: 600;
+            }
+          }
+          &.pending .node-icon {
+            color: #c0c4cc;
+          }
+          &.pending .node-label {
+            color: #c0c4cc;
           }
         }
-        &.pending .node-icon {
+        .flow-arrow {
           color: #c0c4cc;
-        }
-        &.pending .node-label {
-          color: #c0c4cc;
+          font-size: 20px;
         }
       }
-      .flow-arrow {
-        color: #c0c4cc;
-        font-size: 20px;
-      }
-    }
 
-    .timeline-content {
-      .timeline-user {
-        font-weight: 600;
-      }
-      .timeline-action {
-        margin-top: 4px;
-        &.start {
-          color: #67c23a;
+      .timeline-content {
+        .timeline-user {
+          font-weight: 600;
         }
-      }
-      .timeline-comment {
-        margin-top: 8px;
-        color: #606266;
+        .timeline-action {
+          margin-top: 4px;
+          &.start {
+            color: #67c23a;
+          }
+        }
+        .timeline-comment {
+          margin-top: 8px;
+          color: #606266;
+        }
       }
     }
   }
-}
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
-  50% {
-    opacity: 0.5;
-  }
-}
 </style>

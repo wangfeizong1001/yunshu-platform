@@ -7,30 +7,30 @@
 </template>
 
 <script setup lang="ts">
-import { FullScreen } from '@element-plus/icons-vue'
+  import { FullScreen } from '@element-plus/icons-vue';
 
-const toggle = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen()
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen()
+  const toggle = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
     }
-  }
-}
+  };
 </script>
 
 <style lang="scss" scoped>
-.fullscreen {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 5px;
-  color: #5a5e66;
-  transition: color 0.3s;
+  .fullscreen {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+    color: #5a5e66;
+    transition: color 0.3s;
 
-  &:hover {
-    color: #409eff;
+    &:hover {
+      color: #409eff;
+    }
   }
-}
 </style>

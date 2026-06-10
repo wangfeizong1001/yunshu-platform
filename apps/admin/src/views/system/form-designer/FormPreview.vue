@@ -184,162 +184,167 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { ArrowLeft, Refresh, Check } from '@element-plus/icons-vue'
-import { getForm, submitFormData, type FormComponent, type FormInfo } from '@/api/system/form.api'
-import type { FormInstance, FormRules } from 'element-plus'
+  import { ref, reactive, onMounted, computed } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
+  import { ElMessage } from 'element-plus';
+  import { ArrowLeft, Refresh, Check } from '@element-plus/icons-vue';
+  import {
+    getForm,
+    submitFormData,
+    type FormComponent,
+    type FormInfo,
+  } from '@/api/system/form.api';
+  import type { FormInstance, FormRules } from 'element-plus';
 
-const router = useRouter()
-const route = useRoute()
+  const router = useRouter();
+  const route = useRoute();
 
-// 表单信息
-const formInfo = ref<FormInfo | null>(null)
+  // 表单信息
+  const formInfo = ref<FormInfo | null>(null);
 
-// 表单组件列表
-const components = ref<FormComponent[]>([])
+  // 表单组件列表
+  const components = ref<FormComponent[]>([]);
 
-// 表单数据
-const formData = reactive<Record<string, any>>({})
+  // 表单数据
+  const formData = reactive<Record<string, any>>({});
 
-// 表单引用
-const formRef = ref<FormInstance>()
+  // 表单引用
+  const formRef = ref<FormInstance>();
 
-// 表单验证规则
-const formRules = computed<FormRules>(() => {
-  const rules: FormRules = {}
-  components.value.forEach(component => {
-    if (component.required) {
-      rules[component.field] = [
-        { required: true, message: `请输入${component.label}`, trigger: 'blur' }
-      ]
-    }
-  })
-  return rules
-})
-
-// 初始化表单数据
-function initFormData() {
-  components.value.forEach(component => {
-    if (component.type === 'checkbox') {
-      formData[component.field] = component.defaultValue || []
-    } else if (component.type === 'switch') {
-      formData[component.field] = component.defaultValue || false
-    } else if (component.type === 'upload') {
-      formData[component.field] = []
-    } else {
-      formData[component.field] = component.defaultValue || ''
-    }
-  })
-}
-
-// 返回
-function handleBack() {
-  router.push('/system/form')
-}
-
-// 重置
-function handleReset() {
-  initFormData()
-  ElMessage.success('已重置')
-}
-
-// 提交
-async function handleSubmit() {
-  if (!formRef.value || !formInfo.value) return
-  await formRef.value.validate(async valid => {
-    if (valid) {
-      try {
-        await submitFormData(formInfo.value!.formId, formData)
-        ElMessage.success('提交成功')
-      } catch (error) {
-        console.error('提交失败', error)
+  // 表单验证规则
+  const formRules = computed<FormRules>(() => {
+    const rules: FormRules = {};
+    components.value.forEach((component) => {
+      if (component.required) {
+        rules[component.field] = [
+          { required: true, message: `请输入${component.label}`, trigger: 'blur' },
+        ];
       }
-    }
-  })
-}
+    });
+    return rules;
+  });
 
-// 获取表单信息
-async function fetchFormInfo() {
-  const formId = Number(route.params.id)
-  try {
-    const res = await getForm(formId)
-    formInfo.value = res
-    components.value = res.components || []
-    initFormData()
-  } catch (error) {
-    console.error('获取表单信息失败', error)
+  // 初始化表单数据
+  function initFormData() {
+    components.value.forEach((component) => {
+      if (component.type === 'checkbox') {
+        formData[component.field] = component.defaultValue || [];
+      } else if (component.type === 'switch') {
+        formData[component.field] = component.defaultValue || false;
+      } else if (component.type === 'upload') {
+        formData[component.field] = [];
+      } else {
+        formData[component.field] = component.defaultValue || '';
+      }
+    });
   }
-}
 
-// 初始化
-onMounted(() => {
-  fetchFormInfo()
-})
+  // 返回
+  function handleBack() {
+    router.push('/system/form');
+  }
+
+  // 重置
+  function handleReset() {
+    initFormData();
+    ElMessage.success('已重置');
+  }
+
+  // 提交
+  async function handleSubmit() {
+    if (!formRef.value || !formInfo.value) return;
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        try {
+          await submitFormData(formInfo.value!.formId, formData);
+          ElMessage.success('提交成功');
+        } catch (error) {
+          console.error('提交失败', error);
+        }
+      }
+    });
+  }
+
+  // 获取表单信息
+  async function fetchFormInfo() {
+    const formId = Number(route.params.id);
+    try {
+      const res = await getForm(formId);
+      formInfo.value = res;
+      components.value = res.components || [];
+      initFormData();
+    } catch (error) {
+      console.error('获取表单信息失败', error);
+    }
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchFormInfo();
+  });
 </script>
 
 <style scoped lang="scss">
-.form-preview {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #f5f7fa;
-
-  .toolbar {
+  .form-preview {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #e4e7ed;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f5f7fa;
 
-    .left {
+    .toolbar {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-
-      .form-title {
-        margin-left: 16px;
-        font-size: 16px;
-        font-weight: 500;
-        color: #303133;
-      }
-    }
-  }
-
-  .preview-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-  }
-
-  .preview-card {
-    width: 100%;
-    max-width: 800px;
-    background-color: #fff;
-    border-radius: 4px;
-    padding: 40px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-
-    .form-description {
-      margin-bottom: 24px;
-      padding-bottom: 16px;
+      padding: 12px 20px;
+      background-color: #fff;
       border-bottom: 1px solid #e4e7ed;
-      color: #606266;
-      font-size: 14px;
+
+      .left {
+        display: flex;
+        align-items: center;
+
+        .form-title {
+          margin-left: 16px;
+          font-size: 16px;
+          font-weight: 500;
+          color: #303133;
+        }
+      }
     }
 
-    .preview-form {
-      :deep(.el-form-item) {
+    .preview-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .preview-card {
+      width: 100%;
+      max-width: 800px;
+      background-color: #fff;
+      border-radius: 4px;
+      padding: 40px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+
+      .form-description {
         margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e4e7ed;
+        color: #606266;
+        font-size: 14px;
       }
 
-      :deep(.el-form-item__label) {
-        font-weight: 500;
+      .preview-form {
+        :deep(.el-form-item) {
+          margin-bottom: 24px;
+        }
+
+        :deep(.el-form-item__label) {
+          font-weight: 500;
+        }
       }
     }
   }
-}
 </style>

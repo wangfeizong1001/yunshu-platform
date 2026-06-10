@@ -89,30 +89,30 @@
       </div>
     </el-card>
 
-    <el-drawer
-      v-model="viewDrawerVisible"
-      title="任务详情"
-      size="50%"
-    >
+    <el-drawer v-model="viewDrawerVisible" title="任务详情" size="50%">
       <div v-if="currentTask" class="task-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="任务名称">{{ currentTask.name }}</el-descriptions-item>
-          <el-descriptions-item label="流程名称">{{ currentTask.processDefinitionName }}</el-descriptions-item>
-          <el-descriptions-item label="业务编号">{{ currentTask.businessKey }}</el-descriptions-item>
+          <el-descriptions-item label="流程名称">{{
+            currentTask.processDefinitionName
+          }}</el-descriptions-item>
+          <el-descriptions-item label="业务编号">{{
+            currentTask.businessKey
+          }}</el-descriptions-item>
           <el-descriptions-item label="接收时间">{{ currentTask.startTime }}</el-descriptions-item>
           <el-descriptions-item label="完成时间">{{ currentTask.endTime }}</el-descriptions-item>
-          <el-descriptions-item label="处理人">{{ currentTask.assignee || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="任务描述" :span="2">{{ currentTask.description || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="处理人">{{
+            currentTask.assignee || '-'
+          }}</el-descriptions-item>
+          <el-descriptions-item label="任务描述" :span="2">{{
+            currentTask.description || '-'
+          }}</el-descriptions-item>
         </el-descriptions>
 
         <div class="history-section">
           <h4>审批历史</h4>
           <el-timeline>
-            <el-timeline-item
-              v-for="(item, idx) in taskHistory"
-              :key="idx"
-              :timestamp="item.time"
-            >
+            <el-timeline-item v-for="(item, idx) in taskHistory" :key="idx" :timestamp="item.time">
               <div class="timeline-content">
                 <div class="timeline-user">{{ item.user }}</div>
                 <div class="timeline-action" :class="item.action">{{ item.actionText }}</div>
@@ -127,144 +127,144 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { Search, Refresh, Download } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { type Task } from '@/api/workflow.api'
-import { getMockDoneTaskPage } from '@/mock/workflow.mock'
+  import { ref, reactive, onMounted } from 'vue';
+  import { Search, Refresh, Download } from '@element-plus/icons-vue';
+  import { ElMessage } from 'element-plus';
+  import { type Task } from '@/api/workflow.api';
+  import { getMockDoneTaskPage } from '@/mock/workflow.mock';
 
-const loading = ref(false)
-const taskList = ref<Task[]>([])
-const total = ref(0)
+  const loading = ref(false);
+  const taskList = ref<Task[]>([]);
+  const total = ref(0);
 
-const queryParams = reactive({
-  name: '',
-  processName: '',
-  action: '',
-  dateRange: [] as string[],
-  pageNum: 1,
-  pageSize: 10,
-})
+  const queryParams = reactive({
+    name: '',
+    processName: '',
+    action: '',
+    dateRange: [] as string[],
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-const viewDrawerVisible = ref(false)
-const currentTask = ref<Task | null>(null)
+  const viewDrawerVisible = ref(false);
+  const currentTask = ref<Task | null>(null);
 
-const taskHistory = ref([
-  {
-    user: '张三',
-    action: 'start',
-    actionText: '发起申请',
-    comment: '申请年假3天，从6月1日到6月3日',
-    time: '2024-06-01 09:00:00',
-  },
-  {
-    user: '管理员',
-    action: 'approve',
-    actionText: '审批通过',
-    comment: '同意',
-    time: '2024-06-01 10:30:00',
-  },
-])
+  const taskHistory = ref([
+    {
+      user: '张三',
+      action: 'start',
+      actionText: '发起申请',
+      comment: '申请年假3天，从6月1日到6月3日',
+      time: '2024-06-01 09:00:00',
+    },
+    {
+      user: '管理员',
+      action: 'approve',
+      actionText: '审批通过',
+      comment: '同意',
+      time: '2024-06-01 10:30:00',
+    },
+  ]);
 
-async function fetchTaskList() {
-  loading.value = true
-  try {
-    const res = getMockDoneTaskPage(queryParams)
-    taskList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
+  async function fetchTaskList() {
+    loading.value = true;
+    try {
+      const res = getMockDoneTaskPage(queryParams);
+      taskList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
+    }
   }
-}
 
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchTaskList()
-}
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchTaskList();
+  }
 
-function resetQuery() {
-  queryParams.name = ''
-  queryParams.processName = ''
-  queryParams.action = ''
-  queryParams.dateRange = []
-  queryParams.pageNum = 1
-  handleQuery()
-}
+  function resetQuery() {
+    queryParams.name = '';
+    queryParams.processName = '';
+    queryParams.action = '';
+    queryParams.dateRange = [];
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
 
-function refreshTable() {
-  fetchTaskList()
-}
+  function refreshTable() {
+    fetchTaskList();
+  }
 
-function handleView(row: Task) {
-  currentTask.value = row
-  viewDrawerVisible.value = true
-}
+  function handleView(row: Task) {
+    currentTask.value = row;
+    viewDrawerVisible.value = true;
+  }
 
-function handleRecall(row: Task) {
-  ElMessage.info(`撤回任务: ${row.name}`)
-}
+  function handleRecall(row: Task) {
+    ElMessage.info(`撤回任务: ${row.name}`);
+  }
 
-function handleExport() {
-  ElMessage.info('正在导出已办任务数据...')
-}
+  function handleExport() {
+    ElMessage.info('正在导出已办任务数据...');
+  }
 
-onMounted(() => {
-  fetchTaskList()
-})
+  onMounted(() => {
+    fetchTaskList();
+  });
 </script>
 
 <style scoped lang="scss">
-.done-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
-
-  .table-card {
-    .table-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .title {
-        font-size: 16px;
-        font-weight: 600;
-      }
-      .count-tag {
-        margin-left: 8px;
-      }
+  .done-list {
+    .search-card {
+      margin-bottom: 16px;
     }
-  }
 
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-
-  .task-detail {
-    .history-section {
-      margin-top: 24px;
-      h4 {
-        margin-bottom: 16px;
-      }
-      .timeline-content {
-        .timeline-user {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .title {
+          font-size: 16px;
           font-weight: 600;
         }
-        .timeline-action {
-          margin-top: 4px;
-          &.start {
-            color: #67c23a;
-          }
-          &.approve {
-            color: #409eff;
-          }
+        .count-tag {
+          margin-left: 8px;
         }
-        .timeline-comment {
-          margin-top: 8px;
-          color: #606266;
+      }
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .task-detail {
+      .history-section {
+        margin-top: 24px;
+        h4 {
+          margin-bottom: 16px;
+        }
+        .timeline-content {
+          .timeline-user {
+            font-weight: 600;
+          }
+          .timeline-action {
+            margin-top: 4px;
+            &.start {
+              color: #67c23a;
+            }
+            &.approve {
+              color: #409eff;
+            }
+          }
+          .timeline-comment {
+            margin-top: 8px;
+            color: #606266;
+          }
         }
       }
     }
   }
-}
 </style>

@@ -7,20 +7,20 @@
 export enum CacheType {
   LOCAL = 'local',
   SESSION = 'session',
-  REDIS = 'redis'
+  REDIS = 'redis',
 }
 
 export interface CacheConfig {
   /** 缓存类型 */
-  type: CacheType
+  type: CacheType;
   /** 缓存命名空间 */
-  namespace: string
+  namespace: string;
   /** 默认过期时间（毫秒），默认 30 分钟 */
-  defaultTTL: number
+  defaultTTL: number;
   /** 是否启用缓存 */
-  enabled: boolean
+  enabled: boolean;
   /** 是否在页面刷新后保留缓存 */
-  persist: boolean
+  persist: boolean;
 }
 
 /** 默认缓存配置 */
@@ -29,8 +29,8 @@ export const defaultCacheConfig: CacheConfig = {
   namespace: 'yunshu_cache',
   defaultTTL: 30 * 60 * 1000,
   enabled: true,
-  persist: true
-}
+  persist: true,
+};
 
 /** 缓存键名前缀 */
 export const CACHE_KEYS = {
@@ -40,7 +40,7 @@ export const CACHE_KEYS = {
   MENU_LIST: 'menu_list',
   PERMISSIONS: 'permissions',
   DICT: 'dict',
-  REQUEST: 'request'
-}
+  REQUEST: 'request',
+};
 
-export default defaultCacheConfig
+export default defaultCacheConfig;

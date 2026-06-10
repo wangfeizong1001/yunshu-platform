@@ -6,12 +6,7 @@
     destroy-on-close
     @close="handleClose"
   >
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="rules"
-      label-width="110px"
-    >
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="110px">
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="套餐名称" prop="packageName">
@@ -20,7 +15,11 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="套餐类型" prop="packageType">
-            <el-select v-model="formData.packageType" placeholder="请选择套餐类型" style="width: 100%">
+            <el-select
+              v-model="formData.packageType"
+              placeholder="请选择套餐类型"
+              style="width: 100%"
+            >
               <el-option label="免费版" value="0" />
               <el-option label="基础版" value="1" />
               <el-option label="高级版" value="2" />
@@ -82,7 +81,11 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="过期类型" prop="expireType">
-            <el-select v-model="formData.expireType" placeholder="请选择过期类型" style="width: 100%">
+            <el-select
+              v-model="formData.expireType"
+              placeholder="请选择过期类型"
+              style="width: 100%"
+            >
               <el-option label="永久" value="0" />
               <el-option label="年费" value="1" />
               <el-option label="月费" value="2" />
@@ -123,132 +126,122 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
-import { addPackage, updatePackage } from '@/api/tenant/tenant.api'
-import type { TenantPackage, TenantPackageForm } from '@yunshu/shared'
+  import { ref, computed, watch } from 'vue';
+  import { ElMessage } from 'element-plus';
+  import type { FormInstance, FormRules } from 'element-plus';
+  import { addPackage, updatePackage } from '@/api/tenant/tenant.api';
+  import type { TenantPackage, TenantPackageForm } from '@yunshu/shared';
 
-const props = defineProps<{
-  modelValue: boolean
-  packageData?: TenantPackage | null
-}>()
+  const props = defineProps<{
+    modelValue: boolean;
+    packageData?: TenantPackage | null;
+  }>();
 
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-  refresh: []
-}>()
+  const emit = defineEmits<{
+    'update:modelValue': [value: boolean];
+    refresh: [];
+  }>();
 
-// 状态
-const formRef = ref<FormInstance>()
-const submitLoading = ref(false)
+  // 状态
+  const formRef = ref<FormInstance>();
+  const submitLoading = ref(false);
 
-// 计算属性
-const visible = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
-})
+  // 计算属性
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  });
 
-const isEdit = computed(() => !!props.packageData?.packageId)
+  const isEdit = computed(() => !!props.packageData?.packageId);
 
-// 表单数据
-const formData = ref<TenantPackageForm>({
-  packageName: '',
-  packageType: '0',
-  menuIds: [],
-  expireType: '0',
-  expireTime: '',
-  userLimit: 100,
-  storageLimit: 1024,
-  flowLimit: 10,
-  price: 0,
-  status: '0',
-  remark: '',
-})
+  // 表单数据
+  const formData = ref<TenantPackageForm>({
+    packageName: '',
+    packageType: '0',
+    menuIds: [],
+    expireType: '0',
+    expireTime: '',
+    userLimit: 100,
+    storageLimit: 1024,
+    flowLimit: 10,
+    price: 0,
+    status: '0',
+    remark: '',
+  });
 
-// 表单验证规则
-const rules: FormRules = {
-  packageName: [
-    { required: true, message: '请输入套餐名称', trigger: 'blur' },
-  ],
-  packageType: [
-    { required: true, message: '请选择套餐类型', trigger: 'change' },
-  ],
-  userLimit: [
-    { required: true, message: '请输入用户限制', trigger: 'blur' },
-  ],
-  expireType: [
-    { required: true, message: '请选择过期类型', trigger: 'change' },
-  ],
-  price: [
-    { required: true, message: '请输入价格', trigger: 'blur' },
-  ],
-}
+  // 表单验证规则
+  const rules: FormRules = {
+    packageName: [{ required: true, message: '请输入套餐名称', trigger: 'blur' }],
+    packageType: [{ required: true, message: '请选择套餐类型', trigger: 'change' }],
+    userLimit: [{ required: true, message: '请输入用户限制', trigger: 'blur' }],
+    expireType: [{ required: true, message: '请选择过期类型', trigger: 'change' }],
+    price: [{ required: true, message: '请输入价格', trigger: 'blur' }],
+  };
 
-// 监听数据变化
-watch(
-  () => props.packageData,
-  (val) => {
-    if (val) {
-      formData.value = {
-        packageId: val.packageId,
-        packageName: val.packageName,
-        packageType: val.packageType,
-        menuIds: val.menuIds,
-        expireType: val.expireType,
-        expireTime: val.expireTime,
-        userLimit: val.userLimit,
-        storageLimit: val.storageLimit,
-        flowLimit: val.flowLimit,
-        price: val.price,
-        status: val.status,
-        remark: val.remark,
+  // 监听数据变化
+  watch(
+    () => props.packageData,
+    (val) => {
+      if (val) {
+        formData.value = {
+          packageId: val.packageId,
+          packageName: val.packageName,
+          packageType: val.packageType,
+          menuIds: val.menuIds,
+          expireType: val.expireType,
+          expireTime: val.expireTime,
+          userLimit: val.userLimit,
+          storageLimit: val.storageLimit,
+          flowLimit: val.flowLimit,
+          price: val.price,
+          status: val.status,
+          remark: val.remark,
+        };
+      } else {
+        formData.value = {
+          packageName: '',
+          packageType: '0',
+          menuIds: [],
+          expireType: '0',
+          expireTime: '',
+          userLimit: 100,
+          storageLimit: 1024,
+          flowLimit: 10,
+          price: 0,
+          status: '0',
+          remark: '',
+        };
       }
-    } else {
-      formData.value = {
-        packageName: '',
-        packageType: '0',
-        menuIds: [],
-        expireType: '0',
-        expireTime: '',
-        userLimit: 100,
-        storageLimit: 1024,
-        flowLimit: 10,
-        price: 0,
-        status: '0',
-        remark: '',
-      }
-    }
-  },
-  { immediate: true }
-)
+    },
+    { immediate: true },
+  );
 
-// 关闭弹窗
-function handleClose() {
-  visible.value = false
-  formRef.value?.resetFields()
-}
-
-// 提交表单
-async function handleSubmit() {
-  try {
-    await formRef.value?.validate()
-    submitLoading.value = true
-
-    if (isEdit.value) {
-      await updatePackage(props.packageData!.packageId, formData.value)
-      ElMessage.success('修改成功')
-    } else {
-      await addPackage(formData.value)
-      ElMessage.success('新增成功')
-    }
-
-    emit('refresh')
-    handleClose()
-  } catch (error) {
-    console.error('提交失败', error)
-  } finally {
-    submitLoading.value = false
+  // 关闭弹窗
+  function handleClose() {
+    visible.value = false;
+    formRef.value?.resetFields();
   }
-}
+
+  // 提交表单
+  async function handleSubmit() {
+    try {
+      await formRef.value?.validate();
+      submitLoading.value = true;
+
+      if (isEdit.value) {
+        await updatePackage(props.packageData!.packageId, formData.value);
+        ElMessage.success('修改成功');
+      } else {
+        await addPackage(formData.value);
+        ElMessage.success('新增成功');
+      }
+
+      emit('refresh');
+      handleClose();
+    } catch (error) {
+      console.error('提交失败', error);
+    } finally {
+      submitLoading.value = false;
+    }
+  }
 </script>

@@ -9,7 +9,11 @@
 
 import { test, expect } from '@playwright/test';
 
-async function login(page: import('@playwright/test').Page, username: string, password: string): Promise<void> {
+async function login(
+  page: import('@playwright/test').Page,
+  username: string,
+  password: string,
+): Promise<void> {
   await page.goto('/login');
   await page.locator('input[type="text"], input[type="email"]').first().fill(username);
   await page.locator('input[type="password"]').first().fill(password);
@@ -43,8 +47,7 @@ test.describe('权限控制', () => {
     await page.goto('/system/user');
     // 有三种典型拦截：403 页 / 弹 403 提示 / 重定向 403
     const forbiddenHit =
-      (await page.getByText(/403|无权限|forbidden/i).count()) > 0 ||
-      page.url().includes('403');
+      (await page.getByText(/403|无权限|forbidden/i).count()) > 0 || page.url().includes('403');
     expect(forbiddenHit).toBe(true);
   });
 });

@@ -2,57 +2,57 @@
  * 知识库 API
  */
 export interface KnowledgeQuery {
-    pageNum?: number;
-    pageSize?: number;
-    keyword?: string;
-    categoryId?: number;
-    status?: string;
-    visible?: string;
+  pageNum?: number;
+  pageSize?: number;
+  keyword?: string;
+  categoryId?: number;
+  status?: string;
+  visible?: string;
 }
 export interface KnowledgeForm {
-    knowledgeId?: number;
-    title?: string;
-    categoryId?: number;
-    categoryName?: string;
-    content?: string;
-    summary?: string;
-    coverUrl?: string;
-    tags?: string;
-    status?: string;
-    visible?: string;
-    sort?: number;
-    remark?: string;
+  knowledgeId?: number;
+  title?: string;
+  categoryId?: number;
+  categoryName?: string;
+  content?: string;
+  summary?: string;
+  coverUrl?: string;
+  tags?: string;
+  status?: string;
+  visible?: string;
+  sort?: number;
+  remark?: string;
 }
 export interface KnowledgeInfo {
-    knowledgeId: number;
-    title: string;
-    categoryId: number;
-    categoryName: string;
-    content: string;
-    summary: string;
-    coverUrl: string;
-    tags: string;
-    status: string;
-    visible: string;
-    sort: number;
-    viewCount: number;
-    createBy: string;
-    createTime: string;
-    updateBy: string;
-    updateTime: string;
-    remark: string;
+  knowledgeId: number;
+  title: string;
+  categoryId: number;
+  categoryName: string;
+  content: string;
+  summary: string;
+  coverUrl: string;
+  tags: string;
+  status: string;
+  visible: string;
+  sort: number;
+  viewCount: number;
+  createBy: string;
+  createTime: string;
+  updateBy: string;
+  updateTime: string;
+  remark: string;
 }
 export interface KnowledgeCategory {
-    categoryId: number;
-    categoryName: string;
-    parentId: number;
-    sort: number;
-    status: string;
-    createBy: string;
-    createTime: string;
-    updateBy: string;
-    updateTime: string;
-    remark: string;
+  categoryId: number;
+  categoryName: string;
+  parentId: number;
+  sort: number;
+  status: string;
+  createBy: string;
+  createTime: string;
+  updateBy: string;
+  updateTime: string;
+  remark: string;
 }
 export declare const getKnowledgePage: (params?: KnowledgeQuery) => Promise<unknown>;
 export declare const getKnowledgeList: (params?: KnowledgeQuery) => Promise<unknown>;

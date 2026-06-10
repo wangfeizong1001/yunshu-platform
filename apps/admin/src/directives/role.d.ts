@@ -18,8 +18,8 @@ declare const hasRole: Directive;
 declare const hasRoleAll: Directive;
 export { hasRole, hasRoleAll };
 declare const _default: {
-    hasRole: import("vue").ObjectDirective<any, any, string, any>;
-    hasRoleAll: import("vue").ObjectDirective<any, any, string, any>;
+  hasRole: import('vue').ObjectDirective<any, any, string, any>;
+  hasRoleAll: import('vue').ObjectDirective<any, any, string, any>;
 };
 export default _default;
 //# sourceMappingURL=role.d.ts.map

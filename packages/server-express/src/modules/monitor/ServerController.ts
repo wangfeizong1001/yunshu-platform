@@ -186,10 +186,12 @@ export class ServerController extends BaseController {
       heapUsagePercent: Number(((mem.heapUsed / heapLimit) * 100).toFixed(2)),
       garbageCollection: {
         totalHeapSize: Number.isFinite(heapStats.total_heap_size) ? heapStats.total_heap_size : 0,
-        totalAvailableSize: Number.isFinite(heapStats.total_available_size) ? heapStats.total_available_size : 0,
+        totalAvailableSize: Number.isFinite(heapStats.total_available_size)
+          ? heapStats.total_available_size
+          : 0,
         usedHeapSize: Number.isFinite(heapStats.used_heap_size) ? heapStats.used_heap_size : 0,
       },
-      heapSpaces: spaceStats.slice(0, 20).map(s => ({
+      heapSpaces: spaceStats.slice(0, 20).map((s) => ({
         spaceName: String(s.space_name).slice(0, 64),
         sizeMB: Number((s.space_size / 1024 / 1024).toFixed(2)),
         usedMB: Number((s.space_used_size / 1024 / 1024).toFixed(2)),
@@ -220,7 +222,9 @@ export class ServerController extends BaseController {
       arch: String(os.arch()).slice(0, 32),
       osRelease: String(os.release()).slice(0, 64),
       osType: String(os.type()).slice(0, 32),
-      kernelVersion: os.version ? String(os.version()).slice(0, 128) : String(os.release()).slice(0, 128),
+      kernelVersion: os.version
+        ? String(os.version()).slice(0, 128)
+        : String(os.release()).slice(0, 128),
       nodeVersion: String(process.version).slice(0, 32),
       uptimeSeconds: Number.isFinite(os.uptime()) ? os.uptime() : 0,
       ipAddresses: ipList.slice(0, 20),

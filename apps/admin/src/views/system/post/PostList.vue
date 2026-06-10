@@ -108,117 +108,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import { getPostPage, deletePost } from '@/api/system/post.api'
-import type { SysPost } from '@yunshu/shared'
-import PostForm from './PostForm.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus } from '@element-plus/icons-vue';
+  import { getPostPage, deletePost } from '@/api/system/post.api';
+  import type { SysPost } from '@yunshu/shared';
+  import PostForm from './PostForm.vue';
 
-// 状态
-const loading = ref(false)
-const postList = ref<SysPost[]>([])
-const total = ref(0)
-const selectedRows = ref<SysPost[]>([])
-const formVisible = ref(false)
-const currentPost = ref<SysPost | null>(null)
+  // 状态
+  const loading = ref(false);
+  const postList = ref<SysPost[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<SysPost[]>([]);
+  const formVisible = ref(false);
+  const currentPost = ref<SysPost | null>(null);
 
-// 查询参数
-const queryParams = reactive<any>({
-  keyword: '',
-  status: undefined,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<any>({
+    keyword: '',
+    status: undefined,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 加载岗位列表
-async function fetchPostList() {
-  loading.value = true
-  try {
-    const res = await getPostPage(queryParams) as any
-    postList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchPostList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.status = undefined
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchPostList()
-}
-
-// 新增
-function handleAdd() {
-  currentPost.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: any) {
-  currentPost.value = { ...row }
-  formVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除岗位"${row.postName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deletePost(row.postId)
-    ElMessage.success('删除成功')
-    fetchPostList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载岗位列表
+  async function fetchPostList() {
+    loading.value = true;
+    try {
+      const res = (await getPostPage(queryParams)) as any;
+      postList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 批量选择
-function handleSelectionChange(selection: SysPost[]) {
-  selectedRows.value = selection
-}
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchPostList();
+  }
 
-// 初始化
-onMounted(() => {
-  fetchPostList()
-})
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.status = undefined;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchPostList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentPost.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: any) {
+    currentPost.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除岗位"${row.postName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deletePost(row.postId);
+      ElMessage.success('删除成功');
+      fetchPostList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 批量选择
+  function handleSelectionChange(selection: SysPost[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchPostList();
+  });
 </script>
 
 <style scoped lang="scss">
-.post-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .post-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

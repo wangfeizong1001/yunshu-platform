@@ -8,11 +8,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-  isValidStringLength,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination, isValidStringLength } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -94,9 +90,7 @@ export class ConfigController extends BaseController {
         ? first
         : undefined;
     }
-    return typeof value === 'string' && value.length > 0 && value.length <= max
-      ? value
-      : undefined;
+    return typeof value === 'string' && value.length > 0 && value.length <= max ? value : undefined;
   }
 
   async list(req: Request, res: Response) {
@@ -104,12 +98,12 @@ export class ConfigController extends BaseController {
     const configName = this.extractQueryParam(req.query.configName);
     const configKey = this.extractQueryParam(req.query.configKey);
     const configTypeRaw = this.extractQueryParam(req.query.configType, 1);
-    const configType = (configTypeRaw === 'Y' || configTypeRaw === 'N') ? configTypeRaw : undefined;
+    const configType = configTypeRaw === 'Y' || configTypeRaw === 'N' ? configTypeRaw : undefined;
 
     let filtered = [...configs];
-    if (configName) filtered = filtered.filter(i => i.configName.includes(configName));
-    if (configKey) filtered = filtered.filter(i => i.configKey.includes(configKey));
-    if (configType) filtered = filtered.filter(i => i.configType === configType);
+    if (configName) filtered = filtered.filter((i) => i.configName.includes(configName));
+    if (configKey) filtered = filtered.filter((i) => i.configKey.includes(configKey));
+    if (configType) filtered = filtered.filter((i) => i.configType === configType);
 
     const total = filtered.length;
     const start = (page - 1) * limit;
@@ -123,7 +117,7 @@ export class ConfigController extends BaseController {
     if (!Number.isFinite(configId)) {
       return this.badRequest(res, 'configId 格式错误');
     }
-    const item = configs.find(i => i.configId === configId);
+    const item = configs.find((i) => i.configId === configId);
     if (!item) return this.notFound(res, '参数配置不存在');
     return this.success(res, item, '查询成功');
   }
@@ -131,7 +125,7 @@ export class ConfigController extends BaseController {
   async getByKey(req: Request, res: Response) {
     const configKey = this.safeParam(req.params.configKey, 100);
     if (!configKey) return this.badRequest(res, 'configKey 格式错误');
-    const item = configs.find(i => i.configKey === configKey);
+    const item = configs.find((i) => i.configKey === configKey);
     if (!item) return this.notFound(res, '参数配置不存在');
     return this.success(res, item, '查询成功');
   }
@@ -161,7 +155,8 @@ export class ConfigController extends BaseController {
     }
 
     const configTypeRaw = body.configType !== undefined ? String(body.configType) : 'N';
-    const configType: 'Y' | 'N' = (configTypeRaw === 'Y' || configTypeRaw === 'N') ? configTypeRaw : 'N';
+    const configType: 'Y' | 'N' =
+      configTypeRaw === 'Y' || configTypeRaw === 'N' ? configTypeRaw : 'N';
 
     // 系统关键配置的弱密码校验
     if (configKey.startsWith('sys.') && configKey.toLowerCase().includes('password')) {
@@ -170,7 +165,7 @@ export class ConfigController extends BaseController {
       }
     }
 
-    if (configs.some(i => i.configKey === configKey)) {
+    if (configs.some((i) => i.configKey === configKey)) {
       return this.conflict(res, '参数键名已存在');
     }
 
@@ -195,7 +190,7 @@ export class ConfigController extends BaseController {
       return this.badRequest(res, 'configId 格式错误');
     }
 
-    const idx = configs.findIndex(i => i.configId === configId);
+    const idx = configs.findIndex((i) => i.configId === configId);
     if (idx === -1) return this.notFound(res, '参数配置不存在');
 
     const exist = configs[idx]!;
@@ -260,7 +255,7 @@ export class ConfigController extends BaseController {
     if (!Number.isFinite(configId)) {
       return this.badRequest(res, 'configId 格式错误');
     }
-    const idx = configs.findIndex(i => i.configId === configId);
+    const idx = configs.findIndex((i) => i.configId === configId);
     if (idx === -1) return this.notFound(res, '参数配置不存在');
     const removed = configs.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');
@@ -285,14 +280,18 @@ export class ConfigController extends BaseController {
 
     const removed: SysConfig[] = [];
     for (const id of validIds) {
-      const idx = configs.findIndex(i => i.configId === id);
+      const idx = configs.findIndex((i) => i.configId === id);
       if (idx !== -1) {
         const item = configs.splice(idx, 1)[0];
         if (item) removed.push(item);
       }
     }
 
-    return this.success(res, { removed, count: removed.length }, `批量删除成功，共删除 ${removed.length} 条`);
+    return this.success(
+      res,
+      { removed, count: removed.length },
+      `批量删除成功，共删除 ${removed.length} 条`,
+    );
   }
 
   async refreshCache(req: Request, res: Response) {

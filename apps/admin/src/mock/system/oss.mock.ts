@@ -8,7 +8,7 @@ import type {
   OssFilePageResp,
   OssConfigResp,
   OssUploadResp,
-} from '@yunshu/shared'
+} from '@yunshu/shared';
 
 // OSS 配置 Mock 数据
 export const mockOssConfig: OssConfig = {
@@ -26,7 +26,7 @@ export const mockOssConfig: OssConfig = {
   createTime: '2024-01-01 10:00:00',
   updateBy: 'admin',
   updateTime: '2024-01-15 14:30:00',
-}
+};
 
 // OSS 配置列表
 export const mockOssConfigList: OssConfig[] = [
@@ -94,7 +94,7 @@ export const mockOssConfigList: OssConfig[] = [
     updateBy: 'admin',
     updateTime: '2024-01-01 10:00:00',
   },
-]
+];
 
 // OSS 文件 Mock 数据
 export const mockOssFileList: OssFile[] = [
@@ -186,67 +186,65 @@ export const mockOssFileList: OssFile[] = [
     updateTime: '2024-01-10 16:45:00',
     remark: '',
   },
-]
+];
 
 // 获取 OSS 配置 Mock
 export function getMockOssConfig(): OssConfigResp {
   return {
     current: mockOssConfig,
     configs: mockOssConfigList,
-  }
+  };
 }
 
 // 获取 OSS 文件分页列表 Mock
 export function getMockOssFilePage(params: any): OssFilePageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', storageType = '', fileType = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', storageType = '', fileType = '' } = params;
 
-  let filteredList = [...mockOssFileList]
+  let filteredList = [...mockOssFileList];
 
   if (keyword) {
     filteredList = filteredList.filter(
-      (item) =>
-        item.fileName.includes(keyword) ||
-        item.originalName?.includes(keyword)
-    )
+      (item) => item.fileName.includes(keyword) || item.originalName?.includes(keyword),
+    );
   }
 
   if (storageType) {
-    filteredList = filteredList.filter((item) => item.storageType === storageType)
+    filteredList = filteredList.filter((item) => item.storageType === storageType);
   }
 
   if (fileType) {
-    filteredList = filteredList.filter((item) => item.fileType === fileType)
+    filteredList = filteredList.filter((item) => item.fileType === fileType);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取 OSS 文件列表 Mock
 export function getMockOssFileList(params?: any): OssFile[] {
-  const { storageType = '' } = params || {}
+  const { storageType = '' } = params || {};
 
   if (storageType) {
-    return mockOssFileList.filter((item) => item.storageType === storageType)
+    return mockOssFileList.filter((item) => item.storageType === storageType);
   }
 
-  return mockOssFileList
+  return mockOssFileList;
 }
 
 // 获取 OSS 文件详情 Mock
 export function getMockOssFileDetail(fileId: number): OssFile | undefined {
-  return mockOssFileList.find((item) => item.id === fileId)
+  return mockOssFileList.find((item) => item.id === fileId);
 }
 
 // 上传 OSS 文件 Mock
 export function uploadMockOssFile(file: File, configId?: number): OssUploadResp {
-  const storageType = configId === 1 ? 'aliyun' : configId === 2 ? 'qcloud' : 'local'
+  const storageType = configId === 1 ? 'aliyun' : configId === 2 ? 'qcloud' : 'local';
   const newFile: OssFile = {
     id: Math.max(...mockOssFileList.map((u) => u.id)) + 1,
     fileName: file.name,
@@ -260,8 +258,8 @@ export function uploadMockOssFile(file: File, configId?: number): OssUploadResp 
     createTime: new Date().toLocaleString(),
     updateBy: 'admin',
     updateTime: new Date().toLocaleString(),
-  }
-  mockOssFileList.push(newFile)
+  };
+  mockOssFileList.push(newFile);
 
   return {
     fileId: newFile.id,
@@ -270,28 +268,28 @@ export function uploadMockOssFile(file: File, configId?: number): OssUploadResp 
     fileSize: newFile.fileSize,
     fileType: newFile.fileType,
     url: `https://cdn.yunshu.com${newFile.filePath}`,
-  }
+  };
 }
 
 // 删除 OSS 文件 Mock
 export function deleteMockOssFile(fileId: number): boolean {
-  const index = mockOssFileList.findIndex((u) => u.id === fileId)
+  const index = mockOssFileList.findIndex((u) => u.id === fileId);
   if (index !== -1) {
-    mockOssFileList.splice(index, 1)
-    return true
+    mockOssFileList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }
 
 // 批量删除 OSS 文件 Mock
 export function batchDeleteMockOssFile(fileIds: number[]): boolean {
-  let deleted = false
+  let deleted = false;
   fileIds.forEach((fileId) => {
-    const index = mockOssFileList.findIndex((u) => u.id === fileId)
+    const index = mockOssFileList.findIndex((u) => u.id === fileId);
     if (index !== -1) {
-      mockOssFileList.splice(index, 1)
-      deleted = true
+      mockOssFileList.splice(index, 1);
+      deleted = true;
     }
-  })
-  return deleted
+  });
+  return deleted;
 }

@@ -137,154 +137,159 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Download, Delete } from '@element-plus/icons-vue'
-import { getConfigPage, deleteConfig, batchDeleteConfig, exportConfig } from '@/api/system/config.api'
-import type { SysConfig, SysConfigQuery } from '@yunshu/shared'
-import ConfigForm from './ConfigForm.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus, Download, Delete } from '@element-plus/icons-vue';
+  import {
+    getConfigPage,
+    deleteConfig,
+    batchDeleteConfig,
+    exportConfig,
+  } from '@/api/system/config.api';
+  import type { SysConfig, SysConfigQuery } from '@yunshu/shared';
+  import ConfigForm from './ConfigForm.vue';
 
-// 状态
-const loading = ref(false)
-const configList = ref<SysConfig[]>([])
-const total = ref(0)
-const selectedRows = ref<SysConfig[]>([])
-const formVisible = ref(false)
-const currentConfig = ref<SysConfig | null>(null)
+  // 状态
+  const loading = ref(false);
+  const configList = ref<SysConfig[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<SysConfig[]>([]);
+  const formVisible = ref(false);
+  const currentConfig = ref<SysConfig | null>(null);
 
-// 查询参数
-const queryParams = reactive<SysConfigQuery>({
-  keyword: '',
-  configType: undefined,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<SysConfigQuery>({
+    keyword: '',
+    configType: undefined,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 加载参数列表
-async function fetchConfigList() {
-  loading.value = true
-  try {
-    const res = await getConfigPage(queryParams) as { rows: SysConfig[]; total: number }
-    configList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchConfigList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.configType = undefined
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchConfigList()
-}
-
-// 新增
-function handleAdd() {
-  currentConfig.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: SysConfig) {
-  currentConfig.value = { ...row }
-  formVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: SysConfig) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除参数"${row.configName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deleteConfig(row.configId)
-    ElMessage.success('删除成功')
-    fetchConfigList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载参数列表
+  async function fetchConfigList() {
+    loading.value = true;
+    try {
+      const res = (await getConfigPage(queryParams)) as { rows: SysConfig[]; total: number };
+      configList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 批量删除
-async function handleBatchDelete() {
-  try {
-    await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个参数？`, '提示', {
-      type: 'warning',
-    })
-    const ids = selectedRows.value.map((row) => row.configId)
-    await batchDeleteConfig(ids)
-    ElMessage.success('删除成功')
-    fetchConfigList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchConfigList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.configType = undefined;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchConfigList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentConfig.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: SysConfig) {
+    currentConfig.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: SysConfig) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除参数"${row.configName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteConfig(row.configId);
+      ElMessage.success('删除成功');
+      fetchConfigList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
     }
   }
-}
 
-// 导出
-async function handleExport() {
-  try {
-    await exportConfig(queryParams)
-    ElMessage.success('导出成功')
-  } catch (error) {
-    console.error('导出失败', error)
+  // 批量删除
+  async function handleBatchDelete() {
+    try {
+      await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个参数？`, '提示', {
+        type: 'warning',
+      });
+      const ids = selectedRows.value.map((row) => row.configId);
+      await batchDeleteConfig(ids);
+      ElMessage.success('删除成功');
+      fetchConfigList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
   }
-}
 
-// 批量选择
-function handleSelectionChange(selection: SysConfig[]) {
-  selectedRows.value = selection
-}
+  // 导出
+  async function handleExport() {
+    try {
+      await exportConfig(queryParams);
+      ElMessage.success('导出成功');
+    } catch (error) {
+      console.error('导出失败', error);
+    }
+  }
 
-// 初始化
-onMounted(() => {
-  fetchConfigList()
-})
+  // 批量选择
+  function handleSelectionChange(selection: SysConfig[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchConfigList();
+  });
 </script>
 
 <style scoped lang="scss">
-.config-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .config-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .config-key,
+    .config-value {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-
-  .config-key,
-  .config-value {
-    display: inline-block;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-}
 </style>

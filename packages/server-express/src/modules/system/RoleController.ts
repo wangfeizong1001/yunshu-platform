@@ -125,9 +125,7 @@ export class RoleController extends BaseController {
         ? first
         : undefined;
     }
-    return typeof value === 'string' && value.length > 0 && value.length <= max
-      ? value
-      : undefined;
+    return typeof value === 'string' && value.length > 0 && value.length <= max ? value : undefined;
   }
 
   async list(req: Request, res: Response) {
@@ -137,7 +135,7 @@ export class RoleController extends BaseController {
     const roleName = this.extractQueryParam(query.roleName);
     const roleKey = this.extractQueryParam(query.roleKey);
     const statusRaw = this.extractQueryParam(query.status, 1);
-    const status = (statusRaw === '0' || statusRaw === '1') ? statusRaw : undefined;
+    const status = statusRaw === '0' || statusRaw === '1' ? statusRaw : undefined;
 
     const filtered = mockRoles.filter((r) => {
       if (roleName && !r.roleName.includes(roleName)) return false;
@@ -152,11 +150,7 @@ export class RoleController extends BaseController {
     const start = (page - 1) * limit;
     const list = filtered.slice(start, start + limit);
 
-    return this.paginate(
-      res,
-      createPaginatedResult(list, page, limit, total),
-      '查询成功',
-    );
+    return this.paginate(res, createPaginatedResult(list, page, limit, total), '查询成功');
   }
 
   async getById(req: Request, res: Response) {
@@ -188,13 +182,16 @@ export class RoleController extends BaseController {
 
     const dataScopeRaw = body.dataScope !== undefined ? String(body.dataScope) : '1';
     const dataScope: DataScope =
-      (dataScopeRaw === '1' || dataScopeRaw === '2' || dataScopeRaw === '3' ||
-        dataScopeRaw === '4' || dataScopeRaw === '5')
+      dataScopeRaw === '1' ||
+      dataScopeRaw === '2' ||
+      dataScopeRaw === '3' ||
+      dataScopeRaw === '4' ||
+      dataScopeRaw === '5'
         ? dataScopeRaw
         : '1';
 
     const statusRaw = body.status !== undefined ? String(body.status) : '0';
-    const status: RoleStatus = (statusRaw === '0' || statusRaw === '1') ? statusRaw : '0';
+    const status: RoleStatus = statusRaw === '0' || statusRaw === '1' ? statusRaw : '0';
 
     let roleSort = 0;
     if (body.roleSort !== undefined) {
@@ -330,11 +327,7 @@ export class RoleController extends BaseController {
     mockRoles = mockRoles.filter((r) => !validIds.includes(r.roleId));
     const deleted = before - mockRoles.length;
 
-    return this.success(
-      res,
-      { deleted, roleIds: validIds },
-      `批量删除成功，共删除 ${deleted} 条`,
-    );
+    return this.success(res, { deleted, roleIds: validIds }, `批量删除成功，共删除 ${deleted} 条`);
   }
 
   async changeStatus(req: Request, res: Response) {

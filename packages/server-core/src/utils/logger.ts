@@ -69,7 +69,10 @@ function redact(value: unknown): unknown {
 
 const devFormat = winston.format.printf((info) => {
   const { timestamp, level, message, pid, ...rest } = info as Record<string, unknown> & {
-    timestamp: string; level: string; message: string; pid?: number;
+    timestamp: string;
+    level: string;
+    message: string;
+    pid?: number;
   };
   const contextEntries = Object.entries(rest as Record<string, unknown>).filter(
     ([, v]) => typeof v !== 'symbol',
@@ -106,8 +109,15 @@ async function attachLokiTransportIfConfigured(w: winston.Logger): Promise<void>
     // 该包导出有变化，兼容两种常见方式
     const LokiTransport: {
       new (opts: Record<string, unknown>): winston.transport;
-    } = (lokiModule.default as unknown as { new (opts: Record<string, unknown>): winston.transport } | undefined)
-      ?? (lokiModule as unknown as { LokiTransport: { new (opts: Record<string, unknown>): winston.transport } }).LokiTransport;
+    } =
+      (lokiModule.default as unknown as
+        | { new (opts: Record<string, unknown>): winston.transport }
+        | undefined) ??
+      (
+        lokiModule as unknown as {
+          LokiTransport: { new (opts: Record<string, unknown>): winston.transport };
+        }
+      ).LokiTransport;
     const labels: Record<string, string> = {
       app: process.env.LOKI_APP ?? 'yunshu-platform',
       job: process.env.LOKI_JOB ?? 'backend',
@@ -117,7 +127,10 @@ async function attachLokiTransportIfConfigured(w: winston.Logger): Promise<void>
     logger.info('[logger] 已附加 Loki transport', { host: lokiUrl, labels });
   } catch (err) {
     // 降级：仅输出提示，不影响主日志
-    console.warn('[logger] 初始化 Loki transport 失败，请确认已安装 winston-loki:', err instanceof Error ? err.message : String(err));
+    console.warn(
+      '[logger] 初始化 Loki transport 失败，请确认已安装 winston-loki:',
+      err instanceof Error ? err.message : String(err),
+    );
   }
 }
 
@@ -127,7 +140,10 @@ async function attachLokiTransportIfConfigured(w: winston.Logger): Promise<void>
 
 const levelFromEnv: string = (process.env.LOG_LEVEL ?? 'info').toLowerCase();
 const initialLevel: Exclude<LogLevel, 'fatal'> =
-  levelFromEnv === 'debug' || levelFromEnv === 'info' || levelFromEnv === 'warn' || levelFromEnv === 'error'
+  levelFromEnv === 'debug' ||
+  levelFromEnv === 'info' ||
+  levelFromEnv === 'warn' ||
+  levelFromEnv === 'error'
     ? levelFromEnv
     : 'info';
 
@@ -168,7 +184,8 @@ if (typeof process !== 'undefined' && typeof process.env.LOKI_URL === 'string') 
 
 function mergeMeta(ctx: LogContext | Error | unknown | undefined): LogContext {
   if (ctx === undefined) return {};
-  if (ctx instanceof Error) return { error: { name: ctx.name, message: ctx.message, stack: ctx.stack } };
+  if (ctx instanceof Error)
+    return { error: { name: ctx.name, message: ctx.message, stack: ctx.stack } };
   if (typeof ctx === 'object' && ctx !== null) return ctx as LogContext;
   return { extra: ctx };
 }

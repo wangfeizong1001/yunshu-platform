@@ -164,8 +164,12 @@ function isValidDeptName(name: unknown): name is string {
 }
 
 function isValidDeptCode(code: unknown): code is string {
-  return typeof code === 'string' && code.length >= 1 && code.length <= 20
-    && /^[A-Za-z0-9_]+$/.test(code);
+  return (
+    typeof code === 'string' &&
+    code.length >= 1 &&
+    code.length <= 20 &&
+    /^[A-Za-z0-9_]+$/.test(code)
+  );
 }
 
 function isValidOrderNum(n: unknown): n is number {
@@ -179,9 +183,11 @@ function isValidPhone(phone: unknown): boolean {
 
 function isValidEmail(email: unknown): boolean {
   if (email === undefined || email === null || email === '') return true;
-  return typeof email === 'string'
-    && email.length <= 100
-    && /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email);
+  return (
+    typeof email === 'string' &&
+    email.length <= 100 &&
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)
+  );
 }
 
 // ============================================================================
@@ -255,9 +261,12 @@ export class DeptController extends BaseController {
     const email = typeof body.email === 'string' ? body.email : '';
 
     const deptId = `d-${Date.now()}`;
-    const parentId = body.parentId !== undefined
-      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
-      : null;
+    const parentId =
+      body.parentId !== undefined
+        ? body.parentId === null || body.parentId === ''
+          ? null
+          : String(body.parentId).slice(0, MAX_FIELD_LENGTH)
+        : null;
 
     let ancestors = '0';
     if (parentId) {
@@ -311,9 +320,12 @@ export class DeptController extends BaseController {
     const phone = typeof body.phone === 'string' ? body.phone : exist.phone;
     const email = typeof body.email === 'string' ? body.email : exist.email;
 
-    const parentId = body.parentId !== undefined
-      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
-      : exist.parentId;
+    const parentId =
+      body.parentId !== undefined
+        ? body.parentId === null || body.parentId === ''
+          ? null
+          : String(body.parentId).slice(0, MAX_FIELD_LENGTH)
+        : exist.parentId;
 
     let ancestors = exist.ancestors;
     if (parentId && parentId !== exist.parentId) {

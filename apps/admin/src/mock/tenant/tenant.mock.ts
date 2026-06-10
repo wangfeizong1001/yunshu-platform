@@ -2,7 +2,7 @@
  * 租户管理 Mock 数据
  */
 
-import type { Tenant, TenantQuery, TenantPageResp } from '@yunshu/shared'
+import type { Tenant, TenantQuery, TenantPageResp } from '@yunshu/shared';
 
 /** 模拟租户数据 */
 const mockTenants: Tenant[] = [
@@ -96,110 +96,108 @@ const mockTenants: Tenant[] = [
     createTime: '2024-02-28 13:30:00',
     updateTime: '2024-06-05 09:20:00',
   },
-]
+];
 
 /** 分页查询租户 */
 export function getTenantPage(params: TenantQuery): TenantPageResp {
-  const { keyword, status, pageNum = 1, pageSize = 10 } = params || {}
+  const { keyword, status, pageNum = 1, pageSize = 10 } = params || {};
 
-  let filtered = [...mockTenants]
+  let filtered = [...mockTenants];
 
   if (keyword) {
-    const kw = keyword.toLowerCase()
+    const kw = keyword.toLowerCase();
     filtered = filtered.filter(
-      t =>
+      (t) =>
         t.tenantName.toLowerCase().includes(kw) ||
         t.tenantCode.toLowerCase().includes(kw) ||
         t.contact.includes(kw) ||
-        t.contactPhone.includes(kw)
-    )
+        t.contactPhone.includes(kw),
+    );
   }
 
   if (status) {
-    filtered = filtered.filter(t => t.status === status)
+    filtered = filtered.filter((t) => t.status === status);
   }
 
-  const total = filtered.length
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filtered.slice(start, end)
+  const total = filtered.length;
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filtered.slice(start, end);
 
-  return { total, rows }
+  return { total, rows };
 }
 
 /** 获取租户列表 */
 export function getTenantList(params?: TenantQuery): Tenant[] {
-  const { keyword, status } = params || {}
+  const { keyword, status } = params || {};
 
-  let filtered = [...mockTenants]
+  let filtered = [...mockTenants];
 
   if (keyword) {
-    const kw = keyword.toLowerCase()
+    const kw = keyword.toLowerCase();
     filtered = filtered.filter(
-      t =>
-        t.tenantName.toLowerCase().includes(kw) ||
-        t.tenantCode.toLowerCase().includes(kw)
-    )
+      (t) => t.tenantName.toLowerCase().includes(kw) || t.tenantCode.toLowerCase().includes(kw),
+    );
   }
 
   if (status) {
-    filtered = filtered.filter(t => t.status === status)
+    filtered = filtered.filter((t) => t.status === status);
   }
 
-  return filtered
+  return filtered;
 }
 
 /** 获取租户详情 */
 export function getTenantById(tenantId: number): Tenant | undefined {
-  return mockTenants.find(t => t.tenantId === tenantId)
+  return mockTenants.find((t) => t.tenantId === tenantId);
 }
 
 /** 新增租户 */
 export function createTenant(data: Omit<Tenant, 'tenantId' | 'createTime' | 'updateTime'>): Tenant {
   const newTenant: Tenant = {
     ...data,
-    tenantId: Math.max(...mockTenants.map(t => t.tenantId)) + 1,
+    tenantId: Math.max(...mockTenants.map((t) => t.tenantId)) + 1,
     createTime: new Date().toLocaleString('zh-CN'),
     updateTime: new Date().toLocaleString('zh-CN'),
-  }
-  mockTenants.push(newTenant)
-  return newTenant
+  };
+  mockTenants.push(newTenant);
+  return newTenant;
 }
 
 /** 更新租户 */
 export function updateTenantById(
   tenantId: number,
-  data: Partial<Omit<Tenant, 'tenantId' | 'createTime'>>
+  data: Partial<Omit<Tenant, 'tenantId' | 'createTime'>>,
 ): Tenant | undefined {
-  const index = mockTenants.findIndex(t => t.tenantId === tenantId)
-  if (index === -1) return undefined
+  const index = mockTenants.findIndex((t) => t.tenantId === tenantId);
+  if (index === -1) {return undefined;}
 
   mockTenants[index] = {
     ...mockTenants[index],
     ...data,
     updateTime: new Date().toLocaleString('zh-CN'),
-  }
-  return mockTenants[index]
+  };
+  return mockTenants[index];
 }
 
 /** 删除租户 */
 export function deleteTenantById(tenantId: number): boolean {
-  const index = mockTenants.findIndex(t => t.tenantId === tenantId)
-  if (index === -1) return false
+  const index = mockTenants.findIndex((t) => t.tenantId === tenantId);
+  if (index === -1) {return false;}
 
-  mockTenants.splice(index, 1)
-  return true
+  mockTenants.splice(index, 1);
+  return true;
 }
 
 /** 修改租户状态 */
 export function changeTenantStatusById(
   tenantId: number,
-  status: '0' | '1' | '2'
+  status: '0' | '1' | '2',
 ): Tenant | undefined {
-  const tenant = mockTenants.find(t => t.tenantId === tenantId)
-  if (!tenant) return undefined
+  const tenant = mockTenants.find((t) => t.tenantId === tenantId);
+  if (!tenant) {return undefined;}
 
-  tenant.status = status
-  tenant.updateTime = new Date().toLocaleString('zh-CN')
-  return tenant
+  tenant.status = status;
+  tenant.updateTime = new Date().toLocaleString('zh-CN');
+  return tenant;
 }

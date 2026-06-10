@@ -9,10 +9,7 @@
 import crypto from 'node:crypto';
 import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
-import {
-  globalErrorHandler,
-  notFoundHandler,
-} from './middlewares/errorHandler';
+import { globalErrorHandler, notFoundHandler } from './middlewares/errorHandler';
 import { createRateLimitMiddleware } from './middlewares/rateLimit';
 import { sentryRequestHandler, sentryErrorHandler, initSentry } from './middlewares/sentry';
 import { createRouter } from './routes';
@@ -26,16 +23,14 @@ import { createRouter } from './routes';
  *
  * @param options 应用配置
  */
-export function createApp(options: {
-  corsOrigin?: string | string[] | boolean;
-  trustProxy?: boolean;
-  apiPrefix?: string;
-} = {}): Express {
-  const {
-    corsOrigin = '*',
-    trustProxy = true,
-    apiPrefix = '/api',
-  } = options;
+export function createApp(
+  options: {
+    corsOrigin?: string | string[] | boolean;
+    trustProxy?: boolean;
+    apiPrefix?: string;
+  } = {},
+): Express {
+  const { corsOrigin = '*', trustProxy = true, apiPrefix = '/api' } = options;
 
   const app: Express = express();
 

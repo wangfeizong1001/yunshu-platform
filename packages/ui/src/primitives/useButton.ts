@@ -21,12 +21,25 @@ export function useButton(props: UseButtonProps = {}) {
 
   const isDisabled = computed(() => props.disabled || props.loading);
 
-  function onPointerEnter() { isHovered.value = true; }
-  function onPointerLeave() { isHovered.value = false; isPressed.value = false; }
-  function onFocus() { isFocused.value = true; }
-  function onBlur() { isFocused.value = false; }
-  function onPointerDown() { isPressed.value = true; }
-  function onPointerUp() { isPressed.value = false; }
+  function onPointerEnter() {
+    isHovered.value = true;
+  }
+  function onPointerLeave() {
+    isHovered.value = false;
+    isPressed.value = false;
+  }
+  function onFocus() {
+    isFocused.value = true;
+  }
+  function onBlur() {
+    isFocused.value = false;
+  }
+  function onPointerDown() {
+    isPressed.value = true;
+  }
+  function onPointerUp() {
+    isPressed.value = false;
+  }
 
   return {
     isHovered,

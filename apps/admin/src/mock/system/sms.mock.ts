@@ -9,7 +9,7 @@ import type {
   SmsLog,
   SmsLogPageResp,
   SmsSendResp,
-} from '@yunshu/shared'
+} from '@yunshu/shared';
 
 // 短信配置 Mock 数据
 export const mockSmsConfig: SmsConfig = {
@@ -24,7 +24,7 @@ export const mockSmsConfig: SmsConfig = {
   createTime: '2024-01-01 10:00:00',
   updateBy: 'admin',
   updateTime: '2024-01-15 14:30:00',
-}
+};
 
 // 短信模板 Mock 数据
 export const mockSmsTemplateList: SmsTemplate[] = [
@@ -93,7 +93,7 @@ export const mockSmsTemplateList: SmsTemplate[] = [
     updateBy: 'admin',
     updateTime: '2024-01-19 12:00:00',
   },
-]
+];
 
 // 短信日志 Mock 数据
 export const mockSmsLogList: SmsLog[] = [
@@ -169,103 +169,115 @@ export const mockSmsLogList: SmsLog[] = [
     createBy: 'system',
     createTime: '2024-01-15 15:00:00',
   },
-]
+];
 
 // 获取短信配置 Mock
 export function getMockSmsConfig(): SmsConfig {
-  return mockSmsConfig
+  return mockSmsConfig;
 }
 
 // 获取短信模板列表 Mock
 export function getMockSmsTemplatePage(params: any): SmsTemplatePageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', platform = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', platform = '', status = '' } = params;
 
-  let filteredList = [...mockSmsTemplateList]
+  let filteredList = [...mockSmsTemplateList];
 
   if (keyword) {
     filteredList = filteredList.filter(
       (item) =>
         item.templateCode.includes(keyword) ||
         item.templateName.includes(keyword) ||
-        item.content.includes(keyword)
-    )
+        item.content.includes(keyword),
+    );
   }
 
   if (platform) {
-    filteredList = filteredList.filter((item) => item.platform === platform)
+    filteredList = filteredList.filter((item) => item.platform === platform);
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取短信模板详情 Mock
 export function getMockSmsTemplateDetail(id: number): SmsTemplate | undefined {
-  return mockSmsTemplateList.find((item) => item.id === id)
+  return mockSmsTemplateList.find((item) => item.id === id);
 }
 
 // 获取短信日志列表 Mock
 export function getMockSmsLogPage(params: any): SmsLogPageResp {
-  const { pageNum = 1, pageSize = 10, mobile = '', templateCode = '', status = '', startDate = '', endDate = '' } = params
+  const {
+    pageNum = 1,
+    pageSize = 10,
+    mobile = '',
+    templateCode = '',
+    status = '',
+    startDate = '',
+    endDate = '',
+  } = params;
 
-  let filteredList = [...mockSmsLogList]
+  let filteredList = [...mockSmsLogList];
 
   if (mobile) {
-    filteredList = filteredList.filter((item) => item.mobile.includes(mobile))
+    filteredList = filteredList.filter((item) => item.mobile.includes(mobile));
   }
 
   if (templateCode) {
-    filteredList = filteredList.filter((item) => item.templateCode === templateCode)
+    filteredList = filteredList.filter((item) => item.templateCode === templateCode);
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
   if (startDate) {
-    filteredList = filteredList.filter((item) => item.sendTime >= startDate)
+    filteredList = filteredList.filter((item) => item.sendTime >= startDate);
   }
 
   if (endDate) {
-    filteredList = filteredList.filter((item) => item.sendTime <= endDate)
+    filteredList = filteredList.filter((item) => item.sendTime <= endDate);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 发送短信 Mock
-export function sendMockSms(params: { mobile: string; templateCode: string; params?: Record<string, string> }): SmsSendResp {
-  const template = mockSmsTemplateList.find((t) => t.templateCode === params.templateCode)
+export function sendMockSms(params: {
+  mobile: string;
+  templateCode: string;
+  params?: Record<string, string>;
+}): SmsSendResp {
+  const template = mockSmsTemplateList.find((t) => t.templateCode === params.templateCode);
 
   if (!template) {
     return {
       success: false,
       errorMsg: '模板不存在',
-    }
+    };
   }
 
   if (template.status === '0') {
     return {
       success: false,
       errorMsg: '模板未启用',
-    }
+    };
   }
 
   // 模拟发送成功
@@ -280,26 +292,30 @@ export function sendMockSms(params: { mobile: string; templateCode: string; para
     errorMsg: '',
     createBy: 'admin',
     createTime: new Date().toLocaleString(),
-  }
-  mockSmsLogList.unshift(newLog)
+  };
+  mockSmsLogList.unshift(newLog);
 
   return {
     success: true,
     messageId: `MSG${Date.now()}`,
-  }
+  };
 }
 
 // 测试短信发送 Mock
-export function testMockSmsSend(params: { mobile: string; templateCode: string; params?: Record<string, string> }): SmsSendResp {
+export function testMockSmsSend(params: {
+  mobile: string;
+  templateCode: string;
+  params?: Record<string, string>;
+}): SmsSendResp {
   if (!params.mobile.match(/^1[3-9]\d{9}$/)) {
     return {
       success: false,
       errorMsg: '手机号格式不正确',
-    }
+    };
   }
 
   return {
     success: true,
     messageId: `TEST${Date.now()}`,
-  }
+  };
 }

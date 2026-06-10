@@ -11,4 +11,4 @@ export default {
     warning: 'Warning',
     danger: 'Danger',
   },
-}
+};

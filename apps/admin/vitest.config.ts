@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config'
-import vue from '@vitejs/plugin-vue'
-import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vitest/config';
+import vue from '@vitejs/plugin-vue';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   plugins: [vue()],
@@ -13,12 +13,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx,vue}'],
-      exclude: [
-        'src/**/*.d.ts',
-        'src/**/*.stories.ts',
-        'src/main.ts',
-        'src/env.d.ts',
-      ],
+      exclude: ['src/**/*.d.ts', 'src/**/*.stories.ts', 'src/main.ts', 'src/env.d.ts'],
     },
   },
   resolve: {
@@ -26,4 +21,4 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-})
+});

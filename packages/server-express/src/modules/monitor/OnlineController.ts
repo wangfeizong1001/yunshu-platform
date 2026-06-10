@@ -54,7 +54,7 @@ export class OnlineController extends BaseController {
    */
   async forceLogout(req: Request, res: Response): Promise<Response> {
     const { tokenId } = req.params;
-    const index = mockOnlineUsers.findIndex(u => u.tokenId === tokenId);
+    const index = mockOnlineUsers.findIndex((u) => u.tokenId === tokenId);
     if (index === -1) {
       return this.notFound(res, '用户会话不存在或已过期');
     }

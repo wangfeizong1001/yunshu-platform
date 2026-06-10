@@ -6,20 +6,11 @@
     append-to-body
     @close="handleClose"
   >
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="rules"
-      label-width="80px"
-    >
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="80px">
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="用户名称" prop="username">
-            <el-input
-              v-model="formData.username"
-              placeholder="请输入用户名称"
-              :disabled="isEdit"
-            />
+            <el-input v-model="formData.username" placeholder="请输入用户名称" :disabled="isEdit" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -68,11 +59,13 @@
             <el-tree-select
               v-model="formData.deptId"
               :data="deptTree"
-              :props="{
-                value: 'deptId',
-                label: 'deptName',
-                children: 'children',
-              } as TreeOptionProps"
+              :props="
+                {
+                  value: 'deptId',
+                  label: 'deptName',
+                  children: 'children',
+                } as TreeOptionProps
+              "
               placeholder="请选择部门"
               check-strictly
               filterable
@@ -82,12 +75,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="岗位" prop="postId">
-            <el-select
-              v-model="formData.postId"
-              multiple
-              placeholder="请选择岗位"
-              clearable
-            >
+            <el-select v-model="formData.postId" multiple placeholder="请选择岗位" clearable>
               <el-option
                 v-for="post in postList"
                 :key="post.postId"
@@ -102,12 +90,7 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="角色" prop="roleId">
-            <el-select
-              v-model="formData.roleId"
-              multiple
-              placeholder="请选择角色"
-              clearable
-            >
+            <el-select v-model="formData.roleId" multiple placeholder="请选择角色" clearable>
               <el-option
                 v-for="role in roleList"
                 :key="role.roleId"
@@ -135,179 +118,175 @@
 
     <template #footer>
       <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">
-        确定
-      </el-button>
+      <el-button type="primary" :loading="submitting" @click="handleSubmit"> 确定 </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import type { FormInstance, FormRules, TreeOptionProps } from 'element-plus'
-import { addUser, updateUser, getAllRoles } from '@/api/system/user.api'
-import { getDeptTreeSelect } from '@/api/system/dept.api'
-import { getPostSelect } from '@/api/system/post.api'
-import type { SysUser, SysDept, SysPost, SysRole } from '@yunshu/shared'
+  import { ref, computed, watch } from 'vue';
+  import { ElMessage } from 'element-plus';
+  import type { FormInstance, FormRules, TreeOptionProps } from 'element-plus';
+  import { addUser, updateUser, getAllRoles } from '@/api/system/user.api';
+  import { getDeptTreeSelect } from '@/api/system/dept.api';
+  import { getPostSelect } from '@/api/system/post.api';
+  import type { SysUser, SysDept, SysPost, SysRole } from '@yunshu/shared';
 
-interface Props {
-  modelValue: boolean
-  userData?: SysUser | null
-}
-
-interface Emits {
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'refresh'): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-// 计算属性
-const visible = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
-})
-
-const isEdit = computed(() => !!props.userData?.userId)
-
-// 状态
-const formRef = ref<FormInstance>()
-const submitting = ref(false)
-const deptTree = ref<SysDept[]>([])
-const postList = ref<SysPost[]>([])
-const roleList = ref<SysRole[]>([])
-
-// 表单数据
-const formData = ref({
-  username: '',
-  nickname: '',
-  phone: '',
-  email: '',
-  sex: '2',
-  status: '0',
-  deptId: undefined as number | undefined,
-  postId: [] as number[],
-  roleId: [] as number[],
-  password: '',
-  remark: '',
-})
-
-// 表单验证规则
-const rules: FormRules = {
-  username: [
-    { required: true, message: '请输入用户名称', trigger: 'blur' },
-    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' },
-  ],
-  nickname: [
-    { required: true, message: '请输入用户昵称', trigger: 'blur' },
-  ],
-  password: [
-    { required: true, message: '请输入登录密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
-  ],
-}
-
-// 加载部门树
-async function fetchDeptTree() {
-  try {
-    const res = await getDeptTreeSelect() as SysDept[]
-    deptTree.value = res
-  } catch (error) {
-    console.error('加载部门树失败', error)
+  interface Props {
+    modelValue: boolean;
+    userData?: SysUser | null;
   }
-}
 
-// 加载岗位列表
-async function fetchPostList() {
-  try {
-    const res = await getPostSelect() as SysPost[]
-    postList.value = res
-  } catch (error) {
-    console.error('加载岗位列表失败', error)
+  interface Emits {
+    (e: 'update:modelValue', value: boolean): void;
+    (e: 'refresh'): void;
   }
-}
 
-// 加载角色列表
-async function fetchRoleList() {
-  try {
-    const res = await getAllRoles() as SysRole[]
-    roleList.value = res
-  } catch (error) {
-    console.error('加载角色列表失败', error)
-  }
-}
+  const props = defineProps<Props>();
+  const emit = defineEmits<Emits>();
 
-// 填充表单数据
-function fillFormData() {
-  if (props.userData) {
-    formData.value = {
-      username: props.userData.username,
-      nickname: props.userData.nickname,
-      phone: props.userData.phone,
-      email: props.userData.email,
-      sex: props.userData.sex,
-      status: props.userData.status,
-      deptId: props.userData.deptId,
-      postId: props.userData.postId || [],
-      roleId: props.userData.roleId || [],
-      password: '',
-      remark: props.userData.remark,
-    }
-  } else {
-    formData.value = {
-      username: '',
-      nickname: '',
-      phone: '',
-      email: '',
-      sex: '2',
-      status: '0',
-      deptId: undefined,
-      postId: [],
-      roleId: [],
-      password: '',
-      remark: '',
+  // 计算属性
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  });
+
+  const isEdit = computed(() => !!props.userData?.userId);
+
+  // 状态
+  const formRef = ref<FormInstance>();
+  const submitting = ref(false);
+  const deptTree = ref<SysDept[]>([]);
+  const postList = ref<SysPost[]>([]);
+  const roleList = ref<SysRole[]>([]);
+
+  // 表单数据
+  const formData = ref({
+    username: '',
+    nickname: '',
+    phone: '',
+    email: '',
+    sex: '2',
+    status: '0',
+    deptId: undefined as number | undefined,
+    postId: [] as number[],
+    roleId: [] as number[],
+    password: '',
+    remark: '',
+  });
+
+  // 表单验证规则
+  const rules: FormRules = {
+    username: [
+      { required: true, message: '请输入用户名称', trigger: 'blur' },
+      { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' },
+    ],
+    nickname: [{ required: true, message: '请输入用户昵称', trigger: 'blur' }],
+    password: [
+      { required: true, message: '请输入登录密码', trigger: 'blur' },
+      { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+    ],
+  };
+
+  // 加载部门树
+  async function fetchDeptTree() {
+    try {
+      const res = (await getDeptTreeSelect()) as SysDept[];
+      deptTree.value = res;
+    } catch (error) {
+      console.error('加载部门树失败', error);
     }
   }
-}
 
-// 提交表单
-async function handleSubmit() {
-  try {
-    await formRef.value?.validate()
-    submitting.value = true
+  // 加载岗位列表
+  async function fetchPostList() {
+    try {
+      const res = (await getPostSelect()) as SysPost[];
+      postList.value = res;
+    } catch (error) {
+      console.error('加载岗位列表失败', error);
+    }
+  }
 
-    if (isEdit.value) {
-      await updateUser({ userId: props.userData!.userId, ...formData.value } as any)
-      ElMessage.success('修改成功')
+  // 加载角色列表
+  async function fetchRoleList() {
+    try {
+      const res = (await getAllRoles()) as SysRole[];
+      roleList.value = res;
+    } catch (error) {
+      console.error('加载角色列表失败', error);
+    }
+  }
+
+  // 填充表单数据
+  function fillFormData() {
+    if (props.userData) {
+      formData.value = {
+        username: props.userData.username,
+        nickname: props.userData.nickname,
+        phone: props.userData.phone,
+        email: props.userData.email,
+        sex: props.userData.sex,
+        status: props.userData.status,
+        deptId: props.userData.deptId,
+        postId: props.userData.postId || [],
+        roleId: props.userData.roleId || [],
+        password: '',
+        remark: props.userData.remark,
+      };
     } else {
-      await addUser(formData.value as any)
-      ElMessage.success('新增成功')
+      formData.value = {
+        username: '',
+        nickname: '',
+        phone: '',
+        email: '',
+        sex: '2',
+        status: '0',
+        deptId: undefined,
+        postId: [],
+        roleId: [],
+        password: '',
+        remark: '',
+      };
     }
-
-    emit('refresh')
-    handleClose()
-  } catch (error) {
-    console.error('提交失败', error)
-  } finally {
-    submitting.value = false
   }
-}
 
-// 关闭弹窗
-function handleClose() {
-  formRef.value?.resetFields()
-  visible.value = false
-}
+  // 提交表单
+  async function handleSubmit() {
+    try {
+      await formRef.value?.validate();
+      submitting.value = true;
 
-// 监听弹窗打开
-watch(visible, (val) => {
-  if (val) {
-    fetchDeptTree()
-    fetchPostList()
-    fetchRoleList()
-    fillFormData()
+      if (isEdit.value) {
+        await updateUser({ userId: props.userData!.userId, ...formData.value } as any);
+        ElMessage.success('修改成功');
+      } else {
+        await addUser(formData.value as any);
+        ElMessage.success('新增成功');
+      }
+
+      emit('refresh');
+      handleClose();
+    } catch (error) {
+      console.error('提交失败', error);
+    } finally {
+      submitting.value = false;
+    }
   }
-})
+
+  // 关闭弹窗
+  function handleClose() {
+    formRef.value?.resetFields();
+    visible.value = false;
+  }
+
+  // 监听弹窗打开
+  watch(visible, (val) => {
+    if (val) {
+      fetchDeptTree();
+      fetchPostList();
+      fetchRoleList();
+      fillFormData();
+    }
+  });
 </script>

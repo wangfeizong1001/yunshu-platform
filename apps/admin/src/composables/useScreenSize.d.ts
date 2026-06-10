@@ -1,18 +1,22 @@
 interface ScreenSize {
-    width: number;
-    height: number;
+  width: number;
+  height: number;
 }
 export declare function useScreenSize(): {
-    screenSize: globalThis.Ref<{
+  screenSize: globalThis.Ref<
+    {
+      width: number;
+      height: number;
+    },
+    | ScreenSize
+    | {
         width: number;
         height: number;
-    }, ScreenSize | {
-        width: number;
-        height: number;
-    }>;
-    isMobile: () => boolean;
-    isTablet: () => boolean;
-    isDesktop: () => boolean;
+      }
+  >;
+  isMobile: () => boolean;
+  isTablet: () => boolean;
+  isDesktop: () => boolean;
 };
 export {};
 //# sourceMappingURL=useScreenSize.d.ts.map

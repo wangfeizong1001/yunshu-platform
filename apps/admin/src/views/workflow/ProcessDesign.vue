@@ -26,7 +26,11 @@
           <div class="panel-title">节点库</div>
         </template>
         <div class="node-items">
-          <div class="node-item start" draggable="true" @dragstart="handleDragStart($event, 'start')">
+          <div
+            class="node-item start"
+            draggable="true"
+            @dragstart="handleDragStart($event, 'start')"
+          >
             <div class="icon">●</div>
             <div class="label">开始</div>
           </div>
@@ -38,7 +42,11 @@
             <div class="icon">▢</div>
             <div class="label">任务</div>
           </div>
-          <div class="node-item approval" draggable="true" @dragstart="handleDragStart($event, 'approval')">
+          <div
+            class="node-item approval"
+            draggable="true"
+            @dragstart="handleDragStart($event, 'approval')"
+          >
             <div class="icon">☑</div>
             <div class="label">审批</div>
           </div>
@@ -46,15 +54,27 @@
             <div class="icon">☆</div>
             <div class="label">抄送</div>
           </div>
-          <div class="node-item gateway" draggable="true" @dragstart="handleDragStart($event, 'gateway')">
+          <div
+            class="node-item gateway"
+            draggable="true"
+            @dragstart="handleDragStart($event, 'gateway')"
+          >
             <div class="icon">◇</div>
             <div class="label">网关</div>
           </div>
-          <div class="node-item condition" draggable="true" @dragstart="handleDragStart($event, 'condition')">
+          <div
+            class="node-item condition"
+            draggable="true"
+            @dragstart="handleDragStart($event, 'condition')"
+          >
             <div class="icon">⟐</div>
             <div class="label">条件</div>
           </div>
-          <div class="node-item subtask" draggable="true" @dragstart="handleDragStart($event, 'subtask')">
+          <div
+            class="node-item subtask"
+            draggable="true"
+            @dragstart="handleDragStart($event, 'subtask')"
+          >
             <div class="icon">⊞</div>
             <div class="label">子任务</div>
           </div>
@@ -75,12 +95,7 @@
           @drop="handleDrop"
           @click="handleCanvasClick"
         >
-          <svg
-            ref="svgRef"
-            :width="canvasWidth"
-            :height="canvasHeight"
-            class="flow-svg"
-          >
+          <svg ref="svgRef" :width="canvasWidth" :height="canvasHeight" class="flow-svg">
             <defs>
               <marker
                 id="arrowhead"
@@ -322,615 +337,653 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import {
-  ArrowLeft,
-  Document,
-  Upload,
-  RefreshLeft,
-  RefreshRight,
-} from '@element-plus/icons-vue'
+  import { ref, onMounted, nextTick } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { ElMessage } from 'element-plus';
+  import { ArrowLeft, Document, Upload, RefreshLeft, RefreshRight } from '@element-plus/icons-vue';
 
-const router = useRouter()
+  const router = useRouter();
 
-const canvasRef = ref<HTMLElement>()
-const svgRef = ref<SVGSVGElement>()
+  const canvasRef = ref<HTMLElement>();
+  const svgRef = ref<SVGSVGElement>();
 
-const processName = ref('请假审批')
-const viewMode = ref('design')
+  const processName = ref('请假审批');
+  const viewMode = ref('design');
 
-const canvasWidth = 800
-const canvasHeight = 600
+  const canvasWidth = 800;
+  const canvasHeight = 600;
 
-const VALID_NODE_TYPES = ['start', 'end', 'task', 'approval', 'copy', 'gateway', 'condition', 'subtask'] as const
-type ValidNodeType = typeof VALID_NODE_TYPES[number]
+  const VALID_NODE_TYPES = [
+    'start',
+    'end',
+    'task',
+    'approval',
+    'copy',
+    'gateway',
+    'condition',
+    'subtask',
+  ] as const;
+  type ValidNodeType = (typeof VALID_NODE_TYPES)[number];
 
-const approverOptions = ref([
-  { label: '管理员', value: '1' },
-  { label: '张三', value: '2' },
-  { label: '李四', value: '3' },
-  { label: '王五', value: '4' },
-  { label: '赵六', value: '5' },
-])
+  const approverOptions = ref([
+    { label: '管理员', value: '1' },
+    { label: '张三', value: '2' },
+    { label: '李四', value: '3' },
+    { label: '王五', value: '4' },
+    { label: '赵六', value: '5' },
+  ]);
 
-const copyUserOptions = ref([
-  { label: '管理员', value: '1' },
-  { label: '张三', value: '2' },
-  { label: '李四', value: '3' },
-  { label: '王五', value: '4' },
-  { label: '赵六', value: '5' },
-])
+  const copyUserOptions = ref([
+    { label: '管理员', value: '1' },
+    { label: '张三', value: '2' },
+    { label: '李四', value: '3' },
+    { label: '王五', value: '4' },
+    { label: '赵六', value: '5' },
+  ]);
 
-interface FlowNode {
-  id: string
-  type: ValidNodeType
-  x: number
-  y: number
-  label: string
-  description?: string
-  assignee?: string
-  taskType?: string
-  approvers?: string[]
-  approvalType?: 'single' | 'multi'
-  copyUsers?: string[]
-  copyTypes?: string[]
-  conditions?: Condition[]
-  gatewayType?: 'parallel' | 'exclusive' | 'inclusive'
-  formKey?: string
-  dueDateHours?: number
-  overdueAction?: string
-  delegatable?: boolean
-  subtaskTemplate?: string
-  nodeKey?: string
-  priority?: number
-  remark?: string
-}
-
-interface Condition {
-  id: string
-  name: string
-  expression: string
-  targetNodeId?: string
-}
-
-interface Connection {
-  from: { nodeId: string; port: string }
-  to: { nodeId: string; port: string }
-}
-
-const initialNodes: FlowNode[] = [
-  { id: 'start', type: 'start', x: 370, y: 50, label: '开始' },
-  { id: 'task1', type: 'approval', x: 340, y: 150, label: '发起申请', description: '员工发起请假申请', approvalType: 'single' },
-  { id: 'gateway1', type: 'condition', x: 340, y: 260, label: '审批条件', conditions: [] },
-  { id: 'task2', type: 'approval', x: 200, y: 380, label: '部门经理审批', description: '部门经理进行审批', approvalType: 'multi' },
-  { id: 'task3', type: 'copy', x: 480, y: 380, label: 'HR抄送', copyUsers: [] },
-  { id: 'end', type: 'end', x: 370, y: 500, label: '结束' },
-]
-
-const initialConnections: Connection[] = [
-  { from: { nodeId: 'start', port: 'bottom' }, to: { nodeId: 'task1', port: 'top' } },
-  { from: { nodeId: 'task1', port: 'bottom' }, to: { nodeId: 'gateway1', port: 'top' } },
-  { from: { nodeId: 'gateway1', port: 'bottom' }, to: { nodeId: 'task2', port: 'top' } },
-  { from: { nodeId: 'gateway1', port: 'bottom' }, to: { nodeId: 'task3', port: 'top' } },
-  { from: { nodeId: 'task2', port: 'bottom' }, to: { nodeId: 'end', port: 'top' } },
-  { from: { nodeId: 'task3', port: 'bottom' }, to: { nodeId: 'end', port: 'top' } },
-]
-
-const nodes = ref<FlowNode[]>(JSON.parse(JSON.stringify(initialNodes)))
-const connections = ref<Connection[]>(JSON.parse(JSON.stringify(initialConnections)))
-
-const history = ref<Array<{ nodes: FlowNode[]; connections: Connection[] }>>([])
-const historyIndex = ref(-1)
-const canUndo = ref(false)
-const canRedo = ref(false)
-
-const pushHistory = () => {
-  history.value = history.value.slice(0, historyIndex.value + 1)
-  history.value.push({
-    nodes: JSON.parse(JSON.stringify(nodes.value)),
-    connections: JSON.parse(JSON.stringify(connections.value)),
-  })
-  historyIndex.value++
-  canUndo.value = historyIndex.value > 0
-  canRedo.value = historyIndex.value < history.value.length - 1
-}
-
-const selectedNodeId = ref<string>('')
-const selectedNode = ref<FlowNode | null>(null)
-
-let nodeIdCounter = 100
-let isDragging = false
-let draggingNode: FlowNode | null = null
-let dragOffsetX = 0
-let dragOffsetY = 0
-let isConnecting = false
-let connectingFrom: { nodeId: string; port: string } | null = null
-
-pushHistory()
-
-function getNodeIcon(type: string) {
-  const iconMap: Record<string, string> = {
-    start: '●',
-    end: '◉',
-    task: '▢',
-    approval: '☑',
-    copy: '☆',
-    gateway: '◇',
-    condition: '⟐',
-    subtask: '⊞',
-  }
-  return iconMap[type] || '?'
-}
-
-function goBack() {
-  router.push('/workflow/process')
-}
-
-function handleSave() {
-  ElMessage.success('保存成功')
-}
-
-function handleDeploy() {
-  ElMessage.success('发布成功')
-}
-
-function handleUndo() {
-  if (historyIndex.value <= 0) {
-    ElMessage.info('已到最早操作')
-    return
-  }
-  historyIndex.value--
-  const snapshot = history.value[historyIndex.value]
-  nodes.value = JSON.parse(JSON.stringify(snapshot.nodes))
-  connections.value = JSON.parse(JSON.stringify(snapshot.connections))
-  canUndo.value = historyIndex.value > 0
-  canRedo.value = true
-  ElMessage.info('已撤销')
-}
-
-function handleRedo() {
-  if (historyIndex.value >= history.value.length - 1) {
-    ElMessage.info('已是最新操作')
-    return
-  }
-  historyIndex.value++
-  const snapshot = history.value[historyIndex.value]
-  nodes.value = JSON.parse(JSON.stringify(snapshot.nodes))
-  connections.value = JSON.parse(JSON.stringify(snapshot.connections))
-  canRedo.value = historyIndex.value < history.value.length - 1
-  canUndo.value = true
-  ElMessage.info('已重做')
-}
-
-function handleDragStart(e: DragEvent, type: string) {
-  e.dataTransfer?.setData('nodeType', type)
-}
-
-function handleDrop(e: DragEvent) {
-  const nodeType = e.dataTransfer?.getData('nodeType')
-  if (!nodeType || !canvasRef.value) return
-
-  const validType = (VALID_NODE_TYPES as readonly string[]).includes(nodeType)
-    ? (nodeType as ValidNodeType)
-    : 'task'
-
-  const rect = canvasRef.value.getBoundingClientRect()
-  const x = e.clientX - rect.left - 60
-  const y = e.clientY - rect.top - 30
-
-  const newNode: FlowNode = {
-    id: `node-${++nodeIdCounter}`,
-    type: validType,
-    x,
-    y,
-    label: getDefaultLabel(validType),
-  }
-  nodes.value.push(newNode)
-  pushHistory()
-}
-
-function getDefaultLabel(type: string) {
-  const labelMap: Record<string, string> = {
-    start: '开始',
-    end: '结束',
-    task: '新任务',
-    approval: '审批节点',
-    copy: '抄送节点',
-    gateway: '网关',
-    condition: '条件分支',
-    subtask: '子任务',
-  }
-  return labelMap[type] || '节点'
-}
-
-function handleNodeMouseDown(e: MouseEvent, node: FlowNode) {
-  isDragging = true
-  draggingNode = node
-  dragOffsetX = e.clientX - node.x
-  dragOffsetY = e.clientY - node.y
-
-  document.addEventListener('mousemove', handleMouseMove)
-  document.addEventListener('mouseup', handleMouseUp)
-}
-
-function handleMouseMove(e: MouseEvent) {
-  if (!isDragging || !draggingNode || !canvasRef.value) return
-
-  const rect = canvasRef.value.getBoundingClientRect()
-  draggingNode.x = Math.max(0, Math.min(canvasWidth - 120, e.clientX - rect.left - dragOffsetX))
-  draggingNode.y = Math.max(0, Math.min(canvasHeight - 60, e.clientY - rect.top - dragOffsetY))
-}
-
-function handleMouseUp() {
-  isDragging = false
-  draggingNode = null
-  document.removeEventListener('mousemove', handleMouseMove)
-  document.removeEventListener('mouseup', handleMouseUp)
-}
-
-function handlePortMouseDown(_e: MouseEvent, node: FlowNode, port: string) {
-  isConnecting = true
-  connectingFrom = { nodeId: node.id, port }
-
-  document.addEventListener('mouseup', handleConnectMouseUp)
-}
-
-function handleConnectMouseUp(e: MouseEvent) {
-  if (!isConnecting || !connectingFrom) {
-    document.removeEventListener('mouseup', handleConnectMouseUp)
-    return
+  interface FlowNode {
+    id: string;
+    type: ValidNodeType;
+    x: number;
+    y: number;
+    label: string;
+    description?: string;
+    assignee?: string;
+    taskType?: string;
+    approvers?: string[];
+    approvalType?: 'single' | 'multi';
+    copyUsers?: string[];
+    copyTypes?: string[];
+    conditions?: Condition[];
+    gatewayType?: 'parallel' | 'exclusive' | 'inclusive';
+    formKey?: string;
+    dueDateHours?: number;
+    overdueAction?: string;
+    delegatable?: boolean;
+    subtaskTemplate?: string;
+    nodeKey?: string;
+    priority?: number;
+    remark?: string;
   }
 
-  const target = e.target as HTMLElement
-  const portEl = target.closest('.port')
-  if (portEl) {
-    const nodeEl = portEl.closest('.flow-node')
-    if (nodeEl) {
-      const nodeId = nodeEl.getAttribute('data-node-id') || ''
-      const portPos = portEl.classList.contains('port-top') ? 'top' : 'bottom'
-      
-      const exists = connections.value.some(
-        (c) =>
-          (c.from.nodeId === connectingFrom!.nodeId && c.to.nodeId === nodeId) ||
-          (c.from.nodeId === nodeId && c.to.nodeId === connectingFrom!.nodeId)
-      )
-      
-      if (!exists && nodeId !== connectingFrom!.nodeId) {
-        connections.value.push({
-          from: connectingFrom!,
-          to: { nodeId, port: portPos },
-        })
+  interface Condition {
+    id: string;
+    name: string;
+    expression: string;
+    targetNodeId?: string;
+  }
+
+  interface Connection {
+    from: { nodeId: string; port: string };
+    to: { nodeId: string; port: string };
+  }
+
+  const initialNodes: FlowNode[] = [
+    { id: 'start', type: 'start', x: 370, y: 50, label: '开始' },
+    {
+      id: 'task1',
+      type: 'approval',
+      x: 340,
+      y: 150,
+      label: '发起申请',
+      description: '员工发起请假申请',
+      approvalType: 'single',
+    },
+    { id: 'gateway1', type: 'condition', x: 340, y: 260, label: '审批条件', conditions: [] },
+    {
+      id: 'task2',
+      type: 'approval',
+      x: 200,
+      y: 380,
+      label: '部门经理审批',
+      description: '部门经理进行审批',
+      approvalType: 'multi',
+    },
+    { id: 'task3', type: 'copy', x: 480, y: 380, label: 'HR抄送', copyUsers: [] },
+    { id: 'end', type: 'end', x: 370, y: 500, label: '结束' },
+  ];
+
+  const initialConnections: Connection[] = [
+    { from: { nodeId: 'start', port: 'bottom' }, to: { nodeId: 'task1', port: 'top' } },
+    { from: { nodeId: 'task1', port: 'bottom' }, to: { nodeId: 'gateway1', port: 'top' } },
+    { from: { nodeId: 'gateway1', port: 'bottom' }, to: { nodeId: 'task2', port: 'top' } },
+    { from: { nodeId: 'gateway1', port: 'bottom' }, to: { nodeId: 'task3', port: 'top' } },
+    { from: { nodeId: 'task2', port: 'bottom' }, to: { nodeId: 'end', port: 'top' } },
+    { from: { nodeId: 'task3', port: 'bottom' }, to: { nodeId: 'end', port: 'top' } },
+  ];
+
+  const nodes = ref<FlowNode[]>(JSON.parse(JSON.stringify(initialNodes)));
+  const connections = ref<Connection[]>(JSON.parse(JSON.stringify(initialConnections)));
+
+  const history = ref<Array<{ nodes: FlowNode[]; connections: Connection[] }>>([]);
+  const historyIndex = ref(-1);
+  const canUndo = ref(false);
+  const canRedo = ref(false);
+
+  const pushHistory = () => {
+    history.value = history.value.slice(0, historyIndex.value + 1);
+    history.value.push({
+      nodes: JSON.parse(JSON.stringify(nodes.value)),
+      connections: JSON.parse(JSON.stringify(connections.value)),
+    });
+    historyIndex.value++;
+    canUndo.value = historyIndex.value > 0;
+    canRedo.value = historyIndex.value < history.value.length - 1;
+  };
+
+  const selectedNodeId = ref<string>('');
+  const selectedNode = ref<FlowNode | null>(null);
+
+  let nodeIdCounter = 100;
+  let isDragging = false;
+  let draggingNode: FlowNode | null = null;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+  let isConnecting = false;
+  let connectingFrom: { nodeId: string; port: string } | null = null;
+
+  pushHistory();
+
+  function getNodeIcon(type: string) {
+    const iconMap: Record<string, string> = {
+      start: '●',
+      end: '◉',
+      task: '▢',
+      approval: '☑',
+      copy: '☆',
+      gateway: '◇',
+      condition: '⟐',
+      subtask: '⊞',
+    };
+    return iconMap[type] || '?';
+  }
+
+  function goBack() {
+    router.push('/workflow/process');
+  }
+
+  function handleSave() {
+    ElMessage.success('保存成功');
+  }
+
+  function handleDeploy() {
+    ElMessage.success('发布成功');
+  }
+
+  function handleUndo() {
+    if (historyIndex.value <= 0) {
+      ElMessage.info('已到最早操作');
+      return;
+    }
+    historyIndex.value--;
+    const snapshot = history.value[historyIndex.value];
+    nodes.value = JSON.parse(JSON.stringify(snapshot.nodes));
+    connections.value = JSON.parse(JSON.stringify(snapshot.connections));
+    canUndo.value = historyIndex.value > 0;
+    canRedo.value = true;
+    ElMessage.info('已撤销');
+  }
+
+  function handleRedo() {
+    if (historyIndex.value >= history.value.length - 1) {
+      ElMessage.info('已是最新操作');
+      return;
+    }
+    historyIndex.value++;
+    const snapshot = history.value[historyIndex.value];
+    nodes.value = JSON.parse(JSON.stringify(snapshot.nodes));
+    connections.value = JSON.parse(JSON.stringify(snapshot.connections));
+    canRedo.value = historyIndex.value < history.value.length - 1;
+    canUndo.value = true;
+    ElMessage.info('已重做');
+  }
+
+  function handleDragStart(e: DragEvent, type: string) {
+    e.dataTransfer?.setData('nodeType', type);
+  }
+
+  function handleDrop(e: DragEvent) {
+    const nodeType = e.dataTransfer?.getData('nodeType');
+    if (!nodeType || !canvasRef.value) return;
+
+    const validType = (VALID_NODE_TYPES as readonly string[]).includes(nodeType)
+      ? (nodeType as ValidNodeType)
+      : 'task';
+
+    const rect = canvasRef.value.getBoundingClientRect();
+    const x = e.clientX - rect.left - 60;
+    const y = e.clientY - rect.top - 30;
+
+    const newNode: FlowNode = {
+      id: `node-${++nodeIdCounter}`,
+      type: validType,
+      x,
+      y,
+      label: getDefaultLabel(validType),
+    };
+    nodes.value.push(newNode);
+    pushHistory();
+  }
+
+  function getDefaultLabel(type: string) {
+    const labelMap: Record<string, string> = {
+      start: '开始',
+      end: '结束',
+      task: '新任务',
+      approval: '审批节点',
+      copy: '抄送节点',
+      gateway: '网关',
+      condition: '条件分支',
+      subtask: '子任务',
+    };
+    return labelMap[type] || '节点';
+  }
+
+  function handleNodeMouseDown(e: MouseEvent, node: FlowNode) {
+    isDragging = true;
+    draggingNode = node;
+    dragOffsetX = e.clientX - node.x;
+    dragOffsetY = e.clientY - node.y;
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!isDragging || !draggingNode || !canvasRef.value) return;
+
+    const rect = canvasRef.value.getBoundingClientRect();
+    draggingNode.x = Math.max(0, Math.min(canvasWidth - 120, e.clientX - rect.left - dragOffsetX));
+    draggingNode.y = Math.max(0, Math.min(canvasHeight - 60, e.clientY - rect.top - dragOffsetY));
+  }
+
+  function handleMouseUp() {
+    isDragging = false;
+    draggingNode = null;
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  }
+
+  function handlePortMouseDown(_e: MouseEvent, node: FlowNode, port: string) {
+    isConnecting = true;
+    connectingFrom = { nodeId: node.id, port };
+
+    document.addEventListener('mouseup', handleConnectMouseUp);
+  }
+
+  function handleConnectMouseUp(e: MouseEvent) {
+    if (!isConnecting || !connectingFrom) {
+      document.removeEventListener('mouseup', handleConnectMouseUp);
+      return;
+    }
+
+    const target = e.target as HTMLElement;
+    const portEl = target.closest('.port');
+    if (portEl) {
+      const nodeEl = portEl.closest('.flow-node');
+      if (nodeEl) {
+        const nodeId = nodeEl.getAttribute('data-node-id') || '';
+        const portPos = portEl.classList.contains('port-top') ? 'top' : 'bottom';
+
+        const exists = connections.value.some(
+          (c) =>
+            (c.from.nodeId === connectingFrom!.nodeId && c.to.nodeId === nodeId) ||
+            (c.from.nodeId === nodeId && c.to.nodeId === connectingFrom!.nodeId),
+        );
+
+        if (!exists && nodeId !== connectingFrom!.nodeId) {
+          connections.value.push({
+            from: connectingFrom!,
+            to: { nodeId, port: portPos },
+          });
+        }
       }
     }
+
+    isConnecting = false;
+    connectingFrom = null;
+    document.removeEventListener('mouseup', handleConnectMouseUp);
   }
 
-  isConnecting = false
-  connectingFrom = null
-  document.removeEventListener('mouseup', handleConnectMouseUp)
-}
+  function getLinePath(conn: Connection) {
+    const fromNode = nodes.value.find((n) => n.id === conn.from.nodeId);
+    const toNode = nodes.value.find((n) => n.id === conn.to.nodeId);
+    if (!fromNode || !toNode) return '';
 
-function getLinePath(conn: Connection) {
-  const fromNode = nodes.value.find((n) => n.id === conn.from.nodeId)
-  const toNode = nodes.value.find((n) => n.id === conn.to.nodeId)
-  if (!fromNode || !toNode) return ''
+    let x1: number, y1: number, x2: number, y2: number;
 
-  let x1: number, y1: number, x2: number, y2: number
-
-  switch (conn.from.port) {
-    case 'bottom':
-      x1 = fromNode.x + 60; y1 = fromNode.y + 60; break
-    case 'top':
-      x1 = fromNode.x + 60; y1 = fromNode.y; break
-    case 'left':
-      x1 = fromNode.x; y1 = fromNode.y + 30; break
-    case 'right':
-      x1 = fromNode.x + 120; y1 = fromNode.y + 30; break
-    default:
-      x1 = fromNode.x + 60; y1 = fromNode.y + 60
-  }
-
-  switch (conn.to.port) {
-    case 'top':
-      x2 = toNode.x + 60; y2 = toNode.y; break
-    case 'bottom':
-      x2 = toNode.x + 60; y2 = toNode.y + 60; break
-    case 'left':
-      x2 = toNode.x; y2 = toNode.y + 30; break
-    case 'right':
-      x2 = toNode.x + 120; y2 = toNode.y + 30; break
-    default:
-      x2 = toNode.x + 60; y2 = toNode.y
-  }
-
-  const midY = (y1 + y2) / 2
-  return `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`
-}
-
-function handleNodeClick(node: FlowNode) {
-  selectedNodeId.value = node.id
-  selectedNode.value = node
-}
-
-function handleCanvasClick() {
-  selectedNodeId.value = ''
-  selectedNode.value = null
-}
-
-function handleRemoveNode(node: FlowNode) {
-  const index = nodes.value.findIndex((n) => n.id === node.id)
-  if (index > -1) {
-    nodes.value.splice(index, 1)
-    connections.value = connections.value.filter(
-      (c) => c.from.nodeId !== node.id && c.to.nodeId !== node.id
-    )
-    if (selectedNodeId.value === node.id) {
-      selectedNodeId.value = ''
-      selectedNode.value = null
+    switch (conn.from.port) {
+      case 'bottom':
+        x1 = fromNode.x + 60;
+        y1 = fromNode.y + 60;
+        break;
+      case 'top':
+        x1 = fromNode.x + 60;
+        y1 = fromNode.y;
+        break;
+      case 'left':
+        x1 = fromNode.x;
+        y1 = fromNode.y + 30;
+        break;
+      case 'right':
+        x1 = fromNode.x + 120;
+        y1 = fromNode.y + 30;
+        break;
+      default:
+        x1 = fromNode.x + 60;
+        y1 = fromNode.y + 60;
     }
-    pushHistory()
-  }
-}
 
-function addCondition() {
-  if (!selectedNode.value || !selectedNode.value.conditions) {
-    return
-  }
-  selectedNode.value.conditions.push({
-    id: `cond-${Date.now()}`,
-    name: `条件${selectedNode.value.conditions.length + 1}`,
-    expression: '',
-  })
-}
+    switch (conn.to.port) {
+      case 'top':
+        x2 = toNode.x + 60;
+        y2 = toNode.y;
+        break;
+      case 'bottom':
+        x2 = toNode.x + 60;
+        y2 = toNode.y + 60;
+        break;
+      case 'left':
+        x2 = toNode.x;
+        y2 = toNode.y + 30;
+        break;
+      case 'right':
+        x2 = toNode.x + 120;
+        y2 = toNode.y + 30;
+        break;
+      default:
+        x2 = toNode.x + 60;
+        y2 = toNode.y;
+    }
 
-function removeCondition(index: number) {
-  if (!selectedNode.value || !selectedNode.value.conditions) {
-    return
+    const midY = (y1 + y2) / 2;
+    return `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
   }
-  selectedNode.value.conditions.splice(index, 1)
-}
 
-onMounted(() => {
-  nextTick(() => {
-    const nodeEls = document.querySelectorAll('.flow-node')
-    nodeEls.forEach((el, idx) => {
-      el.setAttribute('data-node-id', nodes.value[idx].id)
-    })
-  })
-})
+  function handleNodeClick(node: FlowNode) {
+    selectedNodeId.value = node.id;
+    selectedNode.value = node;
+  }
+
+  function handleCanvasClick() {
+    selectedNodeId.value = '';
+    selectedNode.value = null;
+  }
+
+  function handleRemoveNode(node: FlowNode) {
+    const index = nodes.value.findIndex((n) => n.id === node.id);
+    if (index > -1) {
+      nodes.value.splice(index, 1);
+      connections.value = connections.value.filter(
+        (c) => c.from.nodeId !== node.id && c.to.nodeId !== node.id,
+      );
+      if (selectedNodeId.value === node.id) {
+        selectedNodeId.value = '';
+        selectedNode.value = null;
+      }
+      pushHistory();
+    }
+  }
+
+  function addCondition() {
+    if (!selectedNode.value || !selectedNode.value.conditions) {
+      return;
+    }
+    selectedNode.value.conditions.push({
+      id: `cond-${Date.now()}`,
+      name: `条件${selectedNode.value.conditions.length + 1}`,
+      expression: '',
+    });
+  }
+
+  function removeCondition(index: number) {
+    if (!selectedNode.value || !selectedNode.value.conditions) {
+      return;
+    }
+    selectedNode.value.conditions.splice(index, 1);
+  }
+
+  onMounted(() => {
+    nextTick(() => {
+      const nodeEls = document.querySelectorAll('.flow-node');
+      nodeEls.forEach((el, idx) => {
+        el.setAttribute('data-node-id', nodes.value[idx].id);
+      });
+    });
+  });
 </script>
 
 <style scoped lang="scss">
-.process-design {
-  .toolbar-card {
-    margin-bottom: 16px;
-    .toolbar {
+  .process-design {
+    .toolbar-card {
+      margin-bottom: 16px;
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .design-container {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      gap: 16px;
+      height: calc(100vh - 180px);
     }
-  }
 
-  .design-container {
-    display: flex;
-    gap: 16px;
-    height: calc(100vh - 180px);
-  }
-
-  .nodes-panel {
-    width: 160px;
-    flex-shrink: 0;
-    .panel-title {
-      font-weight: 600;
+    .nodes-panel {
+      width: 160px;
+      flex-shrink: 0;
+      .panel-title {
+        font-weight: 600;
+      }
+      .node-items {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        .node-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px;
+          background: #f5f7fa;
+          border-radius: 8px;
+          cursor: grab;
+          transition: all 0.2s;
+          &:hover {
+            background: #e6f4ff;
+          }
+          .icon {
+            font-size: 20px;
+            font-weight: bold;
+          }
+          &.start .icon {
+            color: #67c23a;
+          }
+          &.end .icon {
+            color: #f56c6c;
+          }
+          &.task .icon {
+            color: #409eff;
+          }
+          &.approval .icon {
+            color: #409eff;
+          }
+          &.copy .icon {
+            color: #909399;
+          }
+          &.gateway .icon {
+            color: #e6a23c;
+          }
+          &.condition .icon {
+            color: #f0a020;
+          }
+          &.subtask .icon {
+            color: #8c8c8c;
+          }
+        }
+      }
     }
-    .node-items {
+
+    .canvas-panel {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      .node-item {
+      .panel-title {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 12px;
-        background: #f5f7fa;
-        border-radius: 8px;
-        cursor: grab;
-        transition: all 0.2s;
-        &:hover {
-          background: #e6f4ff;
-        }
-        .icon {
-          font-size: 20px;
-          font-weight: bold;
-        }
-        &.start .icon {
-          color: #67c23a;
-        }
-        &.end .icon {
-          color: #f56c6c;
-        }
-        &.task .icon {
-          color: #409eff;
-        }
-        &.approval .icon {
-          color: #409eff;
-        }
-        &.copy .icon {
-          color: #909399;
-        }
-        &.gateway .icon {
-          color: #e6a23c;
-        }
-        &.condition .icon {
-          color: #f0a020;
-        }
-        &.subtask .icon {
-          color: #8c8c8c;
+        font-weight: 600;
+        .version-tag {
+          font-weight: normal;
         }
       }
-    }
-  }
-
-  .canvas-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    .panel-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      .version-tag {
-        font-weight: normal;
+      .canvas {
+        flex: 1;
+        overflow: auto;
+        background:
+          linear-gradient(to right, #f8f9fa 1px, transparent 1px),
+          linear-gradient(to bottom, #f8f9fa 1px, transparent 1px);
+        background-size: 20px 20px;
+        position: relative;
       }
-    }
-    .canvas {
-      flex: 1;
-      overflow: auto;
-      background: linear-gradient(to right, #f8f9fa 1px, transparent 1px),
-        linear-gradient(to bottom, #f8f9fa 1px, transparent 1px);
-      background-size: 20px 20px;
-      position: relative;
-    }
-    .flow-svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      pointer-events: none;
-    }
-    .flow-node {
-      position: absolute;
-      width: 120px;
-      height: 60px;
-      cursor: move;
-      user-select: none;
-      &.start .node-body {
-        background: linear-gradient(135deg, #85ce61, #67c23a);
-        color: white;
-      }
-      &.end .node-body {
-        background: linear-gradient(135deg, #f89898, #f56c6c);
-        color: white;
-      }
-      &.task .node-body {
-        background: linear-gradient(135deg, #93c5fd, #409eff);
-        color: white;
-      }
-      &.approval .node-body {
-        background: linear-gradient(135deg, #79bbff, #1890ff);
-        color: white;
-      }
-      &.copy .node-body {
-        background: linear-gradient(135deg, #c8c8c8, #8c8c8c);
-        color: white;
-      }
-      &.gateway .node-body {
-        background: linear-gradient(135deg, #f3d19e, #e6a23c);
-        color: white;
-      }
-      &.condition .node-body {
-        background: linear-gradient(135deg, #fbd356, #f0a020);
-        color: white;
-      }
-      &.subtask .node-body {
-        background: linear-gradient(135deg, #d8d8d8, #a6a6a6);
-        color: white;
-      }
-      &.selected .node-body {
-        box-shadow: 0 0 0 3px #409eff;
-      }
-      .node-body {
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        .node-icon {
-          font-size: 18px;
-        }
-        .node-label {
-          font-size: 12px;
-        }
-      }
-      .node-ports {
+      .flow-svg {
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
         pointer-events: none;
-        .port {
-          position: absolute;
-          width: 12px;
-          height: 12px;
-          background: white;
-          border: 2px solid #409eff;
-          border-radius: 50%;
-          pointer-events: auto;
-          cursor: crosshair;
-          &:hover {
-            background: #409eff;
+      }
+      .flow-node {
+        position: absolute;
+        width: 120px;
+        height: 60px;
+        cursor: move;
+        user-select: none;
+        &.start .node-body {
+          background: linear-gradient(135deg, #85ce61, #67c23a);
+          color: white;
+        }
+        &.end .node-body {
+          background: linear-gradient(135deg, #f89898, #f56c6c);
+          color: white;
+        }
+        &.task .node-body {
+          background: linear-gradient(135deg, #93c5fd, #409eff);
+          color: white;
+        }
+        &.approval .node-body {
+          background: linear-gradient(135deg, #79bbff, #1890ff);
+          color: white;
+        }
+        &.copy .node-body {
+          background: linear-gradient(135deg, #c8c8c8, #8c8c8c);
+          color: white;
+        }
+        &.gateway .node-body {
+          background: linear-gradient(135deg, #f3d19e, #e6a23c);
+          color: white;
+        }
+        &.condition .node-body {
+          background: linear-gradient(135deg, #fbd356, #f0a020);
+          color: white;
+        }
+        &.subtask .node-body {
+          background: linear-gradient(135deg, #d8d8d8, #a6a6a6);
+          color: white;
+        }
+        &.selected .node-body {
+          box-shadow: 0 0 0 3px #409eff;
+        }
+        .node-body {
+          width: 100%;
+          height: 100%;
+          border-radius: 8px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          .node-icon {
+            font-size: 18px;
           }
-          &.port-top {
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-          }
-          &.port-bottom {
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
+          .node-label {
+            font-size: 12px;
           }
         }
+        .node-ports {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          .port {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #409eff;
+            border-radius: 50%;
+            pointer-events: auto;
+            cursor: crosshair;
+            &:hover {
+              background: #409eff;
+            }
+            &.port-top {
+              top: -6px;
+              left: 50%;
+              transform: translateX(-50%);
+            }
+            &.port-bottom {
+              bottom: -6px;
+              left: 50%;
+              transform: translateX(-50%);
+            }
+          }
+        }
+        .node-remove {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          width: 20px;
+          height: 20px;
+          background: #f56c6c;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 14px;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+        &:hover .node-remove {
+          opacity: 1;
+        }
       }
-      .node-remove {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        width: 20px;
-        height: 20px;
-        background: #f56c6c;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 14px;
-        opacity: 0;
-        transition: opacity 0.2s;
+    }
+
+    .properties-panel {
+      width: 280px;
+      flex-shrink: 0;
+      .panel-title {
+        font-weight: 600;
       }
-      &:hover .node-remove {
-        opacity: 1;
+      .properties-content {
+        padding: 8px 0;
+      }
+      .empty-properties {
+        padding: 40px 0;
+      }
+
+      .conditions-section {
+        .condition-item {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 12px;
+          align-items: center;
+        }
       }
     }
   }
-
-  .properties-panel {
-    width: 280px;
-    flex-shrink: 0;
-    .panel-title {
-      font-weight: 600;
-    }
-    .properties-content {
-      padding: 8px 0;
-    }
-    .empty-properties {
-      padding: 40px 0;
-    }
-
-    .conditions-section {
-      .condition-item {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 12px;
-        align-items: center;
-      }
-    }
-  }
-}
 </style>

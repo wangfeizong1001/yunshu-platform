@@ -56,9 +56,7 @@ export class OnlineService {
     return createSuccessResult(item);
   }
 
-  async findWithPagination(
-    params: IOnlineQuery,
-  ): Promise<ServiceResult<PaginatedResult<IOnline>>> {
+  async findWithPagination(params: IOnlineQuery): Promise<ServiceResult<PaginatedResult<IOnline>>> {
     let filtered = [...this.mockData];
 
     if (params.search) {

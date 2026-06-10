@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IOperlog } from '@yunshu/shared'
+import type { IOperlog } from '@yunshu/shared';
 
 export const operlogMockData: IOperlog[] = Array.from({ length: 50 }, (_, i) => ({
   operId: String(i + 1),
@@ -19,8 +19,10 @@ export const operlogMockData: IOperlog[] = Array.from({ length: 50 }, (_, i) => 
   operSystem: 'Windows 10',
   browser: ['Chrome', 'Firefox', 'Edge', 'Safari'][i % 4],
   costTime: Math.floor(Math.random() * 5000) + 100,
-  operLocation: ['北京市海淀区', '上海市浦东新区', '广州市天河区', '深圳市南山区', '杭州市西湖区'][i % 5],
+  operLocation: ['北京市海淀区', '上海市浦东新区', '广州市天河区', '深圳市南山区', '杭州市西湖区'][
+    i % 5
+  ],
   operParam: JSON.stringify({ id: i + 1, name: `name${i + 1}` }),
   jsonResult: JSON.stringify({ code: 200, message: 'success' }),
   createTime: new Date(Date.now() - i * 3600000).toISOString(),
-}))
+}));

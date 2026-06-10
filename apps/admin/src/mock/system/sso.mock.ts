@@ -9,7 +9,7 @@ import type {
   SsoAuthorizeResp,
   SsoTokenResp,
   SsoUserInfo,
-} from '@yunshu/shared'
+} from '@yunshu/shared';
 
 // SSO 配置 Mock 数据
 export const mockSsoConfig: SsoConfig = {
@@ -19,7 +19,7 @@ export const mockSsoConfig: SsoConfig = {
   defaultRedirectUrl: '/',
   logoutUrl: 'https://sso.yunshu.com/logout',
   sessionTimeout: 7200,
-}
+};
 
 // SSO 应用 Mock 数据
 export const mockSsoAppList: SsoApplication[] = [
@@ -118,60 +118,58 @@ export const mockSsoAppList: SsoApplication[] = [
     updateBy: 'admin',
     updateTime: '2024-01-19 12:00:00',
   },
-]
+];
 
 // 获取 SSO 配置 Mock
 export function getMockSsoConfig(): SsoConfig {
-  return mockSsoConfig
+  return mockSsoConfig;
 }
 
 // 获取 SSO 应用列表 Mock
 export function getMockSsoAppPage(params: any): SsoAppPageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', appType = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', appType = '', status = '' } = params;
 
-  let filteredList = [...mockSsoAppList]
+  let filteredList = [...mockSsoAppList];
 
   if (keyword) {
     filteredList = filteredList.filter(
-      (item) =>
-        item.appName.includes(keyword) ||
-        item.appCode.includes(keyword)
-    )
+      (item) => item.appName.includes(keyword) || item.appCode.includes(keyword),
+    );
   }
 
   if (appType) {
-    filteredList = filteredList.filter((item) => item.appType === appType)
+    filteredList = filteredList.filter((item) => item.appType === appType);
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取 SSO 应用详情 Mock
 export function getMockSsoAppDetail(id: number): SsoApplication | undefined {
-  return mockSsoAppList.find((item) => item.id === id)
+  return mockSsoAppList.find((item) => item.id === id);
 }
 
 // 获取授权链接 Mock
 export function getMockSsoAuthorizeUrl(appCode: string): SsoAuthorizeResp {
-  const app = mockSsoAppList.find((item) => item.appCode === appCode)
+  const app = mockSsoAppList.find((item) => item.appCode === appCode);
 
   if (!app) {
     return {
       success: false,
       url: '',
       errorMsg: '应用不存在',
-    }
+    };
   }
 
   if (app.status === '0') {
@@ -179,18 +177,20 @@ export function getMockSsoAuthorizeUrl(appCode: string): SsoAuthorizeResp {
       success: false,
       url: '',
       errorMsg: '应用已禁用',
-    }
+    };
   }
 
   // 模拟生成授权 URL
-  const state = `sso_${appCode}_${Date.now()}`
-  const redirectUri = encodeURIComponent(`${window.location.origin}/api/system/sso/callback/${appCode}`)
-  const url = `${app.authorizationUrl}?client_id=${app.clientId}&redirect_uri=${redirectUri}&scope=${app.scopes.join(' ')}&state=${state}`
+  const state = `sso_${appCode}_${Date.now()}`;
+  const redirectUri = encodeURIComponent(
+    `${window.location.origin}/api/system/sso/callback/${appCode}`,
+  );
+  const url = `${app.authorizationUrl}?client_id=${app.clientId}&redirect_uri=${redirectUri}&scope=${app.scopes.join(' ')}&state=${state}`;
 
   return {
     success: true,
     url,
-  }
+  };
 }
 
 // 处理 SSO 回调 Mock
@@ -202,7 +202,7 @@ export function handleMockSsoCallback(code: string, _state?: string): SsoTokenRe
       expiresIn: 0,
       error: 'invalid_code',
       errorDescription: '授权码无效',
-    }
+    };
   }
 
   return {
@@ -210,7 +210,7 @@ export function handleMockSsoCallback(code: string, _state?: string): SsoTokenRe
     tokenType: 'Bearer',
     expiresIn: 7200,
     refreshToken: `mock_refresh_token_${Date.now()}`,
-  }
+  };
 }
 
 // 获取 SSO 用户信息 Mock
@@ -224,7 +224,7 @@ export function getMockSsoUserInfo(_accessToken: string): SsoUserInfo {
     realName: 'SSO 用户',
     organization: '云枢科技',
     permissions: ['system:user:view', 'system:role:view'],
-  }
+  };
 }
 
 // 刷新 Token Mock
@@ -234,5 +234,5 @@ export function refreshMockSsoToken(_refreshToken: string): SsoTokenResp {
     tokenType: 'Bearer',
     expiresIn: 7200,
     refreshToken: `mock_refresh_token_${Date.now()}`,
-  }
+  };
 }

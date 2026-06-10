@@ -1,7 +1,16 @@
 /**
  * 租户管理 API
  */
-import type { Tenant, TenantQuery, TenantForm, TenantPageResp, TenantPackage, TenantPackageQuery, TenantPackageForm, TenantPackagePageResp } from '@yunshu/shared';
+import type {
+  Tenant,
+  TenantQuery,
+  TenantForm,
+  TenantPageResp,
+  TenantPackage,
+  TenantPackageQuery,
+  TenantPackageForm,
+  TenantPackagePageResp,
+} from '@yunshu/shared';
 /**
  * 获取租户分页列表
  * @param params 查询参数
@@ -38,7 +47,10 @@ export declare function deleteTenant(tenantId: number): Promise<void>;
  * @param tenantId 租户ID
  * @param status 状态
  */
-export declare function changeTenantStatus(tenantId: number, status: '0' | '1' | '2'): Promise<void>;
+export declare function changeTenantStatus(
+  tenantId: number,
+  status: '0' | '1' | '2',
+): Promise<void>;
 /**
  * 获取套餐分页列表
  * @param params 查询参数
@@ -64,7 +76,10 @@ export declare function addPackage(data: TenantPackageForm): Promise<TenantPacka
  * @param packageId 套餐ID
  * @param data 套餐表单数据
  */
-export declare function updatePackage(packageId: number, data: TenantPackageForm): Promise<TenantPackage>;
+export declare function updatePackage(
+  packageId: number,
+  data: TenantPackageForm,
+): Promise<TenantPackage>;
 /**
  * 删除套餐
  * @param packageId 套餐ID

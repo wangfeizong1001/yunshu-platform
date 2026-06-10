@@ -2,54 +2,54 @@
  * 字典管理 API
  */
 export interface DictTypeQuery {
-    pageNum?: number;
-    pageSize?: number;
-    dictName?: string;
-    dictType?: string;
-    status?: string;
+  pageNum?: number;
+  pageSize?: number;
+  dictName?: string;
+  dictType?: string;
+  status?: string;
 }
 export interface DictTypeForm {
-    dictId?: number;
-    dictName?: string;
-    dictType?: string;
-    status?: string;
-    remark?: string;
+  dictId?: number;
+  dictName?: string;
+  dictType?: string;
+  status?: string;
+  remark?: string;
 }
 export interface DictTypeInfo {
-    dictId: number;
-    dictName: string;
-    dictType: string;
-    status: string;
-    remark: string;
-    createTime: string;
+  dictId: number;
+  dictName: string;
+  dictType: string;
+  status: string;
+  remark: string;
+  createTime: string;
 }
 export interface DictDataQuery {
-    pageNum?: number;
-    pageSize?: number;
-    dictType?: string;
-    dictLabel?: string;
-    status?: string;
+  pageNum?: number;
+  pageSize?: number;
+  dictType?: string;
+  dictLabel?: string;
+  status?: string;
 }
 export interface DictDataForm {
-    dictCode?: number;
-    dictType?: string;
-    dictLabel?: string;
-    dictValue?: string;
-    dictSort?: number;
-    isDefault?: string;
-    status?: string;
-    remark?: string;
+  dictCode?: number;
+  dictType?: string;
+  dictLabel?: string;
+  dictValue?: string;
+  dictSort?: number;
+  isDefault?: string;
+  status?: string;
+  remark?: string;
 }
 export interface DictDataInfo {
-    dictCode: number;
-    dictType: string;
-    dictLabel: string;
-    dictValue: string;
-    dictSort: number;
-    isDefault: string;
-    status: string;
-    remark: string;
-    createTime: string;
+  dictCode: number;
+  dictType: string;
+  dictLabel: string;
+  dictValue: string;
+  dictSort: number;
+  isDefault: string;
+  status: string;
+  remark: string;
+  createTime: string;
 }
 export declare const getDictTypeList: (params?: DictTypeQuery) => Promise<unknown>;
 export declare const getDictTypePage: (params?: DictTypeQuery) => Promise<unknown>;

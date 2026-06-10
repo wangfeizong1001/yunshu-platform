@@ -8,18 +8,9 @@
  */
 
 import type { Pool } from 'pg';
-import type {
-  IRepository,
-  IEntity,
-  QueryCondition,
-  QueryConfig,
-} from './IRepository';
+import type { IRepository, IEntity, QueryCondition, QueryConfig } from './IRepository';
 import type { PostgresQueryBuilderConfig } from './PostgresQueryBuilder';
-import type {
-  ServiceResult,
-  PaginationParams,
-  PaginatedResult,
-} from '@yunshu/shared';
+import type { ServiceResult, PaginationParams, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult } from '@yunshu/shared';
 import { ErrorCode } from '../errors/BusinessError';
 import { PostgresQueryBuilder } from './PostgresQueryBuilder';
@@ -73,9 +64,7 @@ export interface PostgresRepositoryConfig {
  * }
  * ```
  */
-export class PostgresRepository<T extends IEntity>
-  implements IRepository<T, string>
-{
+export class PostgresRepository<T extends IEntity> implements IRepository<T, string> {
   protected pool: Pool;
   protected config: Required<PostgresRepositoryConfig>;
 
@@ -165,7 +154,6 @@ export class PostgresRepository<T extends IEntity>
         .executeOne();
 
       return result;
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -181,7 +169,6 @@ export class PostgresRepository<T extends IEntity>
         qb.where(condition);
       }
       return await qb.executeOne();
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -230,7 +217,6 @@ export class PostgresRepository<T extends IEntity>
       }
 
       return await qb.executeMany();
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -278,7 +264,6 @@ export class PostgresRepository<T extends IEntity>
       const row = this.mapRowToEntity(result.rows[0]);
 
       return createSuccessResult(row as T, `${this.config.entityName}创建成功`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -295,7 +280,8 @@ export class PostgresRepository<T extends IEntity>
 
       // 处理字段
       for (const [key, value] of Object.entries(data)) {
-        if (key === 'id' || key === 'createdAt' || key === 'updatedAt' || key === 'deletedAt') continue;
+        if (key === 'id' || key === 'createdAt' || key === 'updatedAt' || key === 'deletedAt')
+          continue;
 
         const snakeKey = this.toSnakeCase(key);
         fields.push(`"${snakeKey}" = $${paramIndex}`);
@@ -322,15 +308,11 @@ export class PostgresRepository<T extends IEntity>
       const result = await this.pool.query(text, values);
 
       if (result.rows.length === 0) {
-        return createErrorResult(
-          ErrorCode.NOT_FOUND,
-          `${this.config.entityName}不存在`,
-        );
+        return createErrorResult(ErrorCode.NOT_FOUND, `${this.config.entityName}不存在`);
       }
 
       const row = this.mapRowToEntity(result.rows[0]);
       return createSuccessResult(row as T, `${this.config.entityName}更新成功`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -350,14 +332,10 @@ export class PostgresRepository<T extends IEntity>
       const result = await this.pool.query(text, [id]);
 
       if (result.rowCount === 0) {
-        return createErrorResult(
-          ErrorCode.NOT_FOUND,
-          `${this.config.entityName}不存在`,
-        );
+        return createErrorResult(ErrorCode.NOT_FOUND, `${this.config.entityName}不存在`);
       }
 
       return createSuccessResult(true, `${this.config.entityName}删除成功`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -395,16 +373,13 @@ export class PostgresRepository<T extends IEntity>
         }
       }
 
-      const whereClause = conditionParts.length > 0
-        ? `WHERE ${conditionParts.join(' AND ')}`
-        : '';
+      const whereClause = conditionParts.length > 0 ? `WHERE ${conditionParts.join(' AND ')}` : '';
 
       const text = `SELECT COUNT(*) as count FROM "${this.config.tableName}" ${whereClause}`;
       const result = await this.pool.query(text, params);
 
       const count = parseInt(result.rows[0]?.count || '0', 10);
       return createSuccessResult(count);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -424,7 +399,6 @@ export class PostgresRepository<T extends IEntity>
 
       const result = await this.pool.query(text, [id]);
       return createSuccessResult(result.rows.length > 0);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -469,7 +443,6 @@ export class PostgresRepository<T extends IEntity>
       }
 
       return await qb.executePaginated(params);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -500,14 +473,10 @@ export class PostgresRepository<T extends IEntity>
       const result = await this.pool.query(text, [new Date(), id]);
 
       if (result.rowCount === 0) {
-        return createErrorResult(
-          ErrorCode.NOT_FOUND,
-          `${this.config.entityName}不存在`,
-        );
+        return createErrorResult(ErrorCode.NOT_FOUND, `${this.config.entityName}不存在`);
       }
 
       return createSuccessResult(true, `${this.config.entityName}已删除`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -518,10 +487,7 @@ export class PostgresRepository<T extends IEntity>
    */
   async restore(id: string): Promise<ServiceResult<T>> {
     if (!this.config.softDeleteField) {
-      return createErrorResult(
-        ErrorCode.UNKNOWN_ERROR,
-        `${this.config.entityName}不支持软删除`,
-      );
+      return createErrorResult(ErrorCode.UNKNOWN_ERROR, `${this.config.entityName}不支持软删除`);
     }
 
     try {
@@ -535,15 +501,11 @@ export class PostgresRepository<T extends IEntity>
       const result = await this.pool.query(text, [id]);
 
       if (result.rows.length === 0) {
-        return createErrorResult(
-          ErrorCode.NOT_FOUND,
-          `${this.config.entityName}不存在`,
-        );
+        return createErrorResult(ErrorCode.NOT_FOUND, `${this.config.entityName}不存在`);
       }
 
       const row = this.mapRowToEntity(result.rows[0]);
       return createSuccessResult(row as T, `${this.config.entityName}已恢复`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -621,7 +583,6 @@ export class PostgresRepository<T extends IEntity>
       const entities = result.rows.map((row) => this.mapRowToEntity(row));
 
       return createSuccessResult(entities as T[], `${this.config.entityName}批量创建成功`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -630,10 +591,7 @@ export class PostgresRepository<T extends IEntity>
   /**
    * 批量更新
    */
-  async updateMany(
-    where: QueryCondition[],
-    data: Partial<T>,
-  ): Promise<ServiceResult<number>> {
+  async updateMany(where: QueryCondition[], data: Partial<T>): Promise<ServiceResult<number>> {
     try {
       const fields: string[] = [];
       const values: unknown[] = [];
@@ -641,7 +599,8 @@ export class PostgresRepository<T extends IEntity>
 
       // 构建更新字段
       for (const [key, value] of Object.entries(data)) {
-        if (key === 'id' || key === 'createdAt' || key === 'updatedAt' || key === 'deletedAt') continue;
+        if (key === 'id' || key === 'createdAt' || key === 'updatedAt' || key === 'deletedAt')
+          continue;
 
         const snakeKey = this.toSnakeCase(key);
         fields.push(`"${snakeKey}" = $${paramIndex}`);
@@ -678,7 +637,6 @@ export class PostgresRepository<T extends IEntity>
       const result = await this.pool.query(text, values);
 
       return createSuccessResult(result.rowCount ?? 0, `更新了 ${result.rowCount} 条记录`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -702,7 +660,6 @@ export class PostgresRepository<T extends IEntity>
       const result = await this.pool.query(text, ids);
 
       return createSuccessResult(result.rowCount ?? 0, `删除了 ${result.rowCount} 条记录`);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -715,10 +672,7 @@ export class PostgresRepository<T extends IEntity>
   /**
    * 构建条件子句
    */
-  private buildConditionClause(
-    condition: QueryCondition,
-    paramIndex: number,
-  ): string {
+  private buildConditionClause(condition: QueryCondition, paramIndex: number): string {
     const field = `"${this.toSnakeCase(condition.field)}"`;
 
     switch (condition.operator) {
@@ -788,10 +742,7 @@ export class PostgresRepository<T extends IEntity>
 
         // 唯一性约束冲突
         if (pgError.code === '23505') {
-          return createErrorResult(
-            ErrorCode.CONFLICT,
-            `${this.config.entityName}已存在`,
-          );
+          return createErrorResult(ErrorCode.CONFLICT, `${this.config.entityName}已存在`);
         }
 
         // 外键约束冲突
@@ -804,10 +755,7 @@ export class PostgresRepository<T extends IEntity>
 
         // 约束违反
         if (pgError.code === '23514') {
-          return createErrorResult(
-            ErrorCode.VALIDATION_ERROR,
-            `数据校验失败: ${pgError.message}`,
-          );
+          return createErrorResult(ErrorCode.VALIDATION_ERROR, `数据校验失败: ${pgError.message}`);
         }
       }
 

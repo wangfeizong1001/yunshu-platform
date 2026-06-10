@@ -13,4 +13,4 @@ export default {
     perPage: 'per page',
     currentPage: 'Current page',
   },
-}
+};

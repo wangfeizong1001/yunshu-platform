@@ -49,4 +49,4 @@ export default {
     evening: 'Good Evening',
     welcomeBack: 'Welcome Back',
   },
-}
+};

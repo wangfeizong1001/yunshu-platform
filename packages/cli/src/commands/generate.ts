@@ -166,7 +166,9 @@ export function generateCommand(): Command {
     .action((type: string, name: string, options: Record<string, string>) => {
       const generator = GENERATORS[type];
       if (!generator) {
-        console.error(chalk.red(`未知的生成类型: ${type}。支持: ${Object.keys(GENERATORS).join(', ')}`));
+        console.error(
+          chalk.red(`未知的生成类型: ${type}。支持: ${Object.keys(GENERATORS).join(', ')}`),
+        );
         process.exit(1);
       }
 

@@ -144,7 +144,7 @@ export class SmsController extends BaseController {
    */
   async getConfigById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const config = mockSmsConfigs.find(c => c.id === Number(id));
+    const config = mockSmsConfigs.find((c) => c.id === Number(id));
 
     if (!config) {
       return this.notFound(res, '短信配置不存在');
@@ -157,7 +157,7 @@ export class SmsController extends BaseController {
    * 获取当前使用的短信配置
    */
   async getCurrentConfig(_req: Request, res: Response): Promise<Response> {
-    const current = mockSmsConfigs.find(c => c.status === '1');
+    const current = mockSmsConfigs.find((c) => c.status === '1');
     return this.success(res, current || null);
   }
 
@@ -167,12 +167,18 @@ export class SmsController extends BaseController {
   async createConfig(req: Request, res: Response): Promise<Response> {
     const data = req.body;
 
-    if (!data.platform || !data.accessKey || !data.secretKey || !data.signName || !data.templateCode) {
+    if (
+      !data.platform ||
+      !data.accessKey ||
+      !data.secretKey ||
+      !data.signName ||
+      !data.templateCode
+    ) {
       return this.badRequest(res, '请填写完整的短信配置信息');
     }
 
     const newConfig: SmsConfig = {
-      id: Math.max(...mockSmsConfigs.map(c => c.id)) + 1,
+      id: Math.max(...mockSmsConfigs.map((c) => c.id)) + 1,
       platform: data.platform as SmsPlatform,
       accessKey: data.accessKey,
       secretKey: data.secretKey,
@@ -195,7 +201,7 @@ export class SmsController extends BaseController {
   async updateConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     const data = req.body;
-    const index = mockSmsConfigs.findIndex(c => c.id === Number(id));
+    const index = mockSmsConfigs.findIndex((c) => c.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '短信配置不存在');
@@ -221,7 +227,7 @@ export class SmsController extends BaseController {
    */
   async deleteConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const index = mockSmsConfigs.findIndex(c => c.id === Number(id));
+    const index = mockSmsConfigs.findIndex((c) => c.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '短信配置不存在');
@@ -237,7 +243,7 @@ export class SmsController extends BaseController {
   async setDefaultConfig(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
 
-    mockSmsConfigs.forEach(c => {
+    mockSmsConfigs.forEach((c) => {
       c.status = c.id === Number(id) ? '1' : '0';
     });
 
@@ -249,7 +255,7 @@ export class SmsController extends BaseController {
    */
   async testConnection(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const config = mockSmsConfigs.find(c => c.id === Number(id));
+    const config = mockSmsConfigs.find((c) => c.id === Number(id));
 
     if (!config) {
       return this.notFound(res, '短信配置不存在');
@@ -277,18 +283,17 @@ export class SmsController extends BaseController {
     if (params.keyword) {
       const kw = params.keyword.toLowerCase();
       filtered = filtered.filter(
-        t =>
-          t.templateName.toLowerCase().includes(kw) ||
-          t.templateCode.toLowerCase().includes(kw),
+        (t) =>
+          t.templateName.toLowerCase().includes(kw) || t.templateCode.toLowerCase().includes(kw),
       );
     }
 
     if (params.platform) {
-      filtered = filtered.filter(t => t.platform === params.platform);
+      filtered = filtered.filter((t) => t.platform === params.platform);
     }
 
     if (params.status) {
-      filtered = filtered.filter(t => t.status === params.status);
+      filtered = filtered.filter((t) => t.status === params.status);
     }
 
     const total = filtered.length;
@@ -306,7 +311,7 @@ export class SmsController extends BaseController {
    */
   async getTemplateById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const template = mockSmsTemplates.find(t => t.id === Number(id));
+    const template = mockSmsTemplates.find((t) => t.id === Number(id));
 
     if (!template) {
       return this.notFound(res, '短信模板不存在');
@@ -326,7 +331,7 @@ export class SmsController extends BaseController {
     }
 
     const newTemplate: SmsTemplate = {
-      id: Math.max(...mockSmsTemplates.map(t => t.id)) + 1,
+      id: Math.max(...mockSmsTemplates.map((t) => t.id)) + 1,
       templateCode: data.templateCode,
       templateName: data.templateName,
       content: data.content,
@@ -349,7 +354,7 @@ export class SmsController extends BaseController {
   async updateTemplate(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     const data = req.body;
-    const index = mockSmsTemplates.findIndex(t => t.id === Number(id));
+    const index = mockSmsTemplates.findIndex((t) => t.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '短信模板不存在');
@@ -375,7 +380,7 @@ export class SmsController extends BaseController {
    */
   async deleteTemplate(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const index = mockSmsTemplates.findIndex(t => t.id === Number(id));
+    const index = mockSmsTemplates.findIndex((t) => t.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, '短信模板不存在');
@@ -397,13 +402,13 @@ export class SmsController extends BaseController {
       return this.badRequest(res, '请提供手机号和模板编码');
     }
 
-    const template = mockSmsTemplates.find(t => t.templateCode === data.templateCode);
+    const template = mockSmsTemplates.find((t) => t.templateCode === data.templateCode);
     if (!template) {
       return this.notFound(res, '短信模板不存在');
     }
 
     const log: SmsLog = {
-      id: Math.max(...mockSmsLogs.map(l => l.id)) + 1,
+      id: Math.max(...mockSmsLogs.map((l) => l.id)) + 1,
       mobile: data.mobile.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2'),
       templateCode: data.templateCode,
       params: JSON.stringify(data.params || {}),
@@ -424,20 +429,24 @@ export class SmsController extends BaseController {
    * 批量发送短信
    */
   async batchSend(req: Request, res: Response): Promise<Response> {
-    const { mobiles, templateCode, params } = req.body as { mobiles: string[]; templateCode: string; params?: Record<string, string> };
+    const { mobiles, templateCode, params } = req.body as {
+      mobiles: string[];
+      templateCode: string;
+      params?: Record<string, string>;
+    };
 
     if (!Array.isArray(mobiles) || mobiles.length === 0 || !templateCode) {
       return this.badRequest(res, '请提供手机号列表和模板编码');
     }
 
-    const template = mockSmsTemplates.find(t => t.templateCode === templateCode);
+    const template = mockSmsTemplates.find((t) => t.templateCode === templateCode);
     if (!template) {
       return this.notFound(res, '短信模板不存在');
     }
 
-    const results = mobiles.map(mobile => {
+    const results = mobiles.map((mobile) => {
       const log: SmsLog = {
-        id: Math.max(...mockSmsLogs.map(l => l.id)) + 1,
+        id: Math.max(...mockSmsLogs.map((l) => l.id)) + 1,
         mobile: mobile.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2'),
         templateCode,
         params: JSON.stringify(params || {}),
@@ -474,15 +483,15 @@ export class SmsController extends BaseController {
     let filtered = [...mockSmsLogs];
 
     if (params.mobile) {
-      filtered = filtered.filter(l => l.mobile.includes(params.mobile as string));
+      filtered = filtered.filter((l) => l.mobile.includes(params.mobile as string));
     }
 
     if (params.templateCode) {
-      filtered = filtered.filter(l => l.templateCode === params.templateCode);
+      filtered = filtered.filter((l) => l.templateCode === params.templateCode);
     }
 
     if (params.status) {
-      filtered = filtered.filter(l => l.status === params.status);
+      filtered = filtered.filter((l) => l.status === params.status);
     }
 
     const total = filtered.length;
@@ -500,7 +509,7 @@ export class SmsController extends BaseController {
    */
   async getLogById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const log = mockSmsLogs.find(l => l.id === Number(id));
+    const log = mockSmsLogs.find((l) => l.id === Number(id));
 
     if (!log) {
       return this.notFound(res, '短信日志不存在');

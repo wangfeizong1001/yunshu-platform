@@ -4,7 +4,15 @@
  * @module @yunshu/server-core/modules/monitor
  */
 
-import type { IJob, IJobLog, IJobQuery, IJobLogQuery, IJobCreate, IJobUpdate, IJobExecute } from '@yunshu/shared';
+import type {
+  IJob,
+  IJobLog,
+  IJobQuery,
+  IJobLogQuery,
+  IJobCreate,
+  IJobUpdate,
+  IJobExecute,
+} from '@yunshu/shared';
 import type { ServiceResult, PaginatedResult } from '@yunshu/shared';
 import { createSuccessResult, createErrorResult, createPaginatedResult } from '@yunshu/shared';
 import { ErrorCode } from '../../errors/BusinessError';
@@ -183,9 +191,7 @@ export class JobService {
     return createSuccessResult(item);
   }
 
-  async findWithPagination(
-    params: IJobQuery,
-  ): Promise<ServiceResult<PaginatedResult<IJob>>> {
+  async findWithPagination(params: IJobQuery): Promise<ServiceResult<PaginatedResult<IJob>>> {
     let filtered = [...this.mockJobs];
 
     if (params.search) {

@@ -92,11 +92,7 @@ export interface VerifyOptions {
  * 将 Buffer 编码为 Base64URL 字符串
  */
 function base64UrlEncode(input: Buffer): string {
-  return input
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+  return input.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 /**
@@ -161,11 +157,7 @@ function parseExpiresIn(value: number | string | undefined): number | null {
  * });
  * ```
  */
-export function signToken(
-  payload: object,
-  secret: string,
-  options: SignOptions = {},
-): string {
+export function signToken(payload: object, secret: string, options: SignOptions = {}): string {
   const header: JWTHeader = { alg: 'HS256', typ: 'JWT' };
 
   // 构建 payload
@@ -188,10 +180,7 @@ export function signToken(
   const signingInput = `${headerB64}.${payloadB64}`;
 
   // HMAC-SHA256 签名
-  const signature = crypto
-    .createHmac('sha256', secret)
-    .update(signingInput, 'utf8')
-    .digest();
+  const signature = crypto.createHmac('sha256', secret).update(signingInput, 'utf8').digest();
   const signatureB64 = base64UrlEncode(signature);
 
   return `${signingInput}.${signatureB64}`;
@@ -252,25 +241,18 @@ export function verifyToken<T = JWTPayload>(
   try {
     // 1) 校验签名
     const signingInput = `${headerB64}.${payloadB64}`;
-    const expectedSig = crypto
-      .createHmac('sha256', secret)
-      .update(signingInput, 'utf8')
-      .digest();
+    const expectedSig = crypto.createHmac('sha256', secret).update(signingInput, 'utf8').digest();
     const actualSig = base64UrlDecode(signatureB64);
 
     if (expectedSig.length !== actualSig.length) return null;
     if (!crypto.timingSafeEqual(expectedSig, actualSig)) return null;
 
     // 2) 解析 header
-    const header = JSON.parse(
-      base64UrlDecode(headerB64).toString('utf8'),
-    ) as JWTHeader;
+    const header = JSON.parse(base64UrlDecode(headerB64).toString('utf8')) as JWTHeader;
     if (header.alg !== 'HS256') return null;
 
     // 3) 解析 payload
-    const payload = JSON.parse(
-      base64UrlDecode(payloadB64).toString('utf8'),
-    ) as JWTPayload;
+    const payload = JSON.parse(base64UrlDecode(payloadB64).toString('utf8')) as JWTPayload;
 
     // 4) 过期时间 / iat 校验
     const now = Math.floor(Date.now() / 1000);
@@ -438,10 +420,7 @@ function deserializeHash(hash: string): ParsedHash | null {
  * @param _saltRounds 保留参数，与 bcrypt API 兼容；scrypt 下不使用
  * @returns          可持久化的 hash 字符串
  */
-export function hashPassword(
-  password: string,
-  _saltRounds = 10,
-): Promise<string> {
+export function hashPassword(password: string, _saltRounds = 10): Promise<string> {
   return new Promise((resolve, reject) => {
     const salt = crypto.randomBytes(SCRYPT_PARAMS.saltLen);
     crypto.scrypt(

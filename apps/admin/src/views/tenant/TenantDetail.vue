@@ -1,10 +1,5 @@
 <template>
-  <el-dialog
-    v-model="visible"
-    title="租户详情"
-    width="700px"
-    destroy-on-close
-  >
+  <el-dialog v-model="visible" title="租户详情" width="700px" destroy-on-close>
     <el-descriptions :column="2" border>
       <el-descriptions-item label="租户ID">
         {{ tenantData?.tenantId }}
@@ -56,63 +51,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { getTenantDetail } from '@/api/tenant/tenant.api'
-import type { Tenant } from '@yunshu/shared'
-import { TenantStatusEnum } from '@yunshu/shared'
+  import { ref, computed, watch } from 'vue';
+  import { getTenantDetail } from '@/api/tenant/tenant.api';
+  import type { Tenant } from '@yunshu/shared';
+  import { TenantStatusEnum } from '@yunshu/shared';
 
-const props = defineProps<{
-  modelValue: boolean
-  tenantId?: number
-}>()
+  const props = defineProps<{
+    modelValue: boolean;
+    tenantId?: number;
+  }>();
 
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-}>()
+  const emit = defineEmits<{
+    'update:modelValue': [value: boolean];
+  }>();
 
-// 状态
-const tenantData = ref<Tenant>()
+  // 状态
+  const tenantData = ref<Tenant>();
 
-// 计算属性
-const visible = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
-})
+  // 计算属性
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  });
 
-// 获取状态标签
-function getStatusLabel(status?: string) {
-  if (!status) return '-'
-  return TenantStatusEnum[status as keyof typeof TenantStatusEnum]?.label || status
-}
-
-// 获取状态类型
-function getStatusType(status?: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
-  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    '0': 'success',
-    '1': 'danger',
-    '2': 'warning',
+  // 获取状态标签
+  function getStatusLabel(status?: string) {
+    if (!status) return '-';
+    return TenantStatusEnum[status as keyof typeof TenantStatusEnum]?.label || status;
   }
-  return typeMap[status || '']
-}
 
-// 加载租户详情
-async function fetchTenantDetail() {
-  if (!props.tenantId) return
-
-  try {
-    tenantData.value = await getTenantDetail(props.tenantId)
-  } catch (error) {
-    console.error('加载租户详情失败', error)
+  // 获取状态类型
+  function getStatusType(
+    status?: string,
+  ): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined {
+    const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
+      '0': 'success',
+      '1': 'danger',
+      '2': 'warning',
+    };
+    return typeMap[status || ''];
   }
-}
 
-// 监听弹窗显示
-watch(
-  () => props.modelValue,
-  (val) => {
-    if (val) {
-      fetchTenantDetail()
+  // 加载租户详情
+  async function fetchTenantDetail() {
+    if (!props.tenantId) return;
+
+    try {
+      tenantData.value = await getTenantDetail(props.tenantId);
+    } catch (error) {
+      console.error('加载租户详情失败', error);
     }
   }
-)
+
+  // 监听弹窗显示
+  watch(
+    () => props.modelValue,
+    (val) => {
+      if (val) {
+        fetchTenantDetail();
+      }
+    },
+  );
 </script>

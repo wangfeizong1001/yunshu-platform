@@ -4,7 +4,7 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IJob, IJobLog } from '@yunshu/shared'
+import type { IJob, IJobLog } from '@yunshu/shared';
 
 export const jobMockData: IJob[] = [
   {
@@ -82,11 +82,11 @@ export const jobMockData: IJob[] = [
     runCount: 500,
     remark: '每5分钟检查并处理超时订单',
   },
-]
+];
 
 export const jobLogMockData: IJobLog[] = Array.from({ length: 30 }, (_, i) => {
-  const job = jobMockData[i % jobMockData.length]
-  const status = i % 10 === 0 ? '1' : '0'
+  const job = jobMockData[i % jobMockData.length];
+  const status = i % 10 === 0 ? '1' : '0';
   return {
     logId: String(i + 1),
     jobId: job.jobId,
@@ -99,5 +99,5 @@ export const jobLogMockData: IJobLog[] = Array.from({ length: 30 }, (_, i) => {
     message: status === '0' ? '任务执行成功' : '任务执行失败',
     error: status === '0' ? undefined : 'Connection timeout',
     createTime: new Date(Date.now() - i * 3600000).toISOString(),
-  }
-})
+  };
+});

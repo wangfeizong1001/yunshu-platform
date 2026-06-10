@@ -14,9 +14,9 @@ export default {
     componentName: '组件名称',
     menuType: '菜单类型',
     menuTypeMap: {
-      'M': '目录',
-      'C': '菜单',
-      'F': '按钮',
+      M: '目录',
+      C: '菜单',
+      F: '按钮',
     },
     visible: '显示状态',
     visibleMap: {
@@ -77,4 +77,4 @@ export default {
     existMenu: '菜单已存在',
     nameExists: '菜单名称已存在',
   },
-}
+};

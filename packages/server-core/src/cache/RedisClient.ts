@@ -241,7 +241,6 @@ export class RedisClientManager {
           reject(error);
         });
       });
-
     } catch (error) {
       this.status = 'error';
       this.client = null;
@@ -308,7 +307,6 @@ export class RedisClientManager {
         latency,
         serverInfo,
       };
-
     } catch (error) {
       return {
         healthy: false,

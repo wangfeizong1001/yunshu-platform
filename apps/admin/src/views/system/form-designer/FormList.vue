@@ -71,20 +71,10 @@
           <template #default="{ row }">
             <el-button link type="primary" @click="handleDesign(row)">设计</el-button>
             <el-button link type="primary" @click="handlePreview(row)">预览</el-button>
-            <el-button
-              v-if="row.status === '0'"
-              link
-              type="success"
-              @click="handlePublish(row)"
-            >
+            <el-button v-if="row.status === '0'" link type="success" @click="handlePublish(row)">
               发布
             </el-button>
-            <el-button
-              v-if="row.status === '1'"
-              link
-              type="warning"
-              @click="handleStop(row)"
-            >
+            <el-button v-if="row.status === '1'" link type="warning" @click="handleStop(row)">
               停用
             </el-button>
             <el-button link type="primary" @click="handleCopy(row)">复制</el-button>
@@ -120,7 +110,11 @@
           <el-input v-model="formData.formName" placeholder="请输入表单名称" />
         </el-form-item>
         <el-form-item label="表单编码" prop="formCode">
-          <el-input v-model="formData.formCode" placeholder="请输入表单编码" :disabled="!!currentForm" />
+          <el-input
+            v-model="formData.formCode"
+            placeholder="请输入表单编码"
+            :disabled="!!currentForm"
+          />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input
@@ -131,12 +125,7 @@
           />
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input
-            v-model="formData.remark"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入备注"
-          />
+          <el-input v-model="formData.remark" type="textarea" :rows="3" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -148,266 +137,268 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Search, Refresh, Plus, Delete } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
-import {
-  getFormPage,
-  getForm,
-  addForm,
-  updateForm,
-  deleteForm,
-  batchDeleteForm,
-  copyForm,
-  publishForm,
-  stopForm,
-  type FormForm
-} from '@/api/system/form.api'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+  import { Search, Refresh, Plus, Delete } from '@element-plus/icons-vue';
+  import { useRouter } from 'vue-router';
+  import {
+    getFormPage,
+    getForm,
+    addForm,
+    updateForm,
+    deleteForm,
+    batchDeleteForm,
+    copyForm,
+    publishForm,
+    stopForm,
+    type FormForm,
+  } from '@/api/system/form.api';
 
-const router = useRouter()
+  const router = useRouter();
 
-// 状态
-const loading = ref(false)
-const formList = ref<any[]>([])
-const total = ref(0)
-const selectedRows = ref<any[]>([])
-const formDialogVisible = ref(false)
-const currentForm = ref<any>(null)
-const formRef = ref<FormInstance>()
-const formData = reactive<FormForm>({
-  formName: '',
-  formCode: '',
-  description: '',
-  remark: ''
-})
+  // 状态
+  const loading = ref(false);
+  const formList = ref<any[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<any[]>([]);
+  const formDialogVisible = ref(false);
+  const currentForm = ref<any>(null);
+  const formRef = ref<FormInstance>();
+  const formData = reactive<FormForm>({
+    formName: '',
+    formCode: '',
+    description: '',
+    remark: '',
+  });
 
-// 表单校验规则
-const formRules: FormRules = {
-  formName: [
-    { required: true, message: '请输入表单名称', trigger: 'blur' }
-  ],
-  formCode: [
-    { required: true, message: '请输入表单编码', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: '表单编码只能包含字母、数字和下划线', trigger: 'blur' }
-  ]
-}
+  // 表单校验规则
+  const formRules: FormRules = {
+    formName: [{ required: true, message: '请输入表单名称', trigger: 'blur' }],
+    formCode: [
+      { required: true, message: '请输入表单编码', trigger: 'blur' },
+      {
+        pattern: /^[a-zA-Z0-9_]+$/,
+        message: '表单编码只能包含字母、数字和下划线',
+        trigger: 'blur',
+      },
+    ],
+  };
 
-// 查询参数
-const queryParams = reactive({
-  formName: '',
-  status: '',
-  pageNum: 1,
-  pageSize: 10
-})
+  // 查询参数
+  const queryParams = reactive({
+    formName: '',
+    status: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 获取表单列表
-async function fetchFormList() {
-  loading.value = true
-  try {
-    const res = await getFormPage(queryParams)
-    formList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchFormList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.formName = ''
-  queryParams.status = ''
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 刷新表格
-function refreshTable() {
-  fetchFormList()
-}
-
-// 新增
-function handleAdd() {
-  currentForm.value = null
-  resetForm()
-  formDialogVisible.value = true
-}
-
-// 编辑
-async function handleEdit(row: any) {
-  try {
-    const res = await getForm(row.formId)
-    currentForm.value = res
-    Object.assign(formData, {
-      formName: res.formName,
-      formCode: res.formCode,
-      description: res.description,
-      remark: res.remark
-    })
-    formDialogVisible.value = true
-  } catch (error) {
-    console.error('获取表单详情失败', error)
-  }
-}
-
-// 删除
-async function handleDelete(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除表单"${row.formName}"？`, '提示', {
-      type: 'warning'
-    })
-    await deleteForm(row.formId)
-    ElMessage.success('删除成功')
-    fetchFormList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 获取表单列表
+  async function fetchFormList() {
+    loading.value = true;
+    try {
+      const res = await getFormPage(queryParams);
+      formList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 批量删除
-async function handleBatchDelete() {
-  try {
-    await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个表单？`, '提示', {
-      type: 'warning'
-    })
-    await batchDeleteForm(selectedRows.value.map(row => row.formId))
-    ElMessage.success('删除成功')
-    fetchFormList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchFormList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.formName = '';
+    queryParams.status = '';
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchFormList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentForm.value = null;
+    resetForm();
+    formDialogVisible.value = true;
+  }
+
+  // 编辑
+  async function handleEdit(row: any) {
+    try {
+      const res = await getForm(row.formId);
+      currentForm.value = res;
+      Object.assign(formData, {
+        formName: res.formName,
+        formCode: res.formCode,
+        description: res.description,
+        remark: res.remark,
+      });
+      formDialogVisible.value = true;
+    } catch (error) {
+      console.error('获取表单详情失败', error);
     }
   }
-}
 
-// 复制
-async function handleCopy(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认复制表单"${row.formName}"？`, '提示', {
-      type: 'warning'
-    })
-    await copyForm(row.formId)
-    ElMessage.success('复制成功')
-    fetchFormList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('复制失败', error)
-    }
-  }
-}
-
-// 发布
-async function handlePublish(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认发布表单"${row.formName}"？`, '提示', {
-      type: 'warning'
-    })
-    await publishForm(row.formId)
-    ElMessage.success('发布成功')
-    fetchFormList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('发布失败', error)
-    }
-  }
-}
-
-// 停用
-async function handleStop(row: any) {
-  try {
-    await ElMessageBox.confirm(`是否确认停用表单"${row.formName}"？`, '提示', {
-      type: 'warning'
-    })
-    await stopForm(row.formId)
-    ElMessage.success('停用成功')
-    fetchFormList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('停用失败', error)
-    }
-  }
-}
-
-// 设计
-function handleDesign(row: any) {
-  router.push(`/system/form-design/${row.formId}`)
-}
-
-// 预览
-function handlePreview(row: any) {
-  router.push(`/system/form-preview/${row.formId}`)
-}
-
-// 提交
-async function handleSubmit() {
-  if (!formRef.value) return
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        if (currentForm.value) {
-          await updateForm({
-            formId: currentForm.value.formId,
-            ...formData
-          })
-        } else {
-          await addForm(formData)
-        }
-        ElMessage.success('操作成功')
-        formDialogVisible.value = false
-        fetchFormList()
-      } catch (error) {
-        console.error('操作失败', error)
+  // 删除
+  async function handleDelete(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除表单"${row.formName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteForm(row.formId);
+      ElMessage.success('删除成功');
+      fetchFormList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
       }
     }
-  })
-}
+  }
 
-// 重置表单
-function resetForm() {
-  formData.formName = ''
-  formData.formCode = ''
-  formData.description = ''
-  formData.remark = ''
-  formRef.value?.resetFields()
-}
+  // 批量删除
+  async function handleBatchDelete() {
+    try {
+      await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个表单？`, '提示', {
+        type: 'warning',
+      });
+      await batchDeleteForm(selectedRows.value.map((row) => row.formId));
+      ElMessage.success('删除成功');
+      fetchFormList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
 
-// 批量选择
-function handleSelectionChange(selection: any[]) {
-  selectedRows.value = selection
-}
+  // 复制
+  async function handleCopy(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认复制表单"${row.formName}"？`, '提示', {
+        type: 'warning',
+      });
+      await copyForm(row.formId);
+      ElMessage.success('复制成功');
+      fetchFormList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('复制失败', error);
+      }
+    }
+  }
 
-// 初始化
-onMounted(() => {
-  fetchFormList()
-})
+  // 发布
+  async function handlePublish(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认发布表单"${row.formName}"？`, '提示', {
+        type: 'warning',
+      });
+      await publishForm(row.formId);
+      ElMessage.success('发布成功');
+      fetchFormList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('发布失败', error);
+      }
+    }
+  }
+
+  // 停用
+  async function handleStop(row: any) {
+    try {
+      await ElMessageBox.confirm(`是否确认停用表单"${row.formName}"？`, '提示', {
+        type: 'warning',
+      });
+      await stopForm(row.formId);
+      ElMessage.success('停用成功');
+      fetchFormList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('停用失败', error);
+      }
+    }
+  }
+
+  // 设计
+  function handleDesign(row: any) {
+    router.push(`/system/form-design/${row.formId}`);
+  }
+
+  // 预览
+  function handlePreview(row: any) {
+    router.push(`/system/form-preview/${row.formId}`);
+  }
+
+  // 提交
+  async function handleSubmit() {
+    if (!formRef.value) return;
+    await formRef.value.validate(async (valid) => {
+      if (valid) {
+        try {
+          if (currentForm.value) {
+            await updateForm({
+              formId: currentForm.value.formId,
+              ...formData,
+            });
+          } else {
+            await addForm(formData);
+          }
+          ElMessage.success('操作成功');
+          formDialogVisible.value = false;
+          fetchFormList();
+        } catch (error) {
+          console.error('操作失败', error);
+        }
+      }
+    });
+  }
+
+  // 重置表单
+  function resetForm() {
+    formData.formName = '';
+    formData.formCode = '';
+    formData.description = '';
+    formData.remark = '';
+    formRef.value?.resetFields();
+  }
+
+  // 批量选择
+  function handleSelectionChange(selection: any[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchFormList();
+  });
 </script>
 
 <style scoped lang="scss">
-.form-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .form-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

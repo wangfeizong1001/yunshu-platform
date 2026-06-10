@@ -79,8 +79,8 @@ describe('OnlineService', () => {
         const user = result.data.data[0];
         expect(
           user.userName.includes('张三') ||
-          user.loginAccount.includes('张三') ||
-          user.ip.includes('张三')
+            user.loginAccount.includes('张三') ||
+            user.ip.includes('张三'),
         ).toBe(true);
       }
     });
@@ -91,17 +91,31 @@ describe('OnlineService', () => {
     });
 
     it('应支持登录账号筛选', async () => {
-      const result = await service.findWithPagination({ loginAccount: 'user1', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        loginAccount: 'user1',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
 
     it('应支持升序排序', async () => {
-      const result = await service.findWithPagination({ sort: 'loginTime', order: 'asc', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        sort: 'loginTime',
+        order: 'asc',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
 
     it('应支持降序排序', async () => {
-      const result = await service.findWithPagination({ sort: 'loginTime', order: 'desc', page: 1, limit: 10 });
+      const result = await service.findWithPagination({
+        sort: 'loginTime',
+        order: 'desc',
+        page: 1,
+        limit: 10,
+      });
       expect(result.success).toBe(true);
     });
   });

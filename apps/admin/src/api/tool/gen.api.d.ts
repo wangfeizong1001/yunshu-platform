@@ -1,16 +1,23 @@
 /**
  * 代码生成器 API
  */
-import type { IGenTable, IGenQuery, IGenConfig, IGenColumn, IGenPreview, IGenResult } from '@yunshu/shared';
+import type {
+  IGenTable,
+  IGenQuery,
+  IGenConfig,
+  IGenColumn,
+  IGenPreview,
+  IGenResult,
+} from '@yunshu/shared';
 export interface ApiResponse<T = any> {
-    success: boolean;
-    data?: T;
-    message?: string;
-    pagination?: {
-        page: number;
-        limit: number;
-        total: number;
-    };
+  success: boolean;
+  data?: T;
+  message?: string;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 }
 /**
  * 获取表列表（分页）
@@ -23,16 +30,20 @@ export declare const getGenDbList: (params?: IGenQuery) => Promise<ApiResponse<I
 /**
  * 获取表详细配置
  */
-export declare const getGenConfig: (tableName: string) => Promise<ApiResponse<{
+export declare const getGenConfig: (tableName: string) => Promise<
+  ApiResponse<{
     config: IGenConfig;
     columns: IGenColumn[];
-}>>;
+  }>
+>;
 /**
  * 保存表配置
  */
-export declare const saveGenConfig: (data: IGenConfig & {
+export declare const saveGenConfig: (
+  data: IGenConfig & {
     columns: IGenColumn[];
-}) => Promise<ApiResponse>;
+  },
+) => Promise<ApiResponse>;
 /**
  * 导入表
  */
@@ -60,11 +71,15 @@ export declare const batchGenerate: (tableNames: string[]) => Promise<ApiRespons
 /**
  * 获取模板列表
  */
-export declare const getTemplateList: () => Promise<ApiResponse<{
-    templateName: string;
-    templatePath: string;
-    description: string;
-}[]>>;
+export declare const getTemplateList: () => Promise<
+  ApiResponse<
+    {
+      templateName: string;
+      templatePath: string;
+      description: string;
+    }[]
+  >
+>;
 /**
  * 保存自定义模板
  */

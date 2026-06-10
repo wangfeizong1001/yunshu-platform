@@ -2,7 +2,7 @@
  * 租户管理 API
  */
 
-import { request } from '@/utils/request'
+import { request } from '@/utils/request';
 import type {
   Tenant,
   TenantQuery,
@@ -12,7 +12,7 @@ import type {
   TenantPackageQuery,
   TenantPackageForm,
   TenantPackagePageResp,
-} from '@yunshu/shared'
+} from '@yunshu/shared';
 
 /**
  * 获取租户分页列表
@@ -23,7 +23,7 @@ export function getTenantPage(params: TenantQuery) {
     url: '/tenant/list',
     method: 'get',
     params,
-  })
+  });
 }
 
 /**
@@ -35,7 +35,7 @@ export function getTenantList(params?: TenantQuery) {
     url: '/tenant/list',
     method: 'get',
     params,
-  })
+  });
 }
 
 /**
@@ -46,7 +46,7 @@ export function getTenantDetail(tenantId: number) {
   return request<Tenant>({
     url: `/tenant/${tenantId}`,
     method: 'get',
-  })
+  });
 }
 
 /**
@@ -58,7 +58,7 @@ export function addTenant(data: TenantForm) {
     url: '/tenant',
     method: 'post',
     data,
-  })
+  });
 }
 
 /**
@@ -71,7 +71,7 @@ export function updateTenant(tenantId: number, data: TenantForm) {
     url: `/tenant/${tenantId}`,
     method: 'put',
     data,
-  })
+  });
 }
 
 /**
@@ -82,7 +82,7 @@ export function deleteTenant(tenantId: number) {
   return request<void>({
     url: `/tenant/${tenantId}`,
     method: 'delete',
-  })
+  });
 }
 
 /**
@@ -95,7 +95,7 @@ export function changeTenantStatus(tenantId: number, status: '0' | '1' | '2') {
     url: '/tenant/status',
     method: 'put',
     data: { tenantId, status },
-  })
+  });
 }
 
 /**
@@ -107,7 +107,7 @@ export function getPackagePage(params: TenantPackageQuery) {
     url: '/tenant/package/list',
     method: 'get',
     params,
-  })
+  });
 }
 
 /**
@@ -119,7 +119,7 @@ export function getPackageList(params?: TenantPackageQuery) {
     url: '/tenant/package/list',
     method: 'get',
     params,
-  })
+  });
 }
 
 /**
@@ -130,7 +130,7 @@ export function getPackageDetail(packageId: number) {
   return request<TenantPackage>({
     url: `/tenant/package/${packageId}`,
     method: 'get',
-  })
+  });
 }
 
 /**
@@ -142,7 +142,7 @@ export function addPackage(data: TenantPackageForm) {
     url: '/tenant/package',
     method: 'post',
     data,
-  })
+  });
 }
 
 /**
@@ -155,7 +155,7 @@ export function updatePackage(packageId: number, data: TenantPackageForm) {
     url: `/tenant/package/${packageId}`,
     method: 'put',
     data,
-  })
+  });
 }
 
 /**
@@ -166,7 +166,7 @@ export function deletePackage(packageId: number) {
   return request<void>({
     url: `/tenant/package/${packageId}`,
     method: 'delete',
-  })
+  });
 }
 
 /**
@@ -179,7 +179,7 @@ export function assignTenantPackage(tenantId: number, packageId: number) {
     url: '/tenant/package/assign',
     method: 'put',
     data: { tenantId, packageId },
-  })
+  });
 }
 
 /**
@@ -190,5 +190,5 @@ export function getTenantAvailablePackages(tenantId: number) {
   return request<TenantPackage[]>({
     url: `/tenant/${tenantId}/packages`,
     method: 'get',
-  })
+  });
 }

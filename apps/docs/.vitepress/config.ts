@@ -61,9 +61,7 @@ export default defineConfig({
         },
         {
           text: '数据组件',
-          items: [
-            { text: 'Pagination 分页', link: '/components/pagination' },
-          ],
+          items: [{ text: 'Pagination 分页', link: '/components/pagination' }],
         },
       ],
       '/api-client/': [
@@ -82,9 +80,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/your-org/yunshu-platform' },
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/your-org/yunshu-platform' }],
 
     search: {
       provider: 'local',

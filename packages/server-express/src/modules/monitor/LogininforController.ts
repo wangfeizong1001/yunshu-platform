@@ -9,10 +9,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -42,11 +39,61 @@ interface SysLogininfor {
 let infoIdSeed = 5;
 
 const logininfors: SysLogininfor[] = [
-  { infoId: 1, userName: 'admin', ipaddr: '192.168.1.100', loginLocation: '内网IP', browser: 'Chrome 120', os: 'Windows 10', status: '0', msg: '登录成功', loginTime: '2024-01-15 08:30:00' },
-  { infoId: 2, userName: 'operator', ipaddr: '10.0.0.5', loginLocation: '内网IP', browser: 'Firefox 115', os: 'Windows 11', status: '0', msg: '登录成功', loginTime: '2024-01-15 09:15:00' },
-  { infoId: 3, userName: 'guest', ipaddr: '203.0.113.45', loginLocation: '北京市 联通', browser: 'Safari 17', os: 'macOS', status: '1', msg: '用户不存在', loginTime: '2024-01-15 10:00:00' },
-  { infoId: 4, userName: 'admin', ipaddr: '192.168.1.100', loginLocation: '内网IP', browser: 'Chrome 120', os: 'Windows 10', status: '0', msg: '登录成功', loginTime: '2024-01-15 14:00:00' },
-  { infoId: 5, userName: 'test', ipaddr: '198.51.100.23', loginLocation: '上海市 电信', browser: 'Edge 119', os: 'Windows 10', status: '1', msg: '密码错误', loginTime: '2024-01-15 15:30:00' },
+  {
+    infoId: 1,
+    userName: 'admin',
+    ipaddr: '192.168.1.100',
+    loginLocation: '内网IP',
+    browser: 'Chrome 120',
+    os: 'Windows 10',
+    status: '0',
+    msg: '登录成功',
+    loginTime: '2024-01-15 08:30:00',
+  },
+  {
+    infoId: 2,
+    userName: 'operator',
+    ipaddr: '10.0.0.5',
+    loginLocation: '内网IP',
+    browser: 'Firefox 115',
+    os: 'Windows 11',
+    status: '0',
+    msg: '登录成功',
+    loginTime: '2024-01-15 09:15:00',
+  },
+  {
+    infoId: 3,
+    userName: 'guest',
+    ipaddr: '203.0.113.45',
+    loginLocation: '北京市 联通',
+    browser: 'Safari 17',
+    os: 'macOS',
+    status: '1',
+    msg: '用户不存在',
+    loginTime: '2024-01-15 10:00:00',
+  },
+  {
+    infoId: 4,
+    userName: 'admin',
+    ipaddr: '192.168.1.100',
+    loginLocation: '内网IP',
+    browser: 'Chrome 120',
+    os: 'Windows 10',
+    status: '0',
+    msg: '登录成功',
+    loginTime: '2024-01-15 14:00:00',
+  },
+  {
+    infoId: 5,
+    userName: 'test',
+    ipaddr: '198.51.100.23',
+    loginLocation: '上海市 电信',
+    browser: 'Edge 119',
+    os: 'Windows 10',
+    status: '1',
+    msg: '密码错误',
+    loginTime: '2024-01-15 15:30:00',
+  },
 ];
 
 // ============================================================================
@@ -67,9 +114,9 @@ export class LogininforController extends BaseController {
     const statusParam = this.safeParam(req.query.status, 1);
 
     let filtered = [...logininfors];
-    if (userNameParam) filtered = filtered.filter(i => i.userName.includes(userNameParam));
-    if (ipaddrParam) filtered = filtered.filter(i => i.ipaddr.includes(ipaddrParam));
-    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
+    if (userNameParam) filtered = filtered.filter((i) => i.userName.includes(userNameParam));
+    if (ipaddrParam) filtered = filtered.filter((i) => i.ipaddr.includes(ipaddrParam));
+    if (statusParam) filtered = filtered.filter((i) => i.status === statusParam);
 
     filtered.sort((a, b) => b.loginTime.localeCompare(a.loginTime));
     const total = filtered.length;
@@ -89,7 +136,7 @@ export class LogininforController extends BaseController {
     const infoId = Number(req.params.infoId);
     if (!Number.isFinite(infoId)) return this.badRequest(res, 'infoId 参数非法');
 
-    const idx = logininfors.findIndex(i => i.infoId === infoId);
+    const idx = logininfors.findIndex((i) => i.infoId === infoId);
     if (idx === -1) return this.notFound(res, '登录日志不存在');
     const removed = logininfors.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');

@@ -4,13 +4,17 @@
  */
 import type { RouteRecordRaw } from 'vue-router';
 interface PermissionState {
-    routes: RouteRecordRaw[];
-    addRoutes: RouteRecordRaw[];
-    defaultRoutes: RouteRecordRaw[];
-    topbarRouters: RouteRecordRaw[];
-    cachedViews: string[];
+  routes: RouteRecordRaw[];
+  addRoutes: RouteRecordRaw[];
+  defaultRoutes: RouteRecordRaw[];
+  topbarRouters: RouteRecordRaw[];
+  cachedViews: string[];
 }
-export declare const usePermissionStore: import("pinia").StoreDefinition<"permission", PermissionState, {}, {
+export declare const usePermissionStore: import('pinia').StoreDefinition<
+  'permission',
+  PermissionState,
+  {},
+  {
     /**
      * 生成动态路由
      * 从后端获取菜单数据，转换为路由配置
@@ -36,7 +40,8 @@ export declare const usePermissionStore: import("pinia").StoreDefinition<"permis
      * 重置路由状态
      */
     resetRoutes(): void;
-}>;
+  }
+>;
 /**
  * 懒加载视图组件
  */

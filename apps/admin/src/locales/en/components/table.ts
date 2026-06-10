@@ -16,4 +16,4 @@ export default {
     showFilter: 'Show Filter',
     hideFilter: 'Hide Filter',
   },
-}
+};

@@ -119,7 +119,7 @@ class MemoryBloomFilter {
     // 计算最佳位数组大小: m = -n * ln(p) / (ln(2))^2
     const ln2 = Math.log(2);
     this.bitSize = Math.ceil(
-      -config.expectedInsertions * Math.log(config.falsePositiveRate) / (ln2 * ln2)
+      (-config.expectedInsertions * Math.log(config.falsePositiveRate)) / (ln2 * ln2),
     );
 
     // 计算最佳哈希函数数量: k = m / n * ln(2)
@@ -137,7 +137,7 @@ class MemoryBloomFilter {
     const positions = generateKHashes(key, this.hashCount, this.bitSize);
     for (const pos of positions) {
       const arrayIndex = pos >>> 5; // pos / 32
-      const bitIndex = pos & 31;    // pos % 32
+      const bitIndex = pos & 31; // pos % 32
       const current = this.bitArray[arrayIndex] ?? 0;
       this.bitArray[arrayIndex] = current | (1 << bitIndex);
     }
@@ -228,17 +228,17 @@ class MemoryBloomFilter {
       let x = val;
       x = x - ((x >>> 1) & 0x55555555);
       x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
-      x = (x + (x >>> 4)) & 0x0F0F0F0F;
+      x = (x + (x >>> 4)) & 0x0f0f0f0f;
       x = x + (x >>> 8);
       x = x + (x >>> 16);
-      setBits += x & 0x3F;
+      setBits += x & 0x3f;
     }
 
     const n = this.insertionCount;
     const k = this.hashCount;
     const m = this.bitSize;
     // 理论误判率: (1 - e^(-kn/m))^k
-    const theoreticalFPR = Math.pow(1 - Math.exp(-k * n / m), k);
+    const theoreticalFPR = Math.pow(1 - Math.exp((-k * n) / m), k);
 
     return {
       bitSize: m,
@@ -272,7 +272,7 @@ class RedisBloomFilter {
     this.redisKey = config.redisKey;
     const ln2 = Math.log(2);
     this.bitSize = Math.ceil(
-      -config.expectedInsertions * Math.log(config.falsePositiveRate) / (ln2 * ln2)
+      (-config.expectedInsertions * Math.log(config.falsePositiveRate)) / (ln2 * ln2),
     );
     this.hashCount = Math.max(1, Math.round((this.bitSize / config.expectedInsertions) * ln2));
   }

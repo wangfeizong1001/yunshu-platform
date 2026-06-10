@@ -126,129 +126,129 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import { getPackagePage, deletePackage } from '@/api/tenant/tenant.api'
-import type { TenantPackage, TenantPackageQuery } from '@yunshu/shared'
-import { PackageTypeEnum, ExpireTypeEnum } from '@yunshu/shared'
-import PackageForm from './PackageForm.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus } from '@element-plus/icons-vue';
+  import { getPackagePage, deletePackage } from '@/api/tenant/tenant.api';
+  import type { TenantPackage, TenantPackageQuery } from '@yunshu/shared';
+  import { PackageTypeEnum, ExpireTypeEnum } from '@yunshu/shared';
+  import PackageForm from './PackageForm.vue';
 
-// 状态
-const loading = ref(false)
-const packageList = ref<TenantPackage[]>([])
-const total = ref(0)
-const formVisible = ref(false)
-const currentPackage = ref<TenantPackage | null>(null)
+  // 状态
+  const loading = ref(false);
+  const packageList = ref<TenantPackage[]>([]);
+  const total = ref(0);
+  const formVisible = ref(false);
+  const currentPackage = ref<TenantPackage | null>(null);
 
-// 查询参数
-const queryParams = reactive<TenantPackageQuery>({
-  keyword: '',
-  status: undefined as any,
-  packageType: undefined as any,
-  pageNum: 1,
-  pageSize: 10,
-})
+  // 查询参数
+  const queryParams = reactive<TenantPackageQuery>({
+    keyword: '',
+    status: undefined as any,
+    packageType: undefined as any,
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 获取套餐类型标签
-function getPackageTypeLabel(type: string) {
-  return PackageTypeEnum[type as keyof typeof PackageTypeEnum]?.label || type
-}
-
-// 获取套餐类型颜色
-function getPackageTypeColor(type: string) {
-  return PackageTypeEnum[type as keyof typeof PackageTypeEnum]?.color || 'info'
-}
-
-// 获取过期类型标签
-function getExpireTypeLabel(type: string) {
-  return ExpireTypeEnum[type as keyof typeof ExpireTypeEnum]?.label || type
-}
-
-// 加载套餐列表
-async function fetchPackageList() {
-  loading.value = true
-  try {
-    const res = await getPackagePage(queryParams)
-    packageList.value = res.rows
-    total.value = res.total
-  } finally {
-    loading.value = false
+  // 获取套餐类型标签
+  function getPackageTypeLabel(type: string) {
+    return PackageTypeEnum[type as keyof typeof PackageTypeEnum]?.label || type;
   }
-}
 
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchPackageList()
-}
+  // 获取套餐类型颜色
+  function getPackageTypeColor(type: string) {
+    return PackageTypeEnum[type as keyof typeof PackageTypeEnum]?.color || 'info';
+  }
 
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.status = undefined as any
-  queryParams.packageType = undefined as any
-  queryParams.pageNum = 1
-  handleQuery()
-}
+  // 获取过期类型标签
+  function getExpireTypeLabel(type: string) {
+    return ExpireTypeEnum[type as keyof typeof ExpireTypeEnum]?.label || type;
+  }
 
-// 刷新表格
-function refreshTable() {
-  fetchPackageList()
-}
-
-// 新增
-function handleAdd() {
-  currentPackage.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: TenantPackage) {
-  currentPackage.value = { ...row }
-  formVisible.value = true
-}
-
-// 删除
-async function handleDelete(row: TenantPackage) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除套餐"${row.packageName}"？`, '提示', {
-      type: 'warning',
-    })
-    await deletePackage(row.packageId)
-    ElMessage.success('删除成功')
-    fetchPackageList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 加载套餐列表
+  async function fetchPackageList() {
+    loading.value = true;
+    try {
+      const res = await getPackagePage(queryParams);
+      packageList.value = res.rows;
+      total.value = res.total;
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 初始化
-onMounted(() => {
-  fetchPackageList()
-})
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchPackageList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.status = undefined as any;
+    queryParams.packageType = undefined as any;
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 刷新表格
+  function refreshTable() {
+    fetchPackageList();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentPackage.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: TenantPackage) {
+    currentPackage.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 删除
+  async function handleDelete(row: TenantPackage) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除套餐"${row.packageName}"？`, '提示', {
+        type: 'warning',
+      });
+      await deletePackage(row.packageId);
+      ElMessage.success('删除成功');
+      fetchPackageList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchPackageList();
+  });
 </script>
 
 <style scoped lang="scss">
-.package-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .package-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

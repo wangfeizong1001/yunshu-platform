@@ -118,18 +118,16 @@ export class SsoController extends BaseController {
     if (params.keyword) {
       const kw = params.keyword.toLowerCase();
       filtered = filtered.filter(
-        app =>
-          app.appName.toLowerCase().includes(kw) ||
-          app.appCode.toLowerCase().includes(kw),
+        (app) => app.appName.toLowerCase().includes(kw) || app.appCode.toLowerCase().includes(kw),
       );
     }
 
     if (params.appType) {
-      filtered = filtered.filter(app => app.appType === params.appType);
+      filtered = filtered.filter((app) => app.appType === params.appType);
     }
 
     if (params.status) {
-      filtered = filtered.filter(app => app.status === params.status);
+      filtered = filtered.filter((app) => app.status === params.status);
     }
 
     const total = filtered.length;
@@ -147,7 +145,7 @@ export class SsoController extends BaseController {
    */
   async getAppById(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const app = mockSsoApps.find(a => a.id === Number(id));
+    const app = mockSsoApps.find((a) => a.id === Number(id));
 
     if (!app) {
       return this.notFound(res, 'SSO应用不存在');
@@ -160,7 +158,7 @@ export class SsoController extends BaseController {
    * 获取所有启用的SSO应用
    */
   async getEnabledApps(_req: Request, res: Response): Promise<Response> {
-    const apps = mockSsoApps.filter(app => app.status === '1');
+    const apps = mockSsoApps.filter((app) => app.status === '1');
     return this.success(res, apps);
   }
 
@@ -175,7 +173,7 @@ export class SsoController extends BaseController {
     }
 
     const newApp: SsoApplication = {
-      id: Math.max(...mockSsoApps.map(a => a.id)) + 1,
+      id: Math.max(...mockSsoApps.map((a) => a.id)) + 1,
       appName: data.appName,
       appCode: data.appCode,
       appType: data.appType as SsoType,
@@ -204,7 +202,7 @@ export class SsoController extends BaseController {
   async updateApp(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
     const data = req.body;
-    const index = mockSsoApps.findIndex(a => a.id === Number(id));
+    const index = mockSsoApps.findIndex((a) => a.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, 'SSO应用不存在');
@@ -236,7 +234,7 @@ export class SsoController extends BaseController {
    */
   async deleteApp(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const index = mockSsoApps.findIndex(a => a.id === Number(id));
+    const index = mockSsoApps.findIndex((a) => a.id === Number(id));
 
     if (index === -1) {
       return this.notFound(res, 'SSO应用不存在');
@@ -251,7 +249,7 @@ export class SsoController extends BaseController {
    */
   async changeAppStatus(req: Request, res: Response): Promise<Response> {
     const { id, status } = req.body;
-    const app = mockSsoApps.find(a => a.id === Number(id));
+    const app = mockSsoApps.find((a) => a.id === Number(id));
 
     if (!app) {
       return this.notFound(res, 'SSO应用不存在');
@@ -300,7 +298,7 @@ export class SsoController extends BaseController {
   async getAuthorizeUrl(req: Request, res: Response): Promise<Response> {
     const { appCode, redirectUri, state } = req.query;
 
-    const app = mockSsoApps.find(a => a.appCode === appCode && a.status === '1');
+    const app = mockSsoApps.find((a) => a.appCode === appCode && a.status === '1');
     if (!app) {
       return this.notFound(res, 'SSO应用不存在或未启用');
     }
@@ -321,7 +319,7 @@ export class SsoController extends BaseController {
   async handleCallback(req: Request, res: Response): Promise<Response> {
     const { code, appCode } = req.query;
 
-    const app = mockSsoApps.find(a => a.appCode === appCode);
+    const app = mockSsoApps.find((a) => a.appCode === appCode);
     if (!app) {
       return this.notFound(res, 'SSO应用不存在');
     }
@@ -346,7 +344,7 @@ export class SsoController extends BaseController {
   async getUserInfo(req: Request, res: Response): Promise<Response> {
     const { accessToken } = req.query;
 
-    const session = Array.from(mockSessions.values()).find(s => s.accessToken === accessToken);
+    const session = Array.from(mockSessions.values()).find((s) => s.accessToken === accessToken);
     if (!session) {
       return this.unauthorized(res, '无效的访问令牌');
     }
@@ -391,7 +389,9 @@ export class SsoController extends BaseController {
     const { accessToken } = req.body;
 
     if (accessToken) {
-      const session = Array.from(mockSessions.entries()).find(([, s]) => s.accessToken === accessToken);
+      const session = Array.from(mockSessions.entries()).find(
+        ([, s]) => s.accessToken === accessToken,
+      );
       if (session) {
         mockSessions.delete(session[0]);
       }

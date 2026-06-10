@@ -135,8 +135,8 @@ export default {
       jobName: '任务名称',
       jobGroup: '任务分组',
       jobGroupMap: {
-        'default': '默认',
-        'system': '系统',
+        default: '默认',
+        system: '系统',
       },
       invokeTarget: '调用目标',
       cronExpression: 'cron表达式',
@@ -208,4 +208,4 @@ export default {
       chart: '图表',
     },
   },
-}
+};

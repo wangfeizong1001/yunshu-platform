@@ -26,7 +26,12 @@ function getServerInfo(): IServer {
   const memoryUsage = (usedMem / totalMem) * 100;
   const diskUsage = (usedDisk / totalDisk) * 100;
 
-  const osName = platform === 'win32' ? 'Windows Server 2022' : platform === 'darwin' ? 'macOS Sonoma' : 'Ubuntu 22.04 LTS';
+  const osName =
+    platform === 'win32'
+      ? 'Windows Server 2022'
+      : platform === 'darwin'
+        ? 'macOS Sonoma'
+        : 'Ubuntu 22.04 LTS';
   const osArch = os.arch();
   const cpuCount = os.cpus().length;
 
@@ -38,11 +43,11 @@ function getServerInfo(): IServer {
     osArch,
     cpuCount,
     cpuUsage: Math.round(cpuUsage * 100) / 100,
-    memoryUsed: Math.round(usedMem / (1024 * 1024 * 1024) * 100) / 100,
-    memoryTotal: Math.round(totalMem / (1024 * 1024 * 1024) * 100) / 100,
+    memoryUsed: Math.round((usedMem / (1024 * 1024 * 1024)) * 100) / 100,
+    memoryTotal: Math.round((totalMem / (1024 * 1024 * 1024)) * 100) / 100,
     memoryUsage: Math.round(memoryUsage * 100) / 100,
-    diskUsed: Math.round(usedDisk / (1024 * 1024 * 1024) * 100) / 100,
-    diskTotal: Math.round(totalDisk / (1024 * 1024 * 1024) * 100) / 100,
+    diskUsed: Math.round((usedDisk / (1024 * 1024 * 1024)) * 100) / 100,
+    diskTotal: Math.round((totalDisk / (1024 * 1024 * 1024)) * 100) / 100,
     diskUsage: Math.round(diskUsage * 100) / 100,
     bootTime: new Date(Date.now() - uptime * 1000).toISOString(),
     uptime: Math.round(uptime),

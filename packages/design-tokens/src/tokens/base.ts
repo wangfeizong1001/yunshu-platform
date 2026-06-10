@@ -57,11 +57,11 @@ export const spacing = {
 
 /** 语义化间距别名 */
 export const spacingSemantic = {
-  xs: spacing[1],   // 4px  — 极小
-  sm: spacing[2],   // 8px  — 小
-  md: spacing[4],   // 16px — 中
-  lg: spacing[6],   // 24px — 大
-  xl: spacing[8],   // 32px — 超大
+  xs: spacing[1], // 4px  — 极小
+  sm: spacing[2], // 8px  — 小
+  md: spacing[4], // 16px — 中
+  lg: spacing[6], // 24px — 大
+  xl: spacing[8], // 32px — 超大
   '2xl': spacing[12], // 48px — 特大
   '3xl': spacing[16], // 64px — 巨大
 } as const;

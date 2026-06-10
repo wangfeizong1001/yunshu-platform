@@ -5,7 +5,7 @@
 import { type RouteRecordRaw } from 'vue-router';
 export declare const constantRoutes: RouteRecordRaw[];
 export declare const asyncRoutes: RouteRecordRaw[];
-declare const router: import("vue-router").Router;
+declare const router: import('vue-router').Router;
 /**
  * 重置路由
  * 用于退出登录时清除动态路由

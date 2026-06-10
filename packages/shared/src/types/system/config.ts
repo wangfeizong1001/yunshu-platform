@@ -3,73 +3,73 @@
  */
 
 /** 参数配置状态 */
-export type ConfigStatus = '0' | '1'
+export type ConfigStatus = '0' | '1';
 
 /** 参数配置类型 */
-export type ConfigType = 'Y' | 'N'
+export type ConfigType = 'Y' | 'N';
 
 /** 系统参数配置 */
 export interface SysConfig {
   /** 参数ID */
-  configId: number
+  configId: number;
   /** 参数名称 */
-  configName: string
+  configName: string;
   /** 参数键名 */
-  configKey: string
+  configKey: string;
   /** 参数键值 */
-  configValue: string
+  configValue: string;
   /** 参数类型: Y=系统内置, N=自定义 */
-  configType: ConfigType
+  configType: ConfigType;
   /** 备注 */
-  remark?: string
+  remark?: string;
   /** 创建时间 */
-  createTime: string
+  createTime: string;
   /** 更新时间 */
-  updateTime: string
+  updateTime: string;
   /** 创建者 */
-  createBy?: string
+  createBy?: string;
   /** 更新者 */
-  updateBy?: string
+  updateBy?: string;
 }
 
 /** 参数配置查询参数 */
 export interface SysConfigQuery {
   /** 关键词 */
-  keyword?: string
+  keyword?: string;
   /** 参数类型 */
-  configType?: ConfigType
+  configType?: ConfigType;
   /** 状态 */
-  status?: ConfigStatus
+  status?: ConfigStatus;
   /** 开始日期 */
-  startDate?: string
+  startDate?: string;
   /** 结束日期 */
-  endDate?: string
+  endDate?: string;
   /** 页码 */
-  pageNum?: number
+  pageNum?: number;
   /** 每页数量 */
-  pageSize?: number
+  pageSize?: number;
 }
 
 /** 参数配置表单数据 */
 export interface SysConfigForm {
   /** 参数ID */
-  configId?: number
+  configId?: number;
   /** 参数名称 */
-  configName: string
+  configName: string;
   /** 参数键名 */
-  configKey: string
+  configKey: string;
   /** 参数键值 */
-  configValue: string
+  configValue: string;
   /** 参数类型 */
-  configType?: ConfigType
+  configType?: ConfigType;
   /** 备注 */
-  remark?: string
+  remark?: string;
 }
 
 /** 参数配置分页响应 */
 export interface SysConfigPageResp {
   /** 总记录数 */
-  total: number
+  total: number;
   /** 列表数据 */
-  rows: SysConfig[]
+  rows: SysConfig[];
 }

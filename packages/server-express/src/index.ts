@@ -67,10 +67,7 @@ export type { RateLimitOptions } from './middlewares/rateLimit';
 // 文件上传安全中间件
 // ============================================================================
 
-export {
-  createUploadMiddleware,
-  defaultUpload,
-} from './middlewares/uploadGuard';
+export { createUploadMiddleware, defaultUpload } from './middlewares/uploadGuard';
 export type { UploadMiddlewareOptions } from './middlewares/uploadGuard';
 
 // ============================================================================
@@ -114,6 +111,8 @@ if (require.main === module) {
   const port = process.env.PORT ?? 3000;
   const host = process.env.HOST ?? '0.0.0.0';
   // eslint-disable-next-line no-console
-  console.log(`[startServer] 启动服务于 ${host}:${port} (env=${process.env.NODE_ENV ?? 'development'})`);
+  console.log(
+    `[startServer] 启动服务于 ${host}:${port} (env=${process.env.NODE_ENV ?? 'development'})`,
+  );
   startServer(port, host);
 }

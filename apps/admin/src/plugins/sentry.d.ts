@@ -12,15 +12,19 @@
 import type { App } from 'vue';
 import type { Router } from 'vue-router';
 export interface SentryInitOptions {
-    dsn?: string;
-    release?: string;
-    environment?: string;
-    tracesSampleRate?: number;
-    replaysSessionSampleRate?: number;
-    replaysOnErrorSampleRate?: number;
+  dsn?: string;
+  release?: string;
+  environment?: string;
+  tracesSampleRate?: number;
+  replaysSessionSampleRate?: number;
+  replaysOnErrorSampleRate?: number;
 }
 /**
  * 初始化 Sentry。无 DSN 时不做任何事。
  */
-export declare function initSentry(_app: App, router?: Router, opts?: SentryInitOptions): Promise<void>;
+export declare function initSentry(
+  _app: App,
+  router?: Router,
+  opts?: SentryInitOptions,
+): Promise<void>;
 //# sourceMappingURL=sentry.d.ts.map

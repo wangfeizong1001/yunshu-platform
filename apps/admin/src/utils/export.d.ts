@@ -16,7 +16,12 @@ export declare function exportToExcel(data: any[], fileName?: string, sheetName?
  * @param fileName 文件名（不含扩展名）
  * @param sheetName 工作表名称
  */
-export declare function exportToExcelWithHeaders(data: any[], headers: Record<string, string>, fileName?: string, sheetName?: string): boolean;
+export declare function exportToExcelWithHeaders(
+  data: any[],
+  headers: Record<string, string>,
+  fileName?: string,
+  sheetName?: string,
+): boolean;
 /**
  * 导出 Word（简单文本格式）
  * @param content 文本内容
@@ -29,11 +34,15 @@ export declare function exportToWord(content: string, fileName?: string): boolea
  * @param fileName 文件名（不含扩展名）
  * @param options 配置选项
  */
-export declare function exportToPDF(element: HTMLElement, fileName?: string, options?: {
+export declare function exportToPDF(
+  element: HTMLElement,
+  fileName?: string,
+  options?: {
     scale?: number;
     margin?: number;
     orientation?: 'portrait' | 'landscape';
-}): Promise<boolean>;
+  },
+): Promise<boolean>;
 /**
  * 导出 PDF（从文本内容）
  * @param content 文本内容
@@ -46,5 +55,9 @@ export declare function exportToPDFFromText(content: string, fileName?: string):
  * @param type 导出类型 'excel' | 'word' | 'pdf'
  * @param fileName 文件名
  */
-export declare function exportReport(data: any, type: 'excel' | 'word' | 'pdf', fileName?: string): boolean;
+export declare function exportReport(
+  data: any,
+  type: 'excel' | 'word' | 'pdf',
+  fileName?: string,
+): boolean;
 //# sourceMappingURL=export.d.ts.map

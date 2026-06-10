@@ -140,9 +140,7 @@ describe('GenController', () => {
 
   describe('getTableDetail', () => {
     it('应返回表详情（包含字段信息）', async () => {
-      const mockColumns = [
-        { columnName: 'user_id', dataType: 'bigint', columnComment: '用户ID' },
-      ];
+      const mockColumns = [{ columnName: 'user_id', dataType: 'bigint', columnComment: '用户ID' }];
       (genService.getTableDetail as any).mockResolvedValue(mockColumns);
 
       mockRequest = { params: { tableName: 'sys_user' } };

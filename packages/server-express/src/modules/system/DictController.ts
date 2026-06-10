@@ -9,11 +9,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-  isValidStringLength,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination, isValidStringLength } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -85,12 +81,84 @@ const dictTypes: SysDictType[] = [
 ];
 
 const dictDatas: SysDictData[] = [
-  { dictCode: 1, dictSort: 1, dictLabel: '男', dictValue: '0', dictType: 'sys_user_sex', cssClass: '', listClass: 'primary', isDefault: 'Y', status: '0', createdAt: '2024-01-01 10:00:00', updatedAt: '2024-01-01 10:00:00' },
-  { dictCode: 2, dictSort: 2, dictLabel: '女', dictValue: '1', dictType: 'sys_user_sex', cssClass: '', listClass: 'success', isDefault: 'N', status: '0', createdAt: '2024-01-01 10:00:00', updatedAt: '2024-01-01 10:00:00' },
-  { dictCode: 3, dictSort: 1, dictLabel: '显示', dictValue: '0', dictType: 'sys_show_hide', cssClass: '', listClass: 'primary', isDefault: 'Y', status: '0', createdAt: '2024-01-01 10:00:00', updatedAt: '2024-01-01 10:00:00' },
-  { dictCode: 4, dictSort: 2, dictLabel: '隐藏', dictValue: '1', dictType: 'sys_show_hide', cssClass: '', listClass: 'danger', isDefault: 'N', status: '0', createdAt: '2024-01-01 10:00:00', updatedAt: '2024-01-01 10:00:00' },
-  { dictCode: 5, dictSort: 1, dictLabel: '正常', dictValue: '0', dictType: 'sys_normal_disable', cssClass: '', listClass: 'primary', isDefault: 'Y', status: '0', createdAt: '2024-01-01 10:00:00', updatedAt: '2024-01-01 10:00:00' },
-  { dictCode: 6, dictSort: 2, dictLabel: '停用', dictValue: '1', dictType: 'sys_normal_disable', cssClass: '', listClass: 'danger', isDefault: 'N', status: '0', createdAt: '2024-01-01 10:00:00', updatedAt: '2024-01-01 10:00:00' },
+  {
+    dictCode: 1,
+    dictSort: 1,
+    dictLabel: '男',
+    dictValue: '0',
+    dictType: 'sys_user_sex',
+    cssClass: '',
+    listClass: 'primary',
+    isDefault: 'Y',
+    status: '0',
+    createdAt: '2024-01-01 10:00:00',
+    updatedAt: '2024-01-01 10:00:00',
+  },
+  {
+    dictCode: 2,
+    dictSort: 2,
+    dictLabel: '女',
+    dictValue: '1',
+    dictType: 'sys_user_sex',
+    cssClass: '',
+    listClass: 'success',
+    isDefault: 'N',
+    status: '0',
+    createdAt: '2024-01-01 10:00:00',
+    updatedAt: '2024-01-01 10:00:00',
+  },
+  {
+    dictCode: 3,
+    dictSort: 1,
+    dictLabel: '显示',
+    dictValue: '0',
+    dictType: 'sys_show_hide',
+    cssClass: '',
+    listClass: 'primary',
+    isDefault: 'Y',
+    status: '0',
+    createdAt: '2024-01-01 10:00:00',
+    updatedAt: '2024-01-01 10:00:00',
+  },
+  {
+    dictCode: 4,
+    dictSort: 2,
+    dictLabel: '隐藏',
+    dictValue: '1',
+    dictType: 'sys_show_hide',
+    cssClass: '',
+    listClass: 'danger',
+    isDefault: 'N',
+    status: '0',
+    createdAt: '2024-01-01 10:00:00',
+    updatedAt: '2024-01-01 10:00:00',
+  },
+  {
+    dictCode: 5,
+    dictSort: 1,
+    dictLabel: '正常',
+    dictValue: '0',
+    dictType: 'sys_normal_disable',
+    cssClass: '',
+    listClass: 'primary',
+    isDefault: 'Y',
+    status: '0',
+    createdAt: '2024-01-01 10:00:00',
+    updatedAt: '2024-01-01 10:00:00',
+  },
+  {
+    dictCode: 6,
+    dictSort: 2,
+    dictLabel: '停用',
+    dictValue: '1',
+    dictType: 'sys_normal_disable',
+    cssClass: '',
+    listClass: 'danger',
+    isDefault: 'N',
+    status: '0',
+    createdAt: '2024-01-01 10:00:00',
+    updatedAt: '2024-01-01 10:00:00',
+  },
 ];
 
 // ============================================================================
@@ -105,9 +173,7 @@ export class DictController extends BaseController {
         ? first
         : undefined;
     }
-    return typeof value === 'string' && value.length > 0 && value.length <= max
-      ? value
-      : undefined;
+    return typeof value === 'string' && value.length > 0 && value.length <= max ? value : undefined;
   }
 
   // ========================================================================
@@ -119,12 +185,12 @@ export class DictController extends BaseController {
     const dictName = this.extractQueryParam(req.query.dictName);
     const dictType = this.extractQueryParam(req.query.dictType);
     const statusRaw = this.extractQueryParam(req.query.status, 1);
-    const status = (statusRaw === '0' || statusRaw === '1') ? statusRaw : undefined;
+    const status = statusRaw === '0' || statusRaw === '1' ? statusRaw : undefined;
 
     let filtered = [...dictTypes];
-    if (dictName) filtered = filtered.filter(i => i.dictName.includes(dictName));
-    if (dictType) filtered = filtered.filter(i => i.dictType.includes(dictType));
-    if (status) filtered = filtered.filter(i => i.status === status);
+    if (dictName) filtered = filtered.filter((i) => i.dictName.includes(dictName));
+    if (dictType) filtered = filtered.filter((i) => i.dictType.includes(dictType));
+    if (status) filtered = filtered.filter((i) => i.status === status);
 
     const total = filtered.length;
     const start = (page - 1) * limit;
@@ -138,7 +204,7 @@ export class DictController extends BaseController {
     if (!Number.isFinite(dictId)) {
       return this.badRequest(res, 'dictId 格式错误');
     }
-    const item = dictTypes.find(i => i.dictId === dictId);
+    const item = dictTypes.find((i) => i.dictId === dictId);
     if (!item) return this.notFound(res, '字典类型不存在');
     return this.success(res, item, '查询成功');
   }
@@ -163,9 +229,9 @@ export class DictController extends BaseController {
     }
 
     const statusRaw = body.status !== undefined ? String(body.status) : '0';
-    const status: '0' | '1' = (statusRaw === '0' || statusRaw === '1') ? statusRaw : '0';
+    const status: '0' | '1' = statusRaw === '0' || statusRaw === '1' ? statusRaw : '0';
 
-    if (dictTypes.some(i => i.dictType === dictType)) {
+    if (dictTypes.some((i) => i.dictType === dictType)) {
       return this.conflict(res, '字典类型已存在');
     }
 
@@ -188,7 +254,7 @@ export class DictController extends BaseController {
     if (!Number.isFinite(dictId)) {
       return this.badRequest(res, 'dictId 格式错误');
     }
-    const idx = dictTypes.findIndex(i => i.dictId === dictId);
+    const idx = dictTypes.findIndex((i) => i.dictId === dictId);
     if (idx === -1) return this.notFound(res, '字典类型不存在');
 
     const exist = dictTypes[idx]!;
@@ -244,7 +310,7 @@ export class DictController extends BaseController {
     if (!Number.isFinite(dictId)) {
       return this.badRequest(res, 'dictId 格式错误');
     }
-    const idx = dictTypes.findIndex(i => i.dictId === dictId);
+    const idx = dictTypes.findIndex((i) => i.dictId === dictId);
     if (idx === -1) return this.notFound(res, '字典类型不存在');
 
     const target = dictTypes[idx]!;
@@ -271,12 +337,12 @@ export class DictController extends BaseController {
     const dictType = this.extractQueryParam(req.query.dictType);
     const dictLabel = this.extractQueryParam(req.query.dictLabel);
     const statusRaw = this.extractQueryParam(req.query.status, 1);
-    const status = (statusRaw === '0' || statusRaw === '1') ? statusRaw : undefined;
+    const status = statusRaw === '0' || statusRaw === '1' ? statusRaw : undefined;
 
     let filtered = [...dictDatas];
-    if (dictType) filtered = filtered.filter(i => i.dictType === dictType);
-    if (dictLabel) filtered = filtered.filter(i => i.dictLabel.includes(dictLabel));
-    if (status) filtered = filtered.filter(i => i.status === status);
+    if (dictType) filtered = filtered.filter((i) => i.dictType === dictType);
+    if (dictLabel) filtered = filtered.filter((i) => i.dictLabel.includes(dictLabel));
+    if (status) filtered = filtered.filter((i) => i.status === status);
 
     filtered.sort((a, b) => a.dictSort - b.dictSort);
     const total = filtered.length;
@@ -291,7 +357,7 @@ export class DictController extends BaseController {
     if (!Number.isFinite(dictCode)) {
       return this.badRequest(res, 'dictCode 格式错误');
     }
-    const item = dictDatas.find(i => i.dictCode === dictCode);
+    const item = dictDatas.find((i) => i.dictCode === dictCode);
     if (!item) return this.notFound(res, '字典数据不存在');
     return this.success(res, item, '查询成功');
   }
@@ -323,9 +389,9 @@ export class DictController extends BaseController {
     }
 
     const statusRaw = body.status !== undefined ? String(body.status) : '0';
-    const status: '0' | '1' = (statusRaw === '0' || statusRaw === '1') ? statusRaw : '0';
+    const status: '0' | '1' = statusRaw === '0' || statusRaw === '1' ? statusRaw : '0';
     const isDefaultRaw = body.isDefault !== undefined ? String(body.isDefault) : 'N';
-    const isDefault: 'Y' | 'N' = (isDefaultRaw === 'Y' || isDefaultRaw === 'N') ? isDefaultRaw : 'N';
+    const isDefault: 'Y' | 'N' = isDefaultRaw === 'Y' || isDefaultRaw === 'N' ? isDefaultRaw : 'N';
 
     let dictSort = 0;
     if (body.dictSort !== undefined) {
@@ -356,7 +422,7 @@ export class DictController extends BaseController {
     if (!Number.isFinite(dictCode)) {
       return this.badRequest(res, 'dictCode 格式错误');
     }
-    const idx = dictDatas.findIndex(i => i.dictCode === dictCode);
+    const idx = dictDatas.findIndex((i) => i.dictCode === dictCode);
     if (idx === -1) return this.notFound(res, '字典数据不存在');
 
     const exist = dictDatas[idx]!;
@@ -422,7 +488,7 @@ export class DictController extends BaseController {
     if (!Number.isFinite(dictCode)) {
       return this.badRequest(res, 'dictCode 格式错误');
     }
-    const idx = dictDatas.findIndex(i => i.dictCode === dictCode);
+    const idx = dictDatas.findIndex((i) => i.dictCode === dictCode);
     if (idx === -1) return this.notFound(res, '字典数据不存在');
     const removed = dictDatas.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');
@@ -432,7 +498,7 @@ export class DictController extends BaseController {
     const dictType = this.safeParam(req.params.dictType, 100);
     if (!dictType) return this.badRequest(res, 'dictType 格式错误');
     const data = dictDatas
-      .filter(i => i.dictType === dictType && i.status === '0')
+      .filter((i) => i.dictType === dictType && i.status === '0')
       .sort((a, b) => a.dictSort - b.dictSort);
     return this.success(res, data, '查询成功');
   }

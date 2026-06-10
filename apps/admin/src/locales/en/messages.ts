@@ -85,4 +85,4 @@ export default {
     operationSuccess: 'Operation successful',
     operationFail: 'Operation failed',
   },
-}
+};

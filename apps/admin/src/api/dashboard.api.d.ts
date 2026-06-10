@@ -2,52 +2,52 @@
  * 大屏看板相关 API
  */
 export interface DashboardInfo {
-    dashboardId: number;
-    dashboardName: string;
-    dashboardCode: string;
-    description: string;
-    config: string;
-    status: string;
-    createTime: string;
-    updateTime: string;
-    createBy: string;
-    remark: string;
+  dashboardId: number;
+  dashboardName: string;
+  dashboardCode: string;
+  description: string;
+  config: string;
+  status: string;
+  createTime: string;
+  updateTime: string;
+  createBy: string;
+  remark: string;
 }
 export interface DashboardStats {
-    totalUsers: number;
-    activeUsers: number;
-    totalOrders: number;
-    totalRevenue: number;
-    userGrowthRate: number;
-    orderGrowthRate: number;
-    revenueGrowthRate: number;
-    onlineUsers: number;
+  totalUsers: number;
+  activeUsers: number;
+  totalOrders: number;
+  totalRevenue: number;
+  userGrowthRate: number;
+  orderGrowthRate: number;
+  revenueGrowthRate: number;
+  onlineUsers: number;
 }
 export interface RealTimeData {
-    timestamp: string;
-    data: Record<string, any>;
+  timestamp: string;
+  data: Record<string, any>;
 }
 export interface SalesTrendData {
-    date: string;
-    sales: number;
-    orders: number;
-    visitors: number;
+  date: string;
+  sales: number;
+  orders: number;
+  visitors: number;
 }
 export interface RegionSalesData {
-    name: string;
-    value: number;
-    longitude: number;
-    latitude: number;
+  name: string;
+  value: number;
+  longitude: number;
+  latitude: number;
 }
 export interface CategoryData {
-    name: string;
-    value: number;
+  name: string;
+  value: number;
 }
 export declare function getDashboardList(params?: {
-    pageNum?: number;
-    pageSize?: number;
-    dashboardName?: string;
-    status?: string;
+  pageNum?: number;
+  pageSize?: number;
+  dashboardName?: string;
+  status?: string;
 }): Promise<unknown>;
 export declare function getDashboard(dashboardId: number): Promise<unknown>;
 export declare function getDashboardStats(): Promise<unknown>;

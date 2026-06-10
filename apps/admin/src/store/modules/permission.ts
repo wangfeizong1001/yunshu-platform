@@ -3,17 +3,17 @@
  * 负责动态路由的生成和管理
  */
 
-import { defineStore } from 'pinia'
-import type { RouteRecordRaw } from 'vue-router'
-import { constantRoutes, asyncRoutes } from '@/router'
-import { getRoutersApi } from '@/api/auth'
+import { defineStore } from 'pinia';
+import type { RouteRecordRaw } from 'vue-router';
+import { constantRoutes, asyncRoutes } from '@/router';
+import { getRoutersApi } from '@/api/auth';
 
 interface PermissionState {
-  routes: RouteRecordRaw[]      // 完整路由列表
-  addRoutes: RouteRecordRaw[]  // 动态添加的路由
-  defaultRoutes: RouteRecordRaw[]
-  topbarRouters: RouteRecordRaw[]
-  cachedViews: string[]        // 缓存的视图
+  routes: RouteRecordRaw[]; // 完整路由列表
+  addRoutes: RouteRecordRaw[]; // 动态添加的路由
+  defaultRoutes: RouteRecordRaw[];
+  topbarRouters: RouteRecordRaw[];
+  cachedViews: string[]; // 缓存的视图
 }
 
 export const usePermissionStore = defineStore('permission', {
@@ -22,7 +22,7 @@ export const usePermissionStore = defineStore('permission', {
     addRoutes: [],
     defaultRoutes: [],
     topbarRouters: [],
-    cachedViews: []
+    cachedViews: [],
   }),
 
   actions: {
@@ -33,25 +33,25 @@ export const usePermissionStore = defineStore('permission', {
     async generateRoutes() {
       try {
         // 从后端获取菜单
-        const res = await getRoutersApi()
-        const menuData = ((res as Record<string, unknown>).data as unknown[]) || []
+        const res = await getRoutersApi();
+        const menuData = ((res as Record<string, unknown>).data as unknown[]) || [];
 
         // 将菜单转换为路由
-        const accessedRoutes = await generateRoutesFromMenu(menuData)
+        const accessedRoutes = await generateRoutesFromMenu(menuData);
 
         // 合并静态asyncRoutes和动态路由
-        const allRoutes = [...asyncRoutes, ...accessedRoutes]
+        const allRoutes = [...asyncRoutes, ...accessedRoutes];
 
-        this.addRoutes = allRoutes
-        this.routes = [...constantRoutes, ...allRoutes]
+        this.addRoutes = allRoutes;
+        this.routes = [...constantRoutes, ...allRoutes];
 
-        return allRoutes
+        return allRoutes;
       } catch (error) {
-        console.error('生成路由失败:', error)
+        console.error('生成路由失败:', error);
         // 即使失败也返回静态asyncRoutes
-        this.addRoutes = asyncRoutes
-        this.routes = [...constantRoutes, ...asyncRoutes]
-        return asyncRoutes
+        this.addRoutes = asyncRoutes;
+        this.routes = [...constantRoutes, ...asyncRoutes];
+        return asyncRoutes;
       }
     },
 
@@ -59,31 +59,31 @@ export const usePermissionStore = defineStore('permission', {
      * 设置默认路由
      */
     setDefaultRoutes(routes: RouteRecordRaw[]) {
-      this.defaultRoutes = routes
+      this.defaultRoutes = routes;
     },
 
     /**
      * 设置顶部导航路由
      */
     setTopbarRoutes(routes: RouteRecordRaw[]) {
-      this.topbarRouters = routes
+      this.topbarRouters = routes;
     },
 
     /**
      * 添加缓存视图
      */
     addCachedView(view: string) {
-      if (this.cachedViews.includes(view)) return
-      this.cachedViews.push(view)
+      if (this.cachedViews.includes(view)) {return;}
+      this.cachedViews.push(view);
     },
 
     /**
      * 移除缓存视图
      */
     removeCachedView(view: string) {
-      const index = this.cachedViews.indexOf(view)
+      const index = this.cachedViews.indexOf(view);
       if (index > -1) {
-        this.cachedViews.splice(index, 1)
+        this.cachedViews.splice(index, 1);
       }
     },
 
@@ -91,20 +91,20 @@ export const usePermissionStore = defineStore('permission', {
      * 重置路由状态
      */
     resetRoutes() {
-      this.routes = []
-      this.addRoutes = []
-      this.defaultRoutes = []
-      this.topbarRouters = []
-      this.cachedViews = []
-    }
-  }
-})
+      this.routes = [];
+      this.addRoutes = [];
+      this.defaultRoutes = [];
+      this.topbarRouters = [];
+      this.cachedViews = [];
+    },
+  },
+});
 
 /**
  * 将菜单数据转换为路由配置
  */
 async function generateRoutesFromMenu(menus: any[]): Promise<RouteRecordRaw[]> {
-  const routes: RouteRecordRaw[] = []
+  const routes: RouteRecordRaw[] = [];
 
   for (const menu of menus) {
     // 目录（M）
@@ -119,14 +119,14 @@ async function generateRoutesFromMenu(menus: any[]): Promise<RouteRecordRaw[]> {
           icon: menu.icon,
           noCache: !menu.isCache,
         },
-        children: []
-      }
+        children: [],
+      };
 
       if (menu.children?.length) {
-        route.children = await generateRoutesFromMenu(menu.children)
+        route.children = await generateRoutesFromMenu(menu.children);
       }
 
-      routes.push(route)
+      routes.push(route);
     }
     // 菜单（C）
     else if (menu.menuType === 'C' || menu.menuType === 'C') {
@@ -140,15 +140,15 @@ async function generateRoutesFromMenu(menus: any[]): Promise<RouteRecordRaw[]> {
           noCache: !menu.isCache,
           permission: menu.perms ? [menu.perms] : undefined,
           query: menu.query ? JSON.parse(menu.query) : undefined,
-        }
-      }
+        },
+      };
 
-      routes.push(route)
+      routes.push(route);
     }
     // 按钮（F）不生成路由
   }
 
-  return routes
+  return routes;
 }
 
 /**
@@ -157,9 +157,9 @@ async function generateRoutesFromMenu(menus: any[]): Promise<RouteRecordRaw[]> {
 export function loadView(view: string) {
   if (!view) {
     // 如果没有组件路径，返回 404 页面
-    return () => import('@/views/error/404.vue')
+    return () => import('@/views/error/404.vue');
   }
 
   // 尝试懒加载组件
-  return () => import(`@/views/${view}.vue`)
+  return () => import(`@/views/${view}.vue`);
 }

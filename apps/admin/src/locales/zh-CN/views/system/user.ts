@@ -85,4 +85,4 @@ export default {
     enableConfirm: '确定要启用该用户吗？',
     disableConfirm: '确定要禁用该用户吗？',
   },
-}
+};

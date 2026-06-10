@@ -5,11 +5,11 @@
  * 用法: v-hasPermi="['system:user:add', 'system:user:edit']"
  */
 
-import type { Directive, DirectiveBinding } from 'vue'
-import { useUserStore } from '@/store/modules/user'
+import type { Directive, DirectiveBinding } from 'vue';
+import { useUserStore } from '@/store/modules/user';
 
 /** 权限指令绑定值类型 */
-type PermiValue = string | string[]
+type PermiValue = string | string[];
 
 /**
  * 权限指令 v-hasPermi
@@ -17,50 +17,50 @@ type PermiValue = string | string[]
  */
 const hasPermi: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding<PermiValue>) {
-    const { value } = binding
+    const { value } = binding;
 
     if (!value) {
-      return
+      return;
     }
 
-    const userStore = useUserStore()
-    const permissions = Array.isArray(value) ? value : [value]
+    const userStore = useUserStore();
+    const permissions = Array.isArray(value) ? value : [value];
 
     // 检查是否有权限
-    const hasPermission = permissions.some(permission =>
-      userStore.permissions.includes(permission)
-    )
+    const hasPermission = permissions.some((permission) =>
+      userStore.permissions.includes(permission),
+    );
 
     if (!hasPermission) {
       // 移除元素
-      el.parentNode?.removeChild(el)
+      el.parentNode?.removeChild(el);
     }
   },
 
   updated(el: HTMLElement, binding: DirectiveBinding<PermiValue>) {
-    const { value, oldValue } = binding
+    const { value, oldValue } = binding;
 
     if (JSON.stringify(value) === JSON.stringify(oldValue)) {
-      return
+      return;
     }
 
     if (!value) {
-      el.parentNode?.removeChild(el)
-      return
+      el.parentNode?.removeChild(el);
+      return;
     }
 
-    const userStore = useUserStore()
-    const permissions = Array.isArray(value) ? value : [value]
+    const userStore = useUserStore();
+    const permissions = Array.isArray(value) ? value : [value];
 
-    const hasPermission = permissions.some(permission =>
-      userStore.permissions.includes(permission)
-    )
+    const hasPermission = permissions.some((permission) =>
+      userStore.permissions.includes(permission),
+    );
 
     if (!hasPermission) {
-      el.parentNode?.removeChild(el)
+      el.parentNode?.removeChild(el);
     }
-  }
-}
+  },
+};
 
 /**
  * 权限指令 v-hasPermiAll
@@ -69,52 +69,52 @@ const hasPermi: Directive = {
  */
 const hasPermiAll: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding<PermiValue>) {
-    const { value } = binding
+    const { value } = binding;
 
     if (!value) {
-      return
+      return;
     }
 
-    const userStore = useUserStore()
-    const permissions = Array.isArray(value) ? value : [value]
+    const userStore = useUserStore();
+    const permissions = Array.isArray(value) ? value : [value];
 
-    const hasAllPermission = permissions.every(permission =>
-      userStore.permissions.includes(permission)
-    )
+    const hasAllPermission = permissions.every((permission) =>
+      userStore.permissions.includes(permission),
+    );
 
     if (!hasAllPermission) {
-      el.parentNode?.removeChild(el)
+      el.parentNode?.removeChild(el);
     }
   },
 
   updated(el: HTMLElement, binding: DirectiveBinding<PermiValue>) {
-    const { value, oldValue } = binding
+    const { value, oldValue } = binding;
 
     if (JSON.stringify(value) === JSON.stringify(oldValue)) {
-      return
+      return;
     }
 
     if (!value) {
-      el.parentNode?.removeChild(el)
-      return
+      el.parentNode?.removeChild(el);
+      return;
     }
 
-    const userStore = useUserStore()
-    const permissions = Array.isArray(value) ? value : [value]
+    const userStore = useUserStore();
+    const permissions = Array.isArray(value) ? value : [value];
 
-    const hasAllPermission = permissions.every(permission =>
-      userStore.permissions.includes(permission)
-    )
+    const hasAllPermission = permissions.every((permission) =>
+      userStore.permissions.includes(permission),
+    );
 
     if (!hasAllPermission) {
-      el.parentNode?.removeChild(el)
+      el.parentNode?.removeChild(el);
     }
-  }
-}
+  },
+};
 
-export { hasPermi, hasPermiAll }
+export { hasPermi, hasPermiAll };
 
 export default {
   hasPermi,
-  hasPermiAll
-}
+  hasPermiAll,
+};

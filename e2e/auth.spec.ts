@@ -36,11 +36,16 @@ test.describe('登录流程', () => {
   test('错误密码 → 显示错误提示', async ({ page }) => {
     await page.goto('/login');
     await page.locator('input[type="text"], input[type="email"]').first().fill(USERNAME);
-    await page.locator('input[type="password"]').first().fill('wrong-password-' + Date.now());
+    await page
+      .locator('input[type="password"]')
+      .first()
+      .fill('wrong-password-' + Date.now());
     await page.locator('button[type="submit"], button:has-text("登录")').first().click();
 
     // 页面不应跳转，且有错误信息
-    await expect(page.getByText(/密码错误|账号或密码|invalid|fail/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/密码错误|账号或密码|invalid|fail/i)).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('未登录访问受保护路由 → 重定向 /login', async ({ page }) => {
@@ -58,14 +63,19 @@ test.describe('登录流程', () => {
 
     // 点击退出登录（常见模式：菜单 "退出登录" / "登出" / "Logout"）
     const logout = page.getByRole('button', { name: /退出|logout|登出/i });
-    if (await logout.count() > 0) {
+    if ((await logout.count()) > 0) {
       await logout.first().click();
     } else {
       // 若菜单收起，尝试先点击用户头像
-      const menu = page.locator('img[alt*="avatar"], [class*="avatar"], [class*="user-menu"]').first();
-      if (await menu.count() > 0) {
+      const menu = page
+        .locator('img[alt*="avatar"], [class*="avatar"], [class*="user-menu"]')
+        .first();
+      if ((await menu.count()) > 0) {
         await menu.click();
-        await page.getByRole('menuitem', { name: /退出|logout|登出/i }).first().click();
+        await page
+          .getByRole('menuitem', { name: /退出|logout|登出/i })
+          .first()
+          .click();
       }
     }
 

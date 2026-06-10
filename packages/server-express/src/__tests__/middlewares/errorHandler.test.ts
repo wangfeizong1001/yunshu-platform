@@ -7,9 +7,12 @@ import { BusinessError, ErrorCode } from '@yunshu/server-core';
 describe('asyncHandler 异步错误包装器', () => {
   it('应捕获异步路由中抛出的 Error 并传递给错误处理中间件', async () => {
     const app = express();
-    app.get('/error', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new Error('模拟异步错误');
-    }));
+    app.get(
+      '/error',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new Error('模拟异步错误');
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/error');
@@ -19,9 +22,12 @@ describe('asyncHandler 异步错误包装器', () => {
 
   it('应捕获被 reject 的 Promise', async () => {
     const app = express();
-    app.get('/reject', asyncHandler(async (_req: Request, _res: Response) => {
-      return Promise.reject(new Error('Promise rejected'));
-    }));
+    app.get(
+      '/reject',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        return Promise.reject(new Error('Promise rejected'));
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/reject');
@@ -31,9 +37,12 @@ describe('asyncHandler 异步错误包装器', () => {
 
   it('正常的异步处理应成功返回响应', async () => {
     const app = express();
-    app.get('/ok', asyncHandler(async (_req: Request, res: Response) => {
-      res.status(200).json({ success: true, data: 'ok' });
-    }));
+    app.get(
+      '/ok',
+      asyncHandler(async (_req: Request, res: Response) => {
+        res.status(200).json({ success: true, data: 'ok' });
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/ok');
@@ -45,10 +54,13 @@ describe('asyncHandler 异步错误包装器', () => {
   it('应正确传递 req 和 res 参数', async () => {
     const app = express();
     app.use(express.json());
-    app.post('/echo', asyncHandler(async (req: Request, res: Response) => {
-      const { message } = req.body;
-      res.status(200).json({ success: true, message });
-    }));
+    app.post(
+      '/echo',
+      asyncHandler(async (req: Request, res: Response) => {
+        const { message } = req.body;
+        res.status(200).json({ success: true, message });
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).post('/echo').send({ message: 'hello' });
@@ -59,10 +71,13 @@ describe('asyncHandler 异步错误包装器', () => {
 
   it('未捕获异常应被传递到错误中间件', async () => {
     const app = express();
-    app.get('/fail', asyncHandler(async (_req: Request, _res: Response) => {
-      const obj: any = null;
-      obj.nested.value = 1;
-    }));
+    app.get(
+      '/fail',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        const obj: any = null;
+        obj.nested.value = 1;
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/fail');
@@ -132,9 +147,12 @@ describe('notFoundHandler 404 处理中间件', () => {
 describe('globalErrorHandler 全局错误处理中间件', () => {
   it('应捕获 BusinessError 并返回对应 HTTP 状态码和错误码', async () => {
     const app = express();
-    app.get('/business-error', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new BusinessError(ErrorCode.VALIDATION_ERROR, '业务逻辑失败', { detail: 'extra' });
-    }));
+    app.get(
+      '/business-error',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new BusinessError(ErrorCode.VALIDATION_ERROR, '业务逻辑失败', { detail: 'extra' });
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/business-error');
@@ -146,9 +164,12 @@ describe('globalErrorHandler 全局错误处理中间件', () => {
 
   it('应返回 BusinessError 的 details 字段', async () => {
     const app = express();
-    app.get('/business-detail', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new BusinessError(ErrorCode.VALIDATION_ERROR, '参数错误', { field: 'email' });
-    }));
+    app.get(
+      '/business-detail',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new BusinessError(ErrorCode.VALIDATION_ERROR, '参数错误', { field: 'email' });
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/business-detail');
@@ -160,9 +181,12 @@ describe('globalErrorHandler 全局错误处理中间件', () => {
 
   it('普通 Error 应返回 500 状态码', async () => {
     const app = express();
-    app.get('/plain-error', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new Error('服务器内部错误');
-    }));
+    app.get(
+      '/plain-error',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new Error('服务器内部错误');
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/plain-error');
@@ -172,9 +196,12 @@ describe('globalErrorHandler 全局错误处理中间件', () => {
 
   it('应返回 JSON 格式的错误响应', async () => {
     const app = express();
-    app.get('/error', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new Error('error');
-    }));
+    app.get(
+      '/error',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new Error('error');
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/error');
@@ -183,12 +210,18 @@ describe('globalErrorHandler 全局错误处理中间件', () => {
 
   it('BusinessError 不同状态码应正确返回', async () => {
     const app = express();
-    app.get('/not-found', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new BusinessError(ErrorCode.NOT_FOUND, '资源不存在');
-    }));
-    app.get('/conflict', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new BusinessError(ErrorCode.ALREADY_EXISTS, '资源冲突');
-    }));
+    app.get(
+      '/not-found',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new BusinessError(ErrorCode.NOT_FOUND, '资源不存在');
+      }),
+    );
+    app.get(
+      '/conflict',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new BusinessError(ErrorCode.ALREADY_EXISTS, '资源冲突');
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res1 = await supertest(app).get('/not-found');
@@ -205,9 +238,12 @@ describe('globalErrorHandler 全局错误处理中间件', () => {
     process.env.NODE_ENV = 'production';
 
     const app = express();
-    app.get('/hidden-error', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new Error('sensitive internal details');
-    }));
+    app.get(
+      '/hidden-error',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new Error('sensitive internal details');
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/hidden-error');
@@ -220,9 +256,12 @@ describe('globalErrorHandler 全局错误处理中间件', () => {
 
   it('错误响应应包含 timestamp 字段', async () => {
     const app = express();
-    app.get('/error-ts', asyncHandler(async (_req: Request, _res: Response) => {
-      throw new BusinessError(ErrorCode.VALIDATION_ERROR, '测试错误');
-    }));
+    app.get(
+      '/error-ts',
+      asyncHandler(async (_req: Request, _res: Response) => {
+        throw new BusinessError(ErrorCode.VALIDATION_ERROR, '测试错误');
+      }),
+    );
     app.use(globalErrorHandler());
 
     const res = await supertest(app).get('/error-ts');

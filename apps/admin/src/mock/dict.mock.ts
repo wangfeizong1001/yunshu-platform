@@ -7,7 +7,7 @@ import type {
   SysDictTypePageResp,
   SysDictData,
   SysDictDataPageResp,
-} from '@yunshu/shared'
+} from '@yunshu/shared';
 
 // ==================== 字典类型 Mock ====================
 
@@ -93,38 +93,37 @@ export const mockDictTypeList: SysDictType[] = [
     updateTime: '2023-01-01 00:00:00',
     createBy: 'admin',
   },
-]
+];
 
 // 获取字典类型分页列表 Mock
 export function getMockDictTypePage(params: any): SysDictTypePageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', status = '' } = params;
 
-  let filteredList = mockDictTypeList
+  let filteredList = mockDictTypeList;
 
   if (keyword) {
     filteredList = filteredList.filter(
-      (item) =>
-        item.dictName.includes(keyword) || item.dictType.includes(keyword)
-    )
+      (item) => item.dictName.includes(keyword) || item.dictType.includes(keyword),
+    );
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取字典类型详情 Mock
 export function getMockDictTypeDetail(dictId: number): SysDictType | undefined {
-  return mockDictTypeList.find((item) => item.dictId === dictId)
+  return mockDictTypeList.find((item) => item.dictId === dictId);
 }
 
 // 新增字典类型 Mock
@@ -138,29 +137,36 @@ export function addMockDictType(data: Partial<SysDictType>): SysDictType {
     createTime: new Date().toLocaleString(),
     updateTime: new Date().toLocaleString(),
     createBy: 'admin',
-  }
-  mockDictTypeList.push(newItem)
-  return newItem
+  };
+  mockDictTypeList.push(newItem);
+  return newItem;
 }
 
 // 更新字典类型 Mock
-export function updateMockDictType(dictId: number, data: Partial<SysDictType>): SysDictType | undefined {
-  const index = mockDictTypeList.findIndex((u) => u.dictId === dictId)
+export function updateMockDictType(
+  dictId: number,
+  data: Partial<SysDictType>,
+): SysDictType | undefined {
+  const index = mockDictTypeList.findIndex((u) => u.dictId === dictId);
   if (index !== -1) {
-    mockDictTypeList[index] = { ...mockDictTypeList[index], ...data, updateTime: new Date().toLocaleString() }
-    return mockDictTypeList[index]
+    mockDictTypeList[index] = {
+      ...mockDictTypeList[index],
+      ...data,
+      updateTime: new Date().toLocaleString(),
+    };
+    return mockDictTypeList[index];
   }
-  return undefined
+  return undefined;
 }
 
 // 删除字典类型 Mock
 export function deleteMockDictType(dictId: number): boolean {
-  const index = mockDictTypeList.findIndex((u) => u.dictId === dictId)
+  const index = mockDictTypeList.findIndex((u) => u.dictId === dictId);
   if (index !== -1) {
-    mockDictTypeList.splice(index, 1)
-    return true
+    mockDictTypeList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }
 
 // ==================== 字典数据 Mock ====================
@@ -168,70 +174,256 @@ export function deleteMockDictType(dictId: number): boolean {
 // 字典数据 Mock 数据
 export const mockDictDataList: SysDictData[] = [
   // 用户性别
-  { dictCode: 1, dictSort: 1, dictLabel: '男', dictValue: '0', dictType: 'sys_user_sex', listClass: 'primary', isDefault: '1', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 2, dictSort: 2, dictLabel: '女', dictValue: '1', dictType: 'sys_user_sex', listClass: 'danger', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 3, dictSort: 3, dictLabel: '未知', dictValue: '2', dictType: 'sys_user_sex', listClass: 'info', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
+  {
+    dictCode: 1,
+    dictSort: 1,
+    dictLabel: '男',
+    dictValue: '0',
+    dictType: 'sys_user_sex',
+    listClass: 'primary',
+    isDefault: '1',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 2,
+    dictSort: 2,
+    dictLabel: '女',
+    dictValue: '1',
+    dictType: 'sys_user_sex',
+    listClass: 'danger',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 3,
+    dictSort: 3,
+    dictLabel: '未知',
+    dictValue: '2',
+    dictType: 'sys_user_sex',
+    listClass: 'info',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
   // 菜单状态
-  { dictCode: 4, dictSort: 1, dictLabel: '正常', dictValue: '0', dictType: 'sys_menu_status', listClass: 'success', isDefault: '1', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 5, dictSort: 2, dictLabel: '停用', dictValue: '1', dictType: 'sys_menu_status', listClass: 'danger', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
+  {
+    dictCode: 4,
+    dictSort: 1,
+    dictLabel: '正常',
+    dictValue: '0',
+    dictType: 'sys_menu_status',
+    listClass: 'success',
+    isDefault: '1',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 5,
+    dictSort: 2,
+    dictLabel: '停用',
+    dictValue: '1',
+    dictType: 'sys_menu_status',
+    listClass: 'danger',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
   // 系统开关
-  { dictCode: 6, dictSort: 1, dictLabel: '是', dictValue: 'Y', dictType: 'sys_yes_no', listClass: 'success', isDefault: '1', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 7, dictSort: 2, dictLabel: '否', dictValue: 'N', dictType: 'sys_yes_no', listClass: 'danger', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
+  {
+    dictCode: 6,
+    dictSort: 1,
+    dictLabel: '是',
+    dictValue: 'Y',
+    dictType: 'sys_yes_no',
+    listClass: 'success',
+    isDefault: '1',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 7,
+    dictSort: 2,
+    dictLabel: '否',
+    dictValue: 'N',
+    dictType: 'sys_yes_no',
+    listClass: 'danger',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
   // 任务状态
-  { dictCode: 8, dictSort: 1, dictLabel: '正常', dictValue: '0', dictType: 'sys_job_status', listClass: 'success', isDefault: '1', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 9, dictSort: 2, dictLabel: '暂停', dictValue: '1', dictType: 'sys_job_status', listClass: 'warning', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
+  {
+    dictCode: 8,
+    dictSort: 1,
+    dictLabel: '正常',
+    dictValue: '0',
+    dictType: 'sys_job_status',
+    listClass: 'success',
+    isDefault: '1',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 9,
+    dictSort: 2,
+    dictLabel: '暂停',
+    dictValue: '1',
+    dictType: 'sys_job_status',
+    listClass: 'warning',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
   // 任务分组
-  { dictCode: 10, dictSort: 1, dictLabel: '默认', dictValue: 'default', dictType: 'sys_job_group', listClass: 'default', isDefault: '1', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 11, dictSort: 2, dictLabel: '系统', dictValue: 'system', dictType: 'sys_job_group', listClass: 'primary', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
+  {
+    dictCode: 10,
+    dictSort: 1,
+    dictLabel: '默认',
+    dictValue: 'default',
+    dictType: 'sys_job_group',
+    listClass: 'default',
+    isDefault: '1',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 11,
+    dictSort: 2,
+    dictLabel: '系统',
+    dictValue: 'system',
+    dictType: 'sys_job_group',
+    listClass: 'primary',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
   // 公告类型
-  { dictCode: 12, dictSort: 1, dictLabel: '通知', dictValue: '1', dictType: 'sys_notice_type', listClass: 'primary', isDefault: '1', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 13, dictSort: 2, dictLabel: '公告', dictValue: '2', dictType: 'sys_notice_type', listClass: 'info', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
+  {
+    dictCode: 12,
+    dictSort: 1,
+    dictLabel: '通知',
+    dictValue: '1',
+    dictType: 'sys_notice_type',
+    listClass: 'primary',
+    isDefault: '1',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 13,
+    dictSort: 2,
+    dictLabel: '公告',
+    dictValue: '2',
+    dictType: 'sys_notice_type',
+    listClass: 'info',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
   // 业务状态
-  { dictCode: 14, dictSort: 1, dictLabel: '待处理', dictValue: 'pending', dictType: 'biz_status', listClass: 'warning', isDefault: '1', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 15, dictSort: 2, dictLabel: '处理中', dictValue: 'processing', dictType: 'biz_status', listClass: 'primary', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 16, dictSort: 3, dictLabel: '已完成', dictValue: 'completed', dictType: 'biz_status', listClass: 'success', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-  { dictCode: 17, dictSort: 4, dictLabel: '已取消', dictValue: 'cancelled', dictType: 'biz_status', listClass: 'info', isDefault: '0', status: '0', createTime: '2023-01-01 00:00:00', updateTime: '2023-01-01 00:00:00' },
-]
+  {
+    dictCode: 14,
+    dictSort: 1,
+    dictLabel: '待处理',
+    dictValue: 'pending',
+    dictType: 'biz_status',
+    listClass: 'warning',
+    isDefault: '1',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 15,
+    dictSort: 2,
+    dictLabel: '处理中',
+    dictValue: 'processing',
+    dictType: 'biz_status',
+    listClass: 'primary',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 16,
+    dictSort: 3,
+    dictLabel: '已完成',
+    dictValue: 'completed',
+    dictType: 'biz_status',
+    listClass: 'success',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+  {
+    dictCode: 17,
+    dictSort: 4,
+    dictLabel: '已取消',
+    dictValue: 'cancelled',
+    dictType: 'biz_status',
+    listClass: 'info',
+    isDefault: '0',
+    status: '0',
+    createTime: '2023-01-01 00:00:00',
+    updateTime: '2023-01-01 00:00:00',
+  },
+];
 
 // 获取字典数据分页列表 Mock
 export function getMockDictDataPage(params: any): SysDictDataPageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', dictType = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', dictType = '', status = '' } = params;
 
-  let filteredList = mockDictDataList
+  let filteredList = mockDictDataList;
 
   if (keyword) {
     filteredList = filteredList.filter(
-      (item) =>
-        item.dictLabel.includes(keyword) || item.dictValue.includes(keyword)
-    )
+      (item) => item.dictLabel.includes(keyword) || item.dictValue.includes(keyword),
+    );
   }
 
   if (dictType) {
-    filteredList = filteredList.filter((item) => item.dictType === dictType)
+    filteredList = filteredList.filter((item) => item.dictType === dictType);
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 根据类型获取字典数据 Mock
 export function getMockDictDataByType(dictType: string): SysDictData[] {
-  return mockDictDataList.filter((item) => item.dictType === dictType && item.status === '0')
+  return mockDictDataList.filter((item) => item.dictType === dictType && item.status === '0');
 }
 
 // 获取字典数据详情 Mock
 export function getMockDictDataDetail(dictCode: number): SysDictData | undefined {
-  return mockDictDataList.find((item) => item.dictCode === dictCode)
+  return mockDictDataList.find((item) => item.dictCode === dictCode);
 }
 
 // 新增字典数据 Mock
@@ -249,27 +441,34 @@ export function addMockDictData(data: Partial<SysDictData>): SysDictData {
     remark: data.remark || '',
     createTime: new Date().toLocaleString(),
     updateTime: new Date().toLocaleString(),
-  }
-  mockDictDataList.push(newItem)
-  return newItem
+  };
+  mockDictDataList.push(newItem);
+  return newItem;
 }
 
 // 更新字典数据 Mock
-export function updateMockDictData(dictCode: number, data: Partial<SysDictData>): SysDictData | undefined {
-  const index = mockDictDataList.findIndex((u) => u.dictCode === dictCode)
+export function updateMockDictData(
+  dictCode: number,
+  data: Partial<SysDictData>,
+): SysDictData | undefined {
+  const index = mockDictDataList.findIndex((u) => u.dictCode === dictCode);
   if (index !== -1) {
-    mockDictDataList[index] = { ...mockDictDataList[index], ...data, updateTime: new Date().toLocaleString() }
-    return mockDictDataList[index]
+    mockDictDataList[index] = {
+      ...mockDictDataList[index],
+      ...data,
+      updateTime: new Date().toLocaleString(),
+    };
+    return mockDictDataList[index];
   }
-  return undefined
+  return undefined;
 }
 
 // 删除字典数据 Mock
 export function deleteMockDictData(dictCode: number): boolean {
-  const index = mockDictDataList.findIndex((u) => u.dictCode === dictCode)
+  const index = mockDictDataList.findIndex((u) => u.dictCode === dictCode);
   if (index !== -1) {
-    mockDictDataList.splice(index, 1)
-    return true
+    mockDictDataList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }

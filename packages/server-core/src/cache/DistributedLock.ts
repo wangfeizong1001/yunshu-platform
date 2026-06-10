@@ -196,10 +196,7 @@ return 0
  * }
  * ```
  */
-export async function acquireLock(
-  key: string,
-  options: LockOptions = {},
-): Promise<LockInstance> {
+export async function acquireLock(key: string, options: LockOptions = {}): Promise<LockInstance> {
   const {
     keyPrefix = 'lock:',
     ttl = 10000,
@@ -268,7 +265,6 @@ export async function acquireLock(
           extend: (newTtl?: number) => extendLock(fullKey, lockValue, newTtl ?? ttl),
         };
       }
-
     } catch (error) {
       lockStats.failed++;
       console.error('[Lock] Redis 加锁失败:', error);

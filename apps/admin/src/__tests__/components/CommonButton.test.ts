@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import CommonButton from '@/components/CommonButton/index.vue'
+import { describe, it, expect } from 'vitest';
+import { mount } from '@vue/test-utils';
+import CommonButton from '@/components/CommonButton/index.vue';
 
 describe('CommonButton', () => {
   it('should render correctly with default props', () => {
@@ -13,9 +13,9 @@ describe('CommonButton', () => {
           'el-button': true,
         },
       },
-    })
-    expect(wrapper.exists()).toBe(true)
-  })
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
 
   it('should render with primary type', () => {
     const wrapper = mount(CommonButton, {
@@ -30,9 +30,9 @@ describe('CommonButton', () => {
           'el-button': true,
         },
       },
-    })
-    expect(wrapper.exists()).toBe(true)
-  })
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
 
   it('should render with different sizes', () => {
     const wrapper = mount(CommonButton, {
@@ -47,9 +47,9 @@ describe('CommonButton', () => {
           'el-button': true,
         },
       },
-    })
-    expect(wrapper.exists()).toBe(true)
-  })
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
 
   it('should be disabled when disabled prop is true', () => {
     const wrapper = mount(CommonButton, {
@@ -64,9 +64,9 @@ describe('CommonButton', () => {
           'el-button': true,
         },
       },
-    })
-    expect(wrapper.exists()).toBe(true)
-  })
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
 
   it('should show loading when loading prop is true', () => {
     const wrapper = mount(CommonButton, {
@@ -81,9 +81,9 @@ describe('CommonButton', () => {
           'el-button': true,
         },
       },
-    })
-    expect(wrapper.exists()).toBe(true)
-  })
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
 
   it('should emit click event when clicked', async () => {
     const wrapper = mount(CommonButton, {
@@ -98,10 +98,10 @@ describe('CommonButton', () => {
           },
         },
       },
-    })
+    });
     // 直接调用组件的 handleClick 方法
-    const vm = wrapper.vm as any
-    vm.handleClick({} as MouseEvent)
-    expect(wrapper.emitted()).toHaveProperty('click')
-  })
-})
+    const vm = wrapper.vm as any;
+    vm.handleClick({} as MouseEvent);
+    expect(wrapper.emitted()).toHaveProperty('click');
+  });
+});

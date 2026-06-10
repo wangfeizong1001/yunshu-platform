@@ -29,4 +29,4 @@ export default {
     confirmPassword: 'Please confirm password',
     passwordNotMatch: 'Passwords do not match',
   },
-}
+};

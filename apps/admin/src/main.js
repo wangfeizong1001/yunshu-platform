@@ -28,48 +28,47 @@ app.use(router);
 initSentry(app, router);
 // 配置 Element Plus 语言
 const getElementPlusLocale = () => {
-    const stored = localStorage.getItem('locale');
-    if (stored === 'en') {
-        return en;
-    }
-    return zhCn;
+  const stored = localStorage.getItem('locale');
+  if (stored === 'en') {
+    return en;
+  }
+  return zhCn;
 };
 // 注册 Element Plus
 app.use(ElementPlus, {
-    locale: getElementPlusLocale(),
+  locale: getElementPlusLocale(),
 });
 // 注册 i18n
 app.use(i18n);
 // 配置 dayjs 语言
 const getDayjsLocale = () => {
-    const stored = localStorage.getItem('locale');
-    if (stored === 'en') {
-        dayjs.locale('en');
-    }
-    else {
-        dayjs.locale('zh-cn');
-    }
+  const stored = localStorage.getItem('locale');
+  if (stored === 'en') {
+    dayjs.locale('en');
+  } else {
+    dayjs.locale('zh-cn');
+  }
 };
 getDayjsLocale();
 // 注册指令
 registerDirectives(app);
 // 注册 Element Plus 图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-    app.component(key, component);
+  app.component(key, component);
 }
 // 挂载应用
 app.mount('#app');
 // 监听语言变化，更新 Element Plus 语言
 router.beforeEach((to, _from, next) => {
-    // 从 URL 参数或路由中获取语言设置
-    if (to.query.lang) {
-        const newLang = to.query.lang;
-        if (localeSetting.locales.some(l => l.key === newLang)) {
-            localStorage.setItem('locale', newLang);
-            // 刷新应用以应用新语言
-            window.location.reload();
-        }
+  // 从 URL 参数或路由中获取语言设置
+  if (to.query.lang) {
+    const newLang = to.query.lang;
+    if (localeSetting.locales.some((l) => l.key === newLang)) {
+      localStorage.setItem('locale', newLang);
+      // 刷新应用以应用新语言
+      window.location.reload();
     }
-    next();
+  }
+  next();
 });
 //# sourceMappingURL=main.js.map

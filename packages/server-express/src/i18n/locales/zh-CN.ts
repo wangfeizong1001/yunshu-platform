@@ -114,4 +114,4 @@ export default {
     groupExists: '任务分组已存在',
     cronInvalid: 'Cron 表达式无效',
   },
-}
+};

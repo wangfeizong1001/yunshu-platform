@@ -46,23 +46,29 @@ export async function createProject(options: CreateProjectOptions): Promise<void
   await fs.writeJson(path.join(targetDir, 'package.json'), pkg, { spaces: 2 });
 
   // 生成 tsconfig.json
-  await fs.writeJson(path.join(targetDir, 'tsconfig.json'), {
-    compilerOptions: {
-      target: 'ES2022',
-      module: 'ESNext',
-      moduleResolution: 'bundler',
-      strict: true,
-      jsx: 'preserve',
-      jsxImportSource: 'vue',
-      baseUrl: '.',
-      paths: { '@/*': ['./src/*'] },
-      types: ['vite/client'],
+  await fs.writeJson(
+    path.join(targetDir, 'tsconfig.json'),
+    {
+      compilerOptions: {
+        target: 'ES2022',
+        module: 'ESNext',
+        moduleResolution: 'bundler',
+        strict: true,
+        jsx: 'preserve',
+        jsxImportSource: 'vue',
+        baseUrl: '.',
+        paths: { '@/*': ['./src/*'] },
+        types: ['vite/client'],
+      },
+      include: ['src/**/*.ts', 'src/**/*.vue'],
     },
-    include: ['src/**/*.ts', 'src/**/*.vue'],
-  }, { spaces: 2 });
+    { spaces: 2 },
+  );
 
   // 生成 vite.config.ts
-  await fs.writeFile(path.join(targetDir, 'vite.config.ts'), `
+  await fs.writeFile(
+    path.join(targetDir, 'vite.config.ts'),
+    `
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
@@ -78,10 +84,13 @@ export default defineConfig({
     port: 3000,
   },
 });
-`.trim());
+`.trim(),
+  );
 
   // 生成 index.html
-  await fs.writeFile(path.join(targetDir, 'index.html'), `<!DOCTYPE html>
+  await fs.writeFile(
+    path.join(targetDir, 'index.html'),
+    `<!DOCTYPE html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
@@ -92,10 +101,13 @@ export default defineConfig({
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
-</html>`);
+</html>`,
+  );
 
   // 生成 src/main.ts
-  await fs.writeFile(path.join(targetDir, 'src/main.ts'), `
+  await fs.writeFile(
+    path.join(targetDir, 'src/main.ts'),
+    `
 import { createApp } from 'vue';
 import App from './App.vue';
 
@@ -104,10 +116,13 @@ import '@yunshu/design-tokens/css';
 
 const app = createApp(App);
 app.mount('#app');
-`.trim());
+`.trim(),
+  );
 
   // 生成 src/App.vue
-  await fs.writeFile(path.join(targetDir, 'src/App.vue'), `<script setup lang="ts">
+  await fs.writeFile(
+    path.join(targetDir, 'src/App.vue'),
+    `<script setup lang="ts">
 /**
  * ${name} — 应用根组件
  *
@@ -151,12 +166,15 @@ h1 {
   border-radius: var(--radius-base);
   font-size: var(--font-size-sm);
 }
-</style>`);
+</style>`,
+  );
 
   // 如果选择了认证功能
   if (features.includes('auth')) {
     await fs.ensureDir(path.join(targetDir, 'src/composables'));
-    await fs.writeFile(path.join(targetDir, 'src/composables/useAuth.ts'), `
+    await fs.writeFile(
+      path.join(targetDir, 'src/composables/useAuth.ts'),
+      `
 import { ref } from 'vue';
 
 export function useAuth() {
@@ -175,13 +193,16 @@ export function useAuth() {
 
   return { user, isLoggedIn, login, logout };
 }
-`.trim());
+`.trim(),
+    );
   }
 
   // 如果选择了权限功能
   if (features.includes('permission')) {
     await fs.ensureDir(path.join(targetDir, 'src/composables'));
-    await fs.writeFile(path.join(targetDir, 'src/composables/usePermission.ts'), `
+    await fs.writeFile(
+      path.join(targetDir, 'src/composables/usePermission.ts'),
+      `
 import { ref } from 'vue';
 
 const permissions = ref<string[]>([]);
@@ -201,19 +222,25 @@ export function usePermission() {
 
   return { permissions, hasPermission, hasAnyPermission, hasAllPermissions };
 }
-`.trim());
+`.trim(),
+    );
   }
 
   // 生成 .gitignore
-  await fs.writeFile(path.join(targetDir, '.gitignore'), `node_modules
+  await fs.writeFile(
+    path.join(targetDir, '.gitignore'),
+    `node_modules
 dist
 .vite
 *.local
 .DS_Store
-`);
+`,
+  );
 
   // 生成 README
-  await fs.writeFile(path.join(targetDir, 'README.md'), `# ${name}
+  await fs.writeFile(
+    path.join(targetDir, 'README.md'),
+    `# ${name}
 
 > 基于[云枢中台](https://github.com/your-org/yunshu-platform)创建
 
@@ -227,7 +254,8 @@ ${options.packageManager} run dev
 ## 包含的功能
 
 ${features.map((f) => `- ${f}`).join('\n') || '- 无额外功能'}
-`);
+`,
+  );
 }
 
 /**

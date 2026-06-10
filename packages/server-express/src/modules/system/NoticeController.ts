@@ -8,10 +8,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -106,8 +103,9 @@ export class NoticeController extends BaseController {
     const noticeTypeParam = this.safeParam(req.query.noticeType, 1);
 
     let filtered = [...notices];
-    if (noticeTitleParam) filtered = filtered.filter(i => i.noticeTitle.includes(noticeTitleParam));
-    if (noticeTypeParam) filtered = filtered.filter(i => i.noticeType === noticeTypeParam);
+    if (noticeTitleParam)
+      filtered = filtered.filter((i) => i.noticeTitle.includes(noticeTitleParam));
+    if (noticeTypeParam) filtered = filtered.filter((i) => i.noticeType === noticeTypeParam);
 
     const total = filtered.length;
     const start = (page - 1) * limit;
@@ -123,7 +121,7 @@ export class NoticeController extends BaseController {
     const noticeId = Number(req.params.noticeId);
     if (!Number.isFinite(noticeId)) return this.badRequest(res, 'noticeId 参数非法');
 
-    const item = notices.find(i => i.noticeId === noticeId);
+    const item = notices.find((i) => i.noticeId === noticeId);
     if (!item) return this.notFound(res, '通知公告不存在');
     return this.success(res, item, '查询成功');
   }
@@ -136,7 +134,8 @@ export class NoticeController extends BaseController {
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as Partial<SysNotice>;
-    if (!isValidNoticeTitle(body.noticeTitle)) return this.badRequest(res, 'noticeTitle 长度 1-100');
+    if (!isValidNoticeTitle(body.noticeTitle))
+      return this.badRequest(res, 'noticeTitle 长度 1-100');
 
     const noticeType = body.noticeType ?? '1';
     if (!isValidNoticeType(noticeType)) return this.badRequest(res, 'noticeType 必须是 1/2/3');
@@ -144,12 +143,9 @@ export class NoticeController extends BaseController {
     const status = body.status ?? '0';
     if (!isValidNoticeStatus(status)) return this.badRequest(res, 'status 必须是 0 或 1');
 
-    const noticeContent = typeof body.noticeContent === 'string'
-      ? body.noticeContent.slice(0, MAX_CONTENT_LENGTH)
-      : '';
-    const remark = typeof body.remark === 'string'
-      ? body.remark.slice(0, MAX_FIELD_LENGTH)
-      : '';
+    const noticeContent =
+      typeof body.noticeContent === 'string' ? body.noticeContent.slice(0, MAX_CONTENT_LENGTH) : '';
+    const remark = typeof body.remark === 'string' ? body.remark.slice(0, MAX_FIELD_LENGTH) : '';
 
     const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
     const item: SysNotice = {
@@ -176,7 +172,7 @@ export class NoticeController extends BaseController {
     const noticeId = Number(req.params.noticeId);
     if (!Number.isFinite(noticeId)) return this.badRequest(res, 'noticeId 参数非法');
 
-    const exist = notices.find(i => i.noticeId === noticeId);
+    const exist = notices.find((i) => i.noticeId === noticeId);
     if (!exist) return this.notFound(res, '通知公告不存在');
     const idx = notices.indexOf(exist);
 
@@ -197,13 +193,13 @@ export class NoticeController extends BaseController {
       noticeId,
       noticeTitle: body.noticeTitle ?? exist.noticeTitle,
       noticeType: body.noticeType ?? exist.noticeType,
-      noticeContent: typeof body.noticeContent === 'string'
-        ? body.noticeContent.slice(0, MAX_CONTENT_LENGTH)
-        : exist.noticeContent,
+      noticeContent:
+        typeof body.noticeContent === 'string'
+          ? body.noticeContent.slice(0, MAX_CONTENT_LENGTH)
+          : exist.noticeContent,
       status: body.status ?? exist.status,
-      remark: typeof body.remark === 'string'
-        ? body.remark.slice(0, MAX_FIELD_LENGTH)
-        : exist.remark,
+      remark:
+        typeof body.remark === 'string' ? body.remark.slice(0, MAX_FIELD_LENGTH) : exist.remark,
       createdAt: exist.createdAt,
       updatedAt: now,
     };
@@ -220,7 +216,7 @@ export class NoticeController extends BaseController {
     const noticeId = Number(req.params.noticeId);
     if (!Number.isFinite(noticeId)) return this.badRequest(res, 'noticeId 参数非法');
 
-    const idx = notices.findIndex(i => i.noticeId === noticeId);
+    const idx = notices.findIndex((i) => i.noticeId === noticeId);
     if (idx === -1) return this.notFound(res, '通知公告不存在');
     const removed = notices.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');

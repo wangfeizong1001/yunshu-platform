@@ -5,13 +5,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({
-  name: 'JobLogDrawer',
-})
+  defineOptions({
+    name: 'JobLogDrawer',
+  });
 </script>
 
 <style lang="scss" scoped>
-.job-log-drawer {
-  height: 100%;
-}
+  .job-log-drawer {
+    height: 100%;
+  }
 </style>

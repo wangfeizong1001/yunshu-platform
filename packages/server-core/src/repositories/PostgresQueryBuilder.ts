@@ -44,9 +44,7 @@ export interface PostgresQueryBuilderConfig {
 /**
  * PostgreSQL 链式查询构建器
  */
-export class PostgresQueryBuilder<T extends IEntity>
-  implements IQueryBuilder<T>
-{
+export class PostgresQueryBuilder<T extends IEntity> implements IQueryBuilder<T> {
   private pool: Pool;
   private config: Required<PostgresQueryBuilderConfig>;
 
@@ -155,7 +153,6 @@ export class PostgresQueryBuilder<T extends IEntity>
 
       const row = this.mapRowToEntity(result.rows[0]);
       return createSuccessResult(row as T);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -171,7 +168,6 @@ export class PostgresQueryBuilder<T extends IEntity>
 
       const rows = result.rows.map((row) => this.mapRowToEntity(row));
       return createSuccessResult(rows as T[]);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -180,9 +176,7 @@ export class PostgresQueryBuilder<T extends IEntity>
   /**
    * 执行分页查询
    */
-  async executePaginated(
-    params: PaginationParams,
-  ): Promise<ServiceResult<PaginatedResult<T>>> {
+  async executePaginated(params: PaginationParams): Promise<ServiceResult<PaginatedResult<T>>> {
     try {
       const page = Math.max(1, params.page ?? 1);
       const limit = Math.min(Math.max(1, params.limit ?? 10), 100);
@@ -194,8 +188,10 @@ export class PostgresQueryBuilder<T extends IEntity>
 
       // 并行执行查询和计数
       const [dataResult, countResult] = await Promise.all([
-        this.pool.query(`${selectText} OFFSET $${selectParams.length + 1} LIMIT $${selectParams.length + 2}`,
-          [...selectParams, offset, limit]),
+        this.pool.query(
+          `${selectText} OFFSET $${selectParams.length + 1} LIMIT $${selectParams.length + 2}`,
+          [...selectParams, offset, limit],
+        ),
         this.pool.query(countText, countParams),
       ]);
 
@@ -215,7 +211,6 @@ export class PostgresQueryBuilder<T extends IEntity>
           hasNext: page < totalPages,
         },
       });
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -231,7 +226,6 @@ export class PostgresQueryBuilder<T extends IEntity>
 
       const count = parseInt(result.rows[0]?.count || '0', 10);
       return createSuccessResult(count);
-
     } catch (error) {
       return this.handleError(error);
     }
@@ -273,8 +267,8 @@ export class PostgresQueryBuilder<T extends IEntity>
     // ORDER BY 子句
     let orderByClause = '';
     if (this.sortConfigs.length > 0) {
-      const orderParts = this.sortConfigs.map((sort) =>
-        `${this.escapeIdentifier(sort.field)} ${sort.order.toUpperCase()}`
+      const orderParts = this.sortConfigs.map(
+        (sort) => `${this.escapeIdentifier(sort.field)} ${sort.order.toUpperCase()}`,
       );
       orderByClause = `ORDER BY ${orderParts.join(', ')}`;
     } else {
@@ -293,7 +287,8 @@ export class PostgresQueryBuilder<T extends IEntity>
       offsetClause = `OFFSET ${this.offsetCount}`;
     }
 
-    const text = `SELECT ${selectClause} ${fromClause}${joinClause} ${whereClause} ${orderByClause} ${limitClause} ${offsetClause}`.trim();
+    const text =
+      `SELECT ${selectClause} ${fromClause}${joinClause} ${whereClause} ${orderByClause} ${limitClause} ${offsetClause}`.trim();
 
     return { text, params };
   }
@@ -345,9 +340,7 @@ export class PostgresQueryBuilder<T extends IEntity>
       conditions.push(`(${orClauses.join(' OR ')})`);
     }
 
-    const whereClause = conditions.length > 0
-      ? `WHERE ${conditions.join(' AND ')}`
-      : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     return { whereClause, whereParams: params };
   }

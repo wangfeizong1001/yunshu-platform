@@ -68,10 +68,7 @@ export type { BaseServiceConfig, PaginateConfig } from './base/BaseService';
 // 装饰器（日志、性能监控）
 // ============================================================================
 
-export {
-  withLog,
-  withPerformance,
-} from './decorators/index';
+export { withLog, withPerformance } from './decorators/index';
 
 export type { LogOptions, PerformanceOptions } from './decorators/index';
 
@@ -88,11 +85,7 @@ export {
   closeRedis,
 } from './cache/RedisClient';
 
-export type {
-  RedisConfig,
-  RedisClientStatus,
-  RedisHealthCheckResult,
-} from './cache/RedisClient';
+export type { RedisConfig, RedisClientStatus, RedisHealthCheckResult } from './cache/RedisClient';
 
 // 二级缓存装饰器
 export {
@@ -136,10 +129,7 @@ export {
   resetLockStats,
 } from './cache/DistributedLock';
 
-export type {
-  LockOptions,
-  LockInstance,
-} from './cache/DistributedLock';
+export type { LockOptions, LockInstance } from './cache/DistributedLock';
 
 // 缓存预热
 export {
@@ -152,11 +142,7 @@ export {
   stopWarmupManager,
 } from './cache/CacheWarmup';
 
-export type {
-  WarmupTask,
-  WarmupTaskStatus,
-  WarmupManagerConfig,
-} from './cache/CacheWarmup';
+export type { WarmupTask, WarmupTaskStatus, WarmupManagerConfig } from './cache/CacheWarmup';
 
 // ============================================================================
 // 配置管理

@@ -25,11 +25,7 @@
       </el-sub-menu>
 
       <!-- 没有子菜单 -->
-      <el-menu-item
-        v-else
-        :index="resolvePath(item.path)"
-        @click="handleRoute(item)"
-      >
+      <el-menu-item v-else :index="resolvePath(item.path)" @click="handleRoute(item)">
         <el-icon v-if="item.meta?.icon">
           <component :is="item.meta.icon" />
         </el-icon>
@@ -42,57 +38,57 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import path from 'path-browserify'
+  import { computed } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import path from 'path-browserify';
 
-interface MenuItem {
-  path: string
-  menuName?: string
-  meta?: {
-    title?: string
-    icon?: string
-    hidden?: boolean
+  interface MenuItem {
+    path: string;
+    menuName?: string;
+    meta?: {
+      title?: string;
+      icon?: string;
+      hidden?: boolean;
+    };
+    children?: MenuItem[];
   }
-  children?: MenuItem[]
-}
 
-const props = defineProps<{
-  item: MenuItem
-  basePath: string
-}>()
+  const props = defineProps<{
+    item: MenuItem;
+    basePath: string;
+  }>();
 
-const route = useRoute()
-const router = useRouter()
+  const route = useRoute();
+  const router = useRouter();
 
-const activeMenu = computed(() => {
-  return route.path
-})
+  const activeMenu = computed(() => {
+    return route.path;
+  });
 
-// 判断是否有且只有一个显示的子菜单
-const hasOneShowingChild = (item: MenuItem) => {
-  if (!item.children) return false
+  // 判断是否有且只有一个显示的子菜单
+  const hasOneShowingChild = (item: MenuItem) => {
+    if (!item.children) return false;
 
-  const showingChildren = item.children.filter((child: any) => {
-    return !child.meta?.hidden
-  })
+    const showingChildren = item.children.filter((child: any) => {
+      return !child.meta?.hidden;
+    });
 
-  return showingChildren.length === 1
-}
+    return showingChildren.length === 1;
+  };
 
-// 解析路由路径
-const resolvePath = (routePath: string) => {
-  return path.resolve(props.basePath, routePath)
-}
+  // 解析路由路径
+  const resolvePath = (routePath: string) => {
+    return path.resolve(props.basePath, routePath);
+  };
 
-// 路由跳转
-const handleRoute = (item: MenuItem) => {
-  router.push(resolvePath(item.path))
-}
+  // 路由跳转
+  const handleRoute = (item: MenuItem) => {
+    router.push(resolvePath(item.path));
+  };
 </script>
 
 <style lang="scss" scoped>
-.el-menu {
-  border: none;
-}
+  .el-menu {
+    border: none;
+  }
 </style>

@@ -141,4 +141,4 @@ export default {
     tool: '系统工具',
     documentation: '系统文档',
   },
-}
+};

@@ -2,7 +2,7 @@
  * 通知公告 Mock 数据
  */
 
-import type { SysNotice, SysNoticePageResp } from '@yunshu/shared'
+import type { SysNotice, SysNoticePageResp } from '@yunshu/shared';
 
 // 通知公告 Mock 数据
 export const mockNoticeList: SysNotice[] = [
@@ -10,7 +10,8 @@ export const mockNoticeList: SysNotice[] = [
     noticeId: 1,
     noticeTitle: '系统升级通知',
     noticeType: '1',
-    noticeContent: '<p>系统将于本周六凌晨2:00-6:00进行升级维护，届时系统将暂停服务，请提前做好准备。</p>',
+    noticeContent:
+      '<p>系统将于本周六凌晨2:00-6:00进行升级维护，届时系统将暂停服务，请提前做好准备。</p>',
     status: '0',
     createBy: 'admin',
     createTime: '2024-01-15 10:00:00',
@@ -66,43 +67,41 @@ export const mockNoticeList: SysNotice[] = [
     updateTime: '2024-01-03 11:00:00',
     remark: '',
   },
-]
+];
 
 // 获取通知公告分页列表 Mock
 export function getMockNoticePage(params: any): SysNoticePageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', noticeType = '', status = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', noticeType = '', status = '' } = params;
 
-  let filteredList = mockNoticeList
+  let filteredList = mockNoticeList;
 
   if (keyword) {
     filteredList = filteredList.filter(
-      (item) =>
-        item.noticeTitle.includes(keyword) ||
-        item.noticeContent.includes(keyword)
-    )
+      (item) => item.noticeTitle.includes(keyword) || item.noticeContent.includes(keyword),
+    );
   }
 
   if (noticeType) {
-    filteredList = filteredList.filter((item) => item.noticeType === noticeType)
+    filteredList = filteredList.filter((item) => item.noticeType === noticeType);
   }
 
   if (status) {
-    filteredList = filteredList.filter((item) => item.status === status)
+    filteredList = filteredList.filter((item) => item.status === status);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取通知公告详情 Mock
 export function getMockNoticeDetail(noticeId: number): SysNotice | undefined {
-  return mockNoticeList.find((item) => item.noticeId === noticeId)
+  return mockNoticeList.find((item) => item.noticeId === noticeId);
 }
 
 // 新增通知公告 Mock
@@ -118,27 +117,34 @@ export function addMockNotice(data: Partial<SysNotice>): SysNotice {
     updateBy: 'admin',
     updateTime: new Date().toLocaleString(),
     remark: data.remark || '',
-  }
-  mockNoticeList.push(newItem)
-  return newItem
+  };
+  mockNoticeList.push(newItem);
+  return newItem;
 }
 
 // 更新通知公告 Mock
-export function updateMockNotice(noticeId: number, data: Partial<SysNotice>): SysNotice | undefined {
-  const index = mockNoticeList.findIndex((u) => u.noticeId === noticeId)
+export function updateMockNotice(
+  noticeId: number,
+  data: Partial<SysNotice>,
+): SysNotice | undefined {
+  const index = mockNoticeList.findIndex((u) => u.noticeId === noticeId);
   if (index !== -1) {
-    mockNoticeList[index] = { ...mockNoticeList[index], ...data, updateTime: new Date().toLocaleString() }
-    return mockNoticeList[index]
+    mockNoticeList[index] = {
+      ...mockNoticeList[index],
+      ...data,
+      updateTime: new Date().toLocaleString(),
+    };
+    return mockNoticeList[index];
   }
-  return undefined
+  return undefined;
 }
 
 // 删除通知公告 Mock
 export function deleteMockNotice(noticeId: number): boolean {
-  const index = mockNoticeList.findIndex((u) => u.noticeId === noticeId)
+  const index = mockNoticeList.findIndex((u) => u.noticeId === noticeId);
   if (index !== -1) {
-    mockNoticeList.splice(index, 1)
-    return true
+    mockNoticeList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }

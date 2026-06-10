@@ -21,84 +21,84 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { Close } from '@element-plus/icons-vue'
+  import { computed } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { Close } from '@element-plus/icons-vue';
 
-interface TagItem {
-  path: string
-  meta: { title: string; affix: boolean }
-}
+  interface TagItem {
+    path: string;
+    meta: { title: string; affix: boolean };
+  }
 
-const route = useRoute()
+  const route = useRoute();
 
-const visitedViews = computed<TagItem[]>(() => {
-  return [
-    {
-      path: '/',
-      meta: { title: '首页', affix: true }
-    }
-  ]
-})
+  const visitedViews = computed<TagItem[]>(() => {
+    return [
+      {
+        path: '/',
+        meta: { title: '首页', affix: true },
+      },
+    ];
+  });
 
-const isActive = (tag: TagItem) => {
-  return tag.path === route.path
-}
+  const isActive = (tag: TagItem) => {
+    return tag.path === route.path;
+  };
 
-const closeTag = () => {
-  // 关闭标签
-}
+  const closeTag = () => {
+    // 关闭标签
+  };
 
-const closeSelectedTag = () => {
-  // 中键关闭
-}
+  const closeSelectedTag = () => {
+    // 中键关闭
+  };
 
-const openMenu = () => {
-  // 右键菜单
-}
+  const openMenu = () => {
+    // 右键菜单
+  };
 </script>
 
 <style lang="scss" scoped>
-.tags-view-container {
-  height: 34px;
-  width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #d8dce5;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  .tags-view-container {
+    height: 34px;
+    width: 100%;
+    background: #fff;
+    border-bottom: 1px solid #d8dce5;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12);
 
-  .tags-view-wrapper {
-    .tags-view-item {
-      display: inline-block;
-      position: relative;
-      cursor: pointer;
-      height: 26px;
-      line-height: 26px;
-      border: 1px solid #d8dce5;
-      color: #495057;
-      background: #fff;
-      padding: 0 8px;
-      font-size: 12px;
-      margin-left: 5px;
-      margin-top: 4px;
-      border-radius: 4px;
+    .tags-view-wrapper {
+      .tags-view-item {
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+        height: 26px;
+        line-height: 26px;
+        border: 1px solid #d8dce5;
+        color: #495057;
+        background: #fff;
+        padding: 0 8px;
+        font-size: 12px;
+        margin-left: 5px;
+        margin-top: 4px;
+        border-radius: 4px;
 
-      &.is-active {
-        background-color: #42b983;
-        color: #fff;
-        border-color: #42b983;
+        &.is-active {
+          background-color: #42b983;
+          color: #fff;
+          border-color: #42b983;
 
-        &::before {
-          content: '';
-          background: #fff;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          position: relative;
-          margin-right: 2px;
+          &::before {
+            content: '';
+            background: #fff;
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: relative;
+            margin-right: 2px;
+          }
         }
       }
     }
   }
-}
 </style>

@@ -18,8 +18,8 @@ declare const hasPermi: Directive;
 declare const hasPermiAll: Directive;
 export { hasPermi, hasPermiAll };
 declare const _default: {
-    hasPermi: import("vue").ObjectDirective<any, any, string, any>;
-    hasPermiAll: import("vue").ObjectDirective<any, any, string, any>;
+  hasPermi: import('vue').ObjectDirective<any, any, string, any>;
+  hasPermiAll: import('vue').ObjectDirective<any, any, string, any>;
 };
 export default _default;
 //# sourceMappingURL=permission.d.ts.map

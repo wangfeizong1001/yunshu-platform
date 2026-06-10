@@ -81,7 +81,7 @@
               v-for="(tag, index) in row.tags?.split(',') || []"
               :key="index"
               size="small"
-              style="margin-right: 4px; margin-bottom: 4px;"
+              style="margin-right: 4px; margin-bottom: 4px"
             >
               {{ tag }}
             </el-tag>
@@ -160,7 +160,11 @@
     </el-card>
 
     <!-- 文档编辑弹窗 -->
-    <KnowledgeForm v-model="formVisible" :knowledge-data="currentKnowledge" @refresh="fetchKnowledgeList" />
+    <KnowledgeForm
+      v-model="formVisible"
+      :knowledge-data="currentKnowledge"
+      @refresh="fetchKnowledgeList"
+    />
 
     <!-- 文档预览弹窗 -->
     <KnowledgeDetail v-model="detailVisible" :knowledge-id="currentKnowledgeId" />
@@ -168,194 +172,200 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Delete } from '@element-plus/icons-vue'
-import {
-  getKnowledgePage,
-  getCategoryList,
-  deleteKnowledge,
-  batchDeleteKnowledge,
-  publishKnowledge,
-  withdrawKnowledge,
-  type KnowledgeInfo
-} from '@/api/system/knowledge.api'
-import KnowledgeForm from './KnowledgeForm.vue'
-import KnowledgeDetail from './KnowledgeDetail.vue'
+  import { ref, reactive, onMounted } from 'vue';
+  import { ElMessage, ElMessageBox } from 'element-plus';
+  import { Search, Refresh, Plus, Delete } from '@element-plus/icons-vue';
+  import {
+    getKnowledgePage,
+    getCategoryList,
+    deleteKnowledge,
+    batchDeleteKnowledge,
+    publishKnowledge,
+    withdrawKnowledge,
+    type KnowledgeInfo,
+  } from '@/api/system/knowledge.api';
+  import KnowledgeForm from './KnowledgeForm.vue';
+  import KnowledgeDetail from './KnowledgeDetail.vue';
 
-// 状态
-const loading = ref(false)
-const knowledgeList = ref<KnowledgeInfo[]>([])
-const categoryList = ref<any[]>([])
-const total = ref(0)
-const selectedRows = ref<KnowledgeInfo[]>([])
-const formVisible = ref(false)
-const detailVisible = ref(false)
-const currentKnowledge = ref<KnowledgeInfo | null>(null)
-const currentKnowledgeId = ref<number>()
+  // 状态
+  const loading = ref(false);
+  const knowledgeList = ref<KnowledgeInfo[]>([]);
+  const categoryList = ref<any[]>([]);
+  const total = ref(0);
+  const selectedRows = ref<KnowledgeInfo[]>([]);
+  const formVisible = ref(false);
+  const detailVisible = ref(false);
+  const currentKnowledge = ref<KnowledgeInfo | null>(null);
+  const currentKnowledgeId = ref<number>();
 
-// 查询参数
-const queryParams = reactive({
-  keyword: '',
-  categoryId: undefined as number | undefined,
-  status: '',
-  visible: '',
-  pageNum: 1,
-  pageSize: 10
-})
+  // 查询参数
+  const queryParams = reactive({
+    keyword: '',
+    categoryId: undefined as number | undefined,
+    status: '',
+    visible: '',
+    pageNum: 1,
+    pageSize: 10,
+  });
 
-// 获取分类列表
-async function fetchCategoryList() {
-  try {
-    const res = await getCategoryList() as { data: any[] }
-    categoryList.value = res.data || []
-  } catch (error) {
-    console.error('获取分类列表失败', error)
-  }
-}
-
-// 获取知识库文档列表
-async function fetchKnowledgeList() {
-  loading.value = true
-  try {
-    const res = await getKnowledgePage(queryParams) as { data?: { rows: KnowledgeInfo[]; total: number } }
-    knowledgeList.value = res.data?.rows || []
-    total.value = res.data?.total || 0
-  } catch (error) {
-    console.error('获取知识库文档列表失败', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-// 查询
-function handleQuery() {
-  queryParams.pageNum = 1
-  fetchKnowledgeList()
-}
-
-// 重置查询
-function resetQuery() {
-  queryParams.keyword = ''
-  queryParams.categoryId = undefined
-  queryParams.status = ''
-  queryParams.visible = ''
-  queryParams.pageNum = 1
-  handleQuery()
-}
-
-// 新增
-function handleAdd() {
-  currentKnowledge.value = null
-  formVisible.value = true
-}
-
-// 编辑
-function handleEdit(row: KnowledgeInfo) {
-  currentKnowledge.value = { ...row }
-  formVisible.value = true
-}
-
-// 预览
-function handleView(row: KnowledgeInfo) {
-  currentKnowledgeId.value = row.knowledgeId
-  detailVisible.value = true
-}
-
-// 发布
-async function handlePublish(row: KnowledgeInfo) {
-  try {
-    await ElMessageBox.confirm(`是否确认发布文档"${row.title}"？`, '提示', {
-      type: 'warning'
-    })
-    await publishKnowledge(row.knowledgeId)
-    ElMessage.success('发布成功')
-    fetchKnowledgeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('发布失败', error)
+  // 获取分类列表
+  async function fetchCategoryList() {
+    try {
+      const res = (await getCategoryList()) as { data: any[] };
+      categoryList.value = res.data || [];
+    } catch (error) {
+      console.error('获取分类列表失败', error);
     }
   }
-}
 
-// 撤回
-async function handleWithdraw(row: KnowledgeInfo) {
-  try {
-    await ElMessageBox.confirm(`是否确认撤回文档"${row.title}"？`, '提示', {
-      type: 'warning'
-    })
-    await withdrawKnowledge(row.knowledgeId)
-    ElMessage.success('撤回成功')
-    fetchKnowledgeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('撤回失败', error)
+  // 获取知识库文档列表
+  async function fetchKnowledgeList() {
+    loading.value = true;
+    try {
+      const res = (await getKnowledgePage(queryParams)) as {
+        data?: { rows: KnowledgeInfo[]; total: number };
+      };
+      knowledgeList.value = res.data?.rows || [];
+      total.value = res.data?.total || 0;
+    } catch (error) {
+      console.error('获取知识库文档列表失败', error);
+    } finally {
+      loading.value = false;
     }
   }
-}
 
-// 删除
-async function handleDelete(row: KnowledgeInfo) {
-  try {
-    await ElMessageBox.confirm(`是否确认删除文档"${row.title}"？`, '提示', {
-      type: 'warning'
-    })
-    await deleteKnowledge(row.knowledgeId)
-    ElMessage.success('删除成功')
-    fetchKnowledgeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败', error)
+  // 查询
+  function handleQuery() {
+    queryParams.pageNum = 1;
+    fetchKnowledgeList();
+  }
+
+  // 重置查询
+  function resetQuery() {
+    queryParams.keyword = '';
+    queryParams.categoryId = undefined;
+    queryParams.status = '';
+    queryParams.visible = '';
+    queryParams.pageNum = 1;
+    handleQuery();
+  }
+
+  // 新增
+  function handleAdd() {
+    currentKnowledge.value = null;
+    formVisible.value = true;
+  }
+
+  // 编辑
+  function handleEdit(row: KnowledgeInfo) {
+    currentKnowledge.value = { ...row };
+    formVisible.value = true;
+  }
+
+  // 预览
+  function handleView(row: KnowledgeInfo) {
+    currentKnowledgeId.value = row.knowledgeId;
+    detailVisible.value = true;
+  }
+
+  // 发布
+  async function handlePublish(row: KnowledgeInfo) {
+    try {
+      await ElMessageBox.confirm(`是否确认发布文档"${row.title}"？`, '提示', {
+        type: 'warning',
+      });
+      await publishKnowledge(row.knowledgeId);
+      ElMessage.success('发布成功');
+      fetchKnowledgeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('发布失败', error);
+      }
     }
   }
-}
 
-// 批量删除
-async function handleBatchDelete() {
-  try {
-    await ElMessageBox.confirm(`是否确认删除选中的 ${selectedRows.value.length} 个文档？`, '提示', {
-      type: 'warning'
-    })
-    await batchDeleteKnowledge(selectedRows.value.map(row => row.knowledgeId))
-    ElMessage.success('批量删除成功')
-    fetchKnowledgeList()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('批量删除失败', error)
+  // 撤回
+  async function handleWithdraw(row: KnowledgeInfo) {
+    try {
+      await ElMessageBox.confirm(`是否确认撤回文档"${row.title}"？`, '提示', {
+        type: 'warning',
+      });
+      await withdrawKnowledge(row.knowledgeId);
+      ElMessage.success('撤回成功');
+      fetchKnowledgeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('撤回失败', error);
+      }
     }
   }
-}
 
-// 表格选择
-function handleSelectionChange(selection: KnowledgeInfo[]) {
-  selectedRows.value = selection
-}
+  // 删除
+  async function handleDelete(row: KnowledgeInfo) {
+    try {
+      await ElMessageBox.confirm(`是否确认删除文档"${row.title}"？`, '提示', {
+        type: 'warning',
+      });
+      await deleteKnowledge(row.knowledgeId);
+      ElMessage.success('删除成功');
+      fetchKnowledgeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('删除失败', error);
+      }
+    }
+  }
 
-// 初始化
-onMounted(() => {
-  fetchCategoryList()
-  fetchKnowledgeList()
-})
+  // 批量删除
+  async function handleBatchDelete() {
+    try {
+      await ElMessageBox.confirm(
+        `是否确认删除选中的 ${selectedRows.value.length} 个文档？`,
+        '提示',
+        {
+          type: 'warning',
+        },
+      );
+      await batchDeleteKnowledge(selectedRows.value.map((row) => row.knowledgeId));
+      ElMessage.success('批量删除成功');
+      fetchKnowledgeList();
+    } catch (error) {
+      if (error !== 'cancel') {
+        console.error('批量删除失败', error);
+      }
+    }
+  }
+
+  // 表格选择
+  function handleSelectionChange(selection: KnowledgeInfo[]) {
+    selectedRows.value = selection;
+  }
+
+  // 初始化
+  onMounted(() => {
+    fetchCategoryList();
+    fetchKnowledgeList();
+  });
 </script>
 
 <style scoped lang="scss">
-.knowledge-list {
-  .search-card {
-    margin-bottom: 16px;
-  }
+  .knowledge-list {
+    .search-card {
+      margin-bottom: 16px;
+    }
 
-  .table-card {
-    .table-header {
+    .table-card {
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .pagination {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      margin-top: 16px;
     }
   }
-
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-}
 </style>

@@ -8,10 +8,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -100,11 +97,56 @@ const jobs: SysJob[] = [
 ];
 
 const jobLogs: SysJobLog[] = [
-  { jobLogId: 1, jobName: '系统默认（无参）', jobGroup: 'SYSTEM', invokeTarget: 'ryTask.ryNoParams', jobMessage: '任务执行成功', status: '0', exceptionInfo: '', createdAt: '2024-01-15 10:00:00' },
-  { jobLogId: 2, jobName: '系统默认（有参）', jobGroup: 'SYSTEM', invokeTarget: 'ryTask.ryParams("ry")', jobMessage: '任务执行成功', status: '0', exceptionInfo: '', createdAt: '2024-01-15 10:15:00' },
-  { jobLogId: 3, jobName: '数据清理任务', jobGroup: 'DEFAULT', invokeTarget: 'cleanTask.cleanExpiredData()', jobMessage: '任务执行失败', status: '1', exceptionInfo: 'Error: connection timeout', createdAt: '2024-01-15 02:00:00' },
-  { jobLogId: 4, jobName: '系统默认（无参）', jobGroup: 'SYSTEM', invokeTarget: 'ryTask.ryNoParams', jobMessage: '任务执行成功', status: '0', exceptionInfo: '', createdAt: '2024-01-15 10:30:00' },
-  { jobLogId: 5, jobName: '系统默认（有参）', jobGroup: 'SYSTEM', invokeTarget: 'ryTask.ryParams("ry")', jobMessage: '任务执行成功', status: '0', exceptionInfo: '', createdAt: '2024-01-15 10:45:00' },
+  {
+    jobLogId: 1,
+    jobName: '系统默认（无参）',
+    jobGroup: 'SYSTEM',
+    invokeTarget: 'ryTask.ryNoParams',
+    jobMessage: '任务执行成功',
+    status: '0',
+    exceptionInfo: '',
+    createdAt: '2024-01-15 10:00:00',
+  },
+  {
+    jobLogId: 2,
+    jobName: '系统默认（有参）',
+    jobGroup: 'SYSTEM',
+    invokeTarget: 'ryTask.ryParams("ry")',
+    jobMessage: '任务执行成功',
+    status: '0',
+    exceptionInfo: '',
+    createdAt: '2024-01-15 10:15:00',
+  },
+  {
+    jobLogId: 3,
+    jobName: '数据清理任务',
+    jobGroup: 'DEFAULT',
+    invokeTarget: 'cleanTask.cleanExpiredData()',
+    jobMessage: '任务执行失败',
+    status: '1',
+    exceptionInfo: 'Error: connection timeout',
+    createdAt: '2024-01-15 02:00:00',
+  },
+  {
+    jobLogId: 4,
+    jobName: '系统默认（无参）',
+    jobGroup: 'SYSTEM',
+    invokeTarget: 'ryTask.ryNoParams',
+    jobMessage: '任务执行成功',
+    status: '0',
+    exceptionInfo: '',
+    createdAt: '2024-01-15 10:30:00',
+  },
+  {
+    jobLogId: 5,
+    jobName: '系统默认（有参）',
+    jobGroup: 'SYSTEM',
+    invokeTarget: 'ryTask.ryParams("ry")',
+    jobMessage: '任务执行成功',
+    status: '0',
+    exceptionInfo: '',
+    createdAt: '2024-01-15 10:45:00',
+  },
 ];
 
 // ============================================================================
@@ -171,9 +213,9 @@ export class JobController extends BaseController {
     const statusParam = this.safeParam(req.query.status, 1);
 
     let filtered = [...jobs];
-    if (jobNameParam) filtered = filtered.filter(i => i.jobName.includes(jobNameParam));
-    if (jobGroupParam) filtered = filtered.filter(i => i.jobGroup === jobGroupParam);
-    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
+    if (jobNameParam) filtered = filtered.filter((i) => i.jobName.includes(jobNameParam));
+    if (jobGroupParam) filtered = filtered.filter((i) => i.jobGroup === jobGroupParam);
+    if (statusParam) filtered = filtered.filter((i) => i.status === statusParam);
 
     const total = filtered.length;
     const start = (page - 1) * limit;
@@ -188,7 +230,7 @@ export class JobController extends BaseController {
   async getDetail(req: Request, res: Response) {
     const jobId = Number(req.params.jobId);
     if (!Number.isFinite(jobId)) return this.badRequest(res, 'jobId 参数非法');
-    const item = jobs.find(i => i.jobId === jobId);
+    const item = jobs.find((i) => i.jobId === jobId);
     if (!item) return this.notFound(res, '任务不存在');
     return this.success(res, item, '查询成功');
   }
@@ -203,8 +245,10 @@ export class JobController extends BaseController {
     const body = req.body as Partial<SysJob>;
     if (!isValidJobName(body.jobName)) return this.badRequest(res, 'jobName 长度 1-100');
     if (!isValidJobGroup(body.jobGroup)) return this.badRequest(res, 'jobGroup 长度 1-100');
-    if (!isValidInvokeTarget(body.invokeTarget)) return this.badRequest(res, 'invokeTarget 非法（长度或内容违规）');
-    if (!isValidCronExpression(body.cronExpression)) return this.badRequest(res, 'cronExpression 格式错误');
+    if (!isValidInvokeTarget(body.invokeTarget))
+      return this.badRequest(res, 'invokeTarget 非法（长度或内容违规）');
+    if (!isValidCronExpression(body.cronExpression))
+      return this.badRequest(res, 'cronExpression 格式错误');
 
     const misfirePolicy = body.misfirePolicy ?? '1';
     if (misfirePolicy !== '0' && misfirePolicy !== '1' && misfirePolicy !== '2') {
@@ -245,7 +289,7 @@ export class JobController extends BaseController {
     const jobId = Number(req.params.jobId);
     if (!Number.isFinite(jobId)) return this.badRequest(res, 'jobId 参数非法');
 
-    const exist = jobs.find(i => i.jobId === jobId);
+    const exist = jobs.find((i) => i.jobId === jobId);
     if (!exist) return this.notFound(res, '任务不存在');
     const idx = jobs.indexOf(exist);
 
@@ -263,8 +307,12 @@ export class JobController extends BaseController {
     if (body.cronExpression !== undefined && !isValidCronExpression(body.cronExpression)) {
       return this.badRequest(res, 'cronExpression 格式错误');
     }
-    if (body.misfirePolicy !== undefined
-      && body.misfirePolicy !== '0' && body.misfirePolicy !== '1' && body.misfirePolicy !== '2') {
+    if (
+      body.misfirePolicy !== undefined &&
+      body.misfirePolicy !== '0' &&
+      body.misfirePolicy !== '1' &&
+      body.misfirePolicy !== '2'
+    ) {
       return this.badRequest(res, 'misfirePolicy 必须是 0/1/2');
     }
     if (body.concurrent !== undefined && !isValidBinaryStatus(body.concurrent)) {
@@ -284,7 +332,8 @@ export class JobController extends BaseController {
       misfirePolicy: body.misfirePolicy ?? exist.misfirePolicy,
       concurrent: body.concurrent ?? exist.concurrent,
       status: body.status ?? exist.status,
-      remark: typeof body.remark === 'string' ? body.remark.slice(0, MAX_FIELD_LENGTH) : exist.remark,
+      remark:
+        typeof body.remark === 'string' ? body.remark.slice(0, MAX_FIELD_LENGTH) : exist.remark,
       createdAt: exist.createdAt,
       updatedAt: now,
     };
@@ -301,7 +350,7 @@ export class JobController extends BaseController {
     const jobId = Number(req.params.jobId);
     if (!Number.isFinite(jobId)) return this.badRequest(res, 'jobId 参数非法');
 
-    const idx = jobs.findIndex(i => i.jobId === jobId);
+    const idx = jobs.findIndex((i) => i.jobId === jobId);
     if (idx === -1) return this.notFound(res, '任务不存在');
     const removed = jobs.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');
@@ -318,7 +367,7 @@ export class JobController extends BaseController {
     const jobId = Number(body.jobId);
     if (!Number.isFinite(jobId)) return this.badRequest(res, 'jobId 参数非法');
 
-    const job = jobs.find(i => i.jobId === jobId);
+    const job = jobs.find((i) => i.jobId === jobId);
     if (!job) return this.notFound(res, '任务不存在');
 
     const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
@@ -348,7 +397,7 @@ export class JobController extends BaseController {
     const jobId = Number(body.jobId);
     if (!Number.isFinite(jobId)) return this.badRequest(res, 'jobId 参数非法');
 
-    const job = jobs.find(i => i.jobId === jobId);
+    const job = jobs.find((i) => i.jobId === jobId);
     if (!job) return this.notFound(res, '任务不存在');
 
     const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
@@ -372,9 +421,9 @@ export class JobController extends BaseController {
     const statusParam = this.safeParam(req.query.status, 1);
 
     let filtered = [...jobLogs];
-    if (jobNameParam) filtered = filtered.filter(i => i.jobName.includes(jobNameParam));
-    if (jobGroupParam) filtered = filtered.filter(i => i.jobGroup === jobGroupParam);
-    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
+    if (jobNameParam) filtered = filtered.filter((i) => i.jobName.includes(jobNameParam));
+    if (jobGroupParam) filtered = filtered.filter((i) => i.jobGroup === jobGroupParam);
+    if (statusParam) filtered = filtered.filter((i) => i.status === statusParam);
 
     const total = filtered.length;
     const start = (page - 1) * limit;
@@ -393,7 +442,7 @@ export class JobController extends BaseController {
     const jobLogId = Number(req.params.jobLogId);
     if (!Number.isFinite(jobLogId)) return this.badRequest(res, 'jobLogId 参数非法');
 
-    const idx = jobLogs.findIndex(i => i.jobLogId === jobLogId);
+    const idx = jobLogs.findIndex((i) => i.jobLogId === jobLogId);
     if (idx === -1) return this.notFound(res, '任务日志不存在');
     const removed = jobLogs.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');

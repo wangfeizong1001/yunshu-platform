@@ -22,11 +22,7 @@ export {
   closeRedis,
 } from './RedisClient';
 
-export type {
-  RedisConfig,
-  RedisClientStatus,
-  RedisHealthCheckResult,
-} from './RedisClient';
+export type { RedisConfig, RedisClientStatus, RedisHealthCheckResult } from './RedisClient';
 
 // ============================================================================
 // 二级缓存装饰器
@@ -59,10 +55,7 @@ export {
   resetLockStats,
 } from './DistributedLock';
 
-export type {
-  LockOptions,
-  LockInstance,
-} from './DistributedLock';
+export type { LockOptions, LockInstance } from './DistributedLock';
 
 // ============================================================================
 // 缓存预热
@@ -78,8 +71,4 @@ export {
   stopWarmupManager,
 } from './CacheWarmup';
 
-export type {
-  WarmupTask,
-  WarmupTaskStatus,
-  WarmupManagerConfig,
-} from './CacheWarmup';
+export type { WarmupTask, WarmupTaskStatus, WarmupManagerConfig } from './CacheWarmup';

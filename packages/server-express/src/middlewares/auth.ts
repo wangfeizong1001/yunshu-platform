@@ -58,10 +58,7 @@ export interface IUserLookup {
  * @param tokenVerifier Token 验证器
  * @param userLookup 用户查询器
  */
-export function createAuthMiddleware(
-  tokenVerifier: ITokenVerifier,
-  userLookup: IUserLookup,
-) {
+export function createAuthMiddleware(tokenVerifier: ITokenVerifier, userLookup: IUserLookup) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authHeader = req.headers.authorization;
@@ -200,16 +197,25 @@ class AuthSession {
   private currentUser: MockUser | null = null;
 
   /** 注册一个 token -> user 映射 */
-  register(token: string, user: MockUser) { this.users.set(token, user); }
+  register(token: string, user: MockUser) {
+    this.users.set(token, user);
+  }
 
   /** 手动设置当前用户（用于直接注入测试场景） */
-  setCurrent(user: MockUser | null) { this.currentUser = user; }
+  setCurrent(user: MockUser | null) {
+    this.currentUser = user;
+  }
 
   /** 通过 token 查找用户 */
-  findByToken(token: string): MockUser | null { return this.users.get(token) ?? null; }
+  findByToken(token: string): MockUser | null {
+    return this.users.get(token) ?? null;
+  }
 
   /** 清空会话 */
-  clear() { this.users.clear(); this.currentUser = null; }
+  clear() {
+    this.users.clear();
+    this.currentUser = null;
+  }
 }
 
 export const authSession = new AuthSession();
@@ -247,14 +253,24 @@ export function requireAuth(options: { role?: 'admin' | 'user' | 'super_admin' }
     // 检查角色
     if (options.role) {
       if (options.role === 'admin' && user.role !== 'admin' && user.role !== 'super_admin') {
-        return res.status(403).json({ success: false, message: '需要管理员权限', timestamp: new Date().toISOString() });
+        return res
+          .status(403)
+          .json({ success: false, message: '需要管理员权限', timestamp: new Date().toISOString() });
       }
       if (options.role === 'super_admin' && user.role !== 'super_admin') {
-        return res.status(403).json({ success: false, message: '需要超级管理员权限', timestamp: new Date().toISOString() });
+        return res
+          .status(403)
+          .json({
+            success: false,
+            message: '需要超级管理员权限',
+            timestamp: new Date().toISOString(),
+          });
       }
       // 'user' 角色仅要求已登录（前面已通过 token 校验保证 user 存在）
       if (options.role === 'user' && !user) {
-        return res.status(403).json({ success: false, message: '无权限', timestamp: new Date().toISOString() });
+        return res
+          .status(403)
+          .json({ success: false, message: '无权限', timestamp: new Date().toISOString() });
       }
     }
 

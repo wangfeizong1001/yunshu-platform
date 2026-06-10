@@ -35,7 +35,10 @@
       <div class="header-item user-info">
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="user-dropdown">
-            <el-avatar :size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+            <el-avatar
+              :size="32"
+              src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+            />
             <span class="username">{{ username }}</span>
             <el-icon class="el-icon--right">
               <ArrowDown />
@@ -64,106 +67,106 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from '@/store/modules/app'
-import { useUserStore } from '@/store/modules/user'
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+  import { useAppStore } from '@/store/modules/app';
+  import { useUserStore } from '@/store/modules/user';
+  import { computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { ElMessage } from 'element-plus';
 
-const appStore = useAppStore()
-const userStore = useUserStore()
-const router = useRouter()
+  const appStore = useAppStore();
+  const userStore = useUserStore();
+  const router = useRouter();
 
-const isCollapsed = computed(() => appStore.sidebarCollapsed)
-const username = computed(() => userStore.username)
+  const isCollapsed = computed(() => appStore.sidebarCollapsed);
+  const username = computed(() => userStore.username);
 
-const toggleSidebar = () => {
-  appStore.toggleSidebar()
-}
+  const toggleSidebar = () => {
+    appStore.toggleSidebar();
+  };
 
-const handleCommand = async (command: string) => {
-  switch (command) {
-    case 'profile':
-      router.push('/profile')
-      break
-    case 'settings':
-      router.push('/settings')
-      break
-    case 'logout':
-      try {
-        await userStore.logout()
-        ElMessage.success('退出登录成功')
-        router.push('/login')
-      } catch {
-        ElMessage.error('退出登录失败')
-      }
-      break
-  }
-}
+  const handleCommand = async (command: string) => {
+    switch (command) {
+      case 'profile':
+        router.push('/profile');
+        break;
+      case 'settings':
+        router.push('/settings');
+        break;
+      case 'logout':
+        try {
+          await userStore.logout();
+          ElMessage.success('退出登录成功');
+          router.push('/login');
+        } catch {
+          ElMessage.error('退出登录失败');
+        }
+        break;
+    }
+  };
 </script>
 
 <style lang="scss" scoped>
-.header {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-  padding: 0 16px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-}
-
-.collapse-btn {
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  cursor: pointer;
-  color: #666;
-
-  &:hover {
-    color: #409eff;
+  .header {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+    padding: 0 16px;
   }
-}
 
-.breadcrumb {
-  margin-left: 16px;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-}
-
-.header-item {
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  cursor: pointer;
-  color: #666;
-  transition: color $transition-duration $transition-function;
-
-  &:hover {
-    color: #409eff;
+  .header-left {
+    display: flex;
+    align-items: center;
   }
-}
 
-.user-info {
-  padding: 0 8px;
-}
+  .collapse-btn {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    cursor: pointer;
+    color: #666;
 
-.user-dropdown {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
+    &:hover {
+      color: #409eff;
+    }
+  }
 
-.username {
-  margin: 0 8px;
-  font-size: 14px;
-}
+  .breadcrumb {
+    margin-left: 16px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .header-item {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    cursor: pointer;
+    color: #666;
+    transition: color $transition-duration $transition-function;
+
+    &:hover {
+      color: #409eff;
+    }
+  }
+
+  .user-info {
+    padding: 0 8px;
+  }
+
+  .user-dropdown {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .username {
+    margin: 0 8px;
+    font-size: 14px;
+  }
 </style>

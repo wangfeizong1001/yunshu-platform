@@ -26,25 +26,25 @@
 </template>
 
 <script setup lang="ts">
-import { isExternal } from '@/utils'
+  import { isExternal } from '@/utils';
 
-interface Props {
-  item: any
-  basePath: string
-}
-
-const props = defineProps<Props>()
-
-const resolvePath = (childPath: string) => {
-  if (isExternal(childPath)) {
-    return childPath
+  interface Props {
+    item: any;
+    basePath: string;
   }
-  if (isExternal(props.basePath)) {
-    return props.basePath
-  }
-  const path = `${props.basePath}/${childPath}`.replace(/\/+/g, '/')
-  return path
-}
+
+  const props = defineProps<Props>();
+
+  const resolvePath = (childPath: string) => {
+    if (isExternal(childPath)) {
+      return childPath;
+    }
+    if (isExternal(props.basePath)) {
+      return props.basePath;
+    }
+    const path = `${props.basePath}/${childPath}`.replace(/\/+/g, '/');
+    return path;
+  };
 </script>
 
 <style lang="scss" scoped></style>

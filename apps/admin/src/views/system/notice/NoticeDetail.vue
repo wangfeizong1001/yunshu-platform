@@ -1,11 +1,5 @@
 <template>
-  <el-dialog
-    v-model="visible"
-    title="公告详情"
-    width="700px"
-    append-to-body
-    @close="handleClose"
-  >
+  <el-dialog v-model="visible" title="公告详情" width="700px" append-to-body @close="handleClose">
     <div v-loading="loading" class="notice-detail">
       <div class="notice-header">
         <h2 class="notice-title">{{ noticeData?.noticeTitle }}</h2>
@@ -35,99 +29,99 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { getNoticeDetail } from '@/api/system/notice.api'
-import type { SysNotice } from '@yunshu/shared'
+  import { ref, computed, watch } from 'vue';
+  import { getNoticeDetail } from '@/api/system/notice.api';
+  import type { SysNotice } from '@yunshu/shared';
 
-interface Props {
-  modelValue: boolean
-  noticeId?: number
-}
-
-interface Emits {
-  (e: 'update:modelValue', value: boolean): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-// 计算属性
-const visible = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
-})
-
-// 状态
-const loading = ref(false)
-const noticeData = ref<SysNotice | null>(null)
-
-// 加载公告详情
-async function fetchNoticeDetail() {
-  if (!props.noticeId) return
-
-  loading.value = true
-  try {
-    const res = await getNoticeDetail(props.noticeId) as { data: SysNotice }
-    noticeData.value = res.data
-  } catch (error) {
-    console.error('加载公告详情失败', error)
-  } finally {
-    loading.value = false
+  interface Props {
+    modelValue: boolean;
+    noticeId?: number;
   }
-}
 
-// 关闭弹窗
-function handleClose() {
-  noticeData.value = null
-  visible.value = false
-}
-
-// 监听弹窗打开
-watch(visible, (val) => {
-  if (val) {
-    fetchNoticeDetail()
+  interface Emits {
+    (e: 'update:modelValue', value: boolean): void;
   }
-})
+
+  const props = defineProps<Props>();
+  const emit = defineEmits<Emits>();
+
+  // 计算属性
+  const visible = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  });
+
+  // 状态
+  const loading = ref(false);
+  const noticeData = ref<SysNotice | null>(null);
+
+  // 加载公告详情
+  async function fetchNoticeDetail() {
+    if (!props.noticeId) return;
+
+    loading.value = true;
+    try {
+      const res = (await getNoticeDetail(props.noticeId)) as { data: SysNotice };
+      noticeData.value = res.data;
+    } catch (error) {
+      console.error('加载公告详情失败', error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  // 关闭弹窗
+  function handleClose() {
+    noticeData.value = null;
+    visible.value = false;
+  }
+
+  // 监听弹窗打开
+  watch(visible, (val) => {
+    if (val) {
+      fetchNoticeDetail();
+    }
+  });
 </script>
 
 <style scoped lang="scss">
-.notice-detail {
-  .notice-header {
-    margin-bottom: 16px;
+  .notice-detail {
+    .notice-header {
+      margin-bottom: 16px;
 
-    .notice-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
+      .notice-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
 
-    .notice-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #909399;
-      font-size: 14px;
+      .notice-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #909399;
+        font-size: 14px;
 
-      .create-time {
-        margin-left: auto;
+        .create-time {
+          margin-left: auto;
+        }
       }
     }
-  }
 
-  .notice-content {
-    line-height: 1.8;
-    min-height: 200px;
+    .notice-content {
+      line-height: 1.8;
+      min-height: 200px;
 
-    :deep(p) {
-      margin: 0 0 16px 0;
+      :deep(p) {
+        margin: 0 0 16px 0;
+      }
+    }
+
+    .notice-footer {
+      display: flex;
+      justify-content: space-between;
+      color: #909399;
+      font-size: 14px;
     }
   }
-
-  .notice-footer {
-    display: flex;
-    justify-content: space-between;
-    color: #909399;
-    font-size: 14px;
-  }
-}
 </style>

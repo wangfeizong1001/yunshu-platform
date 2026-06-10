@@ -9,13 +9,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
-import {
-  request,
-  httpGet,
-  httpPost,
-  httpPut,
-  httpDelete,
-} from '@/utils/httpClient';
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient';
 
 // mock authStorage 的 getToken
 vi.mock('@/utils/security/authStorage', () => ({
@@ -63,12 +57,16 @@ describe('utils/httpClient', () => {
   it('401 响应路径会派发 yunshu:auth-expired 事件', () => {
     // 捕获注册的响应拦截器
     const axiosInstance = axios.create();
-    const responseUse = axiosInstance.interceptors.response.use as unknown as ReturnType<typeof vi.fn>;
+    const responseUse = axiosInstance.interceptors.response.use as unknown as ReturnType<
+      typeof vi.fn
+    >;
     // 重新导入让模块被加载 —— 我们通过调用 request 触发整个链路
     // 但真实事件派发发生在 httpClient 的 response interceptor 中，
     // 此处直接用事件监听 + 手动模拟：
     let dispatched = false;
-    const handler = () => { dispatched = true; };
+    const handler = () => {
+      dispatched = true;
+    };
     window.addEventListener('yunshu:auth-expired', handler);
 
     // 触发 401 逻辑：直接派发 CustomEvent 验证监听

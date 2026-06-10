@@ -148,16 +148,14 @@ export class MigrationUtils {
       if (table.columns.some((c) => c.comment)) {
         for (const col of table.columns) {
           if (col.comment) {
-            await this.pool.query(
-              `COMMENT ON COLUMN "${table.name}"."${col.name}" IS $1`,
-              [col.comment],
-            );
+            await this.pool.query(`COMMENT ON COLUMN "${table.name}"."${col.name}" IS $1`, [
+              col.comment,
+            ]);
           }
         }
       }
 
       return { success: true };
-
     } catch (error) {
       return {
         success: false,
@@ -174,7 +172,6 @@ export class MigrationUtils {
       const sql = `DROP TABLE IF EXISTS "${tableName}"${cascade ? ' CASCADE' : ''}`;
       await this.pool.query(sql);
       return { success: true };
-
     } catch (error) {
       return {
         success: false,
@@ -199,7 +196,6 @@ export class MigrationUtils {
 
       await this.pool.query(sql);
       return { success: true };
-
     } catch (error) {
       return {
         success: false,
@@ -211,10 +207,7 @@ export class MigrationUtils {
   /**
    * 创建外键
    */
-  async createForeignKey(
-    tableName: string,
-    fk: ForeignKeyDefinition,
-  ): Promise<MigrationResult> {
+  async createForeignKey(tableName: string, fk: ForeignKeyDefinition): Promise<MigrationResult> {
     try {
       const sql = `
         ALTER TABLE "${tableName}"
@@ -227,7 +220,6 @@ export class MigrationUtils {
 
       await this.pool.query(sql);
       return { success: true };
-
     } catch (error) {
       return {
         success: false,
@@ -239,10 +231,7 @@ export class MigrationUtils {
   /**
    * 添加字段
    */
-  async addColumn(
-    tableName: string,
-    column: ColumnDefinition,
-  ): Promise<MigrationResult> {
+  async addColumn(tableName: string, column: ColumnDefinition): Promise<MigrationResult> {
     try {
       let sql = `ALTER TABLE "${tableName}" ADD COLUMN "${column.name}" ${column.type}`;
 
@@ -257,14 +246,12 @@ export class MigrationUtils {
       await this.pool.query(sql);
 
       if (column.comment) {
-        await this.pool.query(
-          `COMMENT ON COLUMN "${tableName}"."${column.name}" IS $1`,
-          [column.comment],
-        );
+        await this.pool.query(`COMMENT ON COLUMN "${tableName}"."${column.name}" IS $1`, [
+          column.comment,
+        ]);
       }
 
       return { success: true };
-
     } catch (error) {
       return {
         success: false,
@@ -281,7 +268,6 @@ export class MigrationUtils {
       const sql = `ALTER TABLE "${tableName}" DROP COLUMN IF EXISTS "${columnName}"`;
       await this.pool.query(sql);
       return { success: true };
-
     } catch (error) {
       return {
         success: false,
@@ -302,7 +288,6 @@ export class MigrationUtils {
       const sql = `ALTER TABLE "${tableName}" RENAME COLUMN "${oldName}" TO "${newName}"`;
       await this.pool.query(sql);
       return { success: true };
-
     } catch (error) {
       return {
         success: false,
@@ -323,7 +308,6 @@ export class MigrationUtils {
       const sql = `ALTER TABLE "${tableName}" ALTER COLUMN "${columnName}" TYPE ${newType}`;
       await this.pool.query(sql);
       return { success: true };
-
     } catch (error) {
       return {
         success: false,

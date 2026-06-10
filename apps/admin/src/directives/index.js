@@ -10,11 +10,11 @@ import { hasRole, hasRoleAll } from './role';
  * 注册所有指令
  */
 export function registerDirectives(app) {
-    // 权限指令
-    app.directive('hasPermi', hasPermi);
-    app.directive('hasPermiAll', hasPermiAll);
-    // 角色指令
-    app.directive('hasRole', hasRole);
-    app.directive('hasRoleAll', hasRoleAll);
+  // 权限指令
+  app.directive('hasPermi', hasPermi);
+  app.directive('hasPermiAll', hasPermiAll);
+  // 角色指令
+  app.directive('hasRole', hasRole);
+  app.directive('hasRoleAll', hasRoleAll);
 }
 //# sourceMappingURL=index.js.map

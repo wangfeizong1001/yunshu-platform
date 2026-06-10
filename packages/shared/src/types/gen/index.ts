@@ -72,7 +72,18 @@ export interface IGenColumn {
   /** 查询类型（eq/ne/like/gt/lt/between/in） */
   queryType?: 'eq' | 'ne' | 'like' | 'gt' | 'lt' | 'between' | 'in';
   /** 显示类型（input/select/checkbox/radio/date/datetime/time/textarea/editor/image/file） */
-  displayType?: 'input' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime' | 'time' | 'textarea' | 'editor' | 'image' | 'file';
+  displayType?:
+    | 'input'
+    | 'select'
+    | 'checkbox'
+    | 'radio'
+    | 'date'
+    | 'datetime'
+    | 'time'
+    | 'textarea'
+    | 'editor'
+    | 'image'
+    | 'file';
   /** 字典类型 */
   dictType?: string;
   /** 主键策略（NONE/AUTO/INPUT/UUID） */
@@ -212,4 +223,3 @@ export interface IGenResult {
   /** 下载地址 */
   downloadUrl?: string;
 }
-

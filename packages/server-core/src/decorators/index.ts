@@ -73,9 +73,10 @@ const cacheStats = { hits: 0, misses: 0 };
 export function getCacheStats() {
   return {
     ...cacheStats,
-    hitRate: cacheStats.hits + cacheStats.misses > 0
-      ? cacheStats.hits / (cacheStats.hits + cacheStats.misses)
-      : 0,
+    hitRate:
+      cacheStats.hits + cacheStats.misses > 0
+        ? cacheStats.hits / (cacheStats.hits + cacheStats.misses)
+        : 0,
   };
 }
 
@@ -173,8 +174,13 @@ export interface LogOptions {
 }
 
 const DEFAULT_SENSITIVE_FIELDS = [
-  'password', 'token', 'secret', 'apiKey',
-  'accessToken', 'refreshToken', 'authorization',
+  'password',
+  'token',
+  'secret',
+  'apiKey',
+  'accessToken',
+  'refreshToken',
+  'authorization',
 ];
 
 /**
@@ -291,7 +297,9 @@ export function withPerformance<TArgs extends unknown[], TResult>(
       const result = await fn(...args);
       const duration = Date.now() - startTime;
       if (duration > slowThreshold) {
-        console.warn(`[${module}] ⚠ 慢方法: ${name} (${formatMs(duration)} > ${formatMs(slowThreshold)})`);
+        console.warn(
+          `[${module}] ⚠ 慢方法: ${name} (${formatMs(duration)} > ${formatMs(slowThreshold)})`,
+        );
       }
       return result;
     } catch (error) {

@@ -14,34 +14,34 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+  import { computed } from 'vue';
+  import { useRoute } from 'vue-router';
 
-const route = useRoute()
+  const route = useRoute();
 
-const matches = computed(() => {
-  return route.matched.filter((item) => item.meta?.title)
-})
+  const matches = computed(() => {
+    return route.matched.filter((item) => item.meta?.title);
+  });
 </script>
 
 <style lang="scss" scoped>
-.breadcrumb {
-  font-size: 14px;
+  .breadcrumb {
+    font-size: 14px;
 
-  :deep(.el-breadcrumb__inner) {
-    a {
-      color: #606266;
-      font-weight: normal;
+    :deep(.el-breadcrumb__inner) {
+      a {
+        color: #606266;
+        font-weight: normal;
 
-      &:hover {
-        color: #409eff;
+        &:hover {
+          color: #409eff;
+        }
       }
     }
-  }
 
-  .breadcrumb-current {
-    color: #303133;
-    font-weight: 500;
+    .breadcrumb-current {
+      color: #303133;
+      font-weight: 500;
+    }
   }
-}
 </style>

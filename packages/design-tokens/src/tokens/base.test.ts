@@ -59,11 +59,11 @@ describe('间距系统', () => {
   });
 
   it('语义化间距应对应正确的数值', () => {
-    expect(spacingSemantic.xs).toBe(spacing[1]);  // 4px
-    expect(spacingSemantic.sm).toBe(spacing[2]);  // 8px
-    expect(spacingSemantic.md).toBe(spacing[4]);  // 16px
-    expect(spacingSemantic.lg).toBe(spacing[6]);  // 24px
-    expect(spacingSemantic.xl).toBe(spacing[8]);  // 32px
+    expect(spacingSemantic.xs).toBe(spacing[1]); // 4px
+    expect(spacingSemantic.sm).toBe(spacing[2]); // 8px
+    expect(spacingSemantic.md).toBe(spacing[4]); // 16px
+    expect(spacingSemantic.lg).toBe(spacing[6]); // 24px
+    expect(spacingSemantic.xl).toBe(spacing[8]); // 32px
   });
 });
 
@@ -203,9 +203,9 @@ describe('响应式断点', () => {
   });
 
   it('常见断点应合理', () => {
-    expect(breakpoint.sm).toBe(640);   // 手机横屏
-    expect(breakpoint.md).toBe(768);   // 平板竖屏
-    expect(breakpoint.lg).toBe(1024);  // 平板横屏
-    expect(breakpoint.xl).toBe(1280);  // 桌面
+    expect(breakpoint.sm).toBe(640); // 手机横屏
+    expect(breakpoint.md).toBe(768); // 平板竖屏
+    expect(breakpoint.lg).toBe(1024); // 平板横屏
+    expect(breakpoint.xl).toBe(1280); // 桌面
   });
 });

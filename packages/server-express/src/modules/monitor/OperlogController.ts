@@ -9,10 +9,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -167,14 +164,14 @@ export class OperlogController extends BaseController {
     const endTimeParam = this.safeParam(req.query.endTime, MAX_QUERY_PARAM_LENGTH);
 
     let filtered = [...operLogs];
-    if (operNameParam) filtered = filtered.filter(i => i.operName.includes(operNameParam));
+    if (operNameParam) filtered = filtered.filter((i) => i.operName.includes(operNameParam));
     if (businessTypeParam) {
       const bt = Number(businessTypeParam);
-      if (Number.isFinite(bt)) filtered = filtered.filter(i => i.businessType === bt);
+      if (Number.isFinite(bt)) filtered = filtered.filter((i) => i.businessType === bt);
     }
-    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
-    if (startTimeParam) filtered = filtered.filter(i => i.operTime >= startTimeParam);
-    if (endTimeParam) filtered = filtered.filter(i => i.operTime <= endTimeParam);
+    if (statusParam) filtered = filtered.filter((i) => i.status === statusParam);
+    if (startTimeParam) filtered = filtered.filter((i) => i.operTime >= startTimeParam);
+    if (endTimeParam) filtered = filtered.filter((i) => i.operTime <= endTimeParam);
 
     filtered.sort((a, b) => b.operTime.localeCompare(a.operTime));
     const total = filtered.length;
@@ -190,7 +187,7 @@ export class OperlogController extends BaseController {
   async getById(req: Request, res: Response) {
     const operId = Number(req.params.operId);
     if (!Number.isFinite(operId)) return this.badRequest(res, 'operId 参数非法');
-    const item = operLogs.find(i => i.operId === operId);
+    const item = operLogs.find((i) => i.operId === operId);
     if (!item) return this.notFound(res, '操作日志不存在');
     return this.success(res, item, '查询成功');
   }
@@ -205,7 +202,7 @@ export class OperlogController extends BaseController {
     const operId = Number(req.params.operId);
     if (!Number.isFinite(operId)) return this.badRequest(res, 'operId 参数非法');
 
-    const idx = operLogs.findIndex(i => i.operId === operId);
+    const idx = operLogs.findIndex((i) => i.operId === operId);
     if (idx === -1) return this.notFound(res, '操作日志不存在');
     const removed = operLogs.splice(idx, 1)[0];
     return this.success(res, removed, '删除成功');

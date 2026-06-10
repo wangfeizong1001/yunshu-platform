@@ -121,7 +121,8 @@ export default {
       deleteSuccess: 'Log deleted successfully',
       cleanSuccess: 'Log cleared successfully',
       deleteConfirm: 'Are you sure you want to delete selected logs?',
-      cleanConfirm: 'Are you sure you want to clear all operation logs? This action cannot be undone',
+      cleanConfirm:
+        'Are you sure you want to clear all operation logs? This action cannot be undone',
     },
   },
 
@@ -135,8 +136,8 @@ export default {
       jobName: 'Task Name',
       jobGroup: 'Task Group',
       jobGroupMap: {
-        'default': 'Default',
-        'system': 'System',
+        default: 'Default',
+        system: 'System',
       },
       invokeTarget: 'Invoke Target',
       cronExpression: 'Cron Expression',
@@ -208,4 +209,4 @@ export default {
       chart: 'Chart',
     },
   },
-}
+};

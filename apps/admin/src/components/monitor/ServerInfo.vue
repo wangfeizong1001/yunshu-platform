@@ -93,39 +93,39 @@
 </template>
 
 <script setup lang="ts">
-import type { IServer } from '@yunshu/shared'
+  import type { IServer } from '@yunshu/shared';
 
-interface Props {
-  data: IServer
-}
+  interface Props {
+    data: IServer;
+  }
 
-defineProps<Props>()
+  defineProps<Props>();
 </script>
 
 <style lang="scss" scoped>
-.server-info {
-  .info-item {
-    display: flex;
-    flex-direction: column;
-    padding: 12px;
-    background: #f5f7fa;
-    border-radius: 4px;
+  .server-info {
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      background: #f5f7fa;
+      border-radius: 4px;
 
-    .label {
-      font-size: 12px;
-      color: #909399;
-      margin-bottom: 4px;
+      .label {
+        font-size: 12px;
+        color: #909399;
+        margin-bottom: 4px;
+      }
+
+      .value {
+        font-size: 14px;
+        color: #303133;
+        font-weight: 500;
+      }
     }
 
-    .value {
-      font-size: 14px;
-      color: #303133;
-      font-weight: 500;
+    .mt-16 {
+      margin-top: 16px;
     }
   }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-}
 </style>

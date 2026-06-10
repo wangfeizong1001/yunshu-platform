@@ -207,11 +207,7 @@ export class FetchAdapter implements IHttpAdapter {
         body = data;
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete headers['Content-Type'];
-      } else if (
-        data instanceof Blob ||
-        data instanceof ArrayBuffer ||
-        ArrayBuffer.isView(data)
-      ) {
+      } else if (data instanceof Blob || data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
         body = data as BodyInit;
         if (!headers['Content-Type']) {
           headers['Content-Type'] = 'application/octet-stream';
@@ -268,8 +264,7 @@ export class FetchAdapter implements IHttpAdapter {
         }
 
         const message =
-          pickString(responseBody, 'message') ??
-          `HTTP ${response.status} ${response.statusText}`;
+          pickString(responseBody, 'message') ?? `HTTP ${response.status} ${response.statusText}`;
         const code = pickString(responseBody, 'code');
         throw new RequestError(message, response.status, code, responseBody);
       }
@@ -284,11 +279,10 @@ export class FetchAdapter implements IHttpAdapter {
         throw error;
       }
 
-      const isAbort =
-        error instanceof DOMException && error.name === 'AbortError';
+      const isAbort = error instanceof DOMException && error.name === 'AbortError';
 
       throw new RequestError(
-        isAbort ? '请求超时或已取消' : (error instanceof Error ? error.message : '网络错误'),
+        isAbort ? '请求超时或已取消' : error instanceof Error ? error.message : '网络错误',
         0,
         isAbort ? 'TIMEOUT' : 'NETWORK_ERROR',
       );
@@ -355,8 +349,7 @@ export class FetchAdapter implements IHttpAdapter {
 
     let origin = this.baseURL;
     if (!origin) {
-      origin =
-        typeof window !== 'undefined' && window.location ? window.location.origin : '';
+      origin = typeof window !== 'undefined' && window.location ? window.location.origin : '';
     }
 
     const base = origin.endsWith('/') ? origin : `${origin}/`;

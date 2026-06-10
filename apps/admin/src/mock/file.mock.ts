@@ -2,7 +2,7 @@
  * 文件管理 Mock 数据
  */
 
-import type { SysFile, SysFilePageResp, SysFileUploadResp } from '@yunshu/shared'
+import type { SysFile, SysFilePageResp, SysFileUploadResp } from '@yunshu/shared';
 
 // 文件管理 Mock 数据
 export const mockFileList: SysFile[] = [
@@ -92,43 +92,41 @@ export const mockFileList: SysFile[] = [
     updateTime: '2024-01-10 16:45:00',
     remark: '',
   },
-]
+];
 
 // 获取文件分页列表 Mock
 export function getMockFilePage(params: any): SysFilePageResp {
-  const { pageNum = 1, pageSize = 10, keyword = '', storageType = '', fileType = '' } = params
+  const { pageNum = 1, pageSize = 10, keyword = '', storageType = '', fileType = '' } = params;
 
-  let filteredList = mockFileList
+  let filteredList = mockFileList;
 
   if (keyword) {
     filteredList = filteredList.filter(
-      (item) =>
-        item.fileName.includes(keyword) ||
-        item.originalName?.includes(keyword)
-    )
+      (item) => item.fileName.includes(keyword) || item.originalName?.includes(keyword),
+    );
   }
 
   if (storageType) {
-    filteredList = filteredList.filter((item) => item.storageType === storageType)
+    filteredList = filteredList.filter((item) => item.storageType === storageType);
   }
 
   if (fileType) {
-    filteredList = filteredList.filter((item) => item.fileType === fileType)
+    filteredList = filteredList.filter((item) => item.fileType === fileType);
   }
 
-  const start = (pageNum - 1) * pageSize
-  const end = start + pageSize
-  const rows = filteredList.slice(start, end)
+  const start = (pageNum - 1) * pageSize;
+  const end = start + pageSize;
+  const rows = filteredList.slice(start, end);
 
   return {
     total: filteredList.length,
     rows,
-  }
+  };
 }
 
 // 获取文件详情 Mock
 export function getMockFileDetail(fileId: number): SysFile | undefined {
-  return mockFileList.find((item) => item.fileId === fileId)
+  return mockFileList.find((item) => item.fileId === fileId);
 }
 
 // 上传文件 Mock
@@ -145,36 +143,36 @@ export function uploadMockFile(file: File): SysFileUploadResp {
     createTime: new Date().toLocaleString(),
     updateBy: 'admin',
     updateTime: new Date().toLocaleString(),
-  }
-  mockFileList.push(newFile)
+  };
+  mockFileList.push(newFile);
   return {
     fileId: newFile.fileId,
     fileName: newFile.fileName,
     filePath: newFile.filePath,
     fileSize: newFile.fileSize,
     fileType: newFile.fileType,
-  }
+  };
 }
 
 // 删除文件 Mock
 export function deleteMockFile(fileId: number): boolean {
-  const index = mockFileList.findIndex((u) => u.fileId === fileId)
+  const index = mockFileList.findIndex((u) => u.fileId === fileId);
   if (index !== -1) {
-    mockFileList.splice(index, 1)
-    return true
+    mockFileList.splice(index, 1);
+    return true;
   }
-  return false
+  return false;
 }
 
 // 批量删除文件 Mock
 export function batchDeleteMockFile(fileIds: number[]): boolean {
-  let deleted = false
+  let deleted = false;
   fileIds.forEach((fileId) => {
-    const index = mockFileList.findIndex((u) => u.fileId === fileId)
+    const index = mockFileList.findIndex((u) => u.fileId === fileId);
     if (index !== -1) {
-      mockFileList.splice(index, 1)
-      deleted = true
+      mockFileList.splice(index, 1);
+      deleted = true;
     }
-  })
-  return deleted
+  });
+  return deleted;
 }

@@ -5,8 +5,8 @@
 
 /** 验证结果 */
 export interface ValidationResult {
-  valid: boolean
-  message?: string
+  valid: boolean;
+  message?: string;
 }
 
 /**
@@ -16,9 +16,9 @@ export interface ValidationResult {
  */
 export function required(value: any, fieldName: string): ValidationResult {
   if (value === null || value === undefined || value === '') {
-    return { valid: false, message: `${fieldName}不能为空` }
+    return { valid: false, message: `${fieldName}不能为空` };
   }
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
@@ -27,12 +27,10 @@ export function required(value: any, fieldName: string): ValidationResult {
  */
 export function phone(phone: string): ValidationResult {
   if (!phone) {
-    return { valid: true } // 可选字段
+    return { valid: true }; // 可选字段
   }
-  const reg = /^1[3-9]\d{9}$/
-  return reg.test(phone)
-    ? { valid: true }
-    : { valid: false, message: '手机号格式不正确' }
+  const reg = /^1[3-9]\d{9}$/;
+  return reg.test(phone) ? { valid: true } : { valid: false, message: '手机号格式不正确' };
 }
 
 /**
@@ -41,12 +39,10 @@ export function phone(phone: string): ValidationResult {
  */
 export function email(email: string): ValidationResult {
   if (!email) {
-    return { valid: true } // 可选字段
+    return { valid: true }; // 可选字段
   }
-  const reg = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
-  return reg.test(email)
-    ? { valid: true }
-    : { valid: false, message: '邮箱格式不正确' }
+  const reg = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+  return reg.test(email) ? { valid: true } : { valid: false, message: '邮箱格式不正确' };
 }
 
 /**
@@ -56,14 +52,19 @@ export function email(email: string): ValidationResult {
  * @param max 最大长度
  * @param fieldName 字段名称
  */
-export function length(value: string, min: number, max: number, fieldName: string): ValidationResult {
+export function length(
+  value: string,
+  min: number,
+  max: number,
+  fieldName: string,
+): ValidationResult {
   if (!value) {
-    return { valid: true } // 可选字段
+    return { valid: true }; // 可选字段
   }
   if (value.length < min || value.length > max) {
-    return { valid: false, message: `${fieldName}长度应在${min}-${max}个字符之间` }
+    return { valid: false, message: `${fieldName}长度应在${min}-${max}个字符之间` };
   }
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
@@ -73,11 +74,16 @@ export function length(value: string, min: number, max: number, fieldName: strin
  * @param max 最大值
  * @param fieldName 字段名称
  */
-export function range(value: number, min: number, max: number, fieldName: string): ValidationResult {
+export function range(
+  value: number,
+  min: number,
+  max: number,
+  fieldName: string,
+): ValidationResult {
   if (value < min || value > max) {
-    return { valid: false, message: `${fieldName}应在${min}-${max}之间` }
+    return { valid: false, message: `${fieldName}应在${min}-${max}之间` };
   }
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
@@ -86,12 +92,12 @@ export function range(value: number, min: number, max: number, fieldName: string
  */
 export function username(username: string): ValidationResult {
   if (!username) {
-    return { valid: false, message: '用户名不能为空' }
+    return { valid: false, message: '用户名不能为空' };
   }
-  const reg = /^[a-zA-Z0-9_]{4,20}$/
+  const reg = /^[a-zA-Z0-9_]{4,20}$/;
   return reg.test(username)
     ? { valid: true }
-    : { valid: false, message: '用户名只能包含字母、数字和下划线，长度4-20位' }
+    : { valid: false, message: '用户名只能包含字母、数字和下划线，长度4-20位' };
 }
 
 /**
@@ -100,12 +106,12 @@ export function username(username: string): ValidationResult {
  */
 export function password(password: string): ValidationResult {
   if (!password) {
-    return { valid: false, message: '密码不能为空' }
+    return { valid: false, message: '密码不能为空' };
   }
   if (password.length < 6) {
-    return { valid: false, message: '密码长度至少6位' }
+    return { valid: false, message: '密码长度至少6位' };
   }
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
@@ -114,14 +120,14 @@ export function password(password: string): ValidationResult {
  */
 export function cron(cron: string): ValidationResult {
   if (!cron) {
-    return { valid: false, message: 'Cron表达式不能为空' }
+    return { valid: false, message: 'Cron表达式不能为空' };
   }
   // 简单验证：6或7位，以空格分隔
-  const parts = cron.trim().split(/\s+/)
+  const parts = cron.trim().split(/\s+/);
   if (parts.length < 6 || parts.length > 7) {
-    return { valid: false, message: 'Cron表达式格式不正确' }
+    return { valid: false, message: 'Cron表达式格式不正确' };
   }
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
@@ -129,12 +135,15 @@ export function cron(cron: string): ValidationResult {
  * @param value 值
  * @param validators 验证器数组
  */
-export function validate(value: any, validators: Array<(v: any) => ValidationResult>): ValidationResult {
+export function validate(
+  value: any,
+  validators: Array<(v: any) => ValidationResult>,
+): ValidationResult {
   for (const validator of validators) {
-    const result = validator(value)
+    const result = validator(value);
     if (!result.valid) {
-      return result
+      return result;
     }
   }
-  return { valid: true }
+  return { valid: true };
 }

@@ -6,17 +6,17 @@
 /** 通用响应结构 */
 export interface Response<T = any> {
   /** 状态码：200=成功，其他=失败 */
-  code: number
+  code: number;
   /** 消息 */
-  msg: string
+  msg: string;
   /** 数据 */
-  data?: T
+  data?: T;
   /** 总数（分页用） */
-  total?: number
+  total?: number;
   /** 页码 */
-  pageNum?: number
+  pageNum?: number;
   /** 每页数量 */
-  pageSize?: number
+  pageSize?: number;
 }
 
 /**
@@ -25,7 +25,7 @@ export interface Response<T = any> {
  * @param msg 成功消息
  */
 export function success<T>(data?: T, msg = '操作成功'): Response<T> {
-  return { code: 200, msg, data }
+  return { code: 200, msg, data };
 }
 
 /**
@@ -34,7 +34,7 @@ export function success<T>(data?: T, msg = '操作成功'): Response<T> {
  * @param code 错误码，默认500
  */
 export function fail(msg = '操作失败', code = 500): Response {
-  return { code, msg }
+  return { code, msg };
 }
 
 /**
@@ -48,19 +48,19 @@ export function pageResult<T>(
   list: T[],
   total: number,
   pageNum: number,
-  pageSize: number
+  pageSize: number,
 ): Response<{ rows: T[]; total: number }> {
   return {
     code: 200,
     msg: '查询成功',
     data: {
       rows: list,
-      total
+      total,
     },
     total,
     pageNum,
-    pageSize
-  }
+    pageSize,
+  };
 }
 
 /**
@@ -68,7 +68,7 @@ export function pageResult<T>(
  * @param tree 树形数据
  */
 export function treeResult<T>(tree: T[]): Response<T[]> {
-  return { code: 200, msg: '查询成功', data: tree }
+  return { code: 200, msg: '查询成功', data: tree };
 }
 
 /**
@@ -77,6 +77,10 @@ export function treeResult<T>(tree: T[]): Response<T[]> {
  * @param successMsg 成功消息
  * @param failMsg 失败消息
  */
-export function boolResult(result: boolean, successMsg = '操作成功', failMsg = '操作失败'): Response<boolean> {
-  return result ? success(result, successMsg) : fail(failMsg, 500)
+export function boolResult(
+  result: boolean,
+  successMsg = '操作成功',
+  failMsg = '操作失败',
+): Response<boolean> {
+  return result ? success(result, successMsg) : fail(failMsg, 500);
 }

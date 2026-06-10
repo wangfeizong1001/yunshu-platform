@@ -174,16 +174,12 @@ export type ListQueryParams<T extends FilterParams = FilterParams> = PaginationP
 /**
  * 深度 Partial — 递归将所有属性设为可选
  */
-export type DeepPartial<T> = T extends object
-  ? { [P in keyof T]?: DeepPartial<T[P]> }
-  : T;
+export type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
 
 /**
  * 深度 Required — 递归将所有属性设为必填
  */
-export type DeepRequired<T> = T extends object
-  ? { [P in keyof T]-?: DeepRequired<T[P]> }
-  : T;
+export type DeepRequired<T> = T extends object ? { [P in keyof T]-?: DeepRequired<T[P]> } : T;
 
 /**
  * 非空类型 — 排除 null 和 undefined
@@ -268,11 +264,7 @@ export function createErrorResult(
 /**
  * 计算分页元信息
  */
-export function calcPaginationMeta(
-  page: number,
-  limit: number,
-  total: number,
-): PaginationMeta {
+export function calcPaginationMeta(page: number, limit: number, total: number): PaginationMeta {
   const totalPages = Math.ceil(total / limit) || 1;
   return {
     page,
@@ -338,29 +330,27 @@ export function safeJsonParse<T = unknown>(text: string): T {
  */
 export function safeJsonStringify(value: unknown, space?: number): string {
   const seen = new WeakSet<object>();
-  return JSON.stringify(
-    value,
-    (key, val) => {
-      if (key === '__proto__' || key === 'constructor' || key === 'prototype') return undefined;
-      if (typeof val === 'bigint') return val.toString() + 'n';
-      if (typeof val === 'object' && val !== null) {
-        if (seen.has(val as object)) return '[Circular]';
-        seen.add(val as object);
-      }
-      return val;
-    },
-    space,
-  ) ?? '';
+  return (
+    JSON.stringify(
+      value,
+      (key, val) => {
+        if (key === '__proto__' || key === 'constructor' || key === 'prototype') return undefined;
+        if (typeof val === 'bigint') return val.toString() + 'n';
+        if (typeof val === 'object' && val !== null) {
+          if (seen.has(val as object)) return '[Circular]';
+          seen.add(val as object);
+        }
+        return val;
+      },
+      space,
+    ) ?? ''
+  );
 }
 
 /**
  * 字符串长度校验 — 防止超长参数攻击
  */
-export function isValidStringLength(
-  value: string | undefined,
-  min = 0,
-  max = 255,
-): boolean {
+export function isValidStringLength(value: string | undefined, min = 0, max = 255): boolean {
   if (value === undefined || value === null) return min <= 0;
   if (typeof value !== 'string') return false;
   return value.length >= min && value.length <= max;
@@ -391,10 +381,15 @@ export function isValidUUID(id: string | undefined, strict = false): boolean {
   if (!id) return false;
   const prefixStripped = /^[a-zA-Z0-9]{1,4}-/.test(id) ? id.replace(/^[a-zA-Z0-9]{1,4}-/, '') : id;
   if (strict) {
-    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(prefixStripped);
+    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(
+      prefixStripped,
+    );
   }
-  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(prefixStripped)
-    || /^[0-9a-fA-F]{32}$/.test(prefixStripped);
+  return (
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+      prefixStripped,
+    ) || /^[0-9a-fA-F]{32}$/.test(prefixStripped)
+  );
 }
 
 /**

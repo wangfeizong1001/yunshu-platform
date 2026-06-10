@@ -26,11 +26,14 @@ function handlePostgresError(error: unknown): AppError {
   const code = err.code ?? '';
 
   if (code === '23505') {
-    const field = err.column
-      ?? ((err.constraint ?? '').replace(/.*_(.*)_key/, '$1') || '字段');
+    const field = err.column ?? ((err.constraint ?? '').replace(/.*_(.*)_key/, '$1') || '字段');
     const fieldNames: Record<string, string> = {
-      email: '邮箱', username: '用户名', phone: '手机号',
-      title: '标题', name: '名称', code: '编码',
+      email: '邮箱',
+      username: '用户名',
+      phone: '手机号',
+      title: '标题',
+      name: '名称',
+      code: '编码',
     };
     const fieldName = fieldNames[field] ?? field;
     message = `${fieldName}已存在`;
@@ -75,7 +78,8 @@ function handlePostgresError(error: unknown): AppError {
 
 function handleJWTError(error: unknown): AppError {
   const err = error as Error;
-  const message = err.name === 'TokenExpiredError' ? '令牌已过期，请重新登录' : '令牌无效，请重新登录';
+  const message =
+    err.name === 'TokenExpiredError' ? '令牌已过期，请重新登录' : '令牌无效，请重新登录';
   const e = new Error(message) as AppError;
   e.statusCode = 401;
   e.isOperational = true;
@@ -142,10 +146,7 @@ export function globalErrorHandler() {
       err.name?.includes('NotBefore')
     ) {
       processed = handleJWTError(error);
-    } else if (
-      (err as any).code?.startsWith?.('LIMIT_') ||
-      err.message?.includes('Multer')
-    ) {
+    } else if ((err as any).code?.startsWith?.('LIMIT_') || err.message?.includes('Multer')) {
       processed = handleUploadError(error);
     } else {
       processed = new Error(err.message || '服务器内部错误') as AppError;

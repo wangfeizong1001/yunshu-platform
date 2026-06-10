@@ -2,8 +2,7 @@ import { beforeAll, afterAll, vi } from 'vitest';
 
 process.env.NODE_ENV = 'test';
 
-beforeAll(() => {
-});
+beforeAll(() => {});
 
 afterAll(() => {
   vi.restoreAllMocks();

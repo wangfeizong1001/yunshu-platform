@@ -9,11 +9,7 @@
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
-import {
-  createPaginatedResult,
-  normalizePagination,
-  type PaginationParams,
-} from '@yunshu/shared';
+import { createPaginatedResult, normalizePagination, type PaginationParams } from '@yunshu/shared';
 
 const MAX_BATCH_SIZE = 100;
 const MAX_QUERY_PARAM_LENGTH = 100;
@@ -137,8 +133,12 @@ let mockPosts: Post[] = [
 // ============================================================================
 
 function isValidPostCode(code: unknown): code is string {
-  return typeof code === 'string' && code.length >= 2 && code.length <= 50
-    && /^[A-Za-z0-9_]+$/.test(code);
+  return (
+    typeof code === 'string' &&
+    code.length >= 2 &&
+    code.length <= 50 &&
+    /^[A-Za-z0-9_]+$/.test(code)
+  );
 }
 
 function isValidPostName(name: unknown): name is string {
@@ -189,11 +189,7 @@ export class PostController extends BaseController {
     const start = (page - 1) * limit;
     const list = filtered.slice(start, start + limit);
 
-    return this.paginate(
-      res,
-      createPaginatedResult(list, page, limit, total),
-      '查询成功',
-    );
+    return this.paginate(res, createPaginatedResult(list, page, limit, total), '查询成功');
   }
 
   /**
@@ -217,7 +213,8 @@ export class PostController extends BaseController {
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as PostCreateBody;
-    if (!isValidPostCode(body.postCode)) return this.badRequest(res, 'postCode 长度 2-50，仅允许字母数字下划线');
+    if (!isValidPostCode(body.postCode))
+      return this.badRequest(res, 'postCode 长度 2-50，仅允许字母数字下划线');
     if (!isValidPostName(body.postName)) return this.badRequest(res, 'postName 长度 2-50');
 
     const postSort = body.postSort !== undefined ? body.postSort : 0;
@@ -226,9 +223,7 @@ export class PostController extends BaseController {
     const status = body.status !== undefined ? body.status : '0';
     if (!isValidPostStatus(status)) return this.badRequest(res, 'status 必须是 0 或 1');
 
-    const remark = typeof body.remark === 'string'
-      ? body.remark.slice(0, MAX_FIELD_LENGTH)
-      : '';
+    const remark = typeof body.remark === 'string' ? body.remark.slice(0, MAX_FIELD_LENGTH) : '';
 
     const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
     const postId = `p-${Date.now().toString().padStart(32, '0')}`;
@@ -264,7 +259,8 @@ export class PostController extends BaseController {
     const idx = mockPosts.indexOf(exist);
 
     if (!isValidPostName(body.postName)) return this.badRequest(res, 'postName 长度 2-50');
-    if (!isValidPostCode(body.postCode)) return this.badRequest(res, 'postCode 长度 2-50，仅允许字母数字下划线');
+    if (!isValidPostCode(body.postCode))
+      return this.badRequest(res, 'postCode 长度 2-50，仅允许字母数字下划线');
 
     const postSort = body.postSort !== undefined ? body.postSort : exist.postSort;
     if (!isValidPostSort(postSort)) return this.badRequest(res, 'postSort 必须是 0-9999 的数字');
@@ -272,9 +268,8 @@ export class PostController extends BaseController {
     const status = body.status !== undefined ? body.status : exist.status;
     if (!isValidPostStatus(status)) return this.badRequest(res, 'status 必须是 0 或 1');
 
-    const remark = typeof body.remark === 'string'
-      ? body.remark.slice(0, MAX_FIELD_LENGTH)
-      : exist.remark;
+    const remark =
+      typeof body.remark === 'string' ? body.remark.slice(0, MAX_FIELD_LENGTH) : exist.remark;
 
     const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
     mockPosts[idx] = {
@@ -322,8 +317,8 @@ export class PostController extends BaseController {
     const batchErr = this.validateBatchSize(body.postIds, MAX_BATCH_SIZE);
     if (batchErr) return this.badRequest(res, batchErr);
 
-    const ids = (body.postIds as string[]).filter((id) =>
-      typeof id === 'string' && id.length > 0 && id.length <= MAX_FIELD_LENGTH,
+    const ids = (body.postIds as string[]).filter(
+      (id) => typeof id === 'string' && id.length > 0 && id.length <= MAX_FIELD_LENGTH,
     );
 
     const before = mockPosts.length;
