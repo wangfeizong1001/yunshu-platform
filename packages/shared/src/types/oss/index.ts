@@ -3,7 +3,7 @@
  */
 
 /** 存储类型 */
-export type OssStorageType = 'local' | 'aliyun' | 'qcloud' | 'qiniu'
+export type OssStorageType = 'local' | 'aliyun' | 'qcloud' | 'qiniu';
 
 /** OSS 配置 */
 export interface OssConfig {

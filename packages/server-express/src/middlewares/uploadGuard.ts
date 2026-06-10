@@ -17,7 +17,7 @@
 
 import multer, { type Multer, type Options as MulterOptions } from 'multer';
 import type { Request } from 'express';
-import { BusinessError } from '@yunshu/server-core';
+import { BusinessError, ErrorCode } from '@yunshu/server-core';
 
 // --------------------------------------------------------------------------
 // 安全配置
@@ -121,7 +121,7 @@ export function createUploadMiddleware(options: UploadMiddlewareOptions = {}): M
       // 1) MIME 白名单
       if (!allowedMimes.has(mimeType)) {
         return cb(
-          new BusinessError('不支持的文件类型', 'FILE_TYPE_NOT_SUPPORTED', {
+          new BusinessError(ErrorCode.FILE_TYPE_NOT_SUPPORTED, '不支持的文件类型', {
             mimeType,
             filename,
           }),
@@ -132,7 +132,7 @@ export function createUploadMiddleware(options: UploadMiddlewareOptions = {}): M
       const allowedExts = MIME_TO_EXT[mimeType];
       if (allowedExts && !matchesAllowedExt(filename, allowedExts)) {
         return cb(
-          new BusinessError('文件扩展名与内容类型不匹配', 'FILE_EXTENSION_MISMATCH', {
+          new BusinessError(ErrorCode.FILE_EXTENSION_MISMATCH, '文件扩展名与内容类型不匹配', {
             mimeType,
             filename,
             expectedExtensions: allowedExts,

@@ -63,6 +63,8 @@ export enum ErrorCode {
   FILE_TOO_LARGE = 'FILE_TOO_LARGE',
   /** 不支持的文件类型 */
   FILE_TYPE_NOT_SUPPORTED = 'FILE_TYPE_NOT_SUPPORTED',
+  /** 文件扩展名与内容类型不匹配 */
+  FILE_EXTENSION_MISMATCH = 'FILE_EXTENSION_MISMATCH',
   /** 文件上传失败 */
   FILE_UPLOAD_FAILED = 'FILE_UPLOAD_FAILED',
 }
@@ -94,6 +96,7 @@ const ERROR_TO_STATUS: Record<ErrorCode, number> = {
 
   [ErrorCode.FILE_TOO_LARGE]: 413,
   [ErrorCode.FILE_TYPE_NOT_SUPPORTED]: 415,
+  [ErrorCode.FILE_EXTENSION_MISMATCH]: 415,
   [ErrorCode.FILE_UPLOAD_FAILED]: 500,
 };
 

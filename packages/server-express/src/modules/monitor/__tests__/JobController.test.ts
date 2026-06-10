@@ -70,7 +70,7 @@ describe('JobController', () => {
     it('应返回指定ID的任务详情', async () => {
       mockRequest = { params: { id: '1' } };
 
-      await controller.getById(mockRequest as Request, mockResponse as Response);
+      await controller.getDetail(mockRequest as Request, mockResponse as Response);
 
       expect(jsonData.success).toBe(true);
       expect(jsonData.data.jobId).toBe('1');
@@ -79,7 +79,7 @@ describe('JobController', () => {
     it('不存在的任务应返回404', async () => {
       mockRequest = { params: { id: '999' } };
 
-      await controller.getById(mockRequest as Request, mockResponse as Response);
+      await controller.getDetail(mockRequest as Request, mockResponse as Response);
 
       expect(statusCode).toBe(404);
     });
@@ -125,7 +125,7 @@ describe('JobController', () => {
     it('应成功删除定时任务', async () => {
       mockRequest = { params: { id: '1' } };
 
-      await controller.delete(mockRequest as Request, mockResponse as Response);
+      await controller.remove(mockRequest as Request, mockResponse as Response);
 
       expect(jsonData.success).toBe(true);
     });
@@ -135,7 +135,7 @@ describe('JobController', () => {
     it('应成功执行定时任务', async () => {
       mockRequest = { body: { jobId: '1' } };
 
-      await controller.execute(mockRequest as Request, mockResponse as Response);
+      await controller.run(mockRequest as Request, mockResponse as Response);
 
       expect(jsonData.success).toBe(true);
     });
@@ -143,7 +143,7 @@ describe('JobController', () => {
     it('缺少jobId应返回400错误', async () => {
       mockRequest = { body: {} };
 
-      await controller.execute(mockRequest as Request, mockResponse as Response);
+      await controller.run(mockRequest as Request, mockResponse as Response);
 
       expect(statusCode).toBe(400);
     });
@@ -174,7 +174,7 @@ describe('JobController', () => {
         query: { jobId: '1', page: '1', limit: '10' },
       };
 
-      await controller.listLogs(mockRequest as Request, mockResponse as Response);
+      await controller.getLogList(mockRequest as Request, mockResponse as Response);
 
       expect(jsonData.success).toBe(true);
       expect(jsonData.data.rows).toBeDefined();
@@ -185,7 +185,7 @@ describe('JobController', () => {
     it('应成功清空任务日志', async () => {
       mockRequest = { body: {} };
 
-      await controller.cleanLogs(mockRequest as Request, mockResponse as Response);
+      await controller.cleanLog(mockRequest as Request, mockResponse as Response);
 
       expect(jsonData.success).toBe(true);
     });

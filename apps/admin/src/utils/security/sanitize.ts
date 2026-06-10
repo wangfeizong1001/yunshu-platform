@@ -10,6 +10,7 @@
  */
 
 import DOMPurify from 'dompurify';
+import type { Config } from 'dompurify';
 
 export interface SanitizeOptions {
   /** 额外允许的标签 */
@@ -20,7 +21,7 @@ export interface SanitizeOptions {
   ALLOW_DATA_URI?: boolean;
 }
 
-const DEFAULT_CONFIG: DOMPurify.Config = {
+const DEFAULT_CONFIG: Config = {
   ALLOWED_TAGS: [
     'a', 'b', 'br', 'code', 'div', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'hr', 'i', 'img', 'li', 'ol', 'p', 'pre', 'small', 'span', 'strong',
@@ -32,8 +33,6 @@ const DEFAULT_CONFIG: DOMPurify.Config = {
   FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'ondblclick', 'onkeydown', 'onkeypress', 'onkeyup'],
   // 对 target=_blank 的链接自动注入 noopener/noreferrer
   ADD_ATTR: ['target'],
-  // 去掉嵌套过深的标签（防御 DoS）
-  MAX_DEPTH: 25,
 };
 
 /**
@@ -43,18 +42,18 @@ export function sanitizeHtml(dirty: string | null | undefined, options: Sanitize
   if (!dirty) {
     return '';
   }
-  const merged: DOMPurify.Config = {
+  const merged: Config = {
     ...DEFAULT_CONFIG,
     ...(options.ALLOWED_TAGS ? { ALLOWED_TAGS: options.ALLOWED_TAGS } : {}),
     ...(options.ALLOWED_ATTR ? { ALLOWED_ATTR: options.ALLOWED_ATTR } : {}),
     ...(options.ALLOW_DATA_URI ? { ALLOW_DATA_ATTR: true } : {}),
   };
   try {
-    const clean = DOMPurify.sanitize(dirty, merged);
+    const clean = DOMPurify.sanitize(dirty, merged) as string;
     // 二次处理：对 target=_blank 的链接追加 rel="noopener noreferrer"
     return clean.replace(
       /<a\b([^>]*?)\btarget\s*=\s*['"]_blank['"]([^>]*)>/gi,
-      (_match, before: string, after: string) => {
+      (_match: string, before: string, after: string): string => {
         // 若已有 rel 属性，跳过
         if (/\brel\s*=/i.test(before + after)) {
           return `<a${before}target="_blank"${after}>`;

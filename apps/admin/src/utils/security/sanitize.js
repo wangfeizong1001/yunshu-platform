@@ -21,8 +21,6 @@ const DEFAULT_CONFIG = {
     FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'ondblclick', 'onkeydown', 'onkeypress', 'onkeyup'],
     // 对 target=_blank 的链接自动注入 noopener/noreferrer
     ADD_ATTR: ['target'],
-    // 去掉嵌套过深的标签（防御 DoS）
-    MAX_DEPTH: 25,
 };
 /**
  * 清理富文本内容，返回可安全 v-html 的字符串

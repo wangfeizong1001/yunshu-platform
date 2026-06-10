@@ -14,12 +14,12 @@ import DOMPurify from 'dompurify';
 import { sanitizeHtml, stripHtml, truncateHtml } from '@/utils/security/sanitize';
 vi.mock('dompurify', () => ({
     default: {
-        sanitize: vi.fn((dirty) => dirty), // 默认为透传，让我们能检验自定义逻辑
+        sanitize: vi.fn((dirty) => String(dirty)), // 默认为透传，让我们能检验自定义逻辑
     },
 }));
 describe('utils/security/sanitize', () => {
     beforeEach(() => {
-        vi.mocked(DOMPurify.sanitize).mockImplementation((dirty) => dirty);
+        vi.mocked(DOMPurify.sanitize).mockImplementation((dirty) => String(dirty));
     });
     describe('sanitizeHtml', () => {
         it('空字符串 / null / undefined 返回空字符串', () => {

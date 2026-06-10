@@ -9,7 +9,22 @@ import type { SysDictData } from '@yunshu/shared';
  */
 export declare function useDict(): {
     /** 字典缓存 */
-    dictCache: import("vue").ComputedRef<Map<string, any> & Omit<Map<string, SysDictData[]>, keyof Map<any, any>>>;
+    dictCache: import("vue").ComputedRef<Map<string, {
+        dictCode: number;
+        dictSort: number;
+        dictLabel: string;
+        dictValue: string;
+        dictType: string;
+        cssClass?: string | undefined;
+        listClass?: string | undefined;
+        isDefault: "0" | "1";
+        status: import("@yunshu/shared").DictDataStatus;
+        remark?: string | undefined;
+        createTime: string;
+        updateTime: string;
+        createBy?: string | undefined;
+        updateBy?: string | undefined;
+    }[]> & Omit<Map<string, SysDictData[]>, keyof Map<any, any>>>;
     /** 获取字典数据 */
     getDictData: (dictType: string, forceRefresh?: boolean) => Promise<SysDictData[]>;
     /** 清除字典缓存 */

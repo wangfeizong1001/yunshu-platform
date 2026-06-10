@@ -7,7 +7,7 @@
       "@yunshu/shared": ["../packages/shared/src"],
       "@yunshu/shared/types/*": ["../packages/shared/src/types/*"]
     },
-    "types": ["element-plus/global"]
+    "types": ["element-plus/global", "vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": ["node_modules", "dist"]

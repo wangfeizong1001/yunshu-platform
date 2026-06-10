@@ -16,6 +16,8 @@ import {
   type RateLimitRequestHandler,
   type Options as RateLimitOptions,
 } from 'express-rate-limit';
+
+export type { RateLimitOptions };
 import { logger } from '@yunshu/server-core';
 
 /** 默认通用策略：15 分钟 100 次 */

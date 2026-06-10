@@ -6,16 +6,16 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Request, Response } from 'express';
-import { LoginlogController } from '../LogininforController';
+import { LogininforController } from '../LogininforController';
 
-describe('LoginlogController', () => {
-  let controller: LoginlogController;
+describe('LogininforController', () => {
+  let controller: LogininforController;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let jsonData: any;
 
   beforeEach(() => {
-    controller = new LoginlogController();
+    controller = new LogininforController();
     jsonData = null;
 
     mockResponse = {

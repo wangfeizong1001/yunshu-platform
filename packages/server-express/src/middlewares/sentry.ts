@@ -10,8 +10,7 @@
  * @module @yunshu/server-express/middlewares/sentry
  */
 
-import type { Request, Response, NextFunction, Express } from 'express';
-import type { ErrorRequestHandler, RequestHandler } from 'express-serve-static-core';
+import type { Request, Response, NextFunction, Express, ErrorRequestHandler, RequestHandler } from 'express';
 
 const SENSITIVE_FIELDS: ReadonlyArray<string> = [
   'password', 'secret', 'token', 'authorization', 'cookie', 'jwt',
@@ -45,8 +44,8 @@ export function initSentry(dsn?: string): boolean {
       environment: process.env.NODE_ENV ?? 'development',
       release: process.env.SENTRY_RELEASE ?? undefined,
       tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0.2),
-      beforeSend(event) {
-        const req = event.request as Record<string, unknown> | undefined;
+      beforeSend(event: { request?: Record<string, unknown>; extra?: Record<string, unknown> }) {
+        const req = event.request;
         if (req) {
           for (const k of Object.keys(req)) {
             if (SENSITIVE_FIELDS.some((s) => k.toLowerCase().includes(s))) {

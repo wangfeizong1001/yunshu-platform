@@ -1,7 +1,7 @@
 /**
  * 租户管理 API
  */
-import type { TenantQuery, TenantForm, TenantPackageQuery, TenantPackageForm } from '@yunshu/shared';
+import type { Tenant, TenantQuery, TenantForm, TenantPageResp, TenantPackage, TenantPackageQuery, TenantPackageForm, TenantPackagePageResp } from '@yunshu/shared';
 /**
  * 获取租户分页列表
  * @param params 查询参数

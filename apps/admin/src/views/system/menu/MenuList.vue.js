@@ -1,3 +1,4 @@
+/// <reference types="../../../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search, Refresh, Plus, Expand, Fold } from '@element-plus/icons-vue';

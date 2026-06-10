@@ -106,8 +106,8 @@ async function attachLokiTransportIfConfigured(w: winston.Logger): Promise<void>
     // 该包导出有变化，兼容两种常见方式
     const LokiTransport: {
       new (opts: Record<string, unknown>): winston.transport;
-    } = (lokiModule.default as { new (opts: Record<string, unknown>): winston.transport } | undefined)
-      ?? (lokiModule as { LokiTransport: { new (opts: Record<string, unknown>): winston.transport } }).LokiTransport;
+    } = (lokiModule.default as unknown as { new (opts: Record<string, unknown>): winston.transport } | undefined)
+      ?? (lokiModule as unknown as { LokiTransport: { new (opts: Record<string, unknown>): winston.transport } }).LokiTransport;
     const labels: Record<string, string> = {
       app: process.env.LOKI_APP ?? 'yunshu-platform',
       job: process.env.LOKI_JOB ?? 'backend',

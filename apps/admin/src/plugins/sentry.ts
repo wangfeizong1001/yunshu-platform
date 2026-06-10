@@ -63,11 +63,11 @@ export async function initSentry(
     SentryVue.init({
       app: _app,
       dsn,
-      release: opts.release ?? import.meta.env.VITE_SENTRY_RELEASE as string | undefined,
+      release: opts.release ?? (import.meta.env.VITE_SENTRY_RELEASE as string | undefined),
       environment: opts.environment ?? import.meta.env.MODE,
-      integrations: router
-        ? [new SentryVue.BrowserTracing({ routingInstrumentation: SentryVue.vueRouterInstrumentation(router) })]
-        : [new SentryVue.BrowserTracing()],
+      integrations: [
+        SentryVue.browserTracingIntegration({ router }),
+      ],
       tracesSampleRate: opts.tracesSampleRate ?? 0.2,
       replaysSessionSampleRate: opts.replaysSessionSampleRate ?? 0.1,
       replaysOnErrorSampleRate: opts.replaysOnErrorSampleRate ?? 1.0,
@@ -76,7 +76,7 @@ export async function initSentry(
           event.request.headers = scrubSensitiveData(event.request.headers) as Record<string, string>;
         }
         if (event.request?.cookies) {
-          event.request.cookies = '[Filtered]';
+          event.request.cookies = {};
         }
         if (event.extra) {
           event.extra = scrubSensitiveData(event.extra) as Record<string, unknown>;
