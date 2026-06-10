@@ -297,7 +297,7 @@ export class MenuController extends BaseController {
    * 创建菜单
    */
   async create(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as MenuCreateBody;
@@ -354,7 +354,7 @@ export class MenuController extends BaseController {
    * 更新菜单
    */
   async update(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as MenuUpdateBody;
@@ -415,7 +415,7 @@ export class MenuController extends BaseController {
    * 删除菜单
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const { menuId } = req.params;

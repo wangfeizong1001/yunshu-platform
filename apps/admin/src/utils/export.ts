@@ -13,7 +13,7 @@ import html2canvas from 'html2canvas'
  * @param fileName 文件名（不含扩展名）
  * @param sheetName 工作表名称
  */
-export function exportToExcel(data: any[], fileName: string = 'export', sheetName: string = 'Sheet1') {
+export function exportToExcel(data: unknown[], fileName: string = 'export', sheetName: string = 'Sheet1') {
   try {
     // 创建工作簿
     const workbook = XLSX.utils.book_new()
@@ -42,7 +42,7 @@ export function exportToExcel(data: any[], fileName: string = 'export', sheetNam
  * @param sheetName 工作表名称
  */
 export function exportToExcelWithHeaders(
-  data: any[],
+  data: unknown[],
   headers: Record<string, string>,
   fileName: string = 'export',
   sheetName: string = 'Sheet1'
@@ -50,9 +50,9 @@ export function exportToExcelWithHeaders(
   try {
     // 转换数据，使用指定的表头
     const formattedData = data.map(item => {
-      const row: any = {}
+      const row: Record<string, unknown> = {}
       Object.keys(headers).forEach(key => {
-        row[headers[key]] = item[key]
+        row[headers[key]] = (item as Record<string, unknown>)[key]
       })
       return row
     })
@@ -213,13 +213,13 @@ export function exportToPDFFromText(content: string, fileName: string = 'export'
  * @param type 导出类型 'excel' | 'word' | 'pdf'
  * @param fileName 文件名
  */
-export function exportReport(data: any, type: 'excel' | 'word' | 'pdf', fileName: string = 'report') {
+export function exportReport(data: unknown, type: 'excel' | 'word' | 'pdf', fileName: string = 'report') {
   switch (type) {
     case 'excel':
       if (Array.isArray(data)) {
         return exportToExcel(data, fileName)
-      } else if (data.data && Array.isArray(data.data)) {
-        return exportToExcel(data.data, fileName)
+      } else if ((data as Record<string, unknown>)?.data && Array.isArray((data as Record<string, unknown>).data)) {
+        return exportToExcel((data as Record<string, unknown>).data as unknown[], fileName)
       }
       throw new Error('数据格式不支持 Excel 导出')
       

@@ -5,10 +5,34 @@
     "paths": {
       "@/*": ["src/*"],
       "@yunshu/shared": ["../packages/shared/src"],
-      "@yunshu/shared/types/*": ["../packages/shared/src/types/*"]
+      "@yunshu/shared/types/*": ["../packages/shared/src/types/*"],
+      "@yunshu/api-client": ["../packages/api-client/src"],
+      "@yunshu/api-client/*": ["../packages/api-client/src/*"],
+      "@yunshu/ui": ["../packages/ui/src"]
     },
-    "types": ["element-plus/global"]
+    "types": ["element-plus/global", "vite/client"],
+
+    // 强类型 —— 禁用 any，要求严格检查
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+
+    // 允许 Vue SFC 中的渐进式迁移
+    "useDefineForClassFields": true,
+
+    // 类型声明
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
   "exclude": ["node_modules", "dist"]
 }

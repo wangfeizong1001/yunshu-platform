@@ -16,6 +16,30 @@ interface PermissionState {
   cachedViews: string[]        // 缓存的视图
 }
 
+/**
+ * 菜单项类型定义
+ */
+interface MenuItem {
+  menuType?: string
+  path?: string
+  children?: MenuItem[]
+  component?: string
+  menuName?: string
+  icon?: string
+  isCache?: string | boolean
+  perms?: string
+  query?: string
+  [key: string]: unknown
+}
+
+/**
+ * 路由接口响应结构
+ */
+interface RoutersResponse {
+  data?: MenuItem[]
+  [key: string]: unknown
+}
+
 export const usePermissionStore = defineStore('permission', {
   state: (): PermissionState => ({
     routes: [],
@@ -33,8 +57,8 @@ export const usePermissionStore = defineStore('permission', {
     async generateRoutes() {
       try {
         // 从后端获取菜单
-        const res = await getRoutersApi()
-        const menuData = ((res as Record<string, unknown>).data as unknown[]) || []
+        const res = (await getRoutersApi()) as RoutersResponse
+        const menuData = (res?.data as MenuItem[]) || []
 
         // 将菜单转换为路由
         const accessedRoutes = await generateRoutesFromMenu(menuData)
@@ -103,43 +127,43 @@ export const usePermissionStore = defineStore('permission', {
 /**
  * 将菜单数据转换为路由配置
  */
-async function generateRoutesFromMenu(menus: any[]): Promise<RouteRecordRaw[]> {
+async function generateRoutesFromMenu(menus: MenuItem[]): Promise<RouteRecordRaw[]> {
   const routes: RouteRecordRaw[] = []
 
   for (const menu of menus) {
     // 目录（M）
-    if (menu.menuType === 'M' || menu.menuType === 'M') {
+    if (menu?.menuType === 'M') {
       const route: RouteRecordRaw = {
-        path: menu.path,
-        name: menu.path,
+        path: menu?.path || '',
+        name: menu?.path || '',
         component: () => import('@/views/layout/index.vue'),
-        redirect: menu.children?.length ? menu.children[0].path : undefined,
+        redirect: menu?.children?.length ? menu.children[0]?.path : undefined,
         meta: {
-          title: menu.menuName,
-          icon: menu.icon,
-          noCache: !menu.isCache,
+          title: menu?.menuName || '',
+          icon: menu?.icon || '',
+          noCache: !menu?.isCache,
         },
         children: []
       }
 
-      if (menu.children?.length) {
+      if (menu?.children?.length) {
         route.children = await generateRoutesFromMenu(menu.children)
       }
 
       routes.push(route)
     }
     // 菜单（C）
-    else if (menu.menuType === 'C' || menu.menuType === 'C') {
+    else if (menu?.menuType === 'C') {
       const route: RouteRecordRaw = {
-        path: menu.path,
-        name: menu.path,
-        component: loadView(menu.component),
+        path: menu?.path || '',
+        name: menu?.path || '',
+        component: loadView(menu?.component || ''),
         meta: {
-          title: menu.menuName,
-          icon: menu.icon,
-          noCache: !menu.isCache,
-          permission: menu.perms ? [menu.perms] : undefined,
-          query: menu.query ? JSON.parse(menu.query) : undefined,
+          title: menu?.menuName || '',
+          icon: menu?.icon || '',
+          noCache: !menu?.isCache,
+          permission: menu?.perms ? [menu.perms] : undefined,
+          query: menu?.query ? JSON.parse(menu.query) : undefined,
         }
       }
 

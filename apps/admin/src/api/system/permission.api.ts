@@ -2,7 +2,7 @@
  * 权限管理 API
  */
 
-import { request } from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 /** 权限信息 */
 export interface PermissionInfo {
@@ -25,7 +25,7 @@ export interface PermissionInfo {
 export function getCurrentPermission() {
   return request<PermissionInfo>({
     url: '/system/permission/current',
-    method: 'get',
+    method: 'GET',
   })
 }
 
@@ -35,7 +35,7 @@ export function getCurrentPermission() {
 export function getRouters() {
   return request<MenuRoute[]>({
     url: '/system/permission/routers',
-    method: 'get',
+    method: 'GET',
   })
 }
 
@@ -76,6 +76,6 @@ export interface MenuRoute {
 export function refreshPermission() {
   return request<PermissionInfo>({
     url: '/system/permission/refresh',
-    method: 'post',
+    method: 'POST',
   })
 }

@@ -16,7 +16,6 @@
       </router-link>
     </div>
 
-    <!-- 右键菜单 -->
     <ul v-show="visible" class="contextmenu" :style="{ left: left + 'px', top: top + 'px' }">
       <li @click="refreshSelectedTag(selectedTag)">刷新</li>
       <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭</li>
@@ -28,9 +27,33 @@
 
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
+import { Close } from '@element-plus/icons-vue'
 import { useTagsViewStore } from '@/store/modules/tagsView'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useRoute, useRouter } from 'vue-router'
+
+interface TagMeta {
+  title?: string
+  affix?: boolean
+  [key: string]: unknown
+}
+
+interface TagView {
+  path: string
+  name: string
+  title?: string
+  query?: Record<string, unknown>
+  params?: Record<string, unknown>
+  meta?: TagMeta
+}
+
+interface RouteLike {
+  path?: string
+  name?: string | symbol
+  meta?: TagMeta
+  children?: RouteLike[]
+  [key: string]: unknown
+}
 
 const tagsViewStore = useTagsViewStore()
 const permissionStore = usePermissionStore()
@@ -40,31 +63,32 @@ const router = useRouter()
 const visible = ref(false)
 const left = ref(0)
 const top = ref(0)
-const selectedTag = ref<any>({})
+const selectedTag = ref<TagView>({ path: '', name: '' })
 
 const visitedViews = computed(() => tagsViewStore.visitedViews.value)
 
-const isActive = (tag: any) => {
+const isActive = (tag: TagView) => {
   return tag.path === route.path
 }
 
-const isAffix = (tag: any) => {
-  return tag.meta?.affix || false
+const isAffix = (tag: TagView) => {
+  return tag?.meta?.affix || false
 }
 
-const filterAffixTags = (routes: any[], basePath = '/') => {
-  let tags: any[] = []
-  routes.forEach((route) => {
-    if (route.meta?.affix) {
-      const tagPath = `${basePath}${route.path}`.replace(/\/+/g, '/')
+const filterAffixTags = (routes: unknown[], basePath = '/'): TagView[] => {
+  let tags: TagView[] = []
+  routes.forEach((r) => {
+    const routeItem = r as RouteLike
+    if (routeItem.meta?.affix) {
+      const tagPath = `${basePath}${routeItem.path || ''}`.replace(/\/+/g, '/')
       tags.push({
         path: tagPath,
-        name: route.name,
-        meta: { ...route.meta }
+        name: String(routeItem.name || ''),
+        meta: { ...routeItem.meta }
       })
     }
-    if (route.children) {
-      const childTags = filterAffixTags(route.children, `${basePath}${route.path}/`)
+    if (routeItem.children) {
+      const childTags = filterAffixTags(routeItem.children, `${basePath}${routeItem.path || ''}/`)
       tags = [...tags, ...childTags]
     }
   })
@@ -72,7 +96,7 @@ const filterAffixTags = (routes: any[], basePath = '/') => {
 }
 
 const initTags = () => {
-  const affixTagsArr = filterAffixTags(permissionStore.routes)
+  const affixTagsArr = filterAffixTags(permissionStore.routes as unknown[])
   affixTagsArr.forEach((tag) => {
     if (tag.name) {
       tagsViewStore.addVisitedView(tag)
@@ -81,28 +105,28 @@ const initTags = () => {
 }
 
 const addTags = () => {
-  const { name } = route
+  const name = route.name
   if (name && typeof name === 'string') {
     tagsViewStore.addVisitedView({
       path: route.path,
       name: name,
-      query: route.query,
-      meta: { ...route.meta }
+      query: route.query as Record<string, unknown>,
+      meta: { ...(route.meta as TagMeta) }
     })
   }
 }
 
-const openMenu = (tag: any, event: MouseEvent) => {
+const openMenu = (tag: TagView, event: MouseEvent) => {
   visible.value = true
   left.value = event.clientX
   top.value = event.clientY + 4
   selectedTag.value = tag
 }
 
-const closeSelectedTag = (tag: any) => {
+const closeSelectedTag = (tag: TagView) => {
   tagsViewStore.delVisitedView(tag)
   if (isActive(tag)) {
-    const latestView = visitedViews.value.slice(-1)[0] as { path: string } | undefined
+    const latestView = visitedViews.value.slice(-1)[0] as TagView | undefined
     if (latestView) {
       router.push(latestView.path)
     } else {
@@ -111,7 +135,7 @@ const closeSelectedTag = (tag: any) => {
   }
 }
 
-const refreshSelectedTag = (tag: any) => {
+const refreshSelectedTag = (tag: TagView) => {
   tagsViewStore.delCachedView(tag)
   router.replace({
     path: '/redirect' + tag.path
@@ -160,7 +184,6 @@ onMounted(() => {
   height: 100%;
   background: #fff;
   border-bottom: 1px solid #d8dce5;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 0 3px 0 rgba(0, 0, 0, 0.04);
 
   .tags-view-wrapper {
     display: flex;
@@ -185,7 +208,6 @@ onMounted(() => {
     border: 1px solid #d8dce5;
     border-radius: 4px;
     cursor: pointer;
-    transition: all $transition-duration $transition-function;
 
     &:hover {
       color: #409eff;
@@ -196,19 +218,6 @@ onMounted(() => {
       color: #fff;
       background: #409eff;
       border-color: #409eff;
-
-      .el-icon-close {
-        color: #fff;
-      }
-    }
-
-    .el-icon-close {
-      margin-left: 6px;
-      border-radius: 50%;
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.2);
-      }
     }
   }
 
@@ -218,8 +227,7 @@ onMounted(() => {
     padding: 4px 0;
     background: #fff;
     border-radius: 4px;
-    box-shadow: $shadow-base;
-    z-index: $z-index-popover;
+    z-index: 3000;
     list-style: none;
 
     li {

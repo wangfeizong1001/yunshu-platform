@@ -169,11 +169,11 @@ const router = useRouter()
 
 // 状态
 const loading = ref(false)
-const formList = ref<any[]>([])
+const formList = ref<unknown[]>([])
 const total = ref(0)
-const selectedRows = ref<any[]>([])
+const selectedRows = ref<unknown[]>([])
 const formDialogVisible = ref(false)
-const currentForm = ref<any>(null)
+const currentForm = ref<unknown>(null)
 const formRef = ref<FormInstance>()
 const formData = reactive<FormForm>({
   formName: '',
@@ -240,7 +240,7 @@ function handleAdd() {
 }
 
 // 编辑
-async function handleEdit(row: any) {
+async function handleEdit(row: Record<string, unknown>) {
   try {
     const res = await getForm(row.formId)
     currentForm.value = res
@@ -257,7 +257,7 @@ async function handleEdit(row: any) {
 }
 
 // 删除
-async function handleDelete(row: any) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除表单"${row.formName}"？`, '提示', {
       type: 'warning'
@@ -289,7 +289,7 @@ async function handleBatchDelete() {
 }
 
 // 复制
-async function handleCopy(row: any) {
+async function handleCopy(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认复制表单"${row.formName}"？`, '提示', {
       type: 'warning'
@@ -305,7 +305,7 @@ async function handleCopy(row: any) {
 }
 
 // 发布
-async function handlePublish(row: any) {
+async function handlePublish(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认发布表单"${row.formName}"？`, '提示', {
       type: 'warning'
@@ -321,7 +321,7 @@ async function handlePublish(row: any) {
 }
 
 // 停用
-async function handleStop(row: any) {
+async function handleStop(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认停用表单"${row.formName}"？`, '提示', {
       type: 'warning'
@@ -337,12 +337,12 @@ async function handleStop(row: any) {
 }
 
 // 设计
-function handleDesign(row: any) {
+function handleDesign(row: Record<string, unknown>) {
   router.push(`/system/form-design/${row.formId}`)
 }
 
 // 预览
-function handlePreview(row: any) {
+function handlePreview(row: Record<string, unknown>) {
   router.push(`/system/form-preview/${row.formId}`)
 }
 
@@ -380,7 +380,7 @@ function resetForm() {
 }
 
 // 批量选择
-function handleSelectionChange(selection: any[]) {
+function handleSelectionChange(selection: unknown[]) {
   selectedRows.value = selection
 }
 

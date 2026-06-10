@@ -1,30 +1,30 @@
-/**
- * 日期处理工具
- */
-
 import dayjs from 'dayjs'
 
-export const formatDate = (date: any, format = 'YYYY-MM-DD HH:mm:ss') => {
-  return dayjs(date).format(format)
+export const formatDate = (date: string | number | Date | null | undefined, format = 'YYYY-MM-DD HH:mm:ss') => {
+  if (date === null || date === undefined || date === '') return ''
+  const d = dayjs(date)
+  return d.isValid() ? d.format(format) : ''
 }
 
-export const formatDateTime = (date: any) => {
-  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
+export const formatDateTime = (date: string | number | Date | null | undefined) => {
+  return formatDate(date, 'YYYY-MM-DD HH:mm:ss')
 }
 
-export const formatDateOnly = (date: any) => {
-  return dayjs(date).format('YYYY-MM-DD')
+export const formatDateOnly = (date: string | number | Date | null | undefined) => {
+  return formatDate(date, 'YYYY-MM-DD')
 }
 
-export const formatTimeOnly = (date: any) => {
-  return dayjs(date).format('HH:mm:ss')
+export const formatTimeOnly = (date: string | number | Date | null | undefined) => {
+  return formatDate(date, 'HH:mm:ss')
 }
 
-export const getRelativeTime = (date: any) => {
+export const getRelativeTime = (date: string | number | Date | null | undefined) => {
+  if (date === null || date === undefined || date === '') return ''
   const now = dayjs()
   const target = dayjs(date)
+  if (!target.isValid()) return ''
   const diff = now.diff(target, 'second')
-  
+
   if (diff < 60) {
     return '刚刚'
   } else if (diff < 3600) {
@@ -38,14 +38,18 @@ export const getRelativeTime = (date: any) => {
   }
 }
 
-export const getWeekDay = (date: any) => {
+export const getWeekDay = (date: string | number | Date | null | undefined) => {
+  if (date === null || date === undefined || date === '') return ''
   const weekDays = ['日', '一', '二', '三', '四', '五', '六']
-  return `星期${weekDays[dayjs(date).day()]}`
+  const d = dayjs(date)
+  return d.isValid() ? `星期${weekDays[d.day()]}` : ''
 }
 
-export const getAge = (birthDate: any) => {
+export const getAge = (birthDate: string | number | Date | null | undefined) => {
+  if (birthDate === null || birthDate === undefined || birthDate === '') return 0
   const now = dayjs()
   const birth = dayjs(birthDate)
+  if (!birth.isValid()) return 0
   let age = now.year() - birth.year()
   const monthDiff = now.month() - birth.month()
   if (monthDiff < 0 || (monthDiff === 0 && now.date() < birth.date())) {
@@ -53,4 +57,3 @@ export const getAge = (birthDate: any) => {
   }
   return age
 }
-

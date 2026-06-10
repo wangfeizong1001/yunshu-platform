@@ -2,7 +2,7 @@
  * 定时任务 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface JobQuery {
   pageNum?: number
@@ -70,109 +70,108 @@ export interface JobLogInfo {
 }
 
 export const getJobList = (params?: JobQuery) => {
-  return request({
+  return request<{ rows: JobInfo[]; total: number }>({
     url: '/monitor/job/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getJobPage = (params?: JobQuery) => {
-  return request({
+  return request<{ rows: JobInfo[]; total: number }>({
     url: '/monitor/job/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getJob = (jobId: number) => {
-  return request({
+  return request<JobInfo>({
     url: `/monitor/job/${jobId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addJob = (data: JobForm) => {
-  return request({
+  return request<void>({
     url: '/monitor/job',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateJob = (data: JobForm) => {
-  return request({
+  return request<void>({
     url: '/monitor/job',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteJob = (jobId: number) => {
-  return request({
+  return request<void>({
     url: `/monitor/job/${jobId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteJob = (jobIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/monitor/job/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: jobIds
   })
 }
 
 export const runJob = (jobId: number) => {
-  return request({
-    url: `/monitor/job/run`,
-    method: 'post',
+  return request<void>({
+    url: '/monitor/job/run',
+    method: 'POST',
     params: { jobId }
   })
 }
 
 export const changeJobStatus = (jobId: number, status: string) => {
-  return request({
+  return request<void>({
     url: '/monitor/job/changeStatus',
-    method: 'put',
+    method: 'PUT',
     params: { jobId, status }
   })
 }
 
 export const getJobLogList = (params?: JobLogQuery) => {
-  return request({
+  return request<{ rows: JobLogInfo[]; total: number }>({
     url: '/monitor/job/log/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getJobLogPage = (params?: JobLogQuery) => {
-  return request({
+  return request<{ rows: JobLogInfo[]; total: number }>({
     url: '/monitor/job/log/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getJobLog = (jobLogId: number) => {
-  return request({
+  return request<JobLogInfo>({
     url: `/monitor/job/log/${jobLogId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const deleteJobLog = (jobLogId: number) => {
-  return request({
+  return request<void>({
     url: `/monitor/job/log/${jobLogId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const cleanJobLog = () => {
-  return request({
+  return request<void>({
     url: '/monitor/job/log/clean',
-    method: 'delete'
+    method: 'DELETE'
   })
 }
-

@@ -2,10 +2,9 @@
  * 通知公告 Mock 数据
  */
 
-import type { SysNotice, SysNoticePageResp } from '@yunshu/shared'
 
 // 通知公告 Mock 数据
-export const mockNoticeList: SysNotice[] = [
+export const mockNoticeList: any[] = [
   {
     noticeId: 1,
     noticeTitle: '系统升级通知',
@@ -69,7 +68,7 @@ export const mockNoticeList: SysNotice[] = [
 ]
 
 // 获取通知公告分页列表 Mock
-export function getMockNoticePage(params: any): SysNoticePageResp {
+export function getMockNoticePage(params: any): any {
   const { pageNum = 1, pageSize = 10, keyword = '', noticeType = '', status = '' } = params
 
   let filteredList = mockNoticeList
@@ -101,13 +100,13 @@ export function getMockNoticePage(params: any): SysNoticePageResp {
 }
 
 // 获取通知公告详情 Mock
-export function getMockNoticeDetail(noticeId: number): SysNotice | undefined {
+export function getMockNoticeDetail(noticeId: number): any | undefined {
   return mockNoticeList.find((item) => item.noticeId === noticeId)
 }
 
 // 新增通知公告 Mock
-export function addMockNotice(data: Partial<SysNotice>): SysNotice {
-  const newItem: SysNotice = {
+export function addMockNotice(data: Partial<any>): any {
+  const newItem: any = {
     noticeId: Math.max(...mockNoticeList.map((u) => u.noticeId)) + 1,
     noticeTitle: data.noticeTitle || '',
     noticeType: data.noticeType || '1',
@@ -124,7 +123,7 @@ export function addMockNotice(data: Partial<SysNotice>): SysNotice {
 }
 
 // 更新通知公告 Mock
-export function updateMockNotice(noticeId: number, data: Partial<SysNotice>): SysNotice | undefined {
+export function updateMockNotice(noticeId: number, data: Partial<any>): any | undefined {
   const index = mockNoticeList.findIndex((u) => u.noticeId === noticeId)
   if (index !== -1) {
     mockNoticeList[index] = { ...mockNoticeList[index], ...data, updateTime: new Date().toLocaleString() }

@@ -4,9 +4,8 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { ILogininfor } from '@yunshu/shared'
 
-export const logininforMockData: ILogininfor[] = Array.from({ length: 50 }, (_, i) => {
+export const logininforMockData: any[] = Array.from({ length: 50 }, (_, i) => {
   const status = i % 15 === 0 ? '1' : '0'
   return {
     infoId: String(i + 1),

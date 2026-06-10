@@ -321,12 +321,12 @@ const qiniuRules = {
 // 加载配置数据
 async function loadConfig() {
   try {
-    const res = await getOssConfig() as any
+    const res = await getOssConfig() as Record<string, unknown>
     const configs = res?.configs || []
 
     // 更新各平台表单数据
-    configs.forEach((config: any) => {
-      const formData: any = {
+    configs.forEach((config: Record<string, unknown>) => {
+      const formData: Record<string, unknown> = {
         id: config.id,
         accessKey: config.accessKey,
         secretKey: config.secretKey,
@@ -365,7 +365,7 @@ async function loadConfig() {
 
 // 测试连接
 async function handleTestConnection(type: string) {
-  let formRef: any
+  let formRef: unknown
 
   switch (type) {
     case 'aliyun':
@@ -398,7 +398,7 @@ async function handleTestConnection(type: string) {
 
 // 保存配置
 async function handleSaveConfig(type: string) {
-  let formRef: any
+  let formRef: unknown
   let loadingRef: string
 
   switch (type) {
@@ -424,14 +424,14 @@ async function handleSaveConfig(type: string) {
 
   try {
     await formRef.value?.validate()
-    ;(window as any)[loadingRef] = true
+    ;(window as unknown as Record<string, boolean>)[loadingRef] = true
     ElMessage.info('保存配置功能开发中')
     emit('refresh')
     handleClose()
   } catch (error) {
     console.error('保存配置失败', error)
   } finally {
-    ;(window as any)[loadingRef] = false
+    ;(window as unknown as Record<string, boolean>)[loadingRef] = false
   }
 }
 

@@ -6,6 +6,7 @@
 import { defineStore } from 'pinia'
 import { loginApi, logoutApi, getUserInfoApi } from '@/api/auth'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import { usePermissionStore } from '@/store/modules/permission'
 import cache, { CACHE_KEYS } from '@/utils/cache'
 
 interface UserState {
@@ -33,6 +34,41 @@ export interface UserInfo {
   deptId?: string
   deptName?: string
   roleId?: number[]
+}
+
+/**
+ * 登录接口响应结构
+ */
+interface LoginResponse {
+  data?: {
+    token?: string
+    [key: string]: unknown
+  }
+  [key: string]: unknown
+}
+
+/**
+ * 用户信息接口响应结构
+ */
+interface UserInfoResponse {
+  data?: {
+    user?: {
+      userId?: string | number
+      username?: string
+      nickname?: string
+      avatar?: string
+      email?: string
+      phone?: string
+      deptId?: string | number
+      deptName?: string
+      roleId?: number[]
+      [key: string]: unknown
+    }
+    roles?: string[]
+    permissions?: string[]
+    [key: string]: unknown
+  }
+  [key: string]: unknown
 }
 
 export const useUserStore = defineStore('user', {
@@ -69,8 +105,8 @@ export const useUserStore = defineStore('user', {
      */
     async login(userInfo: { username: string; password: string; code?: string; uuid?: string }) {
       try {
-        const res = await loginApi(userInfo)
-        const data = (res as Record<string, unknown>).data as Record<string, unknown>
+        const res = (await loginApi(userInfo)) as LoginResponse
+        const data = res?.data || {}
 
         this.token = String(data.token || '')
         setToken(String(data.token || ''))
@@ -86,23 +122,26 @@ export const useUserStore = defineStore('user', {
      */
     async getUserInfo() {
       try {
-        const res = await getUserInfoApi()
-        const data = (res as Record<string, unknown>).data as Record<string, unknown>
-        const user = data.user as Record<string, unknown> || {}
+        const res = (await getUserInfoApi()) as UserInfoResponse
+        const data = res?.data || {}
+        const user = data.user || {}
 
-        this.userId = String(user.userId || '')
-        this.username = String(user.username || '')
-        this.nickname = String(user.nickname || user.username || '')
-        this.avatar = String(user.avatar || '')
-        this.email = String(user.email || '')
-        this.phone = String(user.phone || '')
-        this.deptId = String(user.deptId || '')
-        this.deptName = String(user.deptName || '')
+        this.userId = String(user?.userId || '')
+        this.username = String(user?.username || '')
+        this.nickname = String(user?.nickname || user?.username || '')
+        this.avatar = String(user?.avatar || '')
+        this.email = String(user?.email || '')
+        this.phone = String(user?.phone || '')
+        this.deptId = String(user?.deptId || '')
+        this.deptName = String(user?.deptName || '')
         this.roles = (data.roles as string[]) || []
-        this.roleId = ((user.roleId as number[]) || []).map(Number)
+        this.roleId = ((user?.roleId as number[]) || []).map(Number)
         this.permissions = (data.permissions as string[]) || []
 
         this.saveToCache()
+
+        // 生成动态路由
+        await usePermissionStore().generateRoutes()
 
         return data
       } catch (error) {

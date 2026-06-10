@@ -3,15 +3,15 @@
  */
 
 export interface TreeNode {
-  id: any
+  id: unknown
   children?: TreeNode[]
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export const arrayToTree = (
-  array: any[], idKey = 'id', parentKey = 'parentId', childrenKey = 'children') => {
-  const map: any = {}
-  const result: any[] = []
+  array: unknown[], idKey = 'id', parentKey = 'parentId', childrenKey = 'children') => {
+  const map: Record<string, unknown> = {}
+  const result: unknown[] = []
   array.forEach(item => {
     map[item[idKey]] = item
   })
@@ -29,9 +29,9 @@ export const arrayToTree = (
   return result
 }
 
-export const treeToArray = (tree: any[], childrenKey = 'children') => {
-  const result: any[] = []
-  const traverse = (nodes: any[]) => {
+export const treeToArray = (tree: unknown[], childrenKey = 'children') => {
+  const result: unknown[] = []
+  const traverse = (nodes: unknown[]) => {
     nodes.forEach(node => {
       const { [childrenKey]: children, ...rest } = node
       result.push(rest)
@@ -44,7 +44,7 @@ export const treeToArray = (tree: any[], childrenKey = 'children') => {
   return result
 }
 
-export const findNodeById = <T extends Record<string, any>>(tree: T[], id: any, idKey = 'id', childrenKey = 'children'): T | null => {
+export const findNodeById = <T extends Record<string, unknown>>(tree: T[], id: unknown, idKey = 'id', childrenKey = 'children'): T | null => {
   for (const node of tree) {
     if (node[idKey] === id) {
       return node
@@ -59,9 +59,9 @@ export const findNodeById = <T extends Record<string, any>>(tree: T[], id: any, 
   return null
 }
 
-export const findParentIds = (tree: any[], id: any, idKey = 'id', _parentKey = 'parentId', childrenKey = 'children') => {
-  const parents: any[] = []
-  const traverse = (nodes: any[], parentNode?: any) => {
+export const findParentIds = (tree: unknown[], id: unknown, idKey = 'id', _parentKey = 'parentId', childrenKey = 'children') => {
+  const parents: unknown[] = []
+  const traverse = (nodes: unknown[], parentNode?: unknown) => {
     for (const node of nodes) {
       if (node[idKey] === id) {
         if (parentNode) {

@@ -175,7 +175,7 @@ async function loadConfigList() {
   loading.value = true
   try {
     const res = await getThirdConfigList()
-    configList.value = res as any
+    configList.value = res as unknown[]
   } finally {
     loading.value = false
   }
@@ -207,7 +207,7 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: any) {
+function handleEdit(row: Record<string, unknown>) {
   Object.assign(form, row)
   formVisible.value = true
 }
@@ -217,7 +217,7 @@ async function handleSave() {
   try {
     await formRef.value?.validate()
     formLoading.value = true
-    await updateThirdConfig(form as any)
+    await updateThirdConfig(form as Record<string, unknown>)
     ElMessage.success('保存成功')
     formVisible.value = false
     loadConfigList()
@@ -229,7 +229,7 @@ async function handleSave() {
 }
 
 // 删除
-async function handleDelete(row: any) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除"${getPlatformName(row.platform)}"配置？`, '提示', { type: 'warning' })
     ElMessage.success('删除成功')
@@ -242,7 +242,7 @@ async function handleDelete(row: any) {
 }
 
 // 授权
-async function handleAuthorize(_row: any) {
+async function handleAuthorize(_row: Record<string, unknown>) {
   try {
     ElMessage.info('授权功能开发中')
   } catch (error) {
@@ -251,7 +251,7 @@ async function handleAuthorize(_row: any) {
 }
 
 // 测试连接
-async function handleTestConnection(_row: any) {
+async function handleTestConnection(_row: Record<string, unknown>) {
   try {
     ElMessage.info('测试连接功能开发中')
   } catch (error) {

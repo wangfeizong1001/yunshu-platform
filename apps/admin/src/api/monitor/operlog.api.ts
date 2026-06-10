@@ -2,7 +2,7 @@
  * 操作日志 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface OperlogQuery {
   pageNum?: number
@@ -36,47 +36,46 @@ export interface OperlogInfo {
 }
 
 export const getOperlogList = (params?: OperlogQuery) => {
-  return request({
+  return request<{ rows: OperlogInfo[]; total: number }>({
     url: '/monitor/operlog/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getOperlogPage = (params?: OperlogQuery) => {
-  return request({
+  return request<{ rows: OperlogInfo[]; total: number }>({
     url: '/monitor/operlog/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getOperlog = (operId: number) => {
-  return request({
+  return request<OperlogInfo>({
     url: `/monitor/operlog/${operId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const deleteOperlog = (operId: number) => {
-  return request({
+  return request<void>({
     url: `/monitor/operlog/${operId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteOperlog = (operIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/monitor/operlog/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: operIds
   })
 }
 
 export const cleanOperlog = () => {
-  return request({
+  return request<void>({
     url: '/monitor/operlog/clean',
-    method: 'delete'
+    method: 'DELETE'
   })
 }
-

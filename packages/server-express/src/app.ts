@@ -45,7 +45,7 @@ export function createApp(options: {
 
   // 请求 ID：为每个请求分配唯一 requestId，用于日志追踪与问题定位
   app.use((req: Request, _res: Response, next) => {
-    (req as any).requestId = crypto.randomUUID();
+    req.requestId = crypto.randomUUID();
     next();
   });
 
@@ -71,7 +71,7 @@ export function createApp(options: {
       status: 'UP',
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? '1.0.0',
-      requestId: (req as any).requestId,
+      requestId: req.requestId,
     });
   });
 

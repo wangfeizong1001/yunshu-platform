@@ -2,7 +2,7 @@
  * 文件管理 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface FileQuery {
   pageNum?: number
@@ -32,65 +32,65 @@ export interface FileInfo {
 }
 
 export const getFileList = (params?: FileQuery) => {
-  return request({
+  return request<{ rows: FileInfo[]; total: number }>({
     url: '/system/file/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getFilePage = (params?: FileQuery) => {
-  return request({
+  return request<{ rows: FileInfo[]; total: number }>({
     url: '/system/file/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getFile = (fileId: number) => {
-  return request({
+  return request<FileInfo>({
     url: `/system/file/${fileId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const uploadFile = (file: File) => {
   const formData = new FormData()
   formData.append('file', file)
-  return request({
+  return request<void>({
     url: '/system/file/upload',
-    method: 'post',
+    method: 'POST',
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
 
 export const deleteFile = (fileId: number) => {
-  return request({
+  return request<void>({
     url: `/system/file/${fileId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteFile = (fileIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/file/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: fileIds
   })
 }
 
 export const downloadFile = (fileId: number) => {
-  return request({
+  return request<Blob>({
     url: `/system/file/download/${fileId}`,
-    method: 'get',
+    method: 'GET',
     responseType: 'blob'
   })
 }
 
 export const previewFile = (fileId: number) => {
-  return request({
+  return request<FileInfo>({
     url: `/system/file/preview/${fileId}`,
-    method: 'get'
+    method: 'GET'
   })
 }

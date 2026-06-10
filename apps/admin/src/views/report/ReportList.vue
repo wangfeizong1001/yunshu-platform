@@ -243,14 +243,14 @@ const router = useRouter()
 const loading = ref(false)
 const submitLoading = ref(false)
 const exportLoading = ref(false)
-const reportList = ref<any[]>([])
+const reportList = ref<unknown[]>([])
 const total = ref(0)
-const selectedRows = ref<any[]>([])
+const selectedRows = ref<unknown[]>([])
 const dialogVisible = ref(false)
 const exportDialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
-const currentReport = ref<any>(null)
+const currentReport = ref<unknown>(null)
 const exportFormat = ref('excel')
 
 // 查询参数
@@ -286,7 +286,7 @@ const formRules: FormRules = {
 async function fetchReportList() {
   loading.value = true
   try {
-    const res = await getReportPage(queryParams) as { rows: any[]; total: number }
+    const res = await getReportPage(queryParams) as { rows: unknown[]; total: number }
     reportList.value = res.rows
     total.value = res.total
   } finally {
@@ -329,17 +329,17 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: any) {
+function handleEdit(row: Record<string, unknown>) {
   router.push(`/report/design/${row.reportId}`)
 }
 
 // 查看
-function handleView(row: any) {
+function handleView(row: Record<string, unknown>) {
   router.push(`/report/view/${row.reportId}`)
 }
 
 // 删除
-async function handleDelete(row: any) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除报表"${row.reportName}"？`, '提示', {
       type: 'warning'
@@ -376,7 +376,7 @@ async function handleBatchDelete() {
 }
 
 // 导出
-function handleExport(row: any) {
+function handleExport(row: Record<string, unknown>) {
   currentReport.value = row
   exportFormat.value = 'excel'
   exportDialogVisible.value = true
@@ -389,7 +389,7 @@ async function handleConfirmExport() {
   exportLoading.value = true
   try {
     // 获取报表数据
-    const dataRes = await getReportData({ reportId: currentReport.value.reportId }) as { data: any }
+    const dataRes = await getReportData({ reportId: currentReport.value.reportId }) as { data: unknown }
     const reportData = dataRes.data
     
     if (reportData && reportData.data) {
@@ -440,7 +440,7 @@ async function handleSubmit() {
 }
 
 // 选择变化
-function handleSelectionChange(selection: any[]) {
+function handleSelectionChange(selection: unknown[]) {
   selectedRows.value = selection
 }
 

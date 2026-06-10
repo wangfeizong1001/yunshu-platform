@@ -132,7 +132,7 @@ export class NoticeController extends BaseController {
    * 创建通知公告
    */
   async create(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as Partial<SysNotice>;
@@ -170,7 +170,7 @@ export class NoticeController extends BaseController {
    * 更新通知公告
    */
   async update(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const noticeId = Number(req.params.noticeId);
@@ -214,7 +214,7 @@ export class NoticeController extends BaseController {
    * 删除通知公告
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const noticeId = Number(req.params.noticeId);

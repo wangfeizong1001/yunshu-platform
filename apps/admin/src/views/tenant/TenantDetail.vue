@@ -59,8 +59,6 @@
 import { ref, computed, watch } from 'vue'
 import { getTenantDetail } from '@/api/tenant/tenant.api'
 import type { Tenant } from '@yunshu/shared'
-import { TenantStatusEnum } from '@yunshu/shared'
-
 const props = defineProps<{
   modelValue: boolean
   tenantId?: number

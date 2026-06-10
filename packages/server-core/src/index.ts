@@ -197,4 +197,16 @@ export type { JWTPayload, SignOptions, VerifyOptions } from './utils/jwt';
 export { logger, setLogLevel } from './utils/logger';
 export type { LogLevel, LogContext } from './utils/logger';
 
+// 结构化 Logger（推荐新项目使用）
+export {
+  Logger,
+  rootLogger,
+  setLogLevel as setLoggerLevel,
+  getLogLevel,
+} from './logger/Logger';
+export type {
+  LogLevel as StructuredLogLevel,
+  LogContext as StructuredLogContext,
+} from './logger/Logger';
+
 export { safeJsonParse, safeJsonStringify } from './utils/safeJson';

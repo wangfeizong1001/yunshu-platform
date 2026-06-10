@@ -42,32 +42,32 @@
         <el-table-column prop="startTime" label="开始时间" width="180" />
         <el-table-column prop="endTime" label="结束时间" width="180">
           <template #default="{ row }">
-            {{ row.endTime || '-' }}
+            {{ (row as ProcessInstance).endTime || '-' }}
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag v-if="row.status === 'running'" type="primary">运行中</el-tag>
-            <el-tag v-else-if="row.status === 'completed'" type="success">已完成</el-tag>
-            <el-tag v-else-if="row.status === 'terminated'" type="danger">已终止</el-tag>
+            <el-tag v-if="(row as ProcessInstance).status === 'running'" type="primary">运行中</el-tag>
+            <el-tag v-else-if="(row as ProcessInstance).status === 'completed'" type="success">已完成</el-tag>
+            <el-tag v-else-if="(row as ProcessInstance).status === 'terminated'" type="danger">已终止</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="currentTaskNames" label="当前节点" min-width="150">
           <template #default="{ row }">
-            <el-tag v-if="row.currentTaskNames && row.currentTaskNames.length > 0" type="info" size="small">
-              {{ row.currentTaskNames[0] }}
+            <el-tag v-if="(row as ProcessInstance).currentTaskNames && (row as ProcessInstance).currentTaskNames!.length > 0" type="info" size="small">
+              {{ (row as ProcessInstance).currentTaskNames![0] }}
             </el-tag>
             <span v-else>-</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link @click="handleView(row as ProcessInstance)">查看</el-button>
+            <el-button link @click="handleView(row as unknown as ProcessInstance)">查看</el-button>
             <el-button
-              v-if="row.status === 'running'"
+              v-if="(row as ProcessInstance).status === 'running'"
               link
               type="danger"
-              @click="handleTerminate(row as ProcessInstance)"
+              @click="handleTerminate(row as unknown as ProcessInstance)"
             >
               终止
             </el-button>
@@ -264,7 +264,7 @@ async function fetchInstanceList() {
   loading.value = true
   try {
     const res = getMockProcessInstancePage(queryParams)
-    instanceList.value = res.rows
+    instanceList.value = res.rows as unknown as ProcessInstance[]
     total.value = res.total
   } finally {
     loading.value = false

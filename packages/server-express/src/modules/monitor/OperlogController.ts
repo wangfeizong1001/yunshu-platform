@@ -199,7 +199,7 @@ export class OperlogController extends BaseController {
    * 删除操作日志
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const operId = Number(req.params.operId);
@@ -215,7 +215,7 @@ export class OperlogController extends BaseController {
    * 清空操作日志
    */
   async clean(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const count = operLogs.length;

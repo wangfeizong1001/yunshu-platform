@@ -2,10 +2,9 @@
  * 用户 Mock 数据
  */
 
-import type { SysUser, SysUserPageResp } from '@yunshu/shared'
 
 // 生成 Mock 用户数据
-export const mockUserList: SysUser[] = [
+export const mockUserList: any[] = [
   {
     userId: 1,
     username: 'admin',
@@ -99,7 +98,7 @@ export const mockUserList: SysUser[] = [
 ]
 
 // 获取用户分页列表 Mock
-export function getMockUserPage(params: any): SysUserPageResp {
+export function getMockUserPage(params: any): any {
   const { pageNum = 1, pageSize = 10, keyword = '', status = '' } = params
 
   let filteredList = mockUserList
@@ -131,13 +130,13 @@ export function getMockUserPage(params: any): SysUserPageResp {
 }
 
 // 获取用户详情 Mock
-export function getMockUserDetail(userId: number): SysUser | undefined {
+export function getMockUserDetail(userId: number): any | undefined {
   return mockUserList.find((user) => user.userId === userId)
 }
 
 // 新增用户 Mock
-export function addMockUser(user: Partial<SysUser>): SysUser {
-  const newUser: SysUser = {
+export function addMockUser(user: Partial<any>): any {
+  const newUser: any = {
     userId: Math.max(...mockUserList.map((u) => u.userId)) + 1,
     username: user.username || '',
     nickname: user.nickname || '',
@@ -159,7 +158,7 @@ export function addMockUser(user: Partial<SysUser>): SysUser {
 }
 
 // 更新用户 Mock
-export function updateMockUser(userId: number, user: Partial<SysUser>): SysUser | undefined {
+export function updateMockUser(userId: number, user: Partial<any>): any | undefined {
   const index = mockUserList.findIndex((u) => u.userId === userId)
   if (index !== -1) {
     mockUserList[index] = { ...mockUserList[index], ...user }

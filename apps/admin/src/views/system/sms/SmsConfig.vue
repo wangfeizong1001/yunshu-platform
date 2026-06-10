@@ -274,7 +274,7 @@ async function handleSaveConfig() {
   try {
     await configFormRef.value?.validate()
     configLoading.value = true
-    await saveSmsConfig(configForm as any)
+    await saveSmsConfig(configForm as Record<string, unknown>)
     ElMessage.success('保存成功')
     configVisible.value = false
     loadConfig()
@@ -298,7 +298,7 @@ function handleAddTemplate() {
 }
 
 // 编辑模板
-function handleEditTemplate(row: any) {
+function handleEditTemplate(row: Record<string, unknown>) {
   Object.assign(templateForm, row)
   templateVisible.value = true
 }
@@ -319,7 +319,7 @@ async function handleSaveTemplate() {
 }
 
 // 删除模板
-async function handleDeleteTemplate(row: any) {
+async function handleDeleteTemplate(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除模板"${row.templateName}"？`, '提示', { type: 'warning' })
     ElMessage.success('删除成功')

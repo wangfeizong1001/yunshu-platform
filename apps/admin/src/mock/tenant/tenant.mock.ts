@@ -2,10 +2,9 @@
  * 租户管理 Mock 数据
  */
 
-import type { Tenant, TenantQuery, TenantPageResp } from '@yunshu/shared'
 
 /** 模拟租户数据 */
-const mockTenants: Tenant[] = [
+const mockTenants: any[] = [
   {
     tenantId: 1,
     tenantName: '云枢科技',
@@ -99,7 +98,7 @@ const mockTenants: Tenant[] = [
 ]
 
 /** 分页查询租户 */
-export function getTenantPage(params: TenantQuery): TenantPageResp {
+export function getTenantPage(params: any): any {
   const { keyword, status, pageNum = 1, pageSize = 10 } = params || {}
 
   let filtered = [...mockTenants]
@@ -128,7 +127,7 @@ export function getTenantPage(params: TenantQuery): TenantPageResp {
 }
 
 /** 获取租户列表 */
-export function getTenantList(params?: TenantQuery): Tenant[] {
+export function getTenantList(params?: any): any[] {
   const { keyword, status } = params || {}
 
   let filtered = [...mockTenants]
@@ -150,13 +149,13 @@ export function getTenantList(params?: TenantQuery): Tenant[] {
 }
 
 /** 获取租户详情 */
-export function getTenantById(tenantId: number): Tenant | undefined {
+export function getTenantById(tenantId: number): any | undefined {
   return mockTenants.find(t => t.tenantId === tenantId)
 }
 
 /** 新增租户 */
-export function createTenant(data: Omit<Tenant, 'tenantId' | 'createTime' | 'updateTime'>): Tenant {
-  const newTenant: Tenant = {
+export function createTenant(data: Omit<Tenant, 'tenantId' | 'createTime' | 'updateTime'>): any {
+  const newTenant: any = {
     ...data,
     tenantId: Math.max(...mockTenants.map(t => t.tenantId)) + 1,
     createTime: new Date().toLocaleString('zh-CN'),
@@ -170,7 +169,7 @@ export function createTenant(data: Omit<Tenant, 'tenantId' | 'createTime' | 'upd
 export function updateTenantById(
   tenantId: number,
   data: Partial<Omit<Tenant, 'tenantId' | 'createTime'>>
-): Tenant | undefined {
+): any | undefined {
   const index = mockTenants.findIndex(t => t.tenantId === tenantId)
   if (index === -1) return undefined
 
@@ -195,7 +194,7 @@ export function deleteTenantById(tenantId: number): boolean {
 export function changeTenantStatusById(
   tenantId: number,
   status: '0' | '1' | '2'
-): Tenant | undefined {
+): any | undefined {
   const tenant = mockTenants.find(t => t.tenantId === tenantId)
   if (!tenant) return undefined
 

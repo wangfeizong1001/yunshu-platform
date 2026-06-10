@@ -299,7 +299,7 @@ async function handleSaveConfig() {
   try {
     await configFormRef.value?.validate()
     configLoading.value = true
-    await saveSsoConfig(configForm as any)
+    await saveSsoConfig(configForm as Record<string, unknown>)
     ElMessage.success('保存成功')
     configVisible.value = false
     loadConfig()
@@ -329,7 +329,7 @@ function handleAddApp() {
 }
 
 // 编辑应用
-function handleEditApp(row: any) {
+function handleEditApp(row: Record<string, unknown>) {
   Object.assign(appForm, row)
   appVisible.value = true
 }
@@ -350,7 +350,7 @@ async function handleSaveApp() {
 }
 
 // 删除应用
-async function handleDeleteApp(row: any) {
+async function handleDeleteApp(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除应用"${row.appName}"？`, '提示', { type: 'warning' })
     ElMessage.success('删除成功')
@@ -363,7 +363,7 @@ async function handleDeleteApp(row: any) {
 }
 
 // 授权
-async function handleAuthorize(_row: any) {
+async function handleAuthorize(_row: Record<string, unknown>) {
   try {
     ElMessage.info('授权功能开发中')
   } catch (error) {
@@ -372,7 +372,7 @@ async function handleAuthorize(_row: any) {
 }
 
 // 测试连接
-async function handleTestConnection(_row: any) {
+async function handleTestConnection(_row: Record<string, unknown>) {
   try {
     ElMessage.info('测试连接功能开发中')
   } catch (error) {

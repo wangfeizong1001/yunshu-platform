@@ -93,10 +93,25 @@
 </template>
 
 <script setup lang="ts">
-import type { IServer } from '@yunshu/shared'
+interface ServerInfoData {
+  serverName: string
+  os: string
+  osArch: string
+  cpuCount: number
+  cpuUsage: number
+  memoryUsage: number
+  memoryUsed: number
+  memoryTotal: number
+  diskUsed: number
+  diskTotal: number
+  diskUsage: number
+  jvm: string
+  javaVersion: string
+  database: string
+}
 
 interface Props {
-  data: IServer
+  data: ServerInfoData
 }
 
 defineProps<Props>()

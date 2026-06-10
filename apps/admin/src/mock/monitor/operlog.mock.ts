@@ -4,9 +4,8 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IOperlog } from '@yunshu/shared'
 
-export const operlogMockData: IOperlog[] = Array.from({ length: 50 }, (_, i) => ({
+export const operlogMockData: any[] = Array.from({ length: 50 }, (_, i) => ({
   operId: String(i + 1),
   operName: ['张三', '李四', '王五', '赵六', '钱七'][i % 5],
   operTime: new Date(Date.now() - i * 3600000).toISOString(),

@@ -2,7 +2,7 @@
  * 字典管理 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface DictTypeQuery {
   pageNum?: number
@@ -61,146 +61,146 @@ export interface DictDataInfo {
 }
 
 export const getDictTypeList = (params?: DictTypeQuery) => {
-  return request({
+  return request<{ rows: DictTypeInfo[]; total: number }>({
     url: '/system/dict/type/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getDictTypePage = (params?: DictTypeQuery) => {
-  return request({
+  return request<{ rows: DictTypeInfo[]; total: number }>({
     url: '/system/dict/type/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getDictType = (dictId: number) => {
-  return request({
+  return request<DictTypeInfo>({
     url: `/system/dict/type/${dictId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getDictTypeAll = () => {
-  return request({
+  return request<DictTypeInfo[]>({
     url: '/system/dict/type/all',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getDictTypeOptions = (dictType: string) => {
-  return request({
+  return request<DictDataInfo[]>({
     url: `/system/dict/type/options/${dictType}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addDictType = (data: DictTypeForm) => {
-  return request({
+  return request<void>({
     url: '/system/dict/type',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateDictType = (data: DictTypeForm) => {
-  return request({
+  return request<void>({
     url: '/system/dict/type',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteDictType = (dictId: number) => {
-  return request({
+  return request<void>({
     url: `/system/dict/type/${dictId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteDictType = (dictIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/dict/type/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: dictIds
   })
 }
 
 export const refreshDictCache = () => {
-  return request({
+  return request<void>({
     url: '/system/dict/type/refreshCache',
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const getDictDataList = (params?: DictDataQuery) => {
-  return request({
+  return request<{ rows: DictDataInfo[]; total: number }>({
     url: '/system/dict/data/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getDictDataPage = (params?: DictDataQuery) => {
-  return request({
+  return request<{ rows: DictDataInfo[]; total: number }>({
     url: '/system/dict/data/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getDictData = (dictCode: number) => {
-  return request({
+  return request<DictDataInfo>({
     url: `/system/dict/data/${dictCode}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addDictData = (data: DictDataForm) => {
-  return request({
+  return request<void>({
     url: '/system/dict/data',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateDictData = (data: DictDataForm) => {
-  return request({
+  return request<void>({
     url: '/system/dict/data',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteDictData = (dictCode: number) => {
-  return request({
+  return request<void>({
     url: `/system/dict/data/${dictCode}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const getDictDataByType = (dictType: string) => {
-  return request({
+  return request<DictDataInfo[]>({
     url: `/system/dict/data/type/${dictType}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const exportDictType = (params?: DictTypeQuery) => {
-  return request({
+  return request<Blob>({
     url: '/system/dict/type/export',
-    method: 'get',
+    method: 'GET',
     params,
     responseType: 'blob'
   })
 }
 
 export const exportDictData = (dictType: string) => {
-  return request({
+  return request<Blob>({
     url: '/system/dict/data/export',
-    method: 'get',
+    method: 'GET',
     params: { dictType },
     responseType: 'blob'
   })

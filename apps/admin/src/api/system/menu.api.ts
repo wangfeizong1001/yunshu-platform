@@ -2,7 +2,7 @@
  * 菜单管理 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface MenuQuery {
   menuName?: string
@@ -49,69 +49,69 @@ export interface MenuInfo {
 }
 
 export const getMenuList = (params?: MenuQuery) => {
-  return request({
+  return request<MenuInfo[]>({
     url: '/system/menu/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getMenuTree = (params?: MenuQuery) => {
-  return request({
+  return request<MenuInfo[]>({
     url: '/system/menu/tree',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getMenuListApi = (params?: MenuQuery) => {
-  return request({
+  return request<MenuInfo[]>({
     url: '/system/menu/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getMenu = (menuId: number) => {
-  return request({
+  return request<MenuInfo>({
     url: `/system/menu/${menuId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getMenuTreeSelect = () => {
-  return request({
+  return request<MenuInfo[]>({
     url: '/system/menu/treeSelect',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getMenuTreeByRoleId = (roleId: number) => {
-  return request({
+  return request<MenuInfo[]>({
     url: `/system/menu/roleMenuTreeSelect/${roleId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addMenu = (data: MenuForm) => {
-  return request({
+  return request<void>({
     url: '/system/menu',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateMenu = (data: MenuForm) => {
-  return request({
+  return request<void>({
     url: '/system/menu',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteMenu = (menuId: number) => {
-  return request({
+  return request<void>({
     url: `/system/menu/${menuId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }

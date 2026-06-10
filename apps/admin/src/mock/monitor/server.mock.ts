@@ -4,9 +4,8 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IServer } from '@yunshu/shared'
 
-export const serverMockData: IServer = {
+export const serverMockData: any = {
   serverName: '云枢生产服务器',
   os: 'Ubuntu 22.04 LTS',
   osArch: 'x64',

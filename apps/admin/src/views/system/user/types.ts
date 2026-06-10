@@ -2,26 +2,80 @@
  * 用户类型定义
  */
 
-import type { SysUser, SysUserQuery } from '@yunshu/shared'
+export interface UserInfo {
+  userId: number
+  username: string
+  nickname: string
+  email: string
+  phone: string
+  sex: string
+  avatar: string
+  deptId: number
+  deptName: string
+  status: string
+  loginDate: string
+  createTime: string
+  remark: string
+  postId?: number[]
+  roleId?: number[]
+  posts?: string[]
+  roles?: string[]
+}
 
-export { SysUser, SysUserQuery }
+export interface UserQuery {
+  pageNum?: number
+  pageSize?: number
+  keyword?: string
+  status?: string
+  deptId?: number
+}
 
-export type { SysUserForm } from '@yunshu/shared'
+export interface DeptInfo {
+  deptId: number
+  parentId: number
+  deptName: string
+  orderNum: number
+  leader: string
+  phone: string
+  email: string
+  status: string
+  remark: string
+  createTime: string
+  children?: DeptInfo[]
+}
 
-/** 用户状态枚举 */
+export interface PostInfo {
+  postId: number
+  postName: string
+  postCode: string
+  postSort: number
+  status: string
+  remark: string
+  createTime: string
+}
+
+export interface RoleInfo {
+  roleId: number
+  roleName: string
+  roleKey: string
+  roleSort: number
+  dataScope: string
+  status: string
+  remark: string
+  createTime: string
+}
+
 export const UserStatusOptions = [
   { label: '正常', value: '0' },
   { label: '停用', value: '1' },
 ]
 
-/** 用户性别枚举 */
 export const SexOptions = [
   { label: '男', value: '0' },
   { label: '女', value: '1' },
   { label: '未知', value: '2' },
 ]
 
-/** 表格列定义 */
 export const tableColumns = [
   { prop: 'userId', label: '用户编号', width: '80' },
   { prop: 'username', label: '用户名称', width: '120' },

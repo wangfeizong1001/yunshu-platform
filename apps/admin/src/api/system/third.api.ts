@@ -2,7 +2,7 @@
  * 第三方登录 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface ThirdConfig {
   thirdType: string
@@ -22,63 +22,62 @@ export interface ThirdLogin {
 }
 
 export const getThirdConfigList = () => {
-  return request({
+  return request<ThirdConfig[]>({
     url: '/system/third/config/list',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getThirdConfig = (thirdType: string) => {
-  return request({
+  return request<ThirdConfig>({
     url: `/system/third/config/${thirdType}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const saveThirdConfig = (data: ThirdConfig) => {
-  return request({
+  return request<void>({
     url: '/system/third/config',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateThirdConfig = (data: ThirdConfig) => {
-  return request({
+  return request<void>({
     url: '/system/third/config',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const thirdLogin = (data: ThirdLogin) => {
-  return request({
+  return request<{ token: string; user?: object }>({
     url: '/system/third/login',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const bindThirdAccount = (data: ThirdLogin) => {
-  return request({
+  return request<void>({
     url: '/system/third/bind',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const unbindThirdAccount = (thirdType: string) => {
-  return request({
+  return request<void>({
     url: `/system/third/unbind/${thirdType}`,
-    method: 'post'
+    method: 'POST'
   })
 }
 
-// 获取第三方登录日志列表
-export const getThirdLoginLogList = (params?: any) => {
-  return request({
+export const getThirdLoginLogList = (params?: Record<string, unknown>) => {
+  return request<{ rows: { id: number; thirdType: string; userId: number; createTime: string }[]; total: number }>({
     url: '/system/third/log/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }

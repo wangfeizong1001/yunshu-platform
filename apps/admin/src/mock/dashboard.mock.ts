@@ -2,13 +2,6 @@
  * 大屏看板 Mock 数据
  */
 
-import type {
-  DashboardInfo,
-  DashboardStats,
-  SalesTrendData,
-  RegionSalesData,
-  CategoryData
-} from '@/api/dashboard.api'
 
 // 生成 Mock 大屏看板数据
 export const mockDashboardList: DashboardInfo[] = [

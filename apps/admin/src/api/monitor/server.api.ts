@@ -2,7 +2,7 @@
  * 服务器监控 API
  */
 
-import request from '@/utils/request'
+import { request } from '@/utils/httpClient'
 
 export interface ServerInfo {
   cpu: {
@@ -48,9 +48,8 @@ export interface ServerInfo {
 }
 
 export const getServerInfo = () => {
-  return request({
+  return request<ServerInfo>({
     url: '/monitor/server',
-    method: 'get'
+    method: 'GET'
   })
 }
-

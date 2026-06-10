@@ -2,7 +2,7 @@
  * 报表管理相关 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 // 报表查询参数
 export interface ReportQuery {
@@ -44,84 +44,88 @@ export interface ReportInfo {
 // 报表数据请求参数
 export interface ReportDataQuery {
   reportId: number
-  params?: Record<string, any>
+  params?: Record<string, unknown>
 }
 
 // 获取报表列表
 export function getReportList(params: ReportQuery) {
-  return request({
+  return request<{ rows: ReportInfo[]; total: number }>({
     url: '/report/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 // 获取报表分页列表
 export function getReportPage(params: ReportQuery) {
-  return request({
+  return request<{ rows: ReportInfo[]; total: number }>({
     url: '/report/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 // 获取报表详情
 export function getReport(reportId: number) {
-  return request({
+  return request<ReportInfo>({
     url: `/report/${reportId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 // 新增报表
 export function addReport(data: ReportForm) {
-  return request({
+  return request<void>({
     url: '/report',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 // 修改报表
 export function updateReport(data: ReportForm) {
-  return request({
+  return request<void>({
     url: '/report',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 // 删除报表
 export function deleteReport(reportId: number) {
-  return request({
+  return request<void>({
     url: `/report/${reportId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 // 批量删除报表
 export function batchDeleteReport(reportIds: number[]) {
-  return request({
+  return request<void>({
     url: '/report/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: reportIds
   })
 }
 
 // 获取报表数据
 export function getReportData(params: ReportDataQuery) {
-  return request({
+  return request<Record<string, unknown>>({
     url: '/report/data',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 // 导出报表
-export function exportReport(reportId: number, format: string, params?: Record<string, any>) {
-  return request({
+export function exportReport(
+  reportId: number,
+  format: string,
+  params?: Record<string, unknown>
+) {
+  return request<Blob>({
     url: '/report/export',
-    method: 'get',
+    method: 'GET',
     params: { reportId, format, ...params },
     responseType: 'blob'
   })

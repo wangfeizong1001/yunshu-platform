@@ -46,7 +46,7 @@
         </div>
 
         <div class="detail-body">
-          <div class="content-wrapper" v-html="knowledgeData.content"></div>
+          <SafeHtml :html="knowledgeData.content || ''" custom-class="content-wrapper" />
         </div>
 
         <el-divider />
@@ -65,6 +65,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import SafeHtml from '@/components/SafeHtml/index.vue'
 import { View, User, Clock } from '@element-plus/icons-vue'
 import { getKnowledge, type KnowledgeInfo } from '@/api/system/knowledge.api'
 

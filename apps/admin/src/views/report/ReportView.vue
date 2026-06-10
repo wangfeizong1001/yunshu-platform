@@ -108,7 +108,7 @@ const route = useRoute()
 const loading = ref(true)
 const error = ref(false)
 const reportId = ref<number>()
-const reportInfo = ref<any>(null)
+const reportInfo = ref<unknown>(null)
 const reportType = ref<'chart' | 'table'>('chart')
 const chartRef = ref<HTMLElement>()
 const reportRef = ref<HTMLElement>()
@@ -132,7 +132,7 @@ const reportConfig = reactive({
   showLegend: true,
   showToolbox: true,
   columns: [] as ReportColumn[],
-  data: [] as Record<string, any>[]
+  data: [] as Record<string, unknown>[]
 })
 
 // 表格数据
@@ -232,7 +232,7 @@ function renderChart() {
       series: [
         {
           name: reportConfig.yAxis,
-          type: reportConfig.chartType as any,
+          type: reportConfig.chartType as string,
           data:
             reportConfig.chartType === 'pie'
               ? reportConfig.data.map(item => ({

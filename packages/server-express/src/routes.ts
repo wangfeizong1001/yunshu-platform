@@ -1,11 +1,17 @@
-import { Router, type Request, type Response } from 'express';
+import { Router, type Request, type Response, type NextFunction } from 'express';
 import { asyncHandler } from './middlewares/errorHandler';
 import { requireAuth } from './middlewares/auth';
 import * as system from './modules/system';
 import * as monitor from './modules/monitor';
 
-function bindHandler(controller: { [key: string]: any }, method: string) {
-  return (req: Request, res: Response) => controller[method](req, res);
+type ControllerMethod = (req: Request, res: Response) => Promise<void> | void;
+
+function bindHandler<T extends object>(controller: T, method: keyof T & string) {
+  const handler = controller[method] as unknown as ControllerMethod;
+  if (typeof handler !== 'function') {
+    throw new Error(`Controller method ${String(method)} is not a function`);
+  }
+  return (req: Request, res: Response, _next: NextFunction) => handler(req, res);
 }
 
 export function registerRoutes(router: Router): void {

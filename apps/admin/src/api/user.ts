@@ -1,4 +1,4 @@
-import { get, post, put, del } from '../utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface IUser {
   id: string
@@ -19,25 +19,25 @@ export interface IUserListParams extends Record<string, unknown> {
 }
 
 export const getUserListApi = (params: IUserListParams) => {
-  return get<{ list: IUser[]; total: number }>('/system/user/list', params)
+  return httpGet<{ list: IUser[]; total: number }>('/system/user/list', params)
 }
 
 export const getUserDetailApi = (id: string) => {
-  return get<IUser>(`/system/user/${id}`)
+  return httpGet<IUser>(`/system/user/${id}`)
 }
 
 export const createUserApi = (data: Partial<IUser>) => {
-  return post('/system/user', data)
+  return httpPost('/system/user', data)
 }
 
 export const updateUserApi = (id: string, data: Partial<IUser>) => {
-  return put(`/system/user/${id}`, data)
+  return httpPut(`/system/user/${id}`, data)
 }
 
 export const deleteUserApi = (id: string) => {
-  return del(`/system/user/${id}`)
+  return httpDelete(`/system/user/${id}`)
 }
 
 export const resetPasswordApi = (id: string) => {
-  return post(`/system/user/${id}/reset-password`)
+  return httpPost(`/system/user/${id}/reset-password`)
 }

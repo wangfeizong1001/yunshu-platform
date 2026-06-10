@@ -2,7 +2,7 @@
  * 在线用户 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface OnlineQuery {
   pageNum?: number
@@ -24,33 +24,32 @@ export interface OnlineInfo {
 }
 
 export const getOnlineList = (params?: OnlineQuery) => {
-  return request({
+  return request<{ rows: OnlineInfo[]; total: number }>({
     url: '/monitor/online/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getOnlinePage = (params?: OnlineQuery) => {
-  return request({
+  return request<{ rows: OnlineInfo[]; total: number }>({
     url: '/monitor/online/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const forceLogout = (tokenId: string) => {
-  return request({
+  return request<void>({
     url: `/monitor/online/${tokenId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchForceLogout = (tokenIds: string[]) => {
-  return request({
+  return request<void>({
     url: '/monitor/online/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: tokenIds
   })
 }
-

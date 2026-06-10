@@ -2,7 +2,7 @@
  * 登录日志 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface LogininforQuery {
   pageNum?: number
@@ -26,64 +26,63 @@ export interface LogininforInfo {
 }
 
 export const getLogininforList = (params?: LogininforQuery) => {
-  return request({
+  return request<{ rows: LogininforInfo[]; total: number }>({
     url: '/monitor/logininfor/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getLogininforPage = (params?: LogininforQuery) => {
-  return request({
+  return request<{ rows: LogininforInfo[]; total: number }>({
     url: '/monitor/logininfor/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getLogininfor = (infoId: number) => {
-  return request({
+  return request<LogininforInfo>({
     url: `/monitor/logininfor/${infoId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const deleteLogininfor = (infoId: number) => {
-  return request({
+  return request<void>({
     url: `/monitor/logininfor/${infoId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteLogininfor = (infoIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/monitor/logininfor/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: infoIds
   })
 }
 
 export const cleanLogininfor = () => {
-  return request({
+  return request<void>({
     url: '/monitor/logininfor/clean',
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const unlockUser = (userName: string) => {
-  return request({
+  return request<void>({
     url: '/monitor/logininfor/unlock',
-    method: 'post',
+    method: 'POST',
     params: { userName }
   })
 }
 
 export const exportLogininfor = (params?: LogininforQuery) => {
-  return request({
+  return request<Blob>({
     url: '/monitor/logininfor/export',
-    method: 'get',
+    method: 'GET',
     params,
     responseType: 'blob'
   })
 }
-

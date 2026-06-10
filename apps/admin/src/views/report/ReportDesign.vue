@@ -181,7 +181,7 @@ const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
 const reportId = ref<number>()
-const reportInfo = ref<any>(null)
+const reportInfo = ref<unknown>(null)
 const activeTab = ref('basic')
 const previewDialogVisible = ref(false)
 const chartRef = ref<HTMLElement>()
@@ -216,9 +216,9 @@ const tableConfig = reactive({
 })
 
 // 数据
-const rawData = ref<any[]>([])
+const rawData = ref<unknown[]>([])
 const dataJson = ref('')
-const previewData = ref<any[]>([])
+const previewData = ref<unknown[]>([])
 
 // 可用字段
 const availableFields = ref<string[]>([])
@@ -334,7 +334,7 @@ function updateChart() {
       series: [
         {
           name: chartConfig.yAxis,
-          type: chartConfig.type as any,
+          type: chartConfig.type as string,
           data:
             chartConfig.type === 'pie'
               ? rawData.value.map(item => ({
@@ -428,7 +428,7 @@ async function loadReport() {
   
   loading.value = true
   try {
-    const res = await getReport(reportId.value) as any
+    const res = await getReport(reportId.value) as Record<string, unknown>
     reportInfo.value = res.data
     
     // 设置基础信息

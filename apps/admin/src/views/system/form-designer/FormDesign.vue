@@ -110,7 +110,7 @@
               <div class="options-list">
                 <div v-for="(option, index) in selectedComponent.options" :key="index" class="option-item">
                   <el-input v-model="option.label" placeholder="标签" style="width: 40%; margin-right: 8px" />
-                  <el-input v-model="option.value as any" placeholder="值" style="width: 40%" />
+                  <el-input v-model="option.value" placeholder="值" style="width: 40%" />
                   <el-icon class="option-delete" @click="handleDeleteOption(index)">
                     <Delete />
                   </el-icon>
@@ -272,7 +272,7 @@ function createComponent(type: string): FormComponent {
 
 // 渲染组件预览
 function renderComponentPreview(component: FormComponent) {
-  const props: any = {
+  const props: Record<string, unknown> = {
     modelValue: component.defaultValue,
     placeholder: component.placeholder,
     disabled: component.disabled
@@ -336,7 +336,7 @@ function renderComponentPreview(component: FormComponent) {
 }
 
 // 添加组件
-function handleAddComponent(component: any) {
+function handleAddComponent(component: Record<string, unknown>) {
   const newComponent = createComponent(component.type)
   newComponent.label = component.label
   components.value.push(newComponent)

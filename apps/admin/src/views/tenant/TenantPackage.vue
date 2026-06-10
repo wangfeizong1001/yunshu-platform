@@ -134,7 +134,7 @@ async function handleSubmit() {
       packageId: formData.value.packageId,
       expireTime: formData.value.expireTime,
       userLimit: formData.value.userLimit,
-    } as any)
+    } as Record<string, unknown>)
 
     ElMessage.success('套餐配置成功')
     emit('update:modelValue', false)

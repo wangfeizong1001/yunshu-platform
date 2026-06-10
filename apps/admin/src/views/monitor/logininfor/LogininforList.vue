@@ -71,8 +71,8 @@
         <el-table-column label="登录IP" prop="ipaddr" width="140" align="center" />
         <el-table-column label="操作" width="100" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleViewDetail(row as any)">详情</el-button>
-            <el-button link type="danger" @click="handleDelete(row as any)">删除</el-button>
+            <el-button link type="primary" @click="handleViewDetail(row)">详情</el-button>
+            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

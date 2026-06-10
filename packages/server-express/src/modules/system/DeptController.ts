@@ -235,7 +235,7 @@ export class DeptController extends BaseController {
    * 创建部门
    */
   async create(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as DeptCreateBody;
@@ -285,7 +285,7 @@ export class DeptController extends BaseController {
    * 更新部门
    */
   async update(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as DeptUpdateBody;
@@ -342,7 +342,7 @@ export class DeptController extends BaseController {
    * 删除部门
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const { deptId } = req.params;

@@ -2,7 +2,7 @@
  * 角色管理 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface RoleQuery {
   pageNum?: number
@@ -35,79 +35,79 @@ export interface RoleInfo {
 }
 
 export const getRoleList = (params?: RoleQuery) => {
-  return request({
+  return request<{ rows: RoleInfo[]; total: number }>({
     url: '/system/role/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getRolePage = (params?: RoleQuery) => {
-  return request({
+  return request<{ rows: RoleInfo[]; total: number }>({
     url: '/system/role/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getRole = (roleId: number) => {
-  return request({
+  return request<RoleInfo>({
     url: `/system/role/${roleId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addRole = (data: RoleForm) => {
-  return request({
+  return request<void>({
     url: '/system/role',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateRole = (data: RoleForm) => {
-  return request({
+  return request<void>({
     url: '/system/role',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteRole = (roleId: number) => {
-  return request({
+  return request<void>({
     url: `/system/role/${roleId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteRole = (roleIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/role/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: roleIds
   })
 }
 
 export const changeRoleStatus = (roleId: number, status: string) => {
-  return request({
+  return request<void>({
     url: '/system/role/changeStatus',
-    method: 'put',
+    method: 'PUT',
     params: { roleId, status }
   })
 }
 
 export const dataScope = (data: RoleForm) => {
-  return request({
+  return request<void>({
     url: '/system/role/dataScope',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const authRoleAll = (roleId: number, menuIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/role/authRoleAll',
-    method: 'put',
+    method: 'PUT',
     data: { roleId, menuIds }
   })
 }

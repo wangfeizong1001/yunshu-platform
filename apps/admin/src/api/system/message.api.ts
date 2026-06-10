@@ -2,7 +2,7 @@
  * 站内消息 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface MessageQuery {
   pageNum?: number
@@ -46,76 +46,76 @@ export interface SendMessageResult {
 }
 
 export const getMessageList = (params?: MessageQuery) => {
-  return request({
+  return request<{ rows: MessageInfo[]; total: number }>({
     url: '/system/message/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getMessagePage = (params?: MessageQuery) => {
-  return request({
+  return request<{ rows: MessageInfo[]; total: number }>({
     url: '/system/message/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getUnreadMessageCount = () => {
-  return request({
+  return request<number>({
     url: '/system/message/unread/count',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getMessage = (messageId: number) => {
-  return request({
+  return request<MessageInfo>({
     url: `/system/message/${messageId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const sendMessage = (data: MessageForm) => {
-  return request({
+  return request<void>({
     url: '/system/message',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const deleteMessage = (messageId: number) => {
-  return request({
+  return request<void>({
     url: `/system/message/${messageId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteMessage = (messageIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/message/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: messageIds
   })
 }
 
 export const markAsRead = (messageId: number) => {
-  return request({
+  return request<void>({
     url: `/system/message/${messageId}/read`,
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 export const markAllAsRead = () => {
-  return request({
+  return request<void>({
     url: '/system/message/read-all',
-    method: 'put'
+    method: 'PUT'
   })
 }
 
 export const getSentMessages = (params?: MessageQuery) => {
-  return request({
+  return request<{ rows: MessageInfo[]; total: number }>({
     url: '/system/message/sent',
-    method: 'get',
+    method: 'GET',
     params
   })
 }

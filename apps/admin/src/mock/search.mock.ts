@@ -2,13 +2,6 @@
  * 搜索 Mock 数据
  */
 
-import type {
-  SearchResponse,
-  SearchResultItem,
-  HotSearchResponse,
-  SearchHistoryItem,
-  SearchType
-} from '@/api/search.api'
 
 // Mock 搜索结果数据
 const mockSearchData: SearchResultItem[] = [

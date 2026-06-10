@@ -4,9 +4,8 @@
  * @module @yunshu/admin/mock/monitor
  */
 
-import type { IJob, IJobLog } from '@yunshu/shared'
 
-export const jobMockData: IJob[] = [
+export const jobMockData: any[] = [
   {
     jobId: '1',
     jobName: '数据备份',
@@ -84,7 +83,7 @@ export const jobMockData: IJob[] = [
   },
 ]
 
-export const jobLogMockData: IJobLog[] = Array.from({ length: 30 }, (_, i) => {
+export const jobLogMockData: any[] = Array.from({ length: 30 }, (_, i) => {
   const job = jobMockData[i % jobMockData.length]
   const status = i % 10 === 0 ? '1' : '0'
   return {

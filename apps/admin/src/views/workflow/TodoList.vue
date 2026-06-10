@@ -53,23 +53,23 @@
         <el-table-column prop="startTime" label="接收时间" width="180" />
         <el-table-column prop="assignee" label="处理人" width="120">
           <template #default="{ row }">
-            {{ row.assignee || '-' }}
+            {{ (row as Task).assignee || '-' }}
           </template>
         </el-table-column>
         <el-table-column prop="priority" label="优先级" width="100">
           <template #default="{ row }">
-            <el-tag v-if="row.priority >= 80" type="danger">高</el-tag>
-            <el-tag v-else-if="row.priority >= 50" type="warning">中</el-tag>
+            <el-tag v-if="(row as Task).priority >= 80" type="danger">高</el-tag>
+            <el-tag v-else-if="(row as Task).priority >= 50" type="warning">中</el-tag>
             <el-tag v-else type="info">低</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="360" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleApprove(row as Task)">审批</el-button>
-            <el-button type="success" link @click="handleAddSign(row as Task)">加签</el-button>
-            <el-button type="warning" link @click="handleDelegate(row as Task)">转办</el-button>
-            <el-button type="info" link @click="handleAssign(row as Task)">委托</el-button>
-            <el-button link @click="handleView(row as Task)">查看</el-button>
+            <el-button type="primary" link @click="handleApprove(row as unknown as Task)">审批</el-button>
+            <el-button type="success" link @click="handleAddSign(row as unknown as Task)">加签</el-button>
+            <el-button type="warning" link @click="handleDelegate(row as unknown as Task)">转办</el-button>
+            <el-button type="info" link @click="handleAssign(row as unknown as Task)">委托</el-button>
+            <el-button link @click="handleView(row as unknown as Task)">查看</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -337,7 +337,7 @@ async function fetchTaskList() {
   loading.value = true
   try {
     const res = getMockTodoTaskPage(queryParams)
-    taskList.value = res.rows
+    taskList.value = res.rows as unknown as Task[]
     total.value = res.total
   } finally {
     loading.value = false

@@ -2,7 +2,7 @@
  * 岗位管理 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface PostQuery {
   pageNum?: number
@@ -32,70 +32,70 @@ export interface PostInfo {
 }
 
 export const getPostList = (params?: PostQuery) => {
-  return request({
+  return request<{ rows: PostInfo[]; total: number }>({
     url: '/system/post/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getPostPage = (params?: PostQuery) => {
-  return request({
+  return request<{ rows: PostInfo[]; total: number }>({
     url: '/system/post/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getPost = (postId: number) => {
-  return request({
+  return request<PostInfo>({
     url: `/system/post/${postId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addPost = (data: PostForm) => {
-  return request({
+  return request<void>({
     url: '/system/post',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updatePost = (data: PostForm) => {
-  return request({
+  return request<void>({
     url: '/system/post',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deletePost = (postId: number) => {
-  return request({
+  return request<void>({
     url: `/system/post/${postId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeletePost = (postIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/post/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: postIds
   })
 }
 
 export const changePostStatus = (postId: number, status: string) => {
-  return request({
+  return request<void>({
     url: '/system/post/changeStatus',
-    method: 'put',
+    method: 'PUT',
     params: { postId, status }
   })
 }
 
 export const getPostSelect = () => {
-  return request({
+  return request<PostInfo[]>({
     url: '/system/post/select',
-    method: 'get'
+    method: 'GET'
   })
 }

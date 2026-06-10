@@ -2,7 +2,7 @@
  * SSO单点登录 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface SsoConfig {
   ssoType: string
@@ -15,31 +15,31 @@ export interface SsoConfig {
 }
 
 export const getSsoConfig = () => {
-  return request({
+  return request<SsoConfig>({
     url: '/system/sso/config',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const saveSsoConfig = (data: SsoConfig) => {
-  return request({
+  return request<void>({
     url: '/system/sso/config',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const ssoLogin = (code: string, state: string) => {
-  return request({
+  return request<{ token: string; user?: object }>({
     url: '/system/sso/login',
-    method: 'post',
+    method: 'POST',
     data: { code, state }
   })
 }
 
 export const ssoLogout = () => {
-  return request({
+  return request<void>({
     url: '/system/sso/logout',
-    method: 'post'
+    method: 'POST'
   })
 }

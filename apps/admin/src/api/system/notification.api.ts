@@ -2,7 +2,7 @@
  * 通知 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface NotificationQuery {
   pageNum?: number
@@ -44,76 +44,76 @@ export interface NotificationInfo {
 }
 
 export const getNotificationList = (params?: NotificationQuery) => {
-  return request({
+  return request<{ rows: NotificationInfo[]; total: number }>({
     url: '/system/notification/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getNotificationPage = (params?: NotificationQuery) => {
-  return request({
+  return request<{ rows: NotificationInfo[]; total: number }>({
     url: '/system/notification/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getNotification = (notificationId: number) => {
-  return request({
+  return request<NotificationInfo>({
     url: `/system/notification/${notificationId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const createNotification = (data: NotificationForm) => {
-  return request({
+  return request<void>({
     url: '/system/notification',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateNotification = (data: NotificationForm) => {
-  return request({
+  return request<void>({
     url: '/system/notification',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteNotification = (notificationId: number) => {
-  return request({
+  return request<void>({
     url: `/system/notification/${notificationId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteNotification = (notificationIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/notification/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: notificationIds
   })
 }
 
 export const pushNotification = (notificationId: number) => {
-  return request({
+  return request<void>({
     url: `/system/notification/${notificationId}/push`,
-    method: 'post'
+    method: 'POST'
   })
 }
 
 export const recallNotification = (notificationId: number) => {
-  return request({
+  return request<void>({
     url: `/system/notification/${notificationId}/recall`,
-    method: 'post'
+    method: 'POST'
   })
 }
 
 export const getNotificationStats = () => {
-  return request({
+  return request<{ total: number; unread: number; today: number }>({
     url: '/system/notification/stats',
-    method: 'get'
+    method: 'GET'
   })
 }

@@ -109,7 +109,7 @@ export class MessageController extends BaseController {
    * 创建消息
    */
   async create(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const body = req.body as Partial<SysMessage>;
@@ -165,7 +165,7 @@ export class MessageController extends BaseController {
    * 删除消息
    */
   async remove(req: Request, res: Response) {
-    const role = (req as any).user?.role;
+    const role = this.getCurrentUserRole(req);
     if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
     const messageId = Number(req.params.messageId);

@@ -13,7 +13,7 @@
       label-width="100px"
     >
       <el-form-item label="字典类型">
-        <el-input v-model="dictType" disabled />
+        <el-input :model-value="dictType" disabled />
       </el-form-item>
 
       <el-form-item label="字典标签" prop="dictLabel">
@@ -161,10 +161,10 @@ async function handleSubmit() {
     }
 
     if (isEdit.value) {
-      await updateDictData({ dictCode: props.dictData!.dictCode, ...submitData } as any)
+      await updateDictData({ dictCode: props.dictData!.dictCode, ...submitData } as Record<string, unknown>)
       ElMessage.success('修改成功')
     } else {
-      await addDictData(submitData as any)
+      await addDictData(submitData as Record<string, unknown>)
       ElMessage.success('新增成功')
     }
 

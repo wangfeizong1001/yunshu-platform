@@ -2,7 +2,7 @@
  * 部门管理 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface DeptQuery {
   deptName?: string
@@ -35,61 +35,61 @@ export interface DeptInfo {
 }
 
 export const getDeptList = (params?: DeptQuery) => {
-  return request({
+  return request<DeptInfo[]>({
     url: '/system/dept/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getDept = (deptId: number) => {
-  return request({
+  return request<DeptInfo>({
     url: `/system/dept/${deptId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getDeptTreeSelect = () => {
-  return request({
+  return request<DeptInfo[]>({
     url: '/system/dept/treeSelect',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getDeptTree = (params?: DeptQuery) => {
-  return request({
+  return request<DeptInfo[]>({
     url: '/system/dept/tree',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getDeptExcludeChild = (deptId: number) => {
-  return request({
+  return request<DeptInfo[]>({
     url: `/system/dept/list/excludeChild/${deptId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const addDept = (data: DeptForm) => {
-  return request({
+  return request<void>({
     url: '/system/dept',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const updateDept = (data: DeptForm) => {
-  return request({
+  return request<void>({
     url: '/system/dept',
-    method: 'put',
+    method: 'PUT',
     data
   })
 }
 
 export const deleteDept = (deptId: number) => {
-  return request({
+  return request<void>({
     url: `/system/dept/${deptId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }

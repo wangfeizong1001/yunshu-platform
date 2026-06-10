@@ -96,8 +96,8 @@
 
     <div class="pagination-container">
       <el-pagination
-        v-model:current-page="queryParams.page"
-        v-model:page-size="queryParams.limit"
+        v-model:current-page="queryParams.pageNum"
+        v-model:page-size="queryParams.pageSize"
         :page-sizes="[10, 20, 50, 100]"
         :total="total"
         layout="total, sizes, prev, pager, next, jumper"
@@ -126,7 +126,7 @@
 import { ref, reactive, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Tickets } from '@element-plus/icons-vue'
-import type { IGenTable, IGenQuery } from '@yunshu/shared'
+import type { IGenTable, IGenQuery } from '@/api/tool/gen.api'
 import { getGenDbList, importGenTable } from '@/api/tool/gen.api'
 
 const props = defineProps<{
@@ -145,9 +145,14 @@ const tableData = ref<IGenTable[]>([])
 const selectedTables = ref<IGenTable[]>([])
 const total = ref(0)
 
-const queryParams = reactive<IGenQuery>({
-  page: 1,
-  limit: 20,
+interface IGenDbQuery extends IGenQuery {
+  sort?: string
+  order?: string
+}
+
+const queryParams = reactive<IGenDbQuery>({
+  pageNum: 1,
+  pageSize: 20,
   sort: 'createTime',
   order: 'desc'
 })
@@ -172,9 +177,10 @@ const loadTableList = async () => {
   loading.value = true
   try {
     const res = await getGenDbList(queryParams)
-    if (res.success) {
-      tableData.value = res.data || []
-      total.value = res.pagination?.total || 0
+    if (res.success && res.data) {
+      const data = res.data as { rows: IGenTable[]; total: number }
+      tableData.value = data.rows || []
+      total.value = data.total || 0
     }
   } catch {
     ElMessage.error('获取表列表失败')
@@ -184,13 +190,13 @@ const loadTableList = async () => {
 }
 
 const handleQuery = () => {
-  queryParams.page = 1
+  queryParams.pageNum = 1
   loadTableList()
 }
 
 const handleReset = () => {
-  queryParams.page = 1
-  queryParams.limit = 20
+  queryParams.pageNum = 1
+  queryParams.pageSize = 20
   queryParams.tableName = undefined
   queryParams.tableComment = undefined
   loadTableList()
@@ -226,9 +232,9 @@ const doImport = async (tables: IGenTable[]) => {
       emit('success')
       handleClose()
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error !== 'cancel') {
-      ElMessage.error(error.message || '导入失败')
+      ElMessage.error((error as { message?: string }).message || '导入失败')
     }
   } finally {
     importing.value = false

@@ -137,7 +137,7 @@ interface Widget {
   height: number
   backgroundColor?: string
   borderColor?: string
-  data?: any
+  data?: unknown
 }
 
 const widgetTypes = [
@@ -185,7 +185,7 @@ const GaugeWidget = {
 }
 
 const getWidgetComponent = (type: string) => {
-  const components: Record<string, any> = {
+  const components: Record<string, unknown> = {
     line: LineChartWidget,
     bar: BarChartWidget,
     pie: PieChartWidget,
@@ -196,7 +196,7 @@ const getWidgetComponent = (type: string) => {
   return components[type] || 'div'
 }
 
-const handleDragStart = (event: DragEvent, widget: any) => {
+const handleDragStart = (event: DragEvent, widget: Widget) => {
   event.dataTransfer?.setData('widgetType', widget.type)
   event.dataTransfer?.setData('widgetName', widget.name)
 }

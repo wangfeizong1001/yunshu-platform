@@ -106,7 +106,7 @@ const formData = ref({
 // 加载菜单树
 async function fetchMenuTree() {
   try {
-    menuTree.value = (await getMenuTree()) as any
+    menuTree.value = (await getMenuTree()) as unknown[]
   } catch (error) {
     console.error('加载菜单树失败', error)
   }
@@ -115,7 +115,7 @@ async function fetchMenuTree() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = (await getDeptTree()) as any
+    deptTree.value = (await getDeptTree()) as unknown[]
   } catch (error) {
     console.error('加载部门树失败', error)
   }

@@ -2,7 +2,7 @@
  * OSS文件存储 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface OssQuery {
   pageNum?: number
@@ -43,65 +43,65 @@ export interface OssConfig {
 }
 
 export const getOssList = (params?: OssQuery) => {
-  return request({
+  return request<{ rows: OssInfo[]; total: number }>({
     url: '/system/oss/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getOssPage = (params?: OssQuery) => {
-  return request({
+  return request<{ rows: OssInfo[]; total: number }>({
     url: '/system/oss/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getOss = (ossId: number) => {
-  return request({
+  return request<OssInfo>({
     url: `/system/oss/${ossId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getOssConfig = () => {
-  return request({
+  return request<OssConfig>({
     url: '/system/oss/config',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const uploadOss = (file: File) => {
   const formData = new FormData()
   formData.append('file', file)
-  return request({
+  return request<void>({
     url: '/system/oss/upload',
-    method: 'post',
+    method: 'POST',
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
 
 export const deleteOss = (ossId: number) => {
-  return request({
+  return request<void>({
     url: `/system/oss/${ossId}`,
-    method: 'delete'
+    method: 'DELETE'
   })
 }
 
 export const batchDeleteOss = (ossIds: number[]) => {
-  return request({
+  return request<void>({
     url: '/system/oss/batch',
-    method: 'delete',
+    method: 'DELETE',
     data: ossIds
   })
 }
 
 export const downloadOss = (ossId: number) => {
-  return request({
+  return request<Blob>({
     url: `/system/oss/download/${ossId}`,
-    method: 'get',
+    method: 'GET',
     responseType: 'blob'
   })
 }

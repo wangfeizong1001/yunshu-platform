@@ -2,10 +2,9 @@
  * 参数配置 Mock 数据
  */
 
-import type { SysConfig, SysConfigPageResp } from '@yunshu/shared'
 
 // 参数配置 Mock 数据
-export const mockConfigList: SysConfig[] = [
+export const mockConfigList: any[] = [
   {
     configId: 1,
     configName: '用户管理-初始密码',
@@ -97,7 +96,7 @@ export const mockConfigList: SysConfig[] = [
 ]
 
 // 获取参数配置分页列表 Mock
-export function getMockConfigPage(params: any): SysConfigPageResp {
+export function getMockConfigPage(params: any): any {
   const { pageNum = 1, pageSize = 10, keyword = '', configType = '' } = params
 
   let filteredList = mockConfigList
@@ -126,18 +125,18 @@ export function getMockConfigPage(params: any): SysConfigPageResp {
 }
 
 // 获取参数配置详情 Mock
-export function getMockConfigDetail(configId: number): SysConfig | undefined {
+export function getMockConfigDetail(configId: number): any | undefined {
   return mockConfigList.find((item) => item.configId === configId)
 }
 
 // 根据键名获取参数 Mock
-export function getMockConfigByKey(configKey: string): SysConfig | undefined {
+export function getMockConfigByKey(configKey: string): any | undefined {
   return mockConfigList.find((item) => item.configKey === configKey)
 }
 
 // 新增参数配置 Mock
-export function addMockConfig(data: Partial<SysConfig>): SysConfig {
-  const newItem: SysConfig = {
+export function addMockConfig(data: Partial<any>): any {
+  const newItem: any = {
     configId: Math.max(...mockConfigList.map((u) => u.configId)) + 1,
     configName: data.configName || '',
     configKey: data.configKey || '',
@@ -153,7 +152,7 @@ export function addMockConfig(data: Partial<SysConfig>): SysConfig {
 }
 
 // 更新参数配置 Mock
-export function updateMockConfig(configId: number, data: Partial<SysConfig>): SysConfig | undefined {
+export function updateMockConfig(configId: number, data: Partial<any>): any | undefined {
   const index = mockConfigList.findIndex((u) => u.configId === configId)
   if (index !== -1) {
     mockConfigList[index] = { ...mockConfigList[index], ...data, updateTime: new Date().toLocaleString() }

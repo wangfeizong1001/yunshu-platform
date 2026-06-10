@@ -201,7 +201,7 @@ const formInfo = ref<FormInfo | null>(null)
 const components = ref<FormComponent[]>([])
 
 // 表单数据
-const formData = reactive<Record<string, any>>({})
+const formData = reactive<Record<string, unknown>>({})
 
 // 表单引用
 const formRef = ref<FormInstance>()

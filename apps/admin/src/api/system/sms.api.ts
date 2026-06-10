@@ -2,7 +2,7 @@
  * 短信服务 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 export interface SmsQuery {
   pageNum?: number
@@ -41,56 +41,55 @@ export interface SmsConfig {
 }
 
 export const getSmsList = (params?: SmsQuery) => {
-  return request({
+  return request<{ rows: SmsInfo[]; total: number }>({
     url: '/system/sms/list',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getSmsPage = (params?: SmsQuery) => {
-  return request({
+  return request<{ rows: SmsInfo[]; total: number }>({
     url: '/system/sms/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }
 
 export const getSms = (smsId: number) => {
-  return request({
+  return request<SmsInfo>({
     url: `/system/sms/${smsId}`,
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const getSmsConfig = () => {
-  return request({
+  return request<SmsConfig>({
     url: '/system/sms/config',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 export const saveSmsConfig = (data: SmsConfig) => {
-  return request({
+  return request<void>({
     url: '/system/sms/config',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 export const sendSms = (phone: string, content: string) => {
-  return request({
+  return request<void>({
     url: '/system/sms/send',
-    method: 'post',
+    method: 'POST',
     data: { phone, content }
   })
 }
 
-// 获取短信日志列表
 export const getSmsLogList = (params?: SmsQuery) => {
-  return request({
+  return request<{ rows: SmsInfo[]; total: number }>({
     url: '/system/sms/log/page',
-    method: 'get',
+    method: 'GET',
     params
   })
 }

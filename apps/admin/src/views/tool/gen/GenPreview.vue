@@ -21,8 +21,8 @@
           >
             <el-icon><Document /></el-icon>
             <span class="file-name">{{ file.fileName }}</span>
-            <el-tag :type="getFileTagType(file.fileName)" size="small">
-              {{ getFileExt(file.fileName) }}
+            <el-tag :type="getFileTagType(file.fileName as string)" size="small">
+              {{ getFileExt(file.fileName as string) }}
             </el-tag>
           </div>
         </div>
@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="code-content" ref="codeContentRef">
-          <pre v-if="currentFile"><code v-html="highlightedCode"></code></pre>
+          <pre v-if="currentFile"><SafeHtml :html="highlightedCode" /></pre>
           <div v-else class="empty-state">
             <el-empty description="请选择一个文件预览" />
           </div>
@@ -72,9 +72,22 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
+import SafeHtml from '@/components/SafeHtml/index.vue'
 import { Document, DocumentCopy, Download, Refresh, Files, Key } from '@element-plus/icons-vue'
-import type { IGenPreview, IGenPreviewItem, IGenConfig } from '@yunshu/shared'
+import type { IGenConfig } from '@/api/tool/gen.api'
 import { previewCode, downloadCode } from '@/api/tool/gen.api'
+
+interface IGenPreviewItem {
+  filePath?: string
+  fileName?: string
+  content?: string
+  [key: string]: unknown
+}
+
+interface IGenPreview {
+  files?: IGenPreviewItem[]
+  [key: string]: unknown
+}
 
 const props = defineProps<{
   modelValue: boolean
@@ -96,7 +109,7 @@ const currentFile = ref<IGenPreviewItem | null>(null)
 
 const highlightedCode = computed(() => {
   if (!currentFile.value) return ''
-  return highlightCode(currentFile.value.content, getFileExt(currentFile.value.fileName))
+  return highlightCode(currentFile.value.content as string, getFileExt(currentFile.value.fileName as string))
 })
 
 watch(() => props.modelValue, (val) => {
@@ -115,7 +128,7 @@ const getFileExt = (fileName: string): string => {
   return ext.toLowerCase()
 }
 
-const getFileTagType = (fileName: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
+const getFileTagType = (fileName: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
   const ext = getFileExt(fileName)
   const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     java: 'success',
@@ -125,7 +138,7 @@ const getFileTagType = (fileName: string): 'primary' | 'success' | 'warning' | '
     sql: 'info',
     xml: 'danger',
   }
-  return typeMap[ext]
+  return typeMap[ext] || 'info'
 }
 
 const getFileIconColor = (fileName?: string): string => {
@@ -223,23 +236,16 @@ const loadPreviewData = async () => {
   loading.value = true
   try {
     const config: IGenConfig = {
-      tableName: props.tableName,
-      tableComment: props.config?.tableComment || '',
-      className: props.config?.className || '',
       moduleName: props.config?.moduleName || '',
       packageName: props.config?.packageName || 'com.yunshu.generator',
-      author: props.config?.author || '云枢',
-      email: props.config?.email,
-      generateType: props.config?.generateType || 'single',
-      generateMenu: props.config?.generateMenu ?? true,
-      generateApi: props.config?.generateApi ?? true,
-      generateView: props.config?.generateView ?? true,
-      generateTypeScript: props.config?.generateTypeScript ?? true,
-      businessName: props.config?.businessName,
-      functionName: props.config?.functionName,
-      treeCodeField: props.config?.treeCodeField,
-      treeParentCodeField: props.config?.treeParentCodeField,
-      treeNameField: props.config?.treeNameField
+      functionAuthor: props.config?.functionAuthor || '云枢',
+      genType: (props.config as unknown as Record<string, unknown>)?.generateType as string || 'single',
+      genPath: props.config?.genPath || '',
+      businessName: props.config?.businessName || '',
+      functionName: props.config?.functionName || '',
+      treeCode: (props.config as unknown as Record<string, unknown>)?.treeCodeField as string,
+      treeParentCode: (props.config as unknown as Record<string, unknown>)?.treeParentCodeField as string,
+      treeName: (props.config as unknown as Record<string, unknown>)?.treeNameField as string
     }
 
     const res = await previewCode(config) as { success: boolean; data: IGenPreview }
@@ -282,7 +288,7 @@ const handleCopy = async () => {
 
 const handleDownload = () => {
   if (!props.tableName) return
-  downloadCode(props.tableName, props.config)
+  downloadCode(props.tableName as string, props.config as IGenConfig)
   ElMessage.success('代码已生成，正在下载...')
 }
 

@@ -152,15 +152,6 @@ let mockUsers: User[] = [
  * 用户管理控制器类
  */
 export class UserController extends BaseController {
-  private isCurrentUserAdmin(req: Request): boolean {
-    const role = (req as unknown as { user?: { role?: string } }).user?.role;
-    return role === 'admin' || role === 'super_admin';
-  }
-
-  private getCurrentUserId(req: Request): string | undefined {
-    return (req as unknown as { user?: { userId?: string } }).user?.userId;
-  }
-
   private extractQueryParam(value: unknown, max = MAX_QUERY_PARAM_LENGTH): string | undefined {
     if (Array.isArray(value)) {
       const first = value[0];

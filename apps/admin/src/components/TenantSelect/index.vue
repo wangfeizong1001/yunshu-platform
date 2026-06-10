@@ -23,9 +23,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getTenantList } from '@/api/tenant/tenant.api'
-import type { Tenant } from '@yunshu/shared'
+
+interface TenantInfo {
+  tenantId: number
+  tenantName: string
+  tenantCode: string
+}
 
 const props = withDefaults(
   defineProps<{
@@ -47,35 +52,22 @@ const emit = defineEmits<{
   change: [value: number | null]
 }>()
 
-// 状态
-const tenantList = ref<Tenant[]>([])
+const tenantList = ref<TenantInfo[]>([])
 
-// 加载租户列表
 async function fetchTenantList() {
   try {
-    tenantList.value = await getTenantList({ status: '0' })
+    const res = await getTenantList({ status: '0' })
+    tenantList.value = (res?.data || []) as TenantInfo[]
   } catch (error) {
     console.error('加载租户列表失败', error)
   }
 }
 
-// 处理变更
 function handleChange(value: number | null) {
   emit('update:modelValue', value)
   emit('change', value)
 }
 
-// 监听值变化，确保外部 v-model 绑定正确
-watch(
-  () => props.modelValue,
-  (val) => {
-    if (val === undefined || val === null) {
-      // do nothing
-    }
-  }
-)
-
-// 初始化
 onMounted(() => {
   fetchTenantList()
 })

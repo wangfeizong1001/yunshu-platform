@@ -2,7 +2,7 @@
  * 认证相关 API
  */
 
-import request from '@/utils/request'
+import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
 // 登录表单类型
 export interface LoginForm {
@@ -34,41 +34,41 @@ export interface UserInfo {
 
 // 获取验证码
 export function getCaptchaApi() {
-  return request({
+  return request<{ captchaOnOff: boolean; img: string; uuid: string }>({
     url: '/auth/captcha',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 // 登录
 export function loginApi(data: LoginForm) {
-  return request({
+  return request<{ token: string; user?: object }>({
     url: '/auth/login',
-    method: 'post',
+    method: 'POST',
     data
   })
 }
 
 // 退出登录
 export function logoutApi() {
-  return request({
+  return request<void>({
     url: '/auth/logout',
-    method: 'post'
+    method: 'POST'
   })
 }
 
 // 获取用户信息
 export function getUserInfoApi() {
-  return request({
+  return request<UserInfo>({
     url: '/auth/getInfo',
-    method: 'get'
+    method: 'GET'
   })
 }
 
 // 获取路由菜单
 export function getRoutersApi() {
-  return request({
+  return request<unknown[]>({
     url: '/system/menu/getRouters',
-    method: 'get'
+    method: 'GET'
   })
 }
