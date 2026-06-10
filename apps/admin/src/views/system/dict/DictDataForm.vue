@@ -13,7 +13,7 @@
       label-width="100px"
     >
       <el-form-item label="字典类型">
-        <el-input v-model="dictType" disabled />
+        <el-input :model-value="dictType" disabled />
       </el-form-item>
 
       <el-form-item label="字典标签" prop="dictLabel">

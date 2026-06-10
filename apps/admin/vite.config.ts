@@ -32,7 +32,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@yunshu/shared': resolve(__dirname, '../packages/shared/src')
+      '@yunshu/shared': resolve(__dirname, '../../packages/shared/src')
     }
   },
   server: {
