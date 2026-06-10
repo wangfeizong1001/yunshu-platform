@@ -210,14 +210,30 @@ export class UserController extends BaseController {
       const query = req.query as unknown as UserQueryParams;
       const { page, limit } = normalizePagination(query);
 
+      const userName = Array.isArray(query.userName)
+        ? String(query.userName[0])
+        : typeof query.userName === 'string'
+          ? query.userName
+          : undefined;
+      const status = Array.isArray(query.status)
+        ? String(query.status[0])
+        : typeof query.status === 'string'
+          ? query.status
+          : undefined;
+      const deptId = Array.isArray(query.deptId)
+        ? String(query.deptId[0])
+        : typeof query.deptId === 'string'
+          ? query.deptId
+          : undefined;
+
       const filtered = mockUsers.filter((u) => {
-        if (query.userName && !u.userName.includes(query.userName) && !u.nickName.includes(query.userName)) {
+        if (userName && !u.userName.includes(userName) && !u.nickName.includes(userName)) {
           return false;
         }
-        if (query.status && u.status !== query.status) {
+        if (status && u.status !== status) {
           return false;
         }
-        if (query.deptId && u.deptId !== query.deptId) {
+        if (deptId && u.deptId !== deptId) {
           return false;
         }
         return true;

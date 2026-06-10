@@ -1,12 +1,37 @@
 /**
  * API 客户端 — 可插拔中间件
  *
- * 提供常见的请求处理中间件，可按需组合使用。
+ * 提供常见的请求处理中间件：认证刷新、请求去重、响应缓存、自动重试、
+ * 日志记录。中间件可按需组合。
+ *
+ * 注意：这些函数返回的是 `(config, next) => Promise<HttpResponse>` 的
+ * 闭包，通常由外层 HttpClient 的中间件管道在 request 中调用。
  *
  * @module @yunshu/api-client/core/middlewares
  */
 
-import type { RequestConfig, HttpResponse, AuthConfig } from '../types';
+import type {
+  RequestConfig,
+  HttpResponse,
+  AuthConfig,
+  CacheOptions,
+  RetryConfig,
+} from '../types';
+
+// ============================================================================
+// 共享工具
+// ============================================================================
+
+/**
+ * 将 params 序列化为稳定的缓存 key 前缀（注意这只是简单的指纹）
+ */
+function fingerprint(value: unknown): string {
+  try {
+    return JSON.stringify(value) ?? '';
+  } catch {
+    return String(value);
+  }
+}
 
 // ============================================================================
 // Token 认证中间件
@@ -15,8 +40,8 @@ import type { RequestConfig, HttpResponse, AuthConfig } from '../types';
 /**
  * 创建 Token 认证中间件
  *
- * 自动在请求头中添加 Bearer Token，
- * 并在 Token 过期时尝试刷新。
+ * 自动在请求头中添加 Bearer Token， 并在 Token 过期（401）时自动
+ * 尝试刷新。使用 `isRefreshing` + Promise 模式避免并发刷新。
  */
 export function createAuthMiddleware(config: AuthConfig) {
   const {
@@ -46,10 +71,9 @@ export function createAuthMiddleware(config: AuthConfig) {
     try {
       return await next(reqConfig);
     } catch (error: unknown) {
-      // 如果是 401 且不是刷新请求本身，尝试刷新 Token
+      // 401 且不是刷新请求本身：尝试刷新 Token
       const err = error as { status?: number };
       if (err.status === 401 && token && !reqConfig.url?.includes('/auth/refresh')) {
-        // 避免并发刷新
         if (!isRefreshing) {
           isRefreshing = true;
           refreshPromise = refreshToken();
@@ -60,7 +84,6 @@ export function createAuthMiddleware(config: AuthConfig) {
         refreshPromise = null;
 
         if (newToken) {
-          // 用新 Token 重试
           reqConfig.headers = {
             ...reqConfig.headers,
             [headerName]: `${tokenPrefix}${newToken}`,
@@ -68,7 +91,6 @@ export function createAuthMiddleware(config: AuthConfig) {
           return next(reqConfig);
         }
 
-        // 刷新失败
         onRefreshFailed?.();
       }
       throw error;
@@ -83,7 +105,7 @@ export function createAuthMiddleware(config: AuthConfig) {
 /**
  * 创建请求去重中间件
  *
- * 在指定时间窗口内，相同的 GET 请求只发送一次。
+ * 在指定时间窗口内，相同的 GET 请求只发送一次，后续请求共享同一 Promise。
  */
 export function createDedupMiddleware(windowMs = 1000) {
   const pending = new Map<string, Promise<HttpResponse>>();
@@ -92,13 +114,15 @@ export function createDedupMiddleware(windowMs = 1000) {
     config: RequestConfig,
     next: (config: RequestConfig) => Promise<HttpResponse>,
   ): Promise<HttpResponse> => {
-    if (config.method && config.method !== 'GET') {
+    const method = (config.method ?? 'GET').toUpperCase();
+    if (method !== 'GET') {
       return next(config);
     }
 
-    const key = `${config.method}:${config.url}:${JSON.stringify(config.params)}`;
+    const key = `${method}:${config.url}:${fingerprint(config.params)}`;
 
     if (pending.has(key)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return pending.get(key)!;
     }
 
@@ -116,35 +140,38 @@ export function createDedupMiddleware(windowMs = 1000) {
 // ============================================================================
 
 interface CacheEntry {
-  data: unknown;
+  data: HttpResponse;
   timestamp: number;
+  ttl: number;
 }
 
 /**
  * 创建响应缓存中间件
  *
- * 对 GET 请求结果进行内存缓存。
+ * 对 GET 请求结果进行内存缓存，支持 TTL。
  */
-export function createCacheMiddleware(defaultTTL = 5 * 60 * 1000) {
+export function createCacheMiddleware(options: CacheOptions = {}) {
+  const { enabled = true, ttl = 5 * 60 * 1000 } = options;
   const store = new Map<string, CacheEntry>();
 
   return async (
     config: RequestConfig,
     next: (config: RequestConfig) => Promise<HttpResponse>,
   ): Promise<HttpResponse> => {
-    if (config.method && config.method !== 'GET') {
+    const method = (config.method ?? 'GET').toUpperCase();
+    if (method !== 'GET' || !enabled) {
       return next(config);
     }
 
-    const key = `${config.method}:${config.url}:${JSON.stringify(config.params)}`;
+    const key = `${method}:${config.url}:${fingerprint(config.params)}`;
     const cached = store.get(key);
 
-    if (cached && Date.now() - cached.timestamp < defaultTTL) {
-      return cached.data as HttpResponse;
+    if (cached && Date.now() - cached.timestamp < cached.ttl) {
+      return cached.data;
     }
 
     const response = await next(config);
-    store.set(key, { data: response, timestamp: Date.now() });
+    store.set(key, { data: response, timestamp: Date.now(), ttl });
     return response;
   };
 }
@@ -158,28 +185,23 @@ export function createCacheMiddleware(defaultTTL = 5 * 60 * 1000) {
  *
  * 对可重试的 HTTP 状态码自动重试，支持指数退避。
  */
-export function createRetryMiddleware(options?: {
-  maxRetries?: number;
-  delay?: number;
-  retryOnStatus?: number[];
-  backoffMultiplier?: number;
-}) {
+export function createRetryMiddleware(config: RetryConfig = {}) {
   const {
     maxRetries = 3,
     delay = 1000,
     retryOnStatus = [408, 429, 502, 503, 504],
     backoffMultiplier = 2,
-  } = options ?? {};
+  } = config;
 
   return async (
-    config: RequestConfig,
-    next: (config: RequestConfig) => Promise<HttpResponse>,
+    config_: RequestConfig,
+    next: (c: RequestConfig) => Promise<HttpResponse>,
   ): Promise<HttpResponse> => {
     let lastError: unknown;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        return await next(config);
+        return await next(config_);
       } catch (error: unknown) {
         lastError = error;
         const err = error as { status?: number };
@@ -200,6 +222,7 @@ export function createRetryMiddleware(options?: {
       }
     }
 
+    // 理论不会到达，保留兜底
     throw lastError;
   };
 }
@@ -211,8 +234,11 @@ export function createRetryMiddleware(options?: {
 /**
  * 创建请求日志中间件
  */
-export function createLoggingMiddleware(logFn?: (msg: string, data?: unknown) => void) {
-  const log = logFn ?? console.log;
+export function createLoggingMiddleware(logger?: (msg: string, data?: unknown) => void) {
+  const log = logger ?? ((msg: string) => {
+    // eslint-disable-next-line no-console
+    console.log(msg);
+  });
 
   return async (
     config: RequestConfig,

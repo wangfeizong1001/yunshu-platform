@@ -40,6 +40,18 @@ export {
 
 export type { ITokenVerifier, IUserLookup } from './middlewares/auth';
 
+// ----------------------------------------------------------------------------
+// 便捷别名：与其它包保持一致的命名风格
+//   - authMiddleware  → 等同于 createAuthMiddleware 返回的强制认证
+//   - optionalAuthMiddleware → 等同于可选认证
+//   注意：需要调用方显式构造 token verifier 后使用。
+// ----------------------------------------------------------------------------
+
+export {
+  createAuthMiddleware as authMiddleware,
+  createOptionalAuthMiddleware as optionalAuthMiddleware,
+} from './middlewares/auth';
+
 // ============================================================================
 // 应用工厂
 // ============================================================================

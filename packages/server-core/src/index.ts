@@ -172,3 +172,19 @@ export type {
   AppMetaConfig,
   CacheConfig as AppCacheConfig,
 } from './config/ConfigService';
+
+// ============================================================================
+// 工具模块（JWT / 密码哈希 / 随机密钥）
+// ============================================================================
+
+export {
+  signToken,
+  verifyToken,
+  decodeToken,
+  generateSecureSecret,
+  hashPassword,
+  comparePassword,
+  extractBearerToken,
+} from './utils/jwt';
+
+export type { JWTPayload, SignOptions } from './utils/jwt';

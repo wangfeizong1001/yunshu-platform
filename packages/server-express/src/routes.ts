@@ -3,14 +3,11 @@ import { asyncHandler } from './middlewares/errorHandler';
 import * as system from './modules/system';
 import * as monitor from './modules/monitor';
 
-// ============================================================================
-// 路由注册
-// ============================================================================
+function bindHandler(controller: { [key: string]: any }, method: string) {
+  return (req: Request, res: Response) => controller[method](req, res);
+}
 
 export function registerRoutes(router: Router): void {
-  // --------------------------------------------------------------------------
-  // 健康检查
-  // --------------------------------------------------------------------------
   router.get('/health', (_req: Request, res: Response) => {
     res.status(200).json({
       success: true,
@@ -20,9 +17,6 @@ export function registerRoutes(router: Router): void {
     });
   });
 
-  // --------------------------------------------------------------------------
-  // 根信息
-  // --------------------------------------------------------------------------
   router.get('/', (_req: Request, res: Response) => {
     res.status(200).json({
       success: true,
@@ -35,140 +29,127 @@ export function registerRoutes(router: Router): void {
     });
   });
 
-  // --------------------------------------------------------------------------
-  // 系统模块
-  // --------------------------------------------------------------------------
   const systemRouter = Router();
+  const uc = system.userController;
+  const rc = system.roleController;
+  const mc = system.menuController;
+  const dc = system.deptController;
+  const pc = system.postController;
+  const dictc = system.dictController;
+  const cfg = system.configController;
+  const notc = system.noticeController;
+  const msgc = system.messageController;
 
-  // 用户管理
-  systemRouter.get('/user/list', asyncHandler(system.userController.list));
-  systemRouter.get('/user/:userId', asyncHandler(system.userController.getById));
-  systemRouter.post('/user', asyncHandler(system.userController.create));
-  systemRouter.put('/user', asyncHandler(system.userController.update));
-  systemRouter.delete('/user/:userId', asyncHandler(system.userController.remove));
-  systemRouter.delete('/user', asyncHandler(system.userController.batchRemove));
-  systemRouter.put('/user/resetPwd', asyncHandler(system.userController.resetPwd));
-  systemRouter.put('/user/changeStatus', asyncHandler(system.userController.changeStatus));
+  systemRouter.get('/user/list', asyncHandler(bindHandler(uc, 'list')));
+  systemRouter.get('/user/:userId', asyncHandler(bindHandler(uc, 'getById')));
+  systemRouter.post('/user', asyncHandler(bindHandler(uc, 'create')));
+  systemRouter.put('/user', asyncHandler(bindHandler(uc, 'update')));
+  systemRouter.delete('/user/:userId', asyncHandler(bindHandler(uc, 'remove')));
+  systemRouter.delete('/user', asyncHandler(bindHandler(uc, 'batchRemove')));
+  systemRouter.put('/user/resetPwd', asyncHandler(bindHandler(uc, 'resetPwd')));
+  systemRouter.put('/user/changeStatus', asyncHandler(bindHandler(uc, 'changeStatus')));
 
-  // 角色管理
-  systemRouter.get('/role/list', asyncHandler(system.roleController.list));
-  systemRouter.get('/role/all', asyncHandler(system.roleController.getAll));
-  systemRouter.get('/role/:roleId', asyncHandler(system.roleController.getById));
-  systemRouter.post('/role', asyncHandler(system.roleController.create));
-  systemRouter.put('/role', asyncHandler(system.roleController.update));
-  systemRouter.delete('/role/:roleId', asyncHandler(system.roleController.remove));
-  systemRouter.delete('/role', asyncHandler(system.roleController.batchRemove));
-  systemRouter.put('/role/changeStatus', asyncHandler(system.roleController.changeStatus));
+  systemRouter.get('/role/list', asyncHandler(bindHandler(rc, 'list')));
+  systemRouter.get('/role/all', asyncHandler(bindHandler(rc, 'getAll')));
+  systemRouter.get('/role/:roleId', asyncHandler(bindHandler(rc, 'getById')));
+  systemRouter.post('/role', asyncHandler(bindHandler(rc, 'create')));
+  systemRouter.put('/role', asyncHandler(bindHandler(rc, 'update')));
+  systemRouter.delete('/role/:roleId', asyncHandler(bindHandler(rc, 'remove')));
+  systemRouter.delete('/role', asyncHandler(bindHandler(rc, 'batchRemove')));
+  systemRouter.put('/role/changeStatus', asyncHandler(bindHandler(rc, 'changeStatus')));
 
-  // 菜单管理
-  systemRouter.get('/menu/list', asyncHandler(system.menuController.list));
-  systemRouter.get('/menu/tree', asyncHandler(system.menuController.getTree));
-  systemRouter.get('/menu/:menuId', asyncHandler(system.menuController.getById));
-  systemRouter.post('/menu', asyncHandler(system.menuController.create));
-  systemRouter.put('/menu', asyncHandler(system.menuController.update));
-  systemRouter.delete('/menu/:menuId', asyncHandler(system.menuController.remove));
+  systemRouter.get('/menu/list', asyncHandler(bindHandler(mc, 'list')));
+  systemRouter.get('/menu/tree', asyncHandler(bindHandler(mc, 'getTree')));
+  systemRouter.get('/menu/:menuId', asyncHandler(bindHandler(mc, 'getById')));
+  systemRouter.post('/menu', asyncHandler(bindHandler(mc, 'create')));
+  systemRouter.put('/menu', asyncHandler(bindHandler(mc, 'update')));
+  systemRouter.delete('/menu/:menuId', asyncHandler(bindHandler(mc, 'remove')));
 
-  // 部门管理
-  systemRouter.get('/dept/list', asyncHandler(system.deptController.list));
-  systemRouter.get('/dept/tree', asyncHandler(system.deptController.getTree));
-  systemRouter.get('/dept/:deptId', asyncHandler(system.deptController.getById));
-  systemRouter.post('/dept', asyncHandler(system.deptController.create));
-  systemRouter.put('/dept', asyncHandler(system.deptController.update));
-  systemRouter.delete('/dept/:deptId', asyncHandler(system.deptController.remove));
+  systemRouter.get('/dept/list', asyncHandler(bindHandler(dc, 'list')));
+  systemRouter.get('/dept/tree', asyncHandler(bindHandler(dc, 'getTree')));
+  systemRouter.get('/dept/:deptId', asyncHandler(bindHandler(dc, 'getById')));
+  systemRouter.post('/dept', asyncHandler(bindHandler(dc, 'create')));
+  systemRouter.put('/dept', asyncHandler(bindHandler(dc, 'update')));
+  systemRouter.delete('/dept/:deptId', asyncHandler(bindHandler(dc, 'remove')));
 
-  // 岗位管理
-  systemRouter.get('/post/list', asyncHandler(system.postController.list));
-  systemRouter.get('/post/all', asyncHandler(system.postController.getAll));
-  systemRouter.get('/post/:postId', asyncHandler(system.postController.getById));
-  systemRouter.post('/post', asyncHandler(system.postController.create));
-  systemRouter.put('/post', asyncHandler(system.postController.update));
-  systemRouter.delete('/post/:postId', asyncHandler(system.postController.remove));
-  systemRouter.delete('/post', asyncHandler(system.postController.batchRemove));
+  systemRouter.get('/post/list', asyncHandler(bindHandler(pc, 'list')));
+  systemRouter.get('/post/all', asyncHandler(bindHandler(pc, 'getAll')));
+  systemRouter.get('/post/:postId', asyncHandler(bindHandler(pc, 'getById')));
+  systemRouter.post('/post', asyncHandler(bindHandler(pc, 'create')));
+  systemRouter.put('/post', asyncHandler(bindHandler(pc, 'update')));
+  systemRouter.delete('/post/:postId', asyncHandler(bindHandler(pc, 'remove')));
+  systemRouter.delete('/post', asyncHandler(bindHandler(pc, 'batchRemove')));
 
-  // 字典类型管理（固定路径路由在前）
-  systemRouter.get('/dict/type/list', asyncHandler(system.dictController.getTypeList));
-  systemRouter.get('/dict/type/:dictId', asyncHandler(system.dictController.getTypeDetail));
-  systemRouter.post('/dict/type', asyncHandler(system.dictController.createType));
-  systemRouter.put('/dict/type', asyncHandler(system.dictController.updateType));
-  systemRouter.delete('/dict/type/:dictId', asyncHandler(system.dictController.removeType));
+  systemRouter.get('/dict/type/list', asyncHandler(bindHandler(dictc, 'getTypeList')));
+  systemRouter.get('/dict/type/:dictId', asyncHandler(bindHandler(dictc, 'getTypeDetail')));
+  systemRouter.post('/dict/type', asyncHandler(bindHandler(dictc, 'createType')));
+  systemRouter.put('/dict/type', asyncHandler(bindHandler(dictc, 'updateType')));
+  systemRouter.delete('/dict/type/:dictId', asyncHandler(bindHandler(dictc, 'removeType')));
 
-  // 字典数据管理
-  systemRouter.get('/dict/data/list', asyncHandler(system.dictController.getDataList));
-  systemRouter.get('/dict/data/:dictCode', asyncHandler(system.dictController.getDataDetail));
-  systemRouter.post('/dict/data', asyncHandler(system.dictController.createData));
-  systemRouter.put('/dict/data', asyncHandler(system.dictController.updateData));
-  systemRouter.delete('/dict/data/:dictCode', asyncHandler(system.dictController.removeData));
+  systemRouter.get('/dict/data/list', asyncHandler(bindHandler(dictc, 'getDataList')));
+  systemRouter.get('/dict/data/:dictCode', asyncHandler(bindHandler(dictc, 'getDataDetail')));
+  systemRouter.post('/dict/data', asyncHandler(bindHandler(dictc, 'createData')));
+  systemRouter.put('/dict/data', asyncHandler(bindHandler(dictc, 'updateData')));
+  systemRouter.delete('/dict/data/:dictCode', asyncHandler(bindHandler(dictc, 'removeData')));
+  systemRouter.get('/dict/datas/:dictType', asyncHandler(bindHandler(dictc, 'getDatasByType')));
 
-  // 按字典类型查询字典数据
-  systemRouter.get('/dict/datas/:dictType', asyncHandler(system.dictController.getDatasByType));
+  systemRouter.get('/config/list', asyncHandler(bindHandler(cfg, 'list')));
+  systemRouter.get('/config/:configId', asyncHandler(bindHandler(cfg, 'getById')));
+  systemRouter.get('/config/key/:configKey', asyncHandler(bindHandler(cfg, 'getByKey')));
+  systemRouter.post('/config', asyncHandler(bindHandler(cfg, 'create')));
+  systemRouter.put('/config', asyncHandler(bindHandler(cfg, 'update')));
+  systemRouter.delete('/config/:configId', asyncHandler(bindHandler(cfg, 'remove')));
+  systemRouter.delete('/config', asyncHandler(bindHandler(cfg, 'batchRemove')));
+  systemRouter.put('/config/refreshCache', asyncHandler(bindHandler(cfg, 'refreshCache')));
 
-  // 参数配置管理
-  systemRouter.get('/config/list', asyncHandler(system.configController.list));
-  systemRouter.get('/config/:configId', asyncHandler(system.configController.getById));
-  systemRouter.get('/config/key/:configKey', asyncHandler(system.configController.getByKey));
-  systemRouter.post('/config', asyncHandler(system.configController.create));
-  systemRouter.put('/config', asyncHandler(system.configController.update));
-  systemRouter.delete('/config/:configId', asyncHandler(system.configController.remove));
-  systemRouter.delete('/config', asyncHandler(system.configController.batchRemove));
-  systemRouter.put('/config/refreshCache', asyncHandler(system.configController.refreshCache));
+  systemRouter.get('/notice/list', asyncHandler(bindHandler(notc, 'list')));
+  systemRouter.get('/notice/:noticeId', asyncHandler(bindHandler(notc, 'getById')));
+  systemRouter.post('/notice', asyncHandler(bindHandler(notc, 'create')));
+  systemRouter.put('/notice', asyncHandler(bindHandler(notc, 'update')));
+  systemRouter.delete('/notice/:noticeId', asyncHandler(bindHandler(notc, 'remove')));
 
-  // 通知公告管理
-  systemRouter.get('/notice/list', asyncHandler(system.noticeController.list));
-  systemRouter.get('/notice/:noticeId', asyncHandler(system.noticeController.getById));
-  systemRouter.post('/notice', asyncHandler(system.noticeController.create));
-  systemRouter.put('/notice', asyncHandler(system.noticeController.update));
-  systemRouter.delete('/notice/:noticeId', asyncHandler(system.noticeController.remove));
-
-  // 消息管理
-  systemRouter.get('/message/list', asyncHandler(system.messageController.list));
-  systemRouter.get('/message/:messageId', asyncHandler(system.messageController.getById));
-  systemRouter.post('/message', asyncHandler(system.messageController.create));
-  systemRouter.put('/message/read', asyncHandler(system.messageController.read));
-  systemRouter.delete('/message/:messageId', asyncHandler(system.messageController.remove));
+  systemRouter.get('/message/list', asyncHandler(bindHandler(msgc, 'list')));
+  systemRouter.get('/message/:messageId', asyncHandler(bindHandler(msgc, 'getById')));
+  systemRouter.post('/message', asyncHandler(bindHandler(msgc, 'create')));
+  systemRouter.put('/message/read', asyncHandler(bindHandler(msgc, 'read')));
+  systemRouter.delete('/message/:messageId', asyncHandler(bindHandler(msgc, 'remove')));
 
   router.use('/system', systemRouter);
 
-  // --------------------------------------------------------------------------
-  // 监控模块
-  // --------------------------------------------------------------------------
   const monitorRouter = Router();
+  const jc = monitor.jobController;
+  const oc = monitor.operlogController;
+  const lic = monitor.logininforController;
+  const sc = monitor.serverController;
 
-  // 定时任务管理（固定路径路由在前）
-  monitorRouter.get('/job/list', asyncHandler(monitor.jobController.list));
-  monitorRouter.get('/job/log/list', asyncHandler(monitor.jobController.getLogList));
-  monitorRouter.delete('/job/log', asyncHandler(monitor.jobController.deleteLog));
-  monitorRouter.delete('/job/log/clean', asyncHandler(monitor.jobController.cleanLog));
-  monitorRouter.get('/job/:jobId', asyncHandler(monitor.jobController.getDetail));
-  monitorRouter.post('/job', asyncHandler(monitor.jobController.create));
-  monitorRouter.put('/job', asyncHandler(monitor.jobController.update));
-  monitorRouter.delete('/job/:jobId', asyncHandler(monitor.jobController.remove));
-  monitorRouter.put('/job/run', asyncHandler(monitor.jobController.run));
-  monitorRouter.put('/job/changeStatus', asyncHandler(monitor.jobController.changeStatus));
+  monitorRouter.get('/job/list', asyncHandler(bindHandler(jc, 'list')));
+  monitorRouter.get('/job/log/list', asyncHandler(bindHandler(jc, 'getLogList')));
+  monitorRouter.delete('/job/log', asyncHandler(bindHandler(jc, 'deleteLog')));
+  monitorRouter.delete('/job/log/clean', asyncHandler(bindHandler(jc, 'cleanLog')));
+  monitorRouter.get('/job/:jobId', asyncHandler(bindHandler(jc, 'getDetail')));
+  monitorRouter.post('/job', asyncHandler(bindHandler(jc, 'create')));
+  monitorRouter.put('/job', asyncHandler(bindHandler(jc, 'update')));
+  monitorRouter.delete('/job/:jobId', asyncHandler(bindHandler(jc, 'remove')));
+  monitorRouter.put('/job/run', asyncHandler(bindHandler(jc, 'run')));
+  monitorRouter.put('/job/changeStatus', asyncHandler(bindHandler(jc, 'changeStatus')));
 
-  // 操作日志管理
-  monitorRouter.get('/operlog/list', asyncHandler(monitor.operlogController.list));
-  monitorRouter.get('/operlog/:operId', asyncHandler(monitor.operlogController.getById));
-  monitorRouter.delete('/operlog/:operId', asyncHandler(monitor.operlogController.remove));
-  monitorRouter.delete('/operlog/clean', asyncHandler(monitor.operlogController.clean));
+  monitorRouter.get('/operlog/list', asyncHandler(bindHandler(oc, 'list')));
+  monitorRouter.get('/operlog/:operId', asyncHandler(bindHandler(oc, 'getById')));
+  monitorRouter.delete('/operlog/:operId', asyncHandler(bindHandler(oc, 'remove')));
+  monitorRouter.delete('/operlog/clean', asyncHandler(bindHandler(oc, 'clean')));
 
-  // 登录日志管理
-  monitorRouter.get('/logininfor/list', asyncHandler(monitor.logininforController.list));
-  monitorRouter.delete('/logininfor/:infoId', asyncHandler(monitor.logininforController.remove));
-  monitorRouter.delete('/logininfor/clean', asyncHandler(monitor.logininforController.clean));
+  monitorRouter.get('/logininfor/list', asyncHandler(bindHandler(lic, 'list')));
+  monitorRouter.delete('/logininfor/:infoId', asyncHandler(bindHandler(lic, 'remove')));
+  monitorRouter.delete('/logininfor/clean', asyncHandler(bindHandler(lic, 'clean')));
 
-  // 服务器监控
-  monitorRouter.get('/server', asyncHandler(monitor.serverController.getServerInfo));
-  monitorRouter.get('/server/cpu', asyncHandler(monitor.serverController.getCpuInfo));
-  monitorRouter.get('/server/memory', asyncHandler(monitor.serverController.getMemoryInfo));
-  monitorRouter.get('/server/disk', asyncHandler(monitor.serverController.getDiskInfo));
-  monitorRouter.get('/server/jvm', asyncHandler(monitor.serverController.getJvmInfo));
+  monitorRouter.get('/server', asyncHandler(bindHandler(sc, 'getServerInfo')));
+  monitorRouter.get('/server/cpu', asyncHandler(bindHandler(sc, 'getCpuInfo')));
+  monitorRouter.get('/server/memory', asyncHandler(bindHandler(sc, 'getMemoryInfo')));
+  monitorRouter.get('/server/disk', asyncHandler(bindHandler(sc, 'getDiskInfo')));
+  monitorRouter.get('/server/jvm', asyncHandler(bindHandler(sc, 'getJvmInfo')));
 
   router.use('/monitor', monitorRouter);
 }
-
-// ============================================================================
-// 创建 Router 实例
-// ============================================================================
 
 export function createRouter(): Router {
   const router = Router();
