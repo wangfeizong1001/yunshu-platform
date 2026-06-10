@@ -26,6 +26,10 @@ RUN pnpm install --frozen-lockfile
 # 构建所有包（使用 turbo 的缓存能力，按依赖顺序构建）
 RUN pnpm build
 
+# 构建后清理：删除 pnpm 缓存与 node_modules 中间产物，减小镜像层体积
+RUN rm -rf node_modules/.cache packages/*/node_modules/.cache apps/*/node_modules/.cache \
+    && pnpm store prune || true
+
 # ========================================
 # Stage 2: Runner - 运行阶段
 # 仅保留构建产物和运行所需依赖，最小化镜像体积
@@ -63,9 +67,9 @@ USER yunshu
 # 暴露服务端口
 EXPOSE 3000
 
-# 健康检查：每 30 秒检查一次 /api/health 接口，超时 5 秒，重试 3 次后标记为 unhealthy
+# 健康检查：访问 127.0.0.1:3000/api/health，避免依赖 localhost DNS 解析
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-    CMD wget -qO- http://localhost:3000/api/health || exit 1
+    CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
 
 # 启动 Express 后端服务
 CMD ["node", "packages/server-express/dist/index.js"]

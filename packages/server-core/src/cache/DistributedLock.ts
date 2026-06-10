@@ -10,6 +10,7 @@
  * @module @yunshu/server-core/cache/DistributedLock
  */
 
+import crypto from 'node:crypto';
 import { getRedisClient, isRedisAvailable } from './RedisClient';
 
 // ============================================================================
@@ -69,9 +70,12 @@ interface LockStatistics {
 
 /**
  * 生成唯一标识符
+ *
+ * 使用 Node.js 内置 crypto.randomUUID 确保分布式环境下的唯一性与不可预测性；
+ * 不再使用 Math.random 以避免可预测的锁标识带来的安全风险。
  */
 function generateLockId(): string {
-  return `${process.pid}:${Date.now()}:${Math.random().toString(36).slice(2, 11)}`;
+  return `${process.pid}:${Date.now()}:${crypto.randomUUID()}`;
 }
 
 /**

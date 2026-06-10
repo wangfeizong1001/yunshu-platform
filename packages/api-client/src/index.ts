@@ -39,10 +39,16 @@ export { RequestError } from './core/types';
 
 export {
   createAuthMiddleware,
+  createCsrfMiddleware,
   createDedupMiddleware,
   createCacheMiddleware,
   createRetryMiddleware,
   createLoggingMiddleware,
+} from './core/middlewares';
+export type {
+  AuthMiddlewareConfig,
+  CsrfMiddlewareConfig,
+  LoggingMiddlewareConfig,
 } from './core/middlewares';
 
 // ============================================================================

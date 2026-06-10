@@ -169,14 +169,7 @@ export function globalErrorHandler() {
       });
     }
 
-    if (processed.isOperational) {
-      return res.status(processed.statusCode).json({
-        success: false,
-        message: processed.message,
-        timestamp: new Date().toISOString(),
-      });
-    }
-
+    // 生产环境：operational 业务错误可返回原始 message，其它一律统一提示，避免泄露内部信息
     console.error('[严重错误]', {
       message: err.message,
       stack: err.stack,
@@ -185,9 +178,17 @@ export function globalErrorHandler() {
       timestamp: new Date().toISOString(),
     });
 
+    if (processed.isOperational) {
+      return res.status(processed.statusCode).json({
+        success: false,
+        message: processed.message,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     return res.status(500).json({
       success: false,
-      message: '服务器内部错误，请稍后重试',
+      message: '服务器内部错误',
       timestamp: new Date().toISOString(),
     });
   };
@@ -203,11 +204,10 @@ export function notFoundHandler() {
 }
 
 export function rateLimitHandler() {
-  return (req: Request, res: Response) => {
+  return (_req: Request, res: Response) => {
     res.status(429).json({
       success: false,
       message: '请求过于频繁，请稍后再试',
-      retryAfter: 60,
       timestamp: new Date().toISOString(),
     });
   };

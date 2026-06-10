@@ -25,14 +25,25 @@ export interface FetchAdapterOptions {
   timeout?: number;
   /** 默认请求头 */
   headers?: Record<string, string>;
+  /** 响应体最大字节数，默认 10MB */
+  maxResponseSize?: number;
 }
+
+// ============================================================================
+// 内部常量
+// ============================================================================
+
+/** 默认超时（毫秒） */
+const DEFAULT_TIMEOUT = 15000;
+/** 默认响应体最大字节：10MB */
+const DEFAULT_MAX_RESPONSE_SIZE = 10 * 1024 * 1024;
 
 // ============================================================================
 // 内部工具
 // ============================================================================
 
 /**
- * 判断值是否为 plain object（而非 FormData / ArrayBuffer / Blob / 流）
+ * 判断值是否为 plain object
  */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
@@ -85,6 +96,67 @@ function pickString(body: unknown, field: 'message' | 'code'): string | undefine
   return undefined;
 }
 
+/**
+ * 读取响应体为文本，并强制执行字节上限
+ * 由于 fetch response.body 是 ReadableStream，这里通过分块读取累加大小。
+ * 若 Content-Length 已明确超出上限，则直接提前中断。
+ */
+async function readTextWithLimit(
+  response: Response,
+  maxBytes: number,
+  abortCtrl: AbortController,
+): Promise<string> {
+  // 1. 先检查 Content-Length（若存在）
+  const contentLengthHeader = response.headers.get('content-length');
+  if (contentLengthHeader) {
+    const contentLength = Number(contentLengthHeader);
+    if (!Number.isNaN(contentLength) && contentLength > maxBytes) {
+      abortCtrl.abort();
+      throw new RequestError(
+        `响应体过大（Content-Length=${contentLength}，限制 ${maxBytes}）`,
+        413,
+        'RESPONSE_TOO_LARGE',
+      );
+    }
+  }
+
+  // 2. 流式读取
+  if (response.body && typeof (response.body as ReadableStream).getReader === 'function') {
+    const reader = (response.body as ReadableStream<Uint8Array>).getReader();
+    const decoder = new TextDecoder('utf-8');
+    let total = 0;
+    let text = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.length;
+      if (total > maxBytes) {
+        reader.cancel('response too large').catch(() => undefined);
+        abortCtrl.abort();
+        throw new RequestError(
+          `响应体过大（已读取 ${total}，限制 ${maxBytes}）`,
+          413,
+          'RESPONSE_TOO_LARGE',
+        );
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode(); // flush
+    return text;
+  }
+
+  // 回退：直接 text()，然后判断长度
+  const text = await response.text();
+  if (text.length > maxBytes) {
+    throw new RequestError(
+      `响应体过大（${text.length}，限制 ${maxBytes}）`,
+      413,
+      'RESPONSE_TOO_LARGE',
+    );
+  }
+  return text;
+}
+
 // ============================================================================
 // 适配器主体
 // ============================================================================
@@ -102,11 +174,13 @@ export class FetchAdapter implements IHttpAdapter {
   private readonly baseURL: string;
   private readonly timeout: number;
   private readonly defaultHeaders: Record<string, string>;
+  private readonly maxResponseSize: number;
 
   constructor(options: FetchAdapterOptions = {}) {
     this.baseURL = options.baseURL ?? '';
-    this.timeout = options.timeout ?? 15000;
+    this.timeout = options.timeout ?? DEFAULT_TIMEOUT;
     this.defaultHeaders = options.headers ?? {};
+    this.maxResponseSize = options.maxResponseSize ?? DEFAULT_MAX_RESPONSE_SIZE;
   }
 
   /**
@@ -130,9 +204,7 @@ export class FetchAdapter implements IHttpAdapter {
       const data = config.data;
 
       if (data instanceof FormData) {
-        // FormData 直接使用，浏览器自动设置 multipart boundary
         body = data;
-        // 避免手动设置 Content-Type，让浏览器自动加上 boundary
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete headers['Content-Type'];
       } else if (
@@ -150,14 +222,13 @@ export class FetchAdapter implements IHttpAdapter {
           headers['Content-Type'] = 'application/json';
         }
       } else {
-        // 其它回退：尝试 toString
         body = String(data);
       }
     }
 
     // 4. 超时控制：合并自定义 signal 与 timeout
     const timeoutMs = config.timeout ?? this.timeout;
-    const signal = this.buildSignal(timeoutMs, config.signal);
+    const { signal, abortCtrl } = this.buildSignal(timeoutMs, config.signal);
 
     try {
       const response = await fetch(url, {
@@ -170,18 +241,32 @@ export class FetchAdapter implements IHttpAdapter {
       // 5. 解析响应体
       const headersRecord = headersToRecord(response.headers);
       const contentType = response.headers.get('content-type') ?? '';
+      const isJson = /application\/json/i.test(contentType);
 
       let responseBody: unknown;
+
       if (response.status === 204) {
         responseBody = null;
-      } else if (/application\/json/i.test(contentType)) {
-        responseBody = await response.json().catch(() => null);
+      } else if (isJson) {
+        // JSON 响应：先读取为文本并限制大小，再 JSON.parse
+        const text = await readTextWithLimit(response, this.maxResponseSize, abortCtrl);
+        responseBody = text.trim() === '' ? null : JSON.parse(text);
       } else {
-        responseBody = await response.text();
+        // 非 JSON 响应：按文本读取，同样限制大小
+        responseBody = await readTextWithLimit(response, this.maxResponseSize, abortCtrl);
       }
 
       // 6. 非 2xx → 抛出 RequestError
       if (!response.ok) {
+        if (response.status >= 500) {
+          // 服务端错误：不暴露原始响应体，避免敏感信息泄漏
+          throw new RequestError(
+            `服务端错误（HTTP ${response.status}）`,
+            response.status,
+            'SERVER_ERROR',
+          );
+        }
+
         const message =
           pickString(responseBody, 'message') ??
           `HTTP ${response.status} ${response.statusText}`;
@@ -195,7 +280,6 @@ export class FetchAdapter implements IHttpAdapter {
         headers: headersRecord,
       };
     } catch (error: unknown) {
-      // 超时/网络错误统一转换
       if (error instanceof RequestError) {
         throw error;
       }
@@ -215,74 +299,51 @@ export class FetchAdapter implements IHttpAdapter {
   // 内部方法：signal 构造
   // ========================================================================
 
-  private buildSignal(timeoutMs: number, userSignal?: AbortSignal): AbortSignal {
-    // 优先使用 AbortSignal.timeout + any（现代浏览器/Node 20+）
+  /**
+   * 合并超时 signal 与用户 signal
+   */
+  private buildSignal(
+    timeoutMs: number,
+    userSignal?: AbortSignal,
+  ): { signal: AbortSignal; abortCtrl: AbortController } {
+    const abortCtrl = new AbortController();
+
     try {
-      const hasStaticTimeout =
-        typeof (AbortSignal as unknown as { timeout?: (ms: number) => AbortSignal }).timeout ===
-        'function';
-      const hasAny =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        typeof (AbortSignal as any).any === 'function';
-
-      if (hasStaticTimeout) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const timeoutSig = (AbortSignal as any).timeout(timeoutMs) as AbortSignal;
-        if (userSignal) {
-          if (hasAny) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return (AbortSignal as any).any([userSignal, timeoutSig]) as AbortSignal;
-          }
-          // 无 any：回退到手动合并
-          return this.mergeSignals(userSignal, timeoutSig);
-        }
-        return timeoutSig;
+      // 优先使用标准 AbortSignal.timeout + AbortSignal.any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const AsAny = AbortSignal as any;
+      const timeoutSig = AsAny.timeout(timeoutMs) as AbortSignal;
+      if (userSignal) {
+        const combined = AsAny.any([userSignal, timeoutSig]) as AbortSignal;
+        return { signal: combined, abortCtrl };
       }
+      return { signal: timeoutSig, abortCtrl };
     } catch {
-      // 继续回退
-    }
-
-    // 老环境回退：AbortController + setTimeout
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    if (userSignal) {
-      if (userSignal.aborted) {
-        controller.abort();
-      } else {
-        userSignal.addEventListener(
-          'abort',
-          () => {
-            controller.abort();
-          },
-          { once: true },
-        );
+      // 老环境回退：setTimeout + AbortController
+      const timer = setTimeout(() => abortCtrl.abort(), timeoutMs);
+      if (userSignal) {
+        if (userSignal.aborted) {
+          abortCtrl.abort();
+        } else {
+          userSignal.addEventListener(
+            'abort',
+            () => {
+              abortCtrl.abort();
+            },
+            { once: true },
+          );
+        }
       }
+      abortCtrl.signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
+      return { signal: abortCtrl.signal, abortCtrl };
     }
-    controller.signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
-    return controller.signal;
-  }
-
-  private mergeSignals(a: AbortSignal, b: AbortSignal): AbortSignal {
-    const controller = new AbortController();
-    const onAbort = () => controller.abort();
-    if (a.aborted || b.aborted) {
-      controller.abort();
-    } else {
-      a.addEventListener('abort', onAbort, { once: true });
-      b.addEventListener('abort', onAbort, { once: true });
-    }
-    return controller.signal;
   }
 
   // ========================================================================
   // 内部方法：URL 构造
   // ========================================================================
 
-  /**
-   * 基于 baseURL + params 构造完整 URL
-   */
   private buildUrl(path: string, params?: Record<string, unknown>): string {
-    // 绝对 URL：以 http 开头直接使用
     if (/^https?:\/\//i.test(path)) {
       const url = new URL(path);
       if (params) {
@@ -292,14 +353,12 @@ export class FetchAdapter implements IHttpAdapter {
       return url.toString();
     }
 
-    // 相对 URL：拼接 baseURL（若未提供则使用当前 origin）
     let origin = this.baseURL;
     if (!origin) {
       origin =
         typeof window !== 'undefined' && window.location ? window.location.origin : '';
     }
 
-    // 确保末尾有 /
     const base = origin.endsWith('/') ? origin : `${origin}/`;
     const p = path.startsWith('/') ? path.slice(1) : path;
     const full = `${base}${p}`;
@@ -312,7 +371,6 @@ export class FetchAdapter implements IHttpAdapter {
       }
       return url.toString();
     } catch {
-      // base 不是合法 URL（例如只是 /api），退化为字符串拼接
       let result = full;
       if (params) {
         const searchStr = buildSearchParams(params).toString();

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { asyncHandler } from './middlewares/errorHandler';
+import { requireAuth } from './middlewares/auth';
 import * as system from './modules/system';
 import * as monitor from './modules/monitor';
 
@@ -30,6 +31,9 @@ export function registerRoutes(router: Router): void {
   });
 
   const systemRouter = Router();
+  // system 模块下的所有接口均需要登录
+  systemRouter.use(requireAuth({ role: 'user' }));
+
   const uc = system.userController;
   const rc = system.roleController;
   const mc = system.menuController;
@@ -117,6 +121,9 @@ export function registerRoutes(router: Router): void {
   router.use('/system', systemRouter);
 
   const monitorRouter = Router();
+  // monitor 模块下的所有接口均需要管理员权限
+  monitorRouter.use(requireAuth({ role: 'admin' }));
+
   const jc = monitor.jobController;
   const oc = monitor.operlogController;
   const lic = monitor.logininforController;

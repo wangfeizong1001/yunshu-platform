@@ -14,6 +14,10 @@ import {
   normalizePagination,
 } from '@yunshu/shared';
 
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const MAX_FIELD_LENGTH = 500;
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -153,74 +157,70 @@ const operLogs: SysOperLog[] = [
 export class OperlogController extends BaseController {
   /**
    * 操作日志分页查询
-   *
-   * @param req - 请求对象，query 支持 operName、businessType、status、时间范围过滤
    */
   async list(req: Request, res: Response) {
-    try {
-      const { page, limit } = normalizePagination(req.query);
-      const { operName, businessType, status, startTime, endTime } = req.query;
+    const { page, limit } = normalizePagination(req.query);
+    const operNameParam = this.safeParam(req.query.operName, MAX_QUERY_PARAM_LENGTH);
+    const businessTypeParam = this.safeParam(req.query.businessType, MAX_QUERY_PARAM_LENGTH);
+    const statusParam = this.safeParam(req.query.status, 1);
+    const startTimeParam = this.safeParam(req.query.startTime, MAX_QUERY_PARAM_LENGTH);
+    const endTimeParam = this.safeParam(req.query.endTime, MAX_QUERY_PARAM_LENGTH);
 
-      let filtered = [...operLogs];
-      if (operName) filtered = filtered.filter(i => i.operName.includes(String(operName)));
-      if (businessType !== undefined && businessType !== '') {
-        filtered = filtered.filter(i => i.businessType === Number(businessType));
-      }
-      if (status) filtered = filtered.filter(i => i.status === status);
-      if (startTime) filtered = filtered.filter(i => i.operTime >= String(startTime));
-      if (endTime) filtered = filtered.filter(i => i.operTime <= String(endTime));
-
-      filtered.sort((a, b) => b.operTime.localeCompare(a.operTime));
-      const total = filtered.length;
-      const start = (page - 1) * limit;
-      const data = filtered.slice(start, start + limit);
-
-      return this.paginate(res, createPaginatedResult(data, page, limit, total), '查询成功');
-    } catch (e) {
-      return this.error(res, e as Error);
+    let filtered = [...operLogs];
+    if (operNameParam) filtered = filtered.filter(i => i.operName.includes(operNameParam));
+    if (businessTypeParam) {
+      const bt = Number(businessTypeParam);
+      if (Number.isFinite(bt)) filtered = filtered.filter(i => i.businessType === bt);
     }
+    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
+    if (startTimeParam) filtered = filtered.filter(i => i.operTime >= startTimeParam);
+    if (endTimeParam) filtered = filtered.filter(i => i.operTime <= endTimeParam);
+
+    filtered.sort((a, b) => b.operTime.localeCompare(a.operTime));
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const data = filtered.slice(start, start + limit);
+
+    return this.paginate(res, createPaginatedResult(data, page, limit, total), '查询成功');
   }
 
   /**
    * 操作日志详情
    */
   async getById(req: Request, res: Response) {
-    try {
-      const operId = Number(req.params.operId);
-      const item = operLogs.find(i => i.operId === operId);
-      if (!item) return this.notFound(res, '操作日志不存在');
-      return this.success(res, item, '查询成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const operId = Number(req.params.operId);
+    if (!Number.isFinite(operId)) return this.badRequest(res, 'operId 参数非法');
+    const item = operLogs.find(i => i.operId === operId);
+    if (!item) return this.notFound(res, '操作日志不存在');
+    return this.success(res, item, '查询成功');
   }
 
   /**
    * 删除操作日志
    */
   async remove(req: Request, res: Response) {
-    try {
-      const operId = Number(req.params.operId);
-      const idx = operLogs.findIndex(i => i.operId === operId);
-      if (idx === -1) return this.notFound(res, '操作日志不存在');
-      const removed = operLogs.splice(idx, 1)[0];
-      return this.success(res, removed, '删除成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
+
+    const operId = Number(req.params.operId);
+    if (!Number.isFinite(operId)) return this.badRequest(res, 'operId 参数非法');
+
+    const idx = operLogs.findIndex(i => i.operId === operId);
+    if (idx === -1) return this.notFound(res, '操作日志不存在');
+    const removed = operLogs.splice(idx, 1)[0];
+    return this.success(res, removed, '删除成功');
   }
 
   /**
    * 清空操作日志
    */
   async clean(req: Request, res: Response) {
-    try {
-      const count = operLogs.length;
-      operLogs.length = 0;
-      return this.success(res, { cleaned: count }, `日志清空成功，共清除 ${count} 条`);
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
+
+    const count = operLogs.length;
+    operLogs.length = 0;
+    return this.success(res, { cleaned: count }, `日志清空成功，共清除 ${count} 条`);
   }
 }
 

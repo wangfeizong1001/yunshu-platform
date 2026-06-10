@@ -10,6 +10,10 @@
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
 
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const MAX_FIELD_LENGTH = 500;
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -46,9 +50,7 @@ interface DeptTreeNode extends Dept {
 
 /** 部门查询参数 */
 interface DeptQueryParams {
-  /** 部门名称（模糊匹配） */
   deptName?: string;
-  /** 状态 */
   status?: DeptStatus;
 }
 
@@ -154,166 +156,210 @@ let mockDepts: Dept[] = [
 ];
 
 // ============================================================================
+// 私有校验工具
+// ============================================================================
+
+function isValidDeptName(name: unknown): name is string {
+  return typeof name === 'string' && name.trim().length >= 2 && name.length <= 50;
+}
+
+function isValidDeptCode(code: unknown): code is string {
+  return typeof code === 'string' && code.length >= 1 && code.length <= 20
+    && /^[A-Za-z0-9_]+$/.test(code);
+}
+
+function isValidOrderNum(n: unknown): n is number {
+  return typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 9999;
+}
+
+function isValidPhone(phone: unknown): boolean {
+  if (phone === undefined || phone === null || phone === '') return true;
+  return typeof phone === 'string' && /^1[3-9]\d{9}$/.test(phone);
+}
+
+function isValidEmail(email: unknown): boolean {
+  if (email === undefined || email === null || email === '') return true;
+  return typeof email === 'string'
+    && email.length <= 100
+    && /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email);
+}
+
+// ============================================================================
 // 控制器实现
 // ============================================================================
 
 /**
  * 部门管理控制器类
- *
- * 继承 BaseController，封装了系统部门的全部 CRUD 操作与树形结构生成。
  */
 export class DeptController extends BaseController {
   /**
    * 部门列表查询（全量不分页）
-   *
-   * 支持按 deptName（模糊匹配）、status 过滤。
    */
   async list(req: Request, res: Response) {
-    try {
-      const query = req.query as unknown as DeptQueryParams;
+    const query = req.query as unknown as DeptQueryParams;
+    const deptNameParam = this.safeParam(query.deptName, MAX_QUERY_PARAM_LENGTH);
+    const statusParam = this.safeParam(query.status, 1);
 
-      const filtered = mockDepts.filter((d) => {
-        if (query.deptName && !d.deptName.includes(query.deptName)) {
-          return false;
-        }
-        if (query.status && d.status !== query.status) {
-          return false;
-        }
-        return true;
-      });
+    const filtered = mockDepts.filter((d) => {
+      if (deptNameParam && !d.deptName.includes(deptNameParam)) return false;
+      if (statusParam && d.status !== statusParam) return false;
+      return true;
+    });
 
-      filtered.sort((a, b) => a.orderNum - b.orderNum);
-      return this.success(res, filtered, '查询成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    filtered.sort((a, b) => a.orderNum - b.orderNum);
+    return this.success(res, filtered, '查询成功');
   }
 
   /**
    * 获取部门树形结构
    */
   async getTree(req: Request, res: Response) {
-    try {
-      const tree = this.buildTree(mockDepts);
-      return this.success(res, tree, '查询成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const tree = this.buildTree(mockDepts);
+    return this.success(res, tree, '查询成功');
   }
 
   /**
    * 根据 deptId 获取部门详情
    */
   async getById(req: Request, res: Response) {
-    try {
-      const { deptId } = req.params;
-      const dept = mockDepts.find((d) => d.deptId === deptId);
-      if (!dept) {
-        return this.notFound(res, '部门不存在');
-      }
-      return this.success(res, dept, '获取成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const { deptId } = req.params;
+    const safeId = this.safeParam(deptId, MAX_FIELD_LENGTH);
+    if (!safeId) return this.badRequest(res, 'deptId 参数非法');
+
+    const dept = mockDepts.find((d) => d.deptId === safeId);
+    if (!dept) return this.notFound(res, '部门不存在');
+    return this.success(res, dept, '获取成功');
   }
 
   /**
    * 创建部门
    */
   async create(req: Request, res: Response) {
-    try {
-      const body = req.body as DeptCreateBody;
-      if (!body.deptName) {
-        return this.badRequest(res, 'deptName 必填');
-      }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-      const deptId = `d-${Date.now()}`;
-      const parentId = body.parentId ?? null;
-      let ancestors = '0';
-      if (parentId) {
-        const parent = mockDepts.find((d) => d.deptId === parentId);
-        ancestors = parent ? `${parent.ancestors},${parentId}` : `0,${parentId}`;
-      }
+    const body = req.body as DeptCreateBody;
+    if (!isValidDeptName(body.deptName)) return this.badRequest(res, 'deptName 长度 2-50');
 
-      const newDept: Dept = {
-        deptId,
-        parentId,
-        ancestors,
-        deptName: body.deptName,
-        orderNum: body.orderNum ?? 0,
-        leader: body.leader ?? '',
-        phone: body.phone ?? '',
-        email: body.email ?? '',
-        status: body.status ?? '0',
-      };
+    const orderNum = body.orderNum ?? 0;
+    if (!isValidOrderNum(orderNum)) return this.badRequest(res, 'orderNum 必须是 0-9999 的数字');
 
-      mockDepts.push(newDept);
-      return this.created(res, newDept, '创建成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const status = body.status ?? '0';
+    if (status !== '0' && status !== '1') return this.badRequest(res, 'status 必须是 0 或 1');
+
+    const leader = typeof body.leader === 'string' ? body.leader.slice(0, 50) : '';
+    if (!isValidPhone(body.phone)) return this.badRequest(res, 'phone 格式错误');
+    if (!isValidEmail(body.email)) return this.badRequest(res, 'email 格式错误');
+
+    const phone = typeof body.phone === 'string' ? body.phone : '';
+    const email = typeof body.email === 'string' ? body.email : '';
+
+    const deptId = `d-${Date.now()}`;
+    const parentId = body.parentId !== undefined
+      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
+      : null;
+
+    let ancestors = '0';
+    if (parentId) {
+      const parent = mockDepts.find((d) => d.deptId === parentId);
+      ancestors = parent ? `${parent.ancestors},${parentId}` : `0,${parentId}`;
     }
+
+    const newDept: Dept = {
+      deptId,
+      parentId,
+      ancestors,
+      deptName: body.deptName,
+      orderNum,
+      leader,
+      phone,
+      email,
+      status,
+    };
+
+    mockDepts.push(newDept);
+    return this.created(res, newDept, '创建成功');
   }
 
   /**
    * 更新部门
    */
   async update(req: Request, res: Response) {
-    try {
-      const body = req.body as DeptUpdateBody;
-      if (!body.deptId) {
-        return this.badRequest(res, 'deptId 必填');
-      }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-      const idx = mockDepts.findIndex((d) => d.deptId === body.deptId);
-      if (idx === -1) {
-        return this.notFound(res, '部门不存在');
-      }
+    const body = req.body as DeptUpdateBody;
+    const safeId = this.safeParam(body.deptId, MAX_FIELD_LENGTH);
+    if (!safeId) return this.badRequest(res, 'deptId 必填');
 
-      const exist = mockDepts[idx];
-      if (!exist) return this.notFound(res, '部门不存在');
-      mockDepts[idx] = {
-        deptId: exist.deptId,
-        parentId: body.parentId !== undefined ? body.parentId : exist.parentId,
-        ancestors: body.ancestors ?? exist.ancestors,
-        deptName: body.deptName,
-        orderNum: body.orderNum ?? exist.orderNum,
-        leader: body.leader ?? exist.leader,
-        phone: body.phone ?? exist.phone,
-        email: body.email ?? exist.email,
-        status: body.status ?? exist.status,
-      };
+    const exist = mockDepts.find((d) => d.deptId === safeId);
+    if (!exist) return this.notFound(res, '部门不存在');
+    const idx = mockDepts.indexOf(exist);
 
-      return this.success(res, mockDepts[idx], '更新成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    if (!isValidDeptName(body.deptName)) return this.badRequest(res, 'deptName 长度 2-50');
+
+    const orderNum = body.orderNum ?? exist.orderNum;
+    if (!isValidOrderNum(orderNum)) return this.badRequest(res, 'orderNum 必须是 0-9999 的数字');
+
+    const status = body.status ?? exist.status;
+    if (status !== '0' && status !== '1') return this.badRequest(res, 'status 必须是 0 或 1');
+
+    const leader = typeof body.leader === 'string' ? body.leader.slice(0, 50) : exist.leader;
+    if (!isValidPhone(body.phone)) return this.badRequest(res, 'phone 格式错误');
+    if (!isValidEmail(body.email)) return this.badRequest(res, 'email 格式错误');
+
+    const phone = typeof body.phone === 'string' ? body.phone : exist.phone;
+    const email = typeof body.email === 'string' ? body.email : exist.email;
+
+    const parentId = body.parentId !== undefined
+      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
+      : exist.parentId;
+
+    let ancestors = exist.ancestors;
+    if (parentId && parentId !== exist.parentId) {
+      const parent = mockDepts.find((d) => d.deptId === parentId);
+      ancestors = parent ? `${parent.ancestors},${parentId}` : `0,${parentId}`;
+    } else if (!parentId) {
+      ancestors = '0';
     }
+
+    mockDepts[idx] = {
+      deptId: exist.deptId,
+      parentId,
+      ancestors,
+      deptName: body.deptName,
+      orderNum,
+      leader,
+      phone,
+      email,
+      status,
+    };
+
+    return this.success(res, mockDepts[idx], '更新成功');
   }
 
   /**
    * 删除部门
    */
   async remove(req: Request, res: Response) {
-    try {
-      const { deptId } = req.params;
-      const idx = mockDepts.findIndex((d) => d.deptId === deptId);
-      if (idx === -1) {
-        return this.notFound(res, '部门不存在');
-      }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-      mockDepts.splice(idx, 1);
-      return this.success(res, { deptId }, '删除成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const { deptId } = req.params;
+    const safeId = this.safeParam(deptId, MAX_FIELD_LENGTH);
+    if (!safeId) return this.badRequest(res, 'deptId 参数非法');
+
+    const idx = mockDepts.findIndex((d) => d.deptId === safeId);
+    if (idx === -1) return this.notFound(res, '部门不存在');
+
+    mockDepts.splice(idx, 1);
+    return this.success(res, { deptId: safeId }, '删除成功');
   }
 
   // ========================================================================
   // 私有工具方法
   // ========================================================================
 
-  /**
-   * 将扁平部门列表转换为树形结构
-   */
   private buildTree(list: Dept[]): DeptTreeNode[] {
     const map = new Map<string, DeptTreeNode>();
     const roots: DeptTreeNode[] = [];
@@ -334,9 +380,7 @@ export class DeptController extends BaseController {
     const sortRecursive = (nodes: DeptTreeNode[]) => {
       nodes.sort((a, b) => a.orderNum - b.orderNum);
       for (const n of nodes) {
-        if (n.children.length > 0) {
-          sortRecursive(n.children);
-        }
+        if (n.children.length > 0) sortRecursive(n.children);
       }
     };
     sortRecursive(roots);

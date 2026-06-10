@@ -41,8 +41,8 @@ interface JWTPayloadBase {
   iss?: string;
   /** 主题 */
   sub?: string;
-  /** 受众 */
-  aud?: string;
+  /** 受众（单值或数组） */
+  aud?: string | string[];
   /** 令牌唯一 ID */
   jti?: string;
 }
@@ -61,9 +61,27 @@ export interface SignOptions {
   /** 主题 */
   subject?: string;
   /** 受众 */
-  audience?: string;
+  audience?: string | string[];
   /** 是否自动添加 iat，默认 true */
   noTimestamp?: boolean;
+}
+
+/**
+ * verifyToken 校验选项
+ */
+export interface VerifyOptions {
+  /** 期望的签发者（iss claim），如 'yunshu-api' */
+  issuer?: string | string[];
+  /** 期望的受众（aud claim） */
+  audience?: string | string[];
+  /** 必填 subject */
+  subject?: string;
+  /** 允许的时钟偏移（秒），默认 0 */
+  clockTolerance?: number;
+  /** 是否忽略过期时间，测试用 */
+  ignoreExpiration?: boolean;
+  /** 是否强制要求 exp 声明，默认 true */
+  requireExpiration?: boolean;
 }
 
 // ============================================================================
@@ -197,18 +215,35 @@ function safeJwtParts(token: string): [string, string, string] | null {
 /**
  * 验证 JWT 签名、过期时间并返回 payload。
  *
- * @param token   JWT 字符串
- * @param secret  签名密钥
- * @returns       解析后的 payload 对象；失败返回 null
+ * @param token    JWT 字符串
+ * @param secret   签名密钥
+ * @param options  校验选项（issuer/audience/subject/clockTolerance 等）
+ * @returns        解析后的 payload 对象；失败返回 null
  *
  * @example
  * ```ts
- * const payload = verifyToken<{ userId: string }>(token, JWT_SECRET);
+ * const payload = verifyToken<{ userId: string }>(token, JWT_SECRET, {
+ *   issuer: 'yunshu-api',
+ *   audience: 'web-client',
+ * });
  * if (!payload) { /* 拒绝访问 *\/ }
  * ```
  */
-export function verifyToken<T = JWTPayload>(token: string, secret: string): T | null {
+export function verifyToken<T = JWTPayload>(
+  token: string,
+  secret: string,
+  options: VerifyOptions = {},
+): T | null {
   if (typeof token !== 'string' || !token) return null;
+
+  const {
+    issuer,
+    audience,
+    subject,
+    clockTolerance = 0,
+    ignoreExpiration = false,
+    requireExpiration = true,
+  } = options;
 
   const parts = safeJwtParts(token);
   if (!parts) return null;
@@ -237,10 +272,38 @@ export function verifyToken<T = JWTPayload>(token: string, secret: string): T | 
       base64UrlDecode(payloadB64).toString('utf8'),
     ) as JWTPayload;
 
-    // 4) 过期时间校验
+    // 4) 过期时间 / iat 校验
     const now = Math.floor(Date.now() / 1000);
-    if (typeof payload.exp === 'number' && payload.exp <= now) return null;
-    if (typeof payload.nbf === 'number' && payload.nbf > now) return null;
+    if (typeof payload.exp !== 'number') {
+      if (requireExpiration) return null;
+    } else if (!ignoreExpiration && payload.exp <= now - clockTolerance) {
+      return null;
+    }
+    if (typeof payload.iat === 'number' && payload.iat > now + clockTolerance) {
+      return null;
+    }
+    if (typeof payload.nbf === 'number' && payload.nbf > now + clockTolerance) return null;
+
+    // 5) iss / aud / sub 声明校验
+    if (issuer !== undefined) {
+      const expectedIssuers = Array.isArray(issuer) ? issuer : [issuer];
+      if (typeof payload.iss !== 'string' || !expectedIssuers.includes(payload.iss)) {
+        return null;
+      }
+    }
+    if (audience !== undefined) {
+      const expectedAudiences = Array.isArray(audience) ? audience : [audience];
+      const payloadAudiences = Array.isArray(payload.aud)
+        ? payload.aud
+        : typeof payload.aud === 'string'
+          ? [payload.aud]
+          : [];
+      const hasMatch = expectedAudiences.some((a) => payloadAudiences.includes(a));
+      if (!hasMatch) return null;
+    }
+    if (subject !== undefined && payload.sub !== subject) {
+      return null;
+    }
 
     return payload as T;
   } catch {
@@ -256,8 +319,17 @@ export function verifyToken<T = JWTPayload>(token: string, secret: string): T | 
 /**
  * 仅解码 JWT payload，不做签名和过期校验。
  * 适用于在未验证前需要读取部分声明的场景。
+ *
+ * @deprecated 使用 decodeTokenUnsafe 明确声明风险——此方法不验证签名，结果可能被篡改。
  */
 export function decodeToken<T = JWTPayload>(token: string): T | null {
+  return decodeTokenUnsafe<T>(token);
+}
+
+/**
+ * 仅解码 JWT payload，不做签名和过期校验。明确命名以提示调用方注意安全风险。
+ */
+export function decodeTokenUnsafe<T = JWTPayload>(token: string): T | null {
   if (typeof token !== 'string') return null;
   const parts = safeJwtParts(token);
   if (!parts) return null;

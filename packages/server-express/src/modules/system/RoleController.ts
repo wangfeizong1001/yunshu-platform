@@ -12,85 +12,42 @@ import { BaseController } from '../../controller/BaseController';
 import {
   createPaginatedResult,
   normalizePagination,
+  isValidUUID,
+  isValidStringLength,
   type PaginationParams,
 } from '@yunshu/shared';
+
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const ROLE_KEY_REGEX = /^[a-zA-Z][a-zA-Z0-9_]{1,49}$/;
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-/** 数据权限范围
- * 1 全部数据权限
- * 2 自定数据权限
- * 3 本部门数据权限
- * 4 本部门及以下数据权限
- * 5 仅本人数据权限
- */
 type DataScope = '1' | '2' | '3' | '4' | '5';
-
-/** 角色状态 */
 type RoleStatus = '0' | '1';
 
-/** 角色数据结构 */
 interface Role {
-  /** 角色ID */
   roleId: string;
-  /** 角色名称 */
   roleName: string;
-  /** 角色权限字符串 */
   roleKey: string;
-  /** 显示顺序 */
   roleSort: number;
-  /** 数据范围 */
   dataScope: DataScope;
-  /** 状态 0正常 1停用 */
   status: RoleStatus;
-  /** 备注 */
   remark: string;
-  /** 创建时间 */
   created_at: string;
-  /** 更新时间 */
   updated_at: string;
 }
 
-/** 角色查询参数 */
 interface RoleQueryParams extends PaginationParams {
-  /** 角色名称（模糊匹配） */
   roleName?: string;
-  /** 角色权限字符串（模糊匹配） */
   roleKey?: string;
-  /** 状态 */
   status?: RoleStatus;
-}
-
-/** 创建角色请求体 */
-interface RoleCreateBody {
-  roleName: string;
-  roleKey: string;
-  roleSort?: number;
-  dataScope?: DataScope;
-  status?: RoleStatus;
-  remark?: string;
-}
-
-/** 更新角色请求体 */
-interface RoleUpdateBody extends RoleCreateBody {
-  roleId: string;
-}
-
-/** 批量删除请求体 */
-interface BatchRemoveBody {
-  roleIds: string[];
-}
-
-/** 修改状态请求体 */
-interface ChangeStatusBody {
-  roleId: string;
-  status: RoleStatus;
 }
 
 // ============================================================================
-// Mock 数据（内存存储）
+// Mock 数据
 // ============================================================================
 
 let mockRoles: Role[] = [
@@ -155,214 +112,265 @@ let mockRoles: Role[] = [
 // 控制器实现
 // ============================================================================
 
-/**
- * 角色管理控制器类
- *
- * 继承 BaseController，封装了系统角色的全部 CRUD 操作。
- */
 export class RoleController extends BaseController {
-  /**
-   * 角色分页列表查询
-   *
-   * 支持按 roleName、roleKey（模糊匹配）、status 过滤
-   */
+  private isCurrentUserAdmin(req: Request): boolean {
+    const role = (req as unknown as { user?: { role?: string } }).user?.role;
+    return role === 'admin' || role === 'super_admin';
+  }
+
+  private extractQueryParam(value: unknown, max = MAX_QUERY_PARAM_LENGTH): string | undefined {
+    if (Array.isArray(value)) {
+      const first = value[0];
+      return typeof first === 'string' && first.length > 0 && first.length <= max
+        ? first
+        : undefined;
+    }
+    return typeof value === 'string' && value.length > 0 && value.length <= max
+      ? value
+      : undefined;
+  }
+
   async list(req: Request, res: Response) {
-    try {
-      const query = req.query as unknown as RoleQueryParams;
-      const { page, limit } = normalizePagination(query);
+    const query = req.query as unknown as RoleQueryParams;
+    const { page, limit } = normalizePagination(query);
 
-      const filtered = mockRoles.filter((r) => {
-        if (query.roleName && !r.roleName.includes(query.roleName)) {
-          return false;
-        }
-        if (query.roleKey && !r.roleKey.includes(query.roleKey)) {
-          return false;
-        }
-        if (query.status && r.status !== query.status) {
-          return false;
-        }
-        return true;
-      });
+    const roleName = this.extractQueryParam(query.roleName);
+    const roleKey = this.extractQueryParam(query.roleKey);
+    const statusRaw = this.extractQueryParam(query.status, 1);
+    const status = (statusRaw === '0' || statusRaw === '1') ? statusRaw : undefined;
 
-      filtered.sort((a, b) => a.roleSort - b.roleSort);
+    const filtered = mockRoles.filter((r) => {
+      if (roleName && !r.roleName.includes(roleName)) return false;
+      if (roleKey && !r.roleKey.includes(roleKey)) return false;
+      if (status && r.status !== status) return false;
+      return true;
+    });
 
-      const total = filtered.length;
-      const start = (page - 1) * limit;
-      const list = filtered.slice(start, start + limit);
+    filtered.sort((a, b) => a.roleSort - b.roleSort);
 
-      return this.paginate(
-        res,
-        createPaginatedResult(list, page, limit, total),
-        '查询成功',
-      );
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const list = filtered.slice(start, start + limit);
+
+    return this.paginate(
+      res,
+      createPaginatedResult(list, page, limit, total),
+      '查询成功',
+    );
   }
 
-  /**
-   * 根据 roleId 获取角色详情
-   */
   async getById(req: Request, res: Response) {
-    try {
-      const { roleId } = req.params;
-      const role = mockRoles.find((r) => r.roleId === roleId);
-      if (!role) {
-        return this.notFound(res, '角色不存在');
-      }
-      return this.success(res, role, '获取成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const roleId = this.safeParam(req.params.roleId);
+    if (!roleId) return this.badRequest(res, 'roleId 格式错误');
+    const role = mockRoles.find((r) => r.roleId === roleId);
+    if (!role) return this.notFound(res, '角色不存在');
+    return this.success(res, role, '获取成功');
   }
 
-  /**
-   * 创建角色
-   */
   async create(req: Request, res: Response) {
-    try {
-      const body = req.body as RoleCreateBody;
-      if (!body.roleName || !body.roleKey) {
-        return this.badRequest(res, 'roleName 和 roleKey 必填');
-      }
+    const bodyErr = this.validateRequestBody(req.body, ['roleName', 'roleKey'], {
+      roleName: 50,
+      roleKey: 50,
+      remark: 500,
+    });
+    if (bodyErr) return this.badRequest(res, bodyErr);
 
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      const roleId = `r-${Date.now().toString().padStart(32, '0')}`;
+    const body = req.body as Record<string, unknown>;
+    const roleName = String(body.roleName).trim();
+    const roleKey = String(body.roleKey).trim();
 
-      const newRole: Role = {
-        roleId,
-        roleName: body.roleName,
-        roleKey: body.roleKey,
-        roleSort: body.roleSort ?? 0,
-        dataScope: body.dataScope ?? '1',
-        status: body.status ?? '0',
-        remark: body.remark ?? '',
-        created_at: now,
-        updated_at: now,
-      };
-
-      mockRoles.push(newRole);
-      return this.created(res, newRole, '创建成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    if (!isValidStringLength(roleName, 2, 50)) {
+      return this.badRequest(res, 'roleName 长度需在 2-50 字符之间');
     }
+    if (!ROLE_KEY_REGEX.test(roleKey)) {
+      return this.badRequest(res, 'roleKey 必须以字母开头，包含字母数字下划线，长度 2-50');
+    }
+
+    const dataScopeRaw = body.dataScope !== undefined ? String(body.dataScope) : '1';
+    const dataScope: DataScope =
+      (dataScopeRaw === '1' || dataScopeRaw === '2' || dataScopeRaw === '3' ||
+        dataScopeRaw === '4' || dataScopeRaw === '5')
+        ? dataScopeRaw
+        : '1';
+
+    const statusRaw = body.status !== undefined ? String(body.status) : '0';
+    const status: RoleStatus = (statusRaw === '0' || statusRaw === '1') ? statusRaw : '0';
+
+    let roleSort = 0;
+    if (body.roleSort !== undefined) {
+      const n = Number(body.roleSort);
+      if (Number.isFinite(n)) roleSort = n;
+    }
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const roleId = `r-${Date.now().toString().padStart(32, '0')}`;
+
+    const newRole: Role = {
+      roleId,
+      roleName,
+      roleKey,
+      roleSort,
+      dataScope,
+      status,
+      remark: body.remark !== undefined ? String(body.remark) : '',
+      created_at: now,
+      updated_at: now,
+    };
+
+    mockRoles.push(newRole);
+    return this.created(res, newRole, '创建成功');
   }
 
-  /**
-   * 更新角色信息
-   */
   async update(req: Request, res: Response) {
-    try {
-      const body = req.body as RoleUpdateBody;
-      if (!body.roleId) {
-        return this.badRequest(res, 'roleId 必填');
-      }
-
-      const idx = mockRoles.findIndex((r) => r.roleId === body.roleId);
-      if (idx === -1) {
-        return this.notFound(res, '角色不存在');
-      }
-
-      const exist = mockRoles[idx];
-      if (!exist) return this.notFound(res, '角色不存在');
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      mockRoles[idx] = {
-        roleId: exist.roleId,
-        roleName: body.roleName,
-        roleKey: body.roleKey,
-        roleSort: body.roleSort ?? exist.roleSort,
-        dataScope: body.dataScope ?? exist.dataScope,
-        status: body.status ?? exist.status,
-        remark: body.remark ?? exist.remark,
-        created_at: exist.created_at,
-        updated_at: now,
-      };
-
-      return this.success(res, mockRoles[idx], '更新成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const body = req.body as Record<string, unknown>;
+    const roleId = body.roleId !== undefined ? String(body.roleId) : '';
+    if (!roleId || !isValidUUID(roleId)) {
+      return this.badRequest(res, 'roleId 必填且格式需为 UUID');
     }
+
+    const idx = mockRoles.findIndex((r) => r.roleId === roleId);
+    if (idx === -1) return this.notFound(res, '角色不存在');
+    const exist = mockRoles[idx]!;
+
+    if (!this.isCurrentUserAdmin(req) && exist.roleKey === 'admin') {
+      return this.forbidden(res, '普通用户无权修改超级管理员角色');
+    }
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const updated: Role = {
+      roleId: exist.roleId,
+      roleName: exist.roleName,
+      roleKey: exist.roleKey,
+      roleSort: exist.roleSort,
+      dataScope: exist.dataScope,
+      status: exist.status,
+      remark: exist.remark,
+      created_at: exist.created_at,
+      updated_at: now,
+    };
+
+    if (body.roleName !== undefined) {
+      const v = String(body.roleName).trim();
+      if (!isValidStringLength(v, 2, 50)) {
+        return this.badRequest(res, 'roleName 长度需在 2-50 字符之间');
+      }
+      updated.roleName = v;
+    }
+    if (body.roleKey !== undefined) {
+      const v = String(body.roleKey).trim();
+      if (!ROLE_KEY_REGEX.test(v)) {
+        return this.badRequest(res, 'roleKey 必须以字母开头，包含字母数字下划线，长度 2-50');
+      }
+      updated.roleKey = v;
+    }
+    if (body.roleSort !== undefined) {
+      const n = Number(body.roleSort);
+      if (Number.isFinite(n)) updated.roleSort = n;
+    }
+    if (body.dataScope !== undefined) {
+      const v = String(body.dataScope);
+      if (v === '1' || v === '2' || v === '3' || v === '4' || v === '5') {
+        updated.dataScope = v as DataScope;
+      }
+    }
+    if (body.status !== undefined) {
+      const v = String(body.status);
+      if (v === '0' || v === '1') {
+        if (exist.roleKey === 'admin' && v === '1') {
+          return this.forbidden(res, '不能将超级管理员角色设置为停用状态');
+        }
+        updated.status = v as RoleStatus;
+      }
+    }
+    if (body.remark !== undefined) updated.remark = String(body.remark);
+
+    mockRoles[idx] = updated;
+    return this.success(res, updated, '更新成功');
   }
 
-  /**
-   * 删除单个角色
-   */
   async remove(req: Request, res: Response) {
-    try {
-      const { roleId } = req.params;
-      const idx = mockRoles.findIndex((r) => r.roleId === roleId);
-      if (idx === -1) {
-        return this.notFound(res, '角色不存在');
-      }
+    const roleId = this.safeParam(req.params.roleId);
+    if (!roleId) return this.badRequest(res, 'roleId 格式错误');
 
-      mockRoles.splice(idx, 1);
-      return this.success(res, { roleId }, '删除成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const target = mockRoles.find((r) => r.roleId === roleId);
+    if (target && target.roleKey === 'admin') {
+      return this.forbidden(res, '不能删除超级管理员角色');
     }
+
+    const idx = mockRoles.findIndex((r) => r.roleId === roleId);
+    if (idx === -1) return this.notFound(res, '角色不存在');
+
+    mockRoles.splice(idx, 1);
+    return this.success(res, { roleId }, '删除成功');
   }
 
-  /**
-   * 批量删除角色
-   *
-   * body: { roleIds: string[] }
-   */
   async batchRemove(req: Request, res: Response) {
-    try {
-      const body = req.body as BatchRemoveBody;
-      if (!body.roleIds || !Array.isArray(body.roleIds) || body.roleIds.length === 0) {
-        return this.badRequest(res, 'roleIds 必须为非空数组');
-      }
-
-      const before = mockRoles.length;
-      mockRoles = mockRoles.filter((r) => !body.roleIds.includes(r.roleId));
-      const deleted = before - mockRoles.length;
-
-      return this.success(res, { deleted, roleIds: body.roleIds }, `批量删除成功，共删除 ${deleted} 条`);
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const body = req.body as Record<string, unknown>;
+    const roleIds = body.roleIds;
+    if (!Array.isArray(roleIds)) {
+      return this.badRequest(res, 'roleIds 必须为数组');
     }
+
+    const batchErr = this.validateBatchSize(roleIds, MAX_BATCH_SIZE);
+    if (batchErr) return this.badRequest(res, batchErr);
+
+    const validIds: string[] = [];
+    for (const id of roleIds) {
+      if (typeof id === 'string' && isValidUUID(id)) {
+        const target = mockRoles.find((r) => r.roleId === id);
+        if (target && target.roleKey === 'admin') {
+          return this.forbidden(res, '不能批量删除超级管理员角色');
+        }
+        validIds.push(id);
+      }
+    }
+    if (validIds.length === 0) return this.badRequest(res, 'roleIds 中无有效 ID');
+
+    const before = mockRoles.length;
+    mockRoles = mockRoles.filter((r) => !validIds.includes(r.roleId));
+    const deleted = before - mockRoles.length;
+
+    return this.success(
+      res,
+      { deleted, roleIds: validIds },
+      `批量删除成功，共删除 ${deleted} 条`,
+    );
   }
 
-  /**
-   * 修改角色状态
-   *
-   * body: { roleId, status }
-   */
   async changeStatus(req: Request, res: Response) {
-    try {
-      const body = req.body as ChangeStatusBody;
-      if (!body.roleId || !body.status) {
-        return this.badRequest(res, 'roleId 和 status 必填');
-      }
+    const body = req.body as Record<string, unknown>;
+    const roleId = body.roleId !== undefined ? String(body.roleId) : '';
+    const statusRaw = body.status !== undefined ? String(body.status) : '';
 
-      const role = mockRoles.find((r) => r.roleId === body.roleId);
-      if (!role) {
-        return this.notFound(res, '角色不存在');
-      }
-
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      role.status = body.status;
-      role.updated_at = now;
-
-      return this.success(res, role, '状态修改成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    if (!roleId || !isValidUUID(roleId)) {
+      return this.badRequest(res, 'roleId 必填且格式需为 UUID');
     }
+    if (statusRaw !== '0' && statusRaw !== '1') {
+      return this.badRequest(res, 'status 必须为 0 或 1');
+    }
+    const status = statusRaw as RoleStatus;
+
+    const role = mockRoles.find((r) => r.roleId === roleId);
+    if (!role) return this.notFound(res, '角色不存在');
+
+    if (role.roleKey === 'admin' && status === '1') {
+      return this.forbidden(res, '不能将超级管理员角色设置为停用状态');
+    }
+    if (!this.isCurrentUserAdmin(req) && role.roleKey === 'admin') {
+      return this.forbidden(res, '普通用户无权修改超级管理员角色状态');
+    }
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    role.status = status;
+    role.updated_at = now;
+
+    return this.success(res, role, '状态修改成功');
   }
 
-  /**
-   * 获取全部角色列表（不分页，用于下拉选择）
-   */
   async getAll(req: Request, res: Response) {
-    try {
-      const list = [...mockRoles].sort((a, b) => a.roleSort - b.roleSort);
-      return this.success(res, list, '查询成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const list = [...mockRoles].sort((a, b) => a.roleSort - b.roleSort);
+    return this.success(res, list, '查询成功');
   }
 }
 
-/** 角色控制器单例实例 */
 export const roleController = new RoleController();

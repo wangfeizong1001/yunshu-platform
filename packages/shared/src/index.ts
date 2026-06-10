@@ -285,3 +285,125 @@ export function normalizePagination(params: PaginationParams): Required<Paginati
     order: params.order ?? PAGINATION_DEFAULTS.ORDER,
   };
 }
+
+// ============================================================================
+// 安全工具函数
+// ============================================================================
+
+/**
+ * 安全的 JSON 解析 — 过滤原型链污染风险的键
+ *
+ * 拒绝解析包含 __proto__ / constructor / prototype 的键，
+ * 以及具有 `toJSON` 的恶意对象。
+ */
+export function safeJsonParse<T = unknown>(text: string): T {
+  return JSON.parse(text, (key: string, value: unknown) => {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      return undefined;
+    }
+    return value;
+  }) as T;
+}
+
+/**
+ * 安全地对任意值进行 stringify — 避免循环引用与 BigInt 异常
+ */
+export function safeJsonStringify(value: unknown, space?: number): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(
+    value,
+    (key, val) => {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') return undefined;
+      if (typeof val === 'bigint') return val.toString() + 'n';
+      if (typeof val === 'object' && val !== null) {
+        if (seen.has(val as object)) return '[Circular]';
+        seen.add(val as object);
+      }
+      return val;
+    },
+    space,
+  ) ?? '';
+}
+
+/**
+ * 字符串长度校验 — 防止超长参数攻击
+ */
+export function isValidStringLength(
+  value: string | undefined,
+  min = 0,
+  max = 255,
+): boolean {
+  if (value === undefined || value === null) return min <= 0;
+  if (typeof value !== 'string') return false;
+  return value.length >= min && value.length <= max;
+}
+
+/**
+ * 邮箱格式基本校验（非严格，服务端为最终校验）
+ */
+export function isValidEmail(email: string | undefined): boolean {
+  if (!email) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{1,63}$/.test(email) && email.length <= 254;
+}
+
+/**
+ * 中国大陆手机号格式基本校验
+ */
+export function isValidPhone(phone: string | undefined): boolean {
+  if (!phone) return false;
+  return /^1[3-9]\d{9}$/.test(phone);
+}
+
+/**
+ * UUID 格式校验（宽松模式，兼容 UUID v1-v5 以及可选短前缀），也接受 32 位 hex 无连字符
+ *   - 严格：仅接受标准 UUID v4
+ *   - 宽松（默认）：接受任何 8-4-4-4-12 的 hex 分段（如 u-0000...001 / r-0000...001）
+ */
+export function isValidUUID(id: string | undefined, strict = false): boolean {
+  if (!id) return false;
+  const prefixStripped = /^[a-zA-Z0-9]{1,4}-/.test(id) ? id.replace(/^[a-zA-Z0-9]{1,4}-/, '') : id;
+  if (strict) {
+    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(prefixStripped);
+  }
+  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(prefixStripped)
+    || /^[0-9a-fA-F]{32}$/.test(prefixStripped);
+}
+
+/**
+ * 通用 ID 格式校验（字母数字 + 连字符，长度 2-64），用于部门ID / 菜单ID 等非 UUID
+ */
+export function isValidId(id: string | undefined): boolean {
+  if (!id) return false;
+  if (id.length < 2 || id.length > 64) return false;
+  return /^[a-zA-Z0-9][a-zA-Z0-9-]{0,62}[a-zA-Z0-9]$|^[a-zA-Z0-9]$/.test(id);
+}
+
+/**
+ * 安全解析 URL 查询参数（过滤空串、trim）
+ */
+export function safeParseQuery(value: unknown, maxLength = 100): string | null {
+  if (value === null || value === undefined) return null;
+  const str = typeof value === 'string' ? value.trim() : String(value).trim();
+  if (!str || str.length > maxLength) return null;
+  return str;
+}
+
+/**
+ * 脱敏邮箱（admin@example.com → a****@example.com）
+ */
+export function maskEmail(email: string | undefined): string {
+  if (!email) return '';
+  const [name, domain] = email.split('@');
+  if (!name || !domain) return email;
+  return name[0] + '*'.repeat(Math.max(1, name.length - 1)) + '@' + domain;
+}
+
+/**
+ * 脱敏手机号（13800001234 → 138****1234）
+ */
+export function maskPhone(phone: string | undefined): string {
+  if (!phone) return '';
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 7) return '*'.repeat(digits.length);
+  return digits.slice(0, 3) + '****' + digits.slice(-4);
+}

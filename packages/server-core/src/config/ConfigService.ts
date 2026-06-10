@@ -160,7 +160,7 @@ const DEFAULT_CONFIG: AppConfig = {
     port: 5432,
     database: 'yunshu',
     user: 'postgres',
-    password: '',
+    password: null as unknown as string,
     ssl: false,
     maxPoolSize: 10,
     minPoolSize: 2,
@@ -201,6 +201,9 @@ const DEFAULT_CONFIG: AppConfig = {
  */
 const REQUIRED_FIELDS: string[] = [
   'auth.jwtSecret',
+  'postgres.host',
+  'postgres.port',
+  'redis.host',
 ];
 
 // ============================================================================
@@ -406,6 +409,18 @@ export class ConfigService {
     };
 
     this.loaded = true;
+
+    // 生产环境自检：检测敏感默认值
+    const { NODE_ENV } = process.env;
+    if (NODE_ENV === 'production') {
+      if (this.config.auth.jwtSecret === 'change-me-in-production-please') {
+        throw new Error('[Config] 生产环境必须显式设置 JWT_SECRET，禁止使用默认值');
+      }
+      if (this.config.redis.password === undefined || this.config.redis.password === '') {
+        console.warn('[Config] 生产环境建议设置 REDIS_PASSWORD 以保护 Redis 服务');
+      }
+    }
+
     return this.config;
   }
 
@@ -506,6 +521,23 @@ export class ConfigService {
   }
 
   /**
+   * 强制校验配置，在生产环境缺失关键项时直接抛出异常
+   *
+   * @param force  非生产环境下也强制校验（默认 false）
+   * @throws Error 在生产环境或 force=true 时如果存在缺失字段
+   */
+  public assertValid(force = false): void {
+    if (!this.loaded) this.load();
+    const missing = this.validate();
+    const isProd = this.get('app').env === 'production';
+    if (missing.length > 0 && (isProd || force)) {
+      throw new Error(
+        `[Config] 缺少必填字段: ${missing.join(', ')}`,
+      );
+    }
+  }
+
+  /**
    * 当前是否为开发环境
    */
   public isDevelopment(): boolean {
@@ -527,13 +559,33 @@ export class ConfigService {
   }
 
   /**
-   * 获取完整配置的 JSON 可序列化副本
+   * 递归脱敏 — 将包含 password/secret/token/key 的键替换为 '***'
+   * 匹配大小写不敏感。
    */
-  public toJSON(): AppConfig {
-    if (!this.loaded) {
-      this.load();
+  private redact(obj: unknown, path = ''): unknown {
+    if (obj === null || obj === undefined) return obj;
+    if (typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map((item, i) => this.redact(item, `${path}[${i}]`));
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      const lowerKey = String(key).toLowerCase();
+      if (/password|secret|token|key/.test(lowerKey)) {
+        result[key] = '***';
+      } else if (typeof value === 'object' && value !== null) {
+        result[key] = this.redact(value, `${path}.${key}`);
+      } else {
+        result[key] = value;
+      }
     }
-    return JSON.parse(JSON.stringify(this.config)) as AppConfig;
+    return result;
+  }
+
+  /**
+   * 获取完整配置的 JSON 可序列化副本（敏感字段已脱敏）
+   */
+  public toJSON(): Partial<AppConfig> {
+    if (!this.loaded) this.load();
+    return this.redact(this.config) as Partial<AppConfig>;
   }
 }
 
@@ -544,7 +596,7 @@ export class ConfigService {
 /**
  * 获取完整应用配置（便捷函数）
  */
-export function getConfig(): AppConfig {
+export function getConfig(): Partial<AppConfig> {
   return ConfigService.getInstance().toJSON();
 }
 

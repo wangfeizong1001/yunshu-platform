@@ -12,8 +12,15 @@ import { BaseController } from '../../controller/BaseController';
 import {
   createPaginatedResult,
   normalizePagination,
+  isValidUUID,
+  isValidEmail,
+  isValidPhone,
+  isValidStringLength,
   type PaginationParams,
 } from '@yunshu/shared';
+
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
 
 // ============================================================================
 // 类型定义
@@ -27,79 +34,27 @@ type UserStatus = '0' | '1';
 
 /** 用户数据结构 */
 interface User {
-  /** 用户ID（UUID） */
   userId: string;
-  /** 登录账号 */
   userName: string;
-  /** 用户昵称 */
   nickName: string;
-  /** 邮箱 */
   email: string;
-  /** 手机号 */
   phone: string;
-  /** 性别 0男 1女 2未知 */
   sex: UserSex;
-  /** 头像 */
   avatar: string;
-  /** 部门ID */
   deptId: string;
-  /** 状态 0正常 1停用 */
   status: UserStatus;
-  /** 备注 */
   remark: string;
-  /** 最后登录IP */
   loginIp: string;
-  /** 最后登录时间 */
   loginDate: string;
-  /** 创建时间 */
   created_at: string;
-  /** 更新时间 */
   updated_at: string;
 }
 
 /** 用户查询参数 */
 interface UserQueryParams extends PaginationParams {
-  /** 用户名称（模糊匹配） */
   userName?: string;
-  /** 状态 */
   status?: UserStatus;
-  /** 部门ID */
   deptId?: string;
-}
-
-/** 创建用户请求体 */
-interface UserCreateBody {
-  userName: string;
-  nickName: string;
-  email?: string;
-  phone?: string;
-  sex?: UserSex;
-  avatar?: string;
-  deptId?: string;
-  status?: UserStatus;
-  remark?: string;
-}
-
-/** 更新用户请求体 */
-interface UserUpdateBody extends UserCreateBody {
-  userId: string;
-}
-
-/** 批量删除请求体 */
-interface BatchRemoveBody {
-  userIds: string[];
-}
-
-/** 重置密码请求体 */
-interface ResetPwdBody {
-  userId: string;
-  password: string;
-}
-
-/** 修改状态请求体 */
-interface ChangeStatusBody {
-  userId: string;
-  status: UserStatus;
 }
 
 // ============================================================================
@@ -195,307 +150,399 @@ let mockUsers: User[] = [
 
 /**
  * 用户管理控制器类
- *
- * 继承 BaseController，封装了系统用户的全部 CRUD 操作。
- * 所有数据采用内存 Mock 存储，便于独立测试与演示。
  */
 export class UserController extends BaseController {
-  /**
-   * 用户分页列表查询
-   *
-   * 支持按 userName（模糊匹配）、status、deptId 过滤。
-   */
+  private isCurrentUserAdmin(req: Request): boolean {
+    const role = (req as unknown as { user?: { role?: string } }).user?.role;
+    return role === 'admin' || role === 'super_admin';
+  }
+
+  private getCurrentUserId(req: Request): string | undefined {
+    return (req as unknown as { user?: { userId?: string } }).user?.userId;
+  }
+
+  private extractQueryParam(value: unknown, max = MAX_QUERY_PARAM_LENGTH): string | undefined {
+    if (Array.isArray(value)) {
+      const first = value[0];
+      return typeof first === 'string' && first.length > 0 && first.length <= max
+        ? first
+        : undefined;
+    }
+    return typeof value === 'string' && value.length > 0 && value.length <= max
+      ? value
+      : undefined;
+  }
+
   async list(req: Request, res: Response) {
-    try {
-      const query = req.query as unknown as UserQueryParams;
-      const { page, limit } = normalizePagination(query);
+    const query = req.query as unknown as UserQueryParams;
+    const { page, limit } = normalizePagination(query);
 
-      const userName = Array.isArray(query.userName)
-        ? String(query.userName[0])
-        : typeof query.userName === 'string'
-          ? query.userName
-          : undefined;
-      const status = Array.isArray(query.status)
-        ? String(query.status[0])
-        : typeof query.status === 'string'
-          ? query.status
-          : undefined;
-      const deptId = Array.isArray(query.deptId)
-        ? String(query.deptId[0])
-        : typeof query.deptId === 'string'
-          ? query.deptId
-          : undefined;
+    const userName = this.extractQueryParam(query.userName);
+    const statusRaw = this.extractQueryParam(query.status, 1);
+    const status = (statusRaw === '0' || statusRaw === '1') ? statusRaw : undefined;
+    const deptId = this.extractQueryParam(query.deptId);
 
-      const filtered = mockUsers.filter((u) => {
-        if (userName && !u.userName.includes(userName) && !u.nickName.includes(userName)) {
-          return false;
-        }
-        if (status && u.status !== status) {
-          return false;
-        }
-        if (deptId && u.deptId !== deptId) {
-          return false;
-        }
-        return true;
-      });
+    const filtered = mockUsers.filter((u) => {
+      if (userName && !u.userName.includes(userName) && !u.nickName.includes(userName)) {
+        return false;
+      }
+      if (status && u.status !== status) {
+        return false;
+      }
+      if (deptId && u.deptId !== deptId) {
+        return false;
+      }
+      return true;
+    });
 
-      const total = filtered.length;
-      const start = (page - 1) * limit;
-      const list = filtered.slice(start, start + limit);
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const list = filtered.slice(start, start + limit);
 
-      return this.paginate(
-        res,
-        createPaginatedResult(list, page, limit, total),
-        '查询成功',
-      );
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const isAdmin = this.isCurrentUserAdmin(req);
+    const sanitizedList = list.map((u) => this.sanitizeUser(u, isAdmin));
+
+    return this.paginate(
+      res,
+      createPaginatedResult(sanitizedList, page, limit, total),
+      '查询成功',
+    );
   }
 
-  /**
-   * 根据 userId 获取用户详情
-   */
   async getById(req: Request, res: Response) {
-    try {
-      const { userId } = req.params;
-      const user = mockUsers.find((u) => u.userId === userId);
-      if (!user) {
-        return this.notFound(res, '用户不存在');
-      }
-      return this.success(res, user, '获取成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const userId = this.safeParam(req.params.userId);
+    if (!userId) {
+      return this.badRequest(res, 'userId 格式错误');
     }
+    const user = mockUsers.find((u) => u.userId === userId);
+    if (!user) {
+      return this.notFound(res, '用户不存在');
+    }
+    const sanitized = this.sanitizeUser(user, this.isCurrentUserAdmin(req));
+    return this.success(res, sanitized, '获取成功');
   }
 
-  /**
-   * 创建用户
-   */
   async create(req: Request, res: Response) {
-    try {
-      const body = req.body as UserCreateBody;
-      if (!body.userName || !body.nickName) {
-        return this.badRequest(res, 'userName 和 nickName 必填');
-      }
+    const bodyErr = this.validateRequestBody(req.body, ['userName', 'nickName'], {
+      userName: 50,
+      nickName: 50,
+      email: 100,
+      phone: 20,
+      remark: 500,
+      avatar: 255,
+      deptId: 50,
+    });
+    if (bodyErr) return this.badRequest(res, bodyErr);
 
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      const userId = `u-${Date.now().toString().padStart(32, '0')}`;
+    const body = req.body as Record<string, unknown>;
+    const userName = String(body.userName).trim();
+    const nickName = String(body.nickName).trim();
 
-      const newUser: User = {
-        userId,
-        userName: body.userName,
-        nickName: body.nickName,
-        email: body.email ?? '',
-        phone: body.phone ?? '',
-        sex: body.sex ?? '2',
-        avatar: body.avatar ?? '',
-        deptId: body.deptId ?? '',
-        status: body.status ?? '0',
-        remark: body.remark ?? '',
-        loginIp: '-',
-        loginDate: '-',
-        created_at: now,
-        updated_at: now,
-      };
-
-      mockUsers.push(newUser);
-      return this.created(res, newUser, '创建成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    if (!isValidStringLength(userName, 2, 50)) {
+      return this.badRequest(res, 'userName 长度需在 2-50 字符之间');
     }
+    if (!isValidStringLength(nickName, 2, 50)) {
+      return this.badRequest(res, 'nickName 长度需在 2-50 字符之间');
+    }
+
+    const email = body.email !== undefined && body.email !== '' ? String(body.email) : '';
+    const phone = body.phone !== undefined && body.phone !== '' ? String(body.phone) : '';
+
+    if (email && !isValidEmail(email)) {
+      return this.badRequest(res, '邮箱格式错误');
+    }
+    if (phone && !isValidPhone(phone)) {
+      return this.badRequest(res, '手机号格式错误');
+    }
+
+    const sexRaw = body.sex !== undefined ? String(body.sex) : '2';
+    const sex: UserSex = (sexRaw === '0' || sexRaw === '1' || sexRaw === '2') ? sexRaw : '2';
+    const statusRaw = body.status !== undefined ? String(body.status) : '0';
+    const status: UserStatus = (statusRaw === '0' || statusRaw === '1') ? statusRaw : '0';
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const userId = `u-${Date.now().toString().padStart(32, '0')}`;
+
+    const newUser: User = {
+      userId,
+      userName,
+      nickName,
+      email,
+      phone,
+      sex,
+      avatar: body.avatar !== undefined ? String(body.avatar) : '',
+      deptId: body.deptId !== undefined ? String(body.deptId) : '',
+      status,
+      remark: body.remark !== undefined ? String(body.remark) : '',
+      loginIp: '-',
+      loginDate: '-',
+      created_at: now,
+      updated_at: now,
+    };
+
+    mockUsers.push(newUser);
+    return this.created(res, this.sanitizeUser(newUser, this.isCurrentUserAdmin(req)), '创建成功');
   }
 
-  /**
-   * 更新用户信息
-   */
   async update(req: Request, res: Response) {
-    try {
-      const body = req.body as UserUpdateBody;
-      if (!body.userId) {
-        return this.badRequest(res, 'userId 必填');
-      }
-
-      const idx = mockUsers.findIndex((u) => u.userId === body.userId);
-      if (idx === -1) {
-        return this.notFound(res, '用户不存在');
-      }
-
-      const exist = mockUsers[idx];
-      if (!exist) return this.notFound(res, '用户不存在');
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      mockUsers[idx] = {
-        userId: exist.userId,
-        userName: body.userName,
-        nickName: body.nickName,
-        email: body.email ?? exist.email,
-        phone: body.phone ?? exist.phone,
-        sex: body.sex ?? exist.sex,
-        avatar: body.avatar ?? exist.avatar,
-        deptId: body.deptId ?? exist.deptId,
-        status: body.status ?? exist.status,
-        remark: body.remark ?? exist.remark,
-        loginIp: exist.loginIp,
-        loginDate: exist.loginDate,
-        created_at: exist.created_at,
-        updated_at: now,
-      };
-
-      return this.success(res, mockUsers[idx], '更新成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const body = req.body as Record<string, unknown>;
+    const userId = body.userId !== undefined ? String(body.userId) : '';
+    if (!userId || !isValidUUID(userId)) {
+      return this.badRequest(res, 'userId 必填且格式需为 UUID');
     }
+
+    const idx = mockUsers.findIndex((u) => u.userId === userId);
+    if (idx === -1) {
+      return this.notFound(res, '用户不存在');
+    }
+    const exist = mockUsers[idx]!;
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const updated: User = {
+      userId: exist.userId,
+      userName: exist.userName,
+      nickName: exist.nickName,
+      email: exist.email,
+      phone: exist.phone,
+      sex: exist.sex,
+      avatar: exist.avatar,
+      deptId: exist.deptId,
+      status: exist.status,
+      remark: exist.remark,
+      loginIp: exist.loginIp,
+      loginDate: exist.loginDate,
+      created_at: exist.created_at,
+      updated_at: now,
+    };
+
+    if (body.userName !== undefined) {
+      const v = String(body.userName).trim();
+      if (!isValidStringLength(v, 2, 50)) {
+        return this.badRequest(res, 'userName 长度需在 2-50 字符之间');
+      }
+      updated.userName = v;
+    }
+    if (body.nickName !== undefined) {
+      const v = String(body.nickName).trim();
+      if (!isValidStringLength(v, 2, 50)) {
+        return this.badRequest(res, 'nickName 长度需在 2-50 字符之间');
+      }
+      updated.nickName = v;
+    }
+    if (body.email !== undefined) {
+      const v = String(body.email);
+      if (v && !isValidEmail(v)) return this.badRequest(res, '邮箱格式错误');
+      updated.email = v;
+    }
+    if (body.phone !== undefined) {
+      const v = String(body.phone);
+      if (v && !isValidPhone(v)) return this.badRequest(res, '手机号格式错误');
+      updated.phone = v;
+    }
+    if (body.sex !== undefined) {
+      const v = String(body.sex);
+      if (v === '0' || v === '1' || v === '2') updated.sex = v as UserSex;
+    }
+    if (body.status !== undefined) {
+      const v = String(body.status);
+      if (v === '0' || v === '1') updated.status = v as UserStatus;
+    }
+    if (body.avatar !== undefined) updated.avatar = String(body.avatar);
+    if (body.deptId !== undefined) updated.deptId = String(body.deptId);
+    if (body.remark !== undefined) updated.remark = String(body.remark);
+
+    mockUsers[idx] = updated;
+    return this.success(res, this.sanitizeUser(updated, this.isCurrentUserAdmin(req)), '更新成功');
   }
 
-  /**
-   * 删除单个用户
-   */
   async remove(req: Request, res: Response) {
-    try {
-      const { userId } = req.params;
-      const idx = mockUsers.findIndex((u) => u.userId === userId);
-      if (idx === -1) {
-        return this.notFound(res, '用户不存在');
-      }
-
-      mockUsers.splice(idx, 1);
-      return this.success(res, { userId }, '删除成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const userId = this.safeParam(req.params.userId);
+    if (!userId) {
+      return this.badRequest(res, 'userId 格式错误');
     }
+    const idx = mockUsers.findIndex((u) => u.userId === userId);
+    if (idx === -1) {
+      return this.notFound(res, '用户不存在');
+    }
+    mockUsers.splice(idx, 1);
+    return this.success(res, { userId }, '删除成功');
   }
 
-  /**
-   * 批量删除用户
-   *
-   * body: { userIds: string[] }
-   */
   async batchRemove(req: Request, res: Response) {
-    try {
-      const body = req.body as BatchRemoveBody;
-      if (!body.userIds || !Array.isArray(body.userIds) || body.userIds.length === 0) {
-        return this.badRequest(res, 'userIds 必须为非空数组');
-      }
-
-      const before = mockUsers.length;
-      mockUsers = mockUsers.filter((u) => !body.userIds.includes(u.userId));
-      const deleted = before - mockUsers.length;
-
-      return this.success(res, { deleted, userIds: body.userIds }, `批量删除成功，共删除 ${deleted} 条`);
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const body = req.body as Record<string, unknown>;
+    const userIds = body.userIds;
+    if (!Array.isArray(userIds)) {
+      return this.badRequest(res, 'userIds 必须为数组');
     }
+
+    const batchErr = this.validateBatchSize(userIds, MAX_BATCH_SIZE);
+    if (batchErr) return this.badRequest(res, batchErr);
+
+    const validIds: string[] = [];
+    for (const id of userIds) {
+      if (typeof id === 'string' && isValidUUID(id)) {
+        validIds.push(id);
+      }
+    }
+    if (validIds.length === 0) {
+      return this.badRequest(res, 'userIds 中无有效 ID');
+    }
+
+    const before = mockUsers.length;
+    mockUsers = mockUsers.filter((u) => !validIds.includes(u.userId));
+    const deleted = before - mockUsers.length;
+
+    return this.success(res, { deleted, userIds: validIds }, `批量删除成功，共删除 ${deleted} 条`);
   }
 
-  /**
-   * 重置用户密码
-   *
-   * body: { userId, password }
-   */
   async resetPwd(req: Request, res: Response) {
-    try {
-      const body = req.body as ResetPwdBody;
-      if (!body.userId || !body.password) {
-        return this.badRequest(res, 'userId 和 password 必填');
-      }
+    const body = req.body as Record<string, unknown>;
+    const userId = body.userId !== undefined ? String(body.userId) : '';
+    const password = body.password !== undefined ? String(body.password) : '';
 
-      const user = mockUsers.find((u) => u.userId === body.userId);
-      if (!user) {
-        return this.notFound(res, '用户不存在');
-      }
-
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      user.updated_at = now;
-
-      return this.success(res, { userId: body.userId }, '密码重置成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    if (!userId || !isValidUUID(userId)) {
+      return this.badRequest(res, 'userId 必填且格式需为 UUID');
     }
+    if (!isValidStringLength(password, 6, 128)) {
+      return this.badRequest(res, 'password 长度需在 6-128 字符之间');
+    }
+
+    const isAdmin = this.isCurrentUserAdmin(req);
+    const currentUserId = this.getCurrentUserId(req);
+
+    if (!isAdmin && currentUserId !== userId) {
+      return this.forbidden(res, '无权限重置其他用户密码');
+    }
+
+    const user = mockUsers.find((u) => u.userId === userId);
+    if (!user) {
+      return this.notFound(res, '用户不存在');
+    }
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    user.updated_at = now;
+
+    return this.success(res, { userId }, '密码重置成功');
   }
 
-  /**
-   * 修改用户状态
-   *
-   * body: { userId, status }
-   */
   async changeStatus(req: Request, res: Response) {
-    try {
-      const body = req.body as ChangeStatusBody;
-      if (!body.userId || !body.status) {
-        return this.badRequest(res, 'userId 和 status 必填');
-      }
+    const body = req.body as Record<string, unknown>;
+    const userId = body.userId !== undefined ? String(body.userId) : '';
+    const statusRaw = body.status !== undefined ? String(body.status) : '';
 
-      const user = mockUsers.find((u) => u.userId === body.userId);
-      if (!user) {
-        return this.notFound(res, '用户不存在');
-      }
-
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      user.status = body.status;
-      user.updated_at = now;
-
-      return this.success(res, user, '状态修改成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    if (!userId || !isValidUUID(userId)) {
+      return this.badRequest(res, 'userId 必填且格式需为 UUID');
     }
+    if (statusRaw !== '0' && statusRaw !== '1') {
+      return this.badRequest(res, 'status 必须为 0 或 1');
+    }
+    const status = statusRaw as UserStatus;
+
+    const user = mockUsers.find((u) => u.userId === userId);
+    if (!user) {
+      return this.notFound(res, '用户不存在');
+    }
+
+    const isAdmin = this.isCurrentUserAdmin(req);
+    if (!isAdmin && user.userName === 'admin') {
+      return this.forbidden(res, '普通用户无权修改超级管理员状态');
+    }
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    user.status = status;
+    user.updated_at = now;
+
+    return this.success(res, this.sanitizeUser(user, isAdmin), '状态修改成功');
   }
 
-  /**
-   * 获取当前登录用户个人信息
-   *
-   * 简化实现：直接返回列表中第一个 admin 用户。
-   */
   async getProfile(req: Request, res: Response) {
-    try {
-      const admin = mockUsers.find((u) => u.userName === 'admin') ?? mockUsers[0];
-      if (!admin) {
-        return this.notFound(res, '当前用户不存在');
-      }
-      return this.success(res, admin, '获取成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const currentUserId = this.getCurrentUserId(req);
+    let admin: User | undefined;
+
+    if (currentUserId) {
+      admin = mockUsers.find((u) => u.userId === currentUserId);
     }
+    if (!admin) {
+      admin = mockUsers.find((u) => u.userName === 'admin') ?? mockUsers[0];
+    }
+    if (!admin) {
+      return this.notFound(res, '当前用户不存在');
+    }
+    return this.success(res, this.sanitizeUser(admin, true), '获取成功');
   }
 
-  /**
-   * 更新当前登录用户个人信息
-   */
   async updateProfile(req: Request, res: Response) {
-    try {
-      const admin = mockUsers.find((u) => u.userName === 'admin') ?? mockUsers[0];
-      if (!admin) {
-        return this.notFound(res, '当前用户不存在');
-      }
+    const currentUserId = this.getCurrentUserId(req);
+    let admin: User | undefined;
 
-      const body = req.body as Partial<UserCreateBody>;
-      const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
-      const idx = mockUsers.findIndex((u) => u.userId === admin.userId);
-      if (idx === -1) {
-        return this.notFound(res, '当前用户不存在');
-      }
-      const exist = mockUsers[idx];
-      if (!exist) return this.notFound(res, '当前用户不存在');
-      mockUsers[idx] = {
-        userId: exist.userId,
-        userName: body.userName ?? exist.userName,
-        nickName: body.nickName ?? exist.nickName,
-        email: body.email ?? exist.email,
-        phone: body.phone ?? exist.phone,
-        sex: body.sex ?? exist.sex,
-        avatar: body.avatar ?? exist.avatar,
-        deptId: body.deptId ?? exist.deptId,
-        status: body.status ?? exist.status,
-        remark: body.remark ?? exist.remark,
-        loginIp: exist.loginIp,
-        loginDate: exist.loginDate,
-        created_at: exist.created_at,
-        updated_at: now,
-      };
-
-      return this.success(res, mockUsers[idx], '更新成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    if (currentUserId) {
+      admin = mockUsers.find((u) => u.userId === currentUserId);
     }
+    if (!admin) {
+      admin = mockUsers.find((u) => u.userName === 'admin') ?? mockUsers[0];
+    }
+    if (!admin) {
+      return this.notFound(res, '当前用户不存在');
+    }
+
+    const idx = mockUsers.findIndex((u) => u.userId === admin!.userId);
+    if (idx === -1) {
+      return this.notFound(res, '当前用户不存在');
+    }
+    const exist = mockUsers[idx]!;
+
+    const body = req.body as Record<string, unknown>;
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const updated: User = {
+      userId: exist.userId,
+      userName: exist.userName,
+      nickName: exist.nickName,
+      email: exist.email,
+      phone: exist.phone,
+      sex: exist.sex,
+      avatar: exist.avatar,
+      deptId: exist.deptId,
+      status: exist.status,
+      remark: exist.remark,
+      loginIp: exist.loginIp,
+      loginDate: exist.loginDate,
+      created_at: exist.created_at,
+      updated_at: now,
+    };
+
+    if (body.userName !== undefined) {
+      const v = String(body.userName).trim();
+      if (!isValidStringLength(v, 2, 50)) {
+        return this.badRequest(res, 'userName 长度需在 2-50 字符之间');
+      }
+      updated.userName = v;
+    }
+    if (body.nickName !== undefined) {
+      const v = String(body.nickName).trim();
+      if (!isValidStringLength(v, 2, 50)) {
+        return this.badRequest(res, 'nickName 长度需在 2-50 字符之间');
+      }
+      updated.nickName = v;
+    }
+    if (body.email !== undefined) {
+      const v = String(body.email);
+      if (v && !isValidEmail(v)) return this.badRequest(res, '邮箱格式错误');
+      updated.email = v;
+    }
+    if (body.phone !== undefined) {
+      const v = String(body.phone);
+      if (v && !isValidPhone(v)) return this.badRequest(res, '手机号格式错误');
+      updated.phone = v;
+    }
+    if (body.sex !== undefined) {
+      const v = String(body.sex);
+      if (v === '0' || v === '1' || v === '2') updated.sex = v as UserSex;
+    }
+    if (body.avatar !== undefined) updated.avatar = String(body.avatar);
+    if (body.deptId !== undefined) updated.deptId = String(body.deptId);
+    if (body.remark !== undefined) updated.remark = String(body.remark);
+
+    mockUsers[idx] = updated;
+    return this.success(res, this.sanitizeUser(updated, true), '更新成功');
   }
 }
 

@@ -3,8 +3,8 @@
 # ========================================
 # 说明：
 #   - 仅启动 PostgreSQL 和 Redis 基础设施容器
-#   - 后端应用不在容器内运行，而是在宿主机通过 pnpm dev 启动（便于热更新调试）
-#   - 开发环境使用与生产一致的数据库/缓存配置，避免 "在我机器上能跑" 的问题
+#   - 后端应用不在容器内运行，而是在宿主机通过 pnpm dev 启动
+#   - 敏感信息（密码、密钥）从 .env 读取，不在此文件硬编码
 #
 # 使用方式：
 #   docker compose -f docker-compose.dev.yml up -d      # 启动数据库和缓存
@@ -33,11 +33,11 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: yunshu
-      POSTGRES_PASSWORD: yunshu123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 必须在 .env 中配置}
       POSTGRES_DB: yunshu
       TZ: Asia/Shanghai
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d
@@ -60,13 +60,19 @@ services:
     command:
       - "redis-server"
       - "/usr/local/etc/redis/redis.conf"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:?REDIS_PASSWORD 必须在 .env 中配置}"
+      - "--appendonly"
+      - "yes"
+    environment:
+      TZ: Asia/Shanghai
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis-data:/data
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "yunshu123", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -99,12 +105,12 @@ services:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: yunshu
-      POSTGRES_PASSWORD: yunshu123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: yunshu
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: yunshu123
-      JWT_SECRET: dev-secret-change-me
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET 必须在 .env 中配置}
       JWT_EXPIRES_IN: 7d
     volumes:
       # 挂载整个项目源码到容器，本地修改容器内自动生效
@@ -114,7 +120,7 @@ services:
       - /app/packages/server-express/node_modules
       - /app/packages/server-core/node_modules
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     # 安装 pnpm 并启动开发模式（tsup watch）
     command: sh -c "npm install -g pnpm@9.0.0 && pnpm install --frozen-lockfile && pnpm --filter @yunshu/server-express dev"
     networks:

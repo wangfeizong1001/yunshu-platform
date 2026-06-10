@@ -181,10 +181,20 @@ export {
   signToken,
   verifyToken,
   decodeToken,
+  decodeTokenUnsafe,
   generateSecureSecret,
   hashPassword,
   comparePassword,
   extractBearerToken,
 } from './utils/jwt';
 
-export type { JWTPayload, SignOptions } from './utils/jwt';
+export type { JWTPayload, SignOptions, VerifyOptions } from './utils/jwt';
+
+// ============================================================================
+// 日志与安全工具
+// ============================================================================
+
+export { logger, setLogLevel } from './utils/logger';
+export type { LogLevel, LogContext } from './utils/logger';
+
+export { safeJsonParse, safeJsonStringify } from './utils/safeJson';

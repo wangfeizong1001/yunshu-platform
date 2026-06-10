@@ -14,6 +14,10 @@ import {
   normalizePagination,
 } from '@yunshu/shared';
 
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const MAX_FIELD_LENGTH = 500;
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -55,56 +59,52 @@ const logininfors: SysLogininfor[] = [
 export class LogininforController extends BaseController {
   /**
    * 登录日志分页查询
-   *
-   * @param req - 请求对象，query 支持 userName、ipaddr、status 过滤
    */
   async list(req: Request, res: Response) {
-    try {
-      const { page, limit } = normalizePagination(req.query);
-      const { userName, ipaddr, status } = req.query;
+    const { page, limit } = normalizePagination(req.query);
+    const userNameParam = this.safeParam(req.query.userName, MAX_QUERY_PARAM_LENGTH);
+    const ipaddrParam = this.safeParam(req.query.ipaddr, MAX_QUERY_PARAM_LENGTH);
+    const statusParam = this.safeParam(req.query.status, 1);
 
-      let filtered = [...logininfors];
-      if (userName) filtered = filtered.filter(i => i.userName.includes(String(userName)));
-      if (ipaddr) filtered = filtered.filter(i => i.ipaddr.includes(String(ipaddr)));
-      if (status) filtered = filtered.filter(i => i.status === status);
+    let filtered = [...logininfors];
+    if (userNameParam) filtered = filtered.filter(i => i.userName.includes(userNameParam));
+    if (ipaddrParam) filtered = filtered.filter(i => i.ipaddr.includes(ipaddrParam));
+    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
 
-      filtered.sort((a, b) => b.loginTime.localeCompare(a.loginTime));
-      const total = filtered.length;
-      const start = (page - 1) * limit;
-      const data = filtered.slice(start, start + limit);
+    filtered.sort((a, b) => b.loginTime.localeCompare(a.loginTime));
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const data = filtered.slice(start, start + limit);
 
-      return this.paginate(res, createPaginatedResult(data, page, limit, total), '查询成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    return this.paginate(res, createPaginatedResult(data, page, limit, total), '查询成功');
   }
 
   /**
    * 删除登录日志
    */
   async remove(req: Request, res: Response) {
-    try {
-      const infoId = Number(req.params.infoId);
-      const idx = logininfors.findIndex(i => i.infoId === infoId);
-      if (idx === -1) return this.notFound(res, '登录日志不存在');
-      const removed = logininfors.splice(idx, 1)[0];
-      return this.success(res, removed, '删除成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
+
+    const infoId = Number(req.params.infoId);
+    if (!Number.isFinite(infoId)) return this.badRequest(res, 'infoId 参数非法');
+
+    const idx = logininfors.findIndex(i => i.infoId === infoId);
+    if (idx === -1) return this.notFound(res, '登录日志不存在');
+    const removed = logininfors.splice(idx, 1)[0];
+    return this.success(res, removed, '删除成功');
   }
 
   /**
    * 清空登录日志
    */
   async clean(req: Request, res: Response) {
-    try {
-      const count = logininfors.length;
-      logininfors.length = 0;
-      return this.success(res, { cleaned: count }, `日志清空成功，共清除 ${count} 条`);
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
+
+    const count = logininfors.length;
+    logininfors.length = 0;
+    return this.success(res, { cleaned: count }, `日志清空成功，共清除 ${count} 条`);
   }
 }
 

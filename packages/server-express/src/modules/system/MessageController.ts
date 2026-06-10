@@ -13,6 +13,11 @@ import {
   normalizePagination,
 } from '@yunshu/shared';
 
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const MAX_FIELD_LENGTH = 500;
+const MAX_CONTENT_LENGTH = 5000;
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -44,6 +49,18 @@ const messages: SysMessage[] = [
 ];
 
 // ============================================================================
+// 校验工具
+// ============================================================================
+
+function isValidTitle(title: unknown): title is string {
+  return typeof title === 'string' && title.trim().length >= 1 && title.length <= 100;
+}
+
+function isValidMessageType(t: unknown): t is 'system' | 'notice' | 'warn' {
+  return t === 'system' || t === 'notice' || t === 'warn';
+}
+
+// ============================================================================
 // MessageController
 // ============================================================================
 
@@ -53,116 +70,111 @@ const messages: SysMessage[] = [
 export class MessageController extends BaseController {
   /**
    * 消息分页查询
-   *
-   * @param req - 请求对象，query 支持 status、type、receiver 过滤
    */
   async list(req: Request, res: Response) {
-    try {
-      const { page, limit } = normalizePagination(req.query);
-      const { status, type, receiver } = req.query;
+    const { page, limit } = normalizePagination(req.query);
+    const statusParam = this.safeParam(req.query.status, 1);
+    const typeParam = this.safeParam(req.query.type, MAX_QUERY_PARAM_LENGTH);
+    const receiverParam = this.safeParam(req.query.receiver, MAX_QUERY_PARAM_LENGTH);
 
-      let filtered = [...messages];
-      if (status) filtered = filtered.filter(i => i.status === status);
-      if (type) filtered = filtered.filter(i => i.type === type);
-      if (receiver) filtered = filtered.filter(i => i.receiver.includes(String(receiver)));
+    let filtered = [...messages];
+    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
+    if (typeParam) filtered = filtered.filter(i => i.type === typeParam);
+    if (receiverParam) filtered = filtered.filter(i => i.receiver.includes(receiverParam));
 
-      filtered.sort((a, b) => b.created_at.localeCompare(a.created_at));
-      const total = filtered.length;
-      const start = (page - 1) * limit;
-      const data = filtered.slice(start, start + limit);
+    filtered.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const data = filtered.slice(start, start + limit);
 
-      const unreadCount = messages.filter(i => i.status === '0').length;
-
-      return this.paginate(
-        res,
-        createPaginatedResult(data, page, limit, total),
-        `查询成功（未读 ${unreadCount} 条）`,
-      );
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    return this.paginate(
+      res,
+      createPaginatedResult(data, page, limit, total),
+      '查询成功',
+    );
   }
 
   /**
    * 消息详情
    */
   async getById(req: Request, res: Response) {
-    try {
-      const messageId = Number(req.params.messageId);
-      const item = messages.find(i => i.messageId === messageId);
-      if (!item) return this.notFound(res, '消息不存在');
-      return this.success(res, item, '查询成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const messageId = Number(req.params.messageId);
+    if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
+    const item = messages.find(i => i.messageId === messageId);
+    if (!item) return this.notFound(res, '消息不存在');
+    return this.success(res, item, '查询成功');
   }
 
   /**
    * 创建消息
    */
   async create(req: Request, res: Response) {
-    try {
-      const {
-        title,
-        content = '',
-        type = 'notice',
-        receiver,
-        sender = 'system',
-      } = req.body;
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-      if (!title || !receiver) {
-        return this.badRequest(res, '消息标题和接收人不能为空');
-      }
+    const body = req.body as Partial<SysMessage>;
+    if (!isValidTitle(body.title)) return this.badRequest(res, 'title 长度 1-100');
 
-      const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
-      const item: SysMessage = {
-        messageId: ++messageIdSeed,
-        title,
-        content,
-        type,
-        receiver,
-        sender,
-        status: '0',
-        created_at: now,
-      };
-      messages.push(item);
-      return this.success(res, item, '创建成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const type = body.type ?? 'notice';
+    if (!isValidMessageType(type)) return this.badRequest(res, 'type 必须是 system/notice/warn');
+
+    const receiver = typeof body.receiver === 'string'
+      ? body.receiver.slice(0, 64)
+      : '';
+    if (receiver.trim().length === 0) return this.badRequest(res, 'receiver 必填');
+
+    const sender = typeof body.sender === 'string'
+      ? body.sender.slice(0, 64)
+      : 'system';
+
+    const content = typeof body.content === 'string'
+      ? body.content.slice(0, MAX_CONTENT_LENGTH)
+      : '';
+
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const item: SysMessage = {
+      messageId: ++messageIdSeed,
+      title: body.title,
+      content,
+      type,
+      receiver,
+      sender,
+      status: '0',
+      created_at: now,
+    };
+    messages.push(item);
+    return this.success(res, item, '创建成功');
   }
 
   /**
    * 标记消息为已读
-   *
-   * @param req - body: { messageId }
    */
   async read(req: Request, res: Response) {
-    try {
-      const { messageId } = req.body;
-      const item = messages.find(i => i.messageId === Number(messageId));
-      if (!item) return this.notFound(res, '消息不存在');
+    const body = req.body as { messageId?: unknown };
+    const messageId = Number(body.messageId);
+    if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
 
-      item.status = '1';
-      return this.success(res, item, '标记已读成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const item = messages.find(i => i.messageId === messageId);
+    if (!item) return this.notFound(res, '消息不存在');
+
+    item.status = '1';
+    return this.success(res, item, '标记已读成功');
   }
 
   /**
    * 删除消息
    */
   async remove(req: Request, res: Response) {
-    try {
-      const messageId = Number(req.params.messageId);
-      const idx = messages.findIndex(i => i.messageId === messageId);
-      if (idx === -1) return this.notFound(res, '消息不存在');
-      const removed = messages.splice(idx, 1)[0];
-      return this.success(res, removed, '删除成功');
-    } catch (e) {
-      return this.error(res, e as Error);
-    }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
+
+    const messageId = Number(req.params.messageId);
+    if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
+
+    const idx = messages.findIndex(i => i.messageId === messageId);
+    if (idx === -1) return this.notFound(res, '消息不存在');
+    const removed = messages.splice(idx, 1)[0];
+    return this.success(res, removed, '删除成功');
   }
 }
 

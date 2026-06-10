@@ -6,6 +6,7 @@
  * @module @yunshu/server-express/app
  */
 
+import crypto from 'node:crypto';
 import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
 import {
@@ -41,6 +42,13 @@ export function createApp(options: {
   // --------------------------------------------------------------------------
   app.set('trust proxy', trustProxy);
   app.use(cors({ origin: corsOrigin, credentials: true }));
+
+  // 请求 ID：为每个请求分配唯一 requestId，用于日志追踪与问题定位
+  app.use((req: Request, _res: Response, next) => {
+    (req as any).requestId = crypto.randomUUID();
+    next();
+  });
+
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -57,12 +65,13 @@ export function createApp(options: {
   // --------------------------------------------------------------------------
   // 健康检查
   // --------------------------------------------------------------------------
-  app.get(`${apiPrefix}/health`, (_req: Request, res: Response) => {
+  app.get(`${apiPrefix}/health`, (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       status: 'UP',
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? '1.0.0',
+      requestId: (req as any).requestId,
     });
   });
 

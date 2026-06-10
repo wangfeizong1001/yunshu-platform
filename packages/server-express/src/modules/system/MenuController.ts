@@ -10,6 +10,10 @@
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
 
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const MAX_FIELD_LENGTH = 500;
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -216,6 +220,30 @@ let mockMenus: Menu[] = [
 ];
 
 // ============================================================================
+// 私有校验工具
+// ============================================================================
+
+function isValidMenuName(name: unknown): name is string {
+  return typeof name === 'string' && name.trim().length >= 1 && name.length <= 50;
+}
+
+function isValidMenuType(t: unknown): t is MenuType {
+  return t === 'M' || t === 'C' || t === 'F';
+}
+
+function isValidBinary(v: unknown): v is '0' | '1' {
+  return v === '0' || v === '1';
+}
+
+function isValidOrderNum(n: unknown): n is number {
+  return typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 9999;
+}
+
+function isSystemMenu(menu: Menu): boolean {
+  return menu.menuType === 'M' && menu.menuName.includes('系统');
+}
+
+// ============================================================================
 // 控制器实现
 // ============================================================================
 
@@ -227,174 +255,197 @@ let mockMenus: Menu[] = [
 export class MenuController extends BaseController {
   /**
    * 菜单列表查询（全量不分页）
-   *
-   * 支持按 menuName（模糊匹配）、status 过滤，按 orderNum 排序。
    */
   async list(req: Request, res: Response) {
-    try {
-      const query = req.query as unknown as MenuQueryParams;
+    const query = req.query as unknown as MenuQueryParams;
 
-      const filtered = mockMenus.filter((m) => {
-        if (query.menuName && !m.menuName.includes(query.menuName)) {
-          return false;
-        }
-        if (query.status && m.status !== query.status) {
-          return false;
-        }
-        return true;
-      });
+    const menuNameParam = this.safeParam(query.menuName, MAX_QUERY_PARAM_LENGTH);
+    const statusParam = this.safeParam(query.status, 1);
 
-      filtered.sort((a, b) => a.orderNum - b.orderNum);
-      return this.success(res, filtered, '查询成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const filtered = mockMenus.filter((m) => {
+      if (menuNameParam && !m.menuName.includes(menuNameParam)) return false;
+      if (statusParam && m.status !== statusParam) return false;
+      return true;
+    });
+
+    filtered.sort((a, b) => a.orderNum - b.orderNum);
+    return this.success(res, filtered, '查询成功');
   }
 
   /**
    * 获取菜单树形结构
-   *
-   * parentId 为 NULL/空 的节点为根节点，递归组合 children。
    */
   async getTree(req: Request, res: Response) {
-    try {
-      const tree = this.buildTree(mockMenus);
-      return this.success(res, tree, '查询成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const tree = this.buildTree(mockMenus);
+    return this.success(res, tree, '查询成功');
   }
 
   /**
    * 根据 menuId 获取菜单详情
    */
   async getById(req: Request, res: Response) {
-    try {
-      const { menuId } = req.params;
-      const menu = mockMenus.find((m) => m.menuId === menuId);
-      if (!menu) {
-        return this.notFound(res, '菜单不存在');
-      }
-      return this.success(res, menu, '获取成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const { menuId } = req.params;
+    const safeId = this.safeParam(menuId, MAX_FIELD_LENGTH);
+    if (!safeId) return this.badRequest(res, 'menuId 参数非法');
+
+    const menu = mockMenus.find((m) => m.menuId === safeId);
+    if (!menu) return this.notFound(res, '菜单不存在');
+    return this.success(res, menu, '获取成功');
   }
 
   /**
    * 创建菜单
    */
   async create(req: Request, res: Response) {
-    try {
-      const body = req.body as MenuCreateBody;
-      if (!body.menuName) {
-        return this.badRequest(res, 'menuName 必填');
-      }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-      const menuId = `m-${Date.now()}`;
-      const newMenu: Menu = {
-        menuId,
-        menuName: body.menuName,
-        parentId: body.parentId ?? null,
-        orderNum: body.orderNum ?? 0,
-        path: body.path ?? '',
-        component: body.component ?? '',
-        query: body.query ?? '',
-        isFrame: body.isFrame ?? '0',
-        isCache: body.isCache ?? '0',
-        menuType: body.menuType ?? 'C',
-        visible: body.visible ?? '0',
-        status: body.status ?? '0',
-        perms: body.perms ?? '',
-        icon: body.icon ?? '#',
-      };
+    const body = req.body as MenuCreateBody;
+    if (!isValidMenuName(body.menuName)) return this.badRequest(res, 'menuName 长度 1-50');
 
-      mockMenus.push(newMenu);
-      return this.created(res, newMenu, '创建成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const menuType = body.menuType ?? 'C';
+    if (!isValidMenuType(menuType)) return this.badRequest(res, 'menuType 必须是 M/C/F');
+
+    const orderNum = body.orderNum ?? 0;
+    if (!isValidOrderNum(orderNum)) return this.badRequest(res, 'orderNum 必须是 0-9999 的数字');
+
+    const visible = body.visible ?? '0';
+    if (!isValidBinary(visible)) return this.badRequest(res, 'visible 必须是 0 或 1');
+    const status = body.status ?? '0';
+    if (!isValidBinary(status)) return this.badRequest(res, 'status 必须是 0 或 1');
+    const isFrame = body.isFrame ?? '0';
+    if (!isValidBinary(isFrame)) return this.badRequest(res, 'isFrame 必须是 0 或 1');
+    const isCache = body.isCache ?? '0';
+    if (!isValidBinary(isCache)) return this.badRequest(res, 'isCache 必须是 0 或 1');
+
+    const path = typeof body.path === 'string' ? body.path.slice(0, 200) : '';
+    const component = typeof body.component === 'string' ? body.component.slice(0, 200) : '';
+    const query = typeof body.query === 'string' ? body.query.slice(0, 200) : '';
+    const perms = typeof body.perms === 'string' ? body.perms.slice(0, 200) : '';
+    const icon = typeof body.icon === 'string' ? body.icon.slice(0, 100) : '#';
+
+    const parentId = body.parentId !== undefined
+      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
+      : null;
+
+    const menuId = `m-${Date.now()}`;
+    const newMenu: Menu = {
+      menuId,
+      menuName: body.menuName,
+      parentId,
+      orderNum,
+      path,
+      component,
+      query,
+      isFrame,
+      isCache,
+      menuType,
+      visible,
+      status,
+      perms,
+      icon,
+    };
+
+    mockMenus.push(newMenu);
+    return this.created(res, newMenu, '创建成功');
   }
 
   /**
    * 更新菜单
    */
   async update(req: Request, res: Response) {
-    try {
-      const body = req.body as MenuUpdateBody;
-      if (!body.menuId) {
-        return this.badRequest(res, 'menuId 必填');
-      }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-      const idx = mockMenus.findIndex((m) => m.menuId === body.menuId);
-      if (idx === -1) {
-        return this.notFound(res, '菜单不存在');
-      }
+    const body = req.body as MenuUpdateBody;
+    const safeId = this.safeParam(body.menuId, MAX_FIELD_LENGTH);
+    if (!safeId) return this.badRequest(res, 'menuId 必填');
 
-      const exist = mockMenus[idx];
-      if (!exist) return this.notFound(res, '菜单不存在');
-      mockMenus[idx] = {
-        menuId: exist.menuId,
-        menuName: body.menuName,
-        parentId: body.parentId !== undefined ? body.parentId : exist.parentId,
-        orderNum: body.orderNum ?? exist.orderNum,
-        path: body.path ?? exist.path,
-        component: body.component ?? exist.component,
-        query: body.query ?? exist.query,
-        isFrame: body.isFrame ?? exist.isFrame,
-        isCache: body.isCache ?? exist.isCache,
-        menuType: body.menuType ?? exist.menuType,
-        visible: body.visible ?? exist.visible,
-        status: body.status ?? exist.status,
-        perms: body.perms ?? exist.perms,
-        icon: body.icon ?? exist.icon,
-      };
+    const exist = mockMenus.find((m) => m.menuId === safeId);
+    if (!exist) return this.notFound(res, '菜单不存在');
+    const idx = mockMenus.indexOf(exist);
 
-      return this.success(res, mockMenus[idx], '更新成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    if (!isValidMenuName(body.menuName)) return this.badRequest(res, 'menuName 长度 1-50');
+
+    const menuType = body.menuType ?? exist.menuType;
+    if (!isValidMenuType(menuType)) return this.badRequest(res, 'menuType 必须是 M/C/F');
+
+    const orderNum = body.orderNum ?? exist.orderNum;
+    if (!isValidOrderNum(orderNum)) return this.badRequest(res, 'orderNum 必须是 0-9999 的数字');
+
+    const visible = body.visible ?? exist.visible;
+    if (!isValidBinary(visible)) return this.badRequest(res, 'visible 必须是 0 或 1');
+    const status = body.status ?? exist.status;
+    if (!isValidBinary(status)) return this.badRequest(res, 'status 必须是 0 或 1');
+    const isFrame = body.isFrame ?? exist.isFrame;
+    if (!isValidBinary(isFrame)) return this.badRequest(res, 'isFrame 必须是 0 或 1');
+    const isCache = body.isCache ?? exist.isCache;
+    if (!isValidBinary(isCache)) return this.badRequest(res, 'isCache 必须是 0 或 1');
+
+    const path = typeof body.path === 'string' ? body.path.slice(0, 200) : exist.path;
+    const component = typeof body.component === 'string' ? body.component.slice(0, 200) : exist.component;
+    const query = typeof body.query === 'string' ? body.query.slice(0, 200) : exist.query;
+    const perms = typeof body.perms === 'string' ? body.perms.slice(0, 200) : exist.perms;
+    const icon = typeof body.icon === 'string' ? body.icon.slice(0, 100) : exist.icon;
+    const parentId = body.parentId !== undefined
+      ? (body.parentId === null || body.parentId === '' ? null : String(body.parentId).slice(0, MAX_FIELD_LENGTH))
+      : exist.parentId;
+
+    mockMenus[idx] = {
+      menuId: exist.menuId,
+      menuName: body.menuName,
+      parentId,
+      orderNum,
+      path,
+      component,
+      query,
+      isFrame,
+      isCache,
+      menuType,
+      visible,
+      status,
+      perms,
+      icon,
+    };
+
+    return this.success(res, mockMenus[idx], '更新成功');
   }
 
   /**
    * 删除菜单
    */
   async remove(req: Request, res: Response) {
-    try {
-      const { menuId } = req.params;
-      const idx = mockMenus.findIndex((m) => m.menuId === menuId);
-      if (idx === -1) {
-        return this.notFound(res, '菜单不存在');
-      }
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-      mockMenus.splice(idx, 1);
-      return this.success(res, { menuId }, '删除成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
+    const { menuId } = req.params;
+    const safeId = this.safeParam(menuId, MAX_FIELD_LENGTH);
+    if (!safeId) return this.badRequest(res, 'menuId 参数非法');
+
+    const target = mockMenus.find((m) => m.menuId === safeId);
+    if (!target) return this.notFound(res, '菜单不存在');
+    const idx = mockMenus.indexOf(target);
+
+    if (isSystemMenu(target)) {
+      return this.forbidden(res, '系统内置菜单不允许删除');
     }
+
+    mockMenus.splice(idx, 1);
+    return this.success(res, { menuId: safeId }, '删除成功');
   }
 
   /**
    * 按用户获取菜单树
-   *
-   * 简化实现：与 getTree 返回相同的树形结构。
    */
   async getTreeByUserId(req: Request, res: Response) {
-    try {
-      const tree = this.buildTree(mockMenus);
-      return this.success(res, tree, '查询成功');
-    } catch (err) {
-      return this.error(res, err as Error, 500);
-    }
+    const tree = this.buildTree(mockMenus);
+    return this.success(res, tree, '查询成功');
   }
 
   // ========================================================================
   // 私有工具方法
   // ========================================================================
 
-  /**
-   * 将扁平菜单列表转换为树形结构
-   */
   private buildTree(list: Menu[]): MenuTreeNode[] {
     const map = new Map<string, MenuTreeNode>();
     const roots: MenuTreeNode[] = [];
@@ -415,9 +466,7 @@ export class MenuController extends BaseController {
     const sortRecursive = (nodes: MenuTreeNode[]) => {
       nodes.sort((a, b) => a.orderNum - b.orderNum);
       for (const n of nodes) {
-        if (n.children.length > 0) {
-          sortRecursive(n.children);
-        }
+        if (n.children.length > 0) sortRecursive(n.children);
       }
     };
     sortRecursive(roots);
