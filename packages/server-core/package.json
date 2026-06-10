@@ -1,8 +1,8 @@
 {
   "name": "@yunshu/server-core",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "private": false,
-  "description": "云枢中台 — 后端核心基础设施，基于 PostgreSQL + Redis 构建，提供完整的数据访问、缓存、分布式锁能力",
+  "description": "云枢中台 — 后端核心基础设施，框架无关的 Service 层，基于 PostgreSQL 构建",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -36,7 +36,6 @@
     "vitest": "^1.0.0"
   },
   "peerDependenciesMeta": {
-    "pg": { "optional": false },
     "ioredis": { "optional": true }
   }
 }

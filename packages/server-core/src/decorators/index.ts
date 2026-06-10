@@ -197,6 +197,7 @@ export function withLog<TArgs extends unknown[], TResult>(
   const {
     module = 'service',
     logArgs = true,
+    logResult = false,
     logDuration = true,
     sensitiveFields = DEFAULT_SENSITIVE_FIELDS,
   } = options;

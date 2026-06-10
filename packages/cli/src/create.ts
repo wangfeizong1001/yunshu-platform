@@ -11,7 +11,7 @@
 
 // 此文件由 tsup 构建为 dist/create.js，作为 create-yunshu 命令的入口
 // 实际逻辑复用 createCommand
-import { createCommand } from './commands/create'
+import { createCommand } from './commands/create';
 
-const cmd = createCommand()
-cmd.parse(['create', ...process.argv.slice(2)])
+const cmd = createCommand();
+cmd.parse(['create', ...process.argv.slice(2)]);

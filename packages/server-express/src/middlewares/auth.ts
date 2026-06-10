@@ -101,7 +101,7 @@ export function createAuthMiddleware(
       // 注入用户信息
       req.user = user;
       req.token = token;
-      next();
+      return next();
     } catch (error) {
       return res.status(500).json({
         success: false,
@@ -166,11 +166,113 @@ export function createRoleMiddleware(allowedRoles: string[]) {
       });
     }
 
-    next();
+    return next();
   };
 }
 
 /** 管理员中间件（快捷方式） */
 export function requireAdmin() {
   return createRoleMiddleware(['admin', 'super_admin']);
+}
+
+// ============================================================================
+// 简化认证（Mock 环境专用）
+// ============================================================================
+
+/** 简化的会话用户类型 */
+export interface MockUser {
+  userId: string;
+  userName: string;
+  role: 'admin' | 'user' | 'super_admin';
+}
+
+/**
+ * 模拟的会话状态（单例），供测试和开发注入登录用户。
+ *
+ * @example
+ * ```ts
+ * authSession.register('test-token', { userId: '1', userName: 'admin', role: 'admin' });
+ * // 之后携带 Authorization: Bearer test-token 访问
+ * ```
+ */
+class AuthSession {
+  private users: Map<string, MockUser> = new Map();
+  private currentUser: MockUser | null = null;
+
+  /** 注册一个 token -> user 映射 */
+  register(token: string, user: MockUser) { this.users.set(token, user); }
+
+  /** 手动设置当前用户（用于直接注入测试场景） */
+  setCurrent(user: MockUser | null) { this.currentUser = user; }
+
+  /** 通过 token 查找用户 */
+  findByToken(token: string): MockUser | null { return this.users.get(token) ?? null; }
+
+  /** 清空会话 */
+  clear() { this.users.clear(); this.currentUser = null; }
+}
+
+export const authSession = new AuthSession();
+
+/**
+ * 简化认证中间件（Mock 环境）。
+ *
+ * - 检查 `Authorization: Bearer <token>` 或 `x-auth-token` header
+ * - 通过 `authSession` 查找用户；测试可调用 `authSession.register(...)` 注入
+ * - `role` 可选，配置后检查 `req.user.role`
+ */
+export function requireAuth(options: { role?: 'admin' | 'user' | 'super_admin' } = {}) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.slice(7)
+      : (req.headers['x-auth-token'] as string) || null;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: '请先登录',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const user = authSession.findByToken(token);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: '令牌无效或已过期',
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // 检查角色
+    if (options.role) {
+      if (options.role === 'admin' && user.role !== 'admin' && user.role !== 'super_admin') {
+        return res.status(403).json({ success: false, message: '需要管理员权限', timestamp: new Date().toISOString() });
+      }
+      if (options.role === 'super_admin' && user.role !== 'super_admin') {
+        return res.status(403).json({ success: false, message: '需要超级管理员权限', timestamp: new Date().toISOString() });
+      }
+      // 'user' 角色仅要求已登录（前面已通过 token 校验保证 user 存在）
+      if (options.role === 'user' && !user) {
+        return res.status(403).json({ success: false, message: '无权限', timestamp: new Date().toISOString() });
+      }
+    }
+
+    (req as any).user = user;
+    return next();
+  };
+}
+
+/** 可选认证中间件（有 token 则挂 user，没有也不阻止） */
+export function optionalAuth() {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    const token = req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.slice(7)
+      : (req.headers['x-auth-token'] as string) || null;
+    if (token) {
+      const user = authSession.findByToken(token);
+      if (user) (req as any).user = user;
+    }
+    return next();
+  };
 }

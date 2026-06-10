@@ -35,7 +35,7 @@ throw new BusinessError(ErrorCode.NOT_FOUND, '用户不存在');
 `globalErrorHandler()` 自动处理所有错误类型：
 
 - ✅ BusinessError → 对应 HTTP 状态码
-- ✅ PostgreSQL 错误（23505/23503/23502/22P02/Validation）
+- ✅ MongoDB 错误（E11000/Validation/Cast）
 - ✅ JWT 错误（过期/无效）
 - ✅ 文件上传错误（Multer）
 - ✅ 未知错误 → 500（生产环境脱敏）

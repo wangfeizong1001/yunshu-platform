@@ -1,0 +1,127 @@
+# ========================================
+# 云枢中台 — Docker Compose 开发环境配置
+# ========================================
+# 说明：
+#   - 仅启动 PostgreSQL 和 Redis 基础设施容器
+#   - 后端应用不在容器内运行，而是在宿主机通过 pnpm dev 启动
+#   - 敏感信息（密码、密钥）从 .env 读取，不在此文件硬编码
+#
+# 使用方式：
+#   docker compose -f docker-compose.dev.yml up -d      # 启动数据库和缓存
+#   pnpm --filter @yunshu/server-express dev            # 另开终端，启动后端开发服务
+#   docker compose -f docker-compose.dev.yml down       # 停止并清理基础设施容器
+# ========================================
+
+networks:
+  yunshu-network:
+    driver: bridge
+    name: yunshu-dev-network
+
+volumes:
+  postgres-data:
+    name: yunshu-dev-postgres-data
+  redis-data:
+    name: yunshu-dev-redis-data
+
+services:
+  # ========================================
+  # PostgreSQL（开发环境）
+  # ========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: yunshu-dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: yunshu
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 必须在 .env 中配置}
+      POSTGRES_DB: yunshu
+      TZ: Asia/Shanghai
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yunshu -d yunshu"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - yunshu-network
+
+  # ========================================
+  # Redis（开发环境）
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: yunshu-dev-redis
+    restart: unless-stopped
+    command:
+      - "redis-server"
+      - "/usr/local/etc/redis/redis.conf"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:?REDIS_PASSWORD 必须在 .env 中配置}"
+      - "--appendonly"
+      - "yes"
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - yunshu-network
+
+  # ========================================
+  # 后端应用（开发模式 - 容器内运行，可选）
+  # 默认不自动启动，如需在容器内开发调试可执行：
+  #   docker compose -f docker-compose.dev.yml up backend
+  # ========================================
+  backend:
+    # 直接使用 node 镜像，不使用多阶段构建
+    image: node:20-alpine
+    container_name: yunshu-dev-backend
+    # 默认不自动启动（基础设施先行），手动启动时加 --profile dev 或显式指定服务
+    profiles:
+      - dev
+    working_dir: /app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 3000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: yunshu
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: yunshu
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET 必须在 .env 中配置}
+      JWT_EXPIRES_IN: 7d
+    volumes:
+      # 挂载整个项目源码到容器，本地修改容器内自动生效
+      - .:/app
+      # 排除宿主机 node_modules，避免跨平台二进制兼容问题
+      - /app/node_modules
+      - /app/packages/server-express/node_modules
+      - /app/packages/server-core/node_modules
+    ports:
+      - "127.0.0.1:3000:3000"
+    # 安装 pnpm 并启动开发模式（tsup watch）
+    command: sh -c "npm install -g pnpm@9.0.0 && pnpm install --frozen-lockfile && pnpm --filter @yunshu/server-express dev"
+    networks:
+      - yunshu-network

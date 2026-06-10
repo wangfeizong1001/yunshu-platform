@@ -1,41 +1,75 @@
-FROM node:20-alpine AS base
+# ========================================
+# Stage 1: Builder - 构建阶段
+# 负责安装依赖并编译 TypeScript 源码
+# ========================================
+FROM node:20-alpine AS builder
 
+# 设置工作目录
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+# 安装 pnpm 包管理器（版本与 package.json 中 packageManager 对齐）
+RUN npm install -g pnpm@9.0.0
 
-FROM base AS builder
+# 复制 monorepo 配置文件（用于 pnpm workspace）
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY tsconfig.base.json ./
+COPY turbo.json ./
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY packages/server-core/package.json ./packages/server-core/
-COPY packages/server-express/package.json ./packages/server-express/
-COPY packages/api-client/package.json ./packages/api-client/
-COPY packages/shared/package.json ./packages/shared/
+# 复制所有 packages 源码（包含 server-express 及其依赖）
+COPY packages ./packages
+COPY apps ./apps
+COPY tools ./tools
 
+# 安装所有依赖（使用 frozen-lockfile 保证版本一致）
 RUN pnpm install --frozen-lockfile
 
-COPY . .
+# 构建所有包（使用 turbo 的缓存能力，按依赖顺序构建）
+RUN pnpm build
 
-RUN pnpm build --filter=@yunshu/server-express
+# 构建后清理：删除 pnpm 缓存与 node_modules 中间产物，减小镜像层体积
+RUN rm -rf node_modules/.cache packages/*/node_modules/.cache apps/*/node_modules/.cache \
+    && pnpm store prune || true
 
-FROM base AS runner
+# ========================================
+# Stage 2: Runner - 运行阶段
+# 仅保留构建产物和运行所需依赖，最小化镜像体积
+# ========================================
+FROM node:20-alpine AS runner
 
+# 设置工作目录
+WORKDIR /app
+
+# 设置环境变量（生产环境）
 ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=3000
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/packages/server-core/package.json ./packages/server-core/
-COPY --from=builder /app/packages/server-core/dist ./packages/server-core/dist
-COPY --from=builder /app/packages/server-express/package.json ./packages/server-express/
-COPY --from=builder /app/packages/server-express/dist ./packages/server-express/dist
-COPY --from=builder /app/packages/api-client/package.json ./packages/api-client/
-COPY --from=builder /app/packages/api-client/dist ./packages/api-client/dist
-COPY --from=builder /app/packages/shared/package.json ./packages/shared/
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+# 创建非 root 用户（提升安全性，避免以 root 运行应用）
+RUN addgroup -g 1001 -S nodejs \
+    && adduser -S yunshu -u 1001
 
-EXPOSE 8080
+# 安装 wget 用于健康检查
+RUN apk add --no-cache wget
 
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget --quiet --tries=1 --spider http://localhost:8080/health || exit 1
+# 从 builder 阶段复制整个构建后的工作区（保留 pnpm workspace 结构以便依赖解析）
+COPY --from=builder /app /app
 
+# 仅保留生产依赖，移除 devDependencies 减小体积
+RUN npm install -g pnpm@9.0.0 \
+    && pnpm install --frozen-lockfile --prod
+
+# 将应用目录权限授予非 root 用户
+RUN chown -R yunshu:nodejs /app
+
+# 切换到非 root 用户
+USER yunshu
+
+# 暴露服务端口
+EXPOSE 3000
+
+# 健康检查：访问 127.0.0.1:3000/api/health，避免依赖 localhost DNS 解析
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
+
+# 启动 Express 后端服务
 CMD ["node", "packages/server-express/dist/index.js"]

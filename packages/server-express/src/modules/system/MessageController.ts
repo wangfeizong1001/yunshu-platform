@@ -1,273 +1,181 @@
 /**
- * 消息管理控制器
+ * 消息控制器
+ *
+ * 提供系统消息的完整 CRUD 接口，包括消息列表、创建、已读标记和删除功能。
  *
  * @module @yunshu/server-express/modules/system
  */
 
 import type { Request, Response } from 'express';
 import { BaseController } from '../../controller/BaseController';
+import {
+  createPaginatedResult,
+  normalizePagination,
+} from '@yunshu/shared';
 
-/** 消息类型 */
-type MessageType = 'system' | 'notice' | 'task' | 'approval'
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const MAX_FIELD_LENGTH = 500;
+const MAX_CONTENT_LENGTH = 5000;
 
-/** 消息状态 */
-type MessageStatus = 'unread' | 'read'
+// ============================================================================
+// 类型定义
+// ============================================================================
 
-/** 消息数据 */
-interface Message {
-  messageId: number
-  title: string
-  content: string
-  type: MessageType
-  status: MessageStatus
-  sender: string
-  receiver: string
-  createTime: string
-  readTime?: string
-  link?: string
-  remark?: string
+/** 消息 */
+interface SysMessage {
+  messageId: number;
+  title: string;
+  content: string;
+  type: 'system' | 'notice' | 'warn';
+  receiver: string;
+  sender: string;
+  status: '0' | '1';
+  created_at: string;
 }
 
-/** 消息查询参数 */
-interface MessageQuery {
-  keyword?: string
-  type?: MessageType
-  status?: MessageStatus
-  pageNum?: number
-  pageSize?: number
+// ============================================================================
+// Mock 数据
+// ============================================================================
+
+let messageIdSeed = 5;
+
+const messages: SysMessage[] = [
+  { messageId: 1, title: '系统升级通知', content: '系统将于今晚进行版本升级，请合理安排工作时间。', type: 'system', receiver: 'admin', sender: 'system', status: '0', created_at: '2024-01-15 09:00:00' },
+  { messageId: 2, title: '新工单提醒', content: '您有一条新的工单待处理，工单编号 WO-2024-00123。', type: 'notice', receiver: 'admin', sender: 'workflow', status: '0', created_at: '2024-01-15 10:30:00' },
+  { messageId: 3, title: '密码即将过期', content: '您的登录密码将于 7 天后过期，请及时更换。', type: 'warn', receiver: 'admin', sender: 'system', status: '1', created_at: '2024-01-14 14:00:00' },
+  { messageId: 4, title: '数据备份完成', content: '每日数据备份任务已成功执行，备份文件大小 1.2GB。', type: 'system', receiver: 'operator', sender: 'backup', status: '1', created_at: '2024-01-15 02:00:00' },
+  { messageId: 5, title: '权限变更通知', content: '您的账号已被授予新的角色权限，请重新登录后生效。', type: 'notice', receiver: 'admin', sender: 'security', status: '0', created_at: '2024-01-15 16:00:00' },
+];
+
+// ============================================================================
+// 校验工具
+// ============================================================================
+
+function isValidTitle(title: unknown): title is string {
+  return typeof title === 'string' && title.trim().length >= 1 && title.length <= 100;
 }
 
-/** 模拟消息数据 */
-const mockMessages: Message[] = [
-  {
-    messageId: 1,
-    title: '系统通知',
-    content: '您的账号密码将于30天后过期，请及时修改。',
-    type: 'system',
-    status: 'unread',
-    sender: 'system',
-    receiver: 'admin',
-    createTime: '2024-06-10 10:00:00',
-    link: '/user/profile',
-  },
-  {
-    messageId: 2,
-    title: '新任务通知',
-    content: '您有一个新的审批任务等待处理。',
-    type: 'task',
-    status: 'read',
-    sender: 'admin',
-    receiver: 'admin',
-    createTime: '2024-06-09 15:30:00',
-    readTime: '2024-06-09 16:00:00',
-    link: '/task/approval/1',
-  },
-  {
-    messageId: 3,
-    title: '公告通知',
-    content: '端午节放假通知已发布，请注意查看。',
-    type: 'notice',
-    status: 'unread',
-    sender: 'admin',
-    receiver: 'admin',
-    createTime: '2024-06-05 09:00:00',
-    link: '/notice/2',
-  },
-  {
-    messageId: 4,
-    title: '审批完成',
-    content: '您的请假申请已通过审批。',
-    type: 'approval',
-    status: 'read',
-    sender: 'admin',
-    receiver: 'admin',
-    createTime: '2024-06-01 14:00:00',
-    readTime: '2024-06-01 14:30:00',
-  },
-]
+function isValidMessageType(t: unknown): t is 'system' | 'notice' | 'warn' {
+  return t === 'system' || t === 'notice' || t === 'warn';
+}
 
+// ============================================================================
+// MessageController
+// ============================================================================
+
+/**
+ * 消息控制器
+ */
 export class MessageController extends BaseController {
   /**
-   * 获取消息分页列表
+   * 消息分页查询
    */
-  async list(req: Request, res: Response): Promise<Response> {
-    const params: MessageQuery = {
-      keyword: req.query.keyword as string,
-      type: req.query.type as MessageType,
-      status: req.query.status as MessageStatus,
-      pageNum: Number(req.query.pageNum) || 1,
-      pageSize: Number(req.query.pageSize) || 10,
-    }
+  async list(req: Request, res: Response) {
+    const { page, limit } = normalizePagination(req.query);
+    const statusParam = this.safeParam(req.query.status, 1);
+    const typeParam = this.safeParam(req.query.type, MAX_QUERY_PARAM_LENGTH);
+    const receiverParam = this.safeParam(req.query.receiver, MAX_QUERY_PARAM_LENGTH);
 
-    let filtered = [...mockMessages]
+    let filtered = [...messages];
+    if (statusParam) filtered = filtered.filter(i => i.status === statusParam);
+    if (typeParam) filtered = filtered.filter(i => i.type === typeParam);
+    if (receiverParam) filtered = filtered.filter(i => i.receiver.includes(receiverParam));
 
-    if (params.keyword) {
-      const kw = params.keyword.toLowerCase()
-      filtered = filtered.filter(
-        m =>
-          m.title.toLowerCase().includes(kw) ||
-          m.content.toLowerCase().includes(kw),
-      )
-    }
+    filtered.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    const total = filtered.length;
+    const start = (page - 1) * limit;
+    const data = filtered.slice(start, start + limit);
 
-    if (params.type) {
-      filtered = filtered.filter(m => m.type === params.type)
-    }
-
-    if (params.status) {
-      filtered = filtered.filter(m => m.status === params.status)
-    }
-
-    const total = filtered.length
-    const start = ((params.pageNum || 1) - 1) * (params.pageSize || 10)
-    const end = start + (params.pageSize || 10)
-    const rows = filtered.slice(start, end)
-
-    return this.success(res, { total, rows })
+    return this.paginate(
+      res,
+      createPaginatedResult(data, page, limit, total),
+      '查询成功',
+    );
   }
 
   /**
-   * 获取消息详情
+   * 消息详情
    */
-  async getById(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params
-    const message = mockMessages.find(m => m.messageId === Number(id))
-
-    if (!message) {
-      return this.notFound(res, '消息不存在')
-    }
-
-    return this.success(res, message)
+  async getById(req: Request, res: Response) {
+    const messageId = Number(req.params.messageId);
+    if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
+    const item = messages.find(i => i.messageId === messageId);
+    if (!item) return this.notFound(res, '消息不存在');
+    return this.success(res, item, '查询成功');
   }
 
   /**
-   * 获取未读消息数量
+   * 创建消息
    */
-  async getUnreadCount(_req: Request, res: Response): Promise<Response> {
-    const count = mockMessages.filter(m => m.status === 'unread').length
-    return this.success(res, { count })
-  }
+  async create(req: Request, res: Response) {
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-  /**
-   * 获取消息列表（简化）
-   */
-  async getList(req: Request, res: Response): Promise<Response> {
-    const { type, status, pageNum = 1, pageSize = 10 } = req.query
+    const body = req.body as Partial<SysMessage>;
+    if (!isValidTitle(body.title)) return this.badRequest(res, 'title 长度 1-100');
 
-    let filtered = [...mockMessages]
+    const type = body.type ?? 'notice';
+    if (!isValidMessageType(type)) return this.badRequest(res, 'type 必须是 system/notice/warn');
 
-    if (type) {
-      filtered = filtered.filter(m => m.type === type)
-    }
+    const receiver = typeof body.receiver === 'string'
+      ? body.receiver.slice(0, 64)
+      : '';
+    if (receiver.trim().length === 0) return this.badRequest(res, 'receiver 必填');
 
-    if (status) {
-      filtered = filtered.filter(m => m.status === status)
-    }
+    const sender = typeof body.sender === 'string'
+      ? body.sender.slice(0, 64)
+      : 'system';
 
-    const total = filtered.length
-    const start = (Number(pageNum) - 1) * Number(pageSize)
-    const end = start + Number(pageSize)
-    const rows = filtered.slice(start, end)
+    const content = typeof body.content === 'string'
+      ? body.content.slice(0, MAX_CONTENT_LENGTH)
+      : '';
 
-    return this.success(res, { total, rows })
+    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const item: SysMessage = {
+      messageId: ++messageIdSeed,
+      title: body.title,
+      content,
+      type,
+      receiver,
+      sender,
+      status: '0',
+      created_at: now,
+    };
+    messages.push(item);
+    return this.success(res, item, '创建成功');
   }
 
   /**
    * 标记消息为已读
    */
-  async markRead(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params
-    const message = mockMessages.find(m => m.messageId === Number(id))
+  async read(req: Request, res: Response) {
+    const body = req.body as { messageId?: unknown };
+    const messageId = Number(body.messageId);
+    if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
 
-    if (!message) {
-      return this.notFound(res, '消息不存在')
-    }
+    const item = messages.find(i => i.messageId === messageId);
+    if (!item) return this.notFound(res, '消息不存在');
 
-    message.status = 'read'
-    message.readTime = new Date().toLocaleString('zh-CN')
-    return this.success(res, null, '标记已读成功')
-  }
-
-  /**
-   * 标记所有消息为已读
-   */
-  async markAllRead(_req: Request, res: Response): Promise<Response> {
-    const now = new Date().toLocaleString('zh-CN')
-    mockMessages.forEach(m => {
-      if (m.status === 'unread') {
-        m.status = 'read'
-        m.readTime = now
-      }
-    })
-    return this.success(res, null, '全部标记已读成功')
+    item.status = '1';
+    return this.success(res, item, '标记已读成功');
   }
 
   /**
    * 删除消息
    */
-  async delete(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params
-    const index = mockMessages.findIndex(m => m.messageId === Number(id))
+  async remove(req: Request, res: Response) {
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-    if (index === -1) {
-      return this.notFound(res, '消息不存在')
-    }
+    const messageId = Number(req.params.messageId);
+    if (!Number.isFinite(messageId)) return this.badRequest(res, 'messageId 参数非法');
 
-    mockMessages.splice(index, 1)
-    return this.success(res, null, '删除成功')
-  }
-
-  /**
-   * 批量删除消息
-   */
-  async batchDelete(req: Request, res: Response): Promise<Response> {
-    const { ids } = req.body as { ids: number[] }
-
-    if (!Array.isArray(ids) || ids.length === 0) {
-      return this.badRequest(res, '请选择要删除的消息')
-    }
-
-    ids.forEach(id => {
-      const index = mockMessages.findIndex(m => m.messageId === id)
-      if (index !== -1) {
-        mockMessages.splice(index, 1)
-      }
-    })
-
-    return this.success(res, null, '批量删除成功')
-  }
-
-  /**
-   * 发送消息
-   */
-  async send(req: Request, res: Response): Promise<Response> {
-    const { title, content, type, receiver } = req.body
-
-    if (!title || !content || !type || !receiver) {
-      return this.badRequest(res, '请填写完整的消息信息')
-    }
-
-    const newMessage: Message = {
-      messageId: Math.max(...mockMessages.map(m => m.messageId)) + 1,
-      title,
-      content,
-      type,
-      status: 'unread',
-      sender: 'admin',
-      receiver,
-      createTime: new Date().toLocaleString('zh-CN'),
-    }
-
-    mockMessages.push(newMessage)
-    return this.created(res, newMessage, '发送成功')
-  }
-
-  /**
-   * 导出消息
-   */
-  async export(_req: Request, res: Response): Promise<Response> {
-    return this.success(res, mockMessages)
+    const idx = messages.findIndex(i => i.messageId === messageId);
+    if (idx === -1) return this.notFound(res, '消息不存在');
+    const removed = messages.splice(idx, 1)[0];
+    return this.success(res, removed, '删除成功');
   }
 }
 
-export const messageController = new MessageController()
+export const messageController = new MessageController();

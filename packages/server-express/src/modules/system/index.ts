@@ -1,12 +1,9 @@
-/**
- * 系统模块导出
- */
-
-export * from './ConfigController'
-export * from './DictController'
-export * from './MenuController'
-export * from './PostController'
-export * from './NoticeController'
-export * from './MessageController'
-export * from './FileController'
-export * from './OssController'
+export { UserController, userController } from './UserController';
+export { RoleController, roleController } from './RoleController';
+export { MenuController, menuController } from './MenuController';
+export { DeptController, deptController } from './DeptController';
+export { PostController, postController } from './PostController';
+export { DictController, dictController } from './DictController';
+export { ConfigController, configController } from './ConfigController';
+export { NoticeController, noticeController } from './NoticeController';
+export { MessageController, messageController } from './MessageController';

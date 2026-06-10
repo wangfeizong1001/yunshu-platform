@@ -6,7 +6,7 @@
  * @module @yunshu/ui/composables/useTable
  */
 
-import { ref, computed } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import type { Ref, ComputedRef } from 'vue';
 
 interface UseTableOptions<T> {

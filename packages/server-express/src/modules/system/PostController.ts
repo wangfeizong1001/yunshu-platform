@@ -1,132 +1,247 @@
 /**
  * 岗位管理控制器
  *
- * @module @yunshu/server-express/modules/system
+ * 提供系统岗位相关的 CRUD 操作接口，包括岗位列表查询、岗位详情、新增、修改、删除、
+ * 批量删除以及全部岗位查询等功能。
+ *
+ * @module system/PostController
  */
 
 import type { Request, Response } from 'express';
-import type { SysPost, SysPostQuery, SysPostForm } from '@yunshu/shared';
 import { BaseController } from '../../controller/BaseController';
+import {
+  createPaginatedResult,
+  normalizePagination,
+  type PaginationParams,
+} from '@yunshu/shared';
 
-/** 模拟岗位数据 */
-const mockPosts: SysPost[] = [
+const MAX_BATCH_SIZE = 100;
+const MAX_QUERY_PARAM_LENGTH = 100;
+const MAX_FIELD_LENGTH = 500;
+
+// ============================================================================
+// 类型定义
+// ============================================================================
+
+/** 岗位状态 */
+type PostStatus = '0' | '1';
+
+/** 岗位数据结构 */
+interface Post {
+  /** 岗位ID */
+  postId: string;
+  /** 岗位编码 */
+  postCode: string;
+  /** 岗位名称 */
+  postName: string;
+  /** 显示顺序 */
+  postSort: number;
+  /** 状态 0正常 1停用 */
+  status: PostStatus;
+  /** 备注 */
+  remark: string;
+  /** 创建时间 */
+  created_at: string;
+  /** 更新时间 */
+  updated_at: string;
+}
+
+/** 岗位查询参数 */
+interface PostQueryParams extends PaginationParams {
+  /** 岗位编码（模糊匹配） */
+  postCode?: string;
+  /** 岗位名称（模糊匹配） */
+  postName?: string;
+  /** 状态 */
+  status?: PostStatus;
+}
+
+/** 创建岗位请求体 */
+interface PostCreateBody {
+  postCode: string;
+  postName: string;
+  postSort?: number;
+  status?: PostStatus;
+  remark?: string;
+}
+
+/** 更新岗位请求体 */
+interface PostUpdateBody extends PostCreateBody {
+  postId: string;
+}
+
+/** 批量删除请求体 */
+interface BatchRemoveBody {
+  postIds: string[];
+}
+
+// ============================================================================
+// Mock 数据（内存存储）
+// ============================================================================
+
+let mockPosts: Post[] = [
   {
-    postId: 1,
+    postId: 'p-00000000-0000-0000-0000-000000000001',
     postCode: 'CEO',
     postName: '首席执行官',
     postSort: 1,
     status: '0',
     remark: '公司最高管理者',
-    createTime: '2024-01-15 08:00:00',
+    created_at: '2026-01-01 00:00:00',
+    updated_at: '2026-01-01 00:00:00',
   },
   {
-    postId: 2,
+    postId: 'p-00000000-0000-0000-0000-000000000002',
     postCode: 'CTO',
     postName: '首席技术官',
     postSort: 2,
     status: '0',
     remark: '技术负责人',
-    createTime: '2024-01-15 08:00:00',
+    created_at: '2026-01-01 00:00:00',
+    updated_at: '2026-01-01 00:00:00',
   },
   {
-    postId: 3,
-    postCode: 'DEV',
-    postName: '开发工程师',
+    postId: 'p-00000000-0000-0000-0000-000000000003',
+    postCode: 'FE',
+    postName: '前端工程师',
     postSort: 3,
     status: '0',
-    remark: '研发部',
-    createTime: '2024-01-15 08:00:00',
+    remark: '前端开发工程师',
+    created_at: '2026-02-15 10:00:00',
+    updated_at: '2026-02-15 10:00:00',
   },
   {
-    postId: 4,
+    postId: 'p-00000000-0000-0000-0000-000000000004',
+    postCode: 'BE',
+    postName: '后端工程师',
+    postSort: 4,
+    status: '0',
+    remark: '后端开发工程师',
+    created_at: '2026-03-01 10:00:00',
+    updated_at: '2026-03-01 10:00:00',
+  },
+  {
+    postId: 'p-00000000-0000-0000-0000-000000000005',
     postCode: 'TEST',
     postName: '测试工程师',
-    postSort: 4,
+    postSort: 5,
     status: '1',
-    remark: '质量部',
-    createTime: '2024-01-15 08:00:00',
+    remark: '软件测试工程师（已停用）',
+    created_at: '2026-04-01 10:00:00',
+    updated_at: '2026-05-20 10:00:00',
   },
 ];
 
+// ============================================================================
+// 私有校验工具
+// ============================================================================
+
+function isValidPostCode(code: unknown): code is string {
+  return typeof code === 'string' && code.length >= 2 && code.length <= 50
+    && /^[A-Za-z0-9_]+$/.test(code);
+}
+
+function isValidPostName(name: unknown): name is string {
+  return typeof name === 'string' && name.trim().length >= 2 && name.length <= 50;
+}
+
+function isValidPostSort(sort: unknown): sort is number {
+  return typeof sort === 'number' && Number.isFinite(sort) && sort >= 0 && sort <= 9999;
+}
+
+function isValidPostStatus(status: unknown): status is PostStatus {
+  return status === '0' || status === '1';
+}
+
+// ============================================================================
+// 控制器实现
+// ============================================================================
+
+/**
+ * 岗位管理控制器类
+ *
+ * 继承 BaseController，封装了系统岗位的全部 CRUD 操作。
+ */
 export class PostController extends BaseController {
   /**
-   * 获取岗位分页列表
+   * 岗位分页列表查询
+   *
+   * 支持按 postCode、postName（模糊匹配）、status 过滤
    */
-  async list(req: Request, res: Response): Promise<Response> {
-    const params: SysPostQuery = {
-      keyword: req.query.keyword as string,
-      status: req.query.status as SysPostQuery['status'],
-      pageNum: Number(req.query.pageNum) || 1,
-      pageSize: Number(req.query.pageSize) || 10,
-    };
+  async list(req: Request, res: Response) {
+    const query = req.query as unknown as PostQueryParams;
+    const { page, limit } = normalizePagination(query);
 
-    let filtered = [...mockPosts];
+    const postCodeParam = this.safeParam(query.postCode, MAX_QUERY_PARAM_LENGTH);
+    const postNameParam = this.safeParam(query.postName, MAX_QUERY_PARAM_LENGTH);
+    const statusParam = this.safeParam(query.status, 1);
 
-    if (params.keyword) {
-      const kw = params.keyword.toLowerCase();
-      filtered = filtered.filter(
-        p => p.postName.toLowerCase().includes(kw) || p.postCode.toLowerCase().includes(kw),
-      );
-    }
+    const filtered = mockPosts.filter((p) => {
+      if (postCodeParam && !p.postCode.includes(postCodeParam)) return false;
+      if (postNameParam && !p.postName.includes(postNameParam)) return false;
+      if (statusParam && p.status !== statusParam) return false;
+      return true;
+    });
 
-    if (params.status) {
-      filtered = filtered.filter(p => p.status === params.status);
-    }
+    filtered.sort((a, b) => a.postSort - b.postSort);
 
     const total = filtered.length;
-    const postPage = params.pageNum ?? 1;
-    const postSize = params.pageSize ?? 10;
-    const start = (postPage - 1) * postSize;
-    const end = start + postSize;
-    const rows = filtered.slice(start, end);
+    const start = (page - 1) * limit;
+    const list = filtered.slice(start, start + limit);
 
-    return this.success(res, { total, rows });
+    return this.paginate(
+      res,
+      createPaginatedResult(list, page, limit, total),
+      '查询成功',
+    );
   }
 
   /**
-   * 获取岗位详情
+   * 根据 postId 获取岗位详情
    */
-  async getById(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params;
-    const post = mockPosts.find(p => p.postId === Number(id));
+  async getById(req: Request, res: Response) {
+    const { postId } = req.params;
+    const safePostId = this.safeParam(postId, MAX_FIELD_LENGTH);
+    if (!safePostId) return this.badRequest(res, 'postId 参数非法');
 
-    if (!post) {
-      return this.notFound(res, '岗位不存在');
-    }
-
-    return this.success(res, post);
-  }
-
-  /**
-   * 获取所有岗位
-   */
-  async getAll(_req: Request, res: Response): Promise<Response> {
-    return this.success(res, mockPosts.filter(p => p.status === '0'));
+    const post = mockPosts.find((p) => p.postId === safePostId);
+    if (!post) return this.notFound(res, '岗位不存在');
+    return this.success(res, post, '获取成功');
   }
 
   /**
    * 创建岗位
    */
-  async create(req: Request, res: Response): Promise<Response> {
-    const data: SysPostForm = req.body;
+  async create(req: Request, res: Response) {
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-    if (!data.postCode || !data.postName) {
-      return this.badRequest(res, '请填写完整的岗位信息');
-    }
+    const body = req.body as PostCreateBody;
+    if (!isValidPostCode(body.postCode)) return this.badRequest(res, 'postCode 长度 2-50，仅允许字母数字下划线');
+    if (!isValidPostName(body.postName)) return this.badRequest(res, 'postName 长度 2-50');
 
-    const exists = mockPosts.find(p => p.postCode === data.postCode);
-    if (exists) {
-      return this.conflict(res, '岗位编码已存在');
-    }
+    const postSort = body.postSort !== undefined ? body.postSort : 0;
+    if (!isValidPostSort(postSort)) return this.badRequest(res, 'postSort 必须是 0-9999 的数字');
 
-    const newPost: SysPost = {
-      postId: Math.max(...mockPosts.map(p => p.postId)) + 1,
-      postCode: data.postCode,
-      postName: data.postName,
-      postSort: data.postSort ?? 0,
-      status: data.status || '0',
-      remark: data.remark || '',
-      createTime: new Date().toLocaleString('zh-CN'),
+    const status = body.status !== undefined ? body.status : '0';
+    if (!isValidPostStatus(status)) return this.badRequest(res, 'status 必须是 0 或 1');
+
+    const remark = typeof body.remark === 'string'
+      ? body.remark.slice(0, MAX_FIELD_LENGTH)
+      : '';
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const postId = `p-${Date.now().toString().padStart(32, '0')}`;
+
+    const newPost: Post = {
+      postId,
+      postCode: body.postCode,
+      postName: body.postName,
+      postSort,
+      status,
+      remark,
+      created_at: now,
+      updated_at: now,
     };
 
     mockPosts.push(newPost);
@@ -136,70 +251,96 @@ export class PostController extends BaseController {
   /**
    * 更新岗位
    */
-  async update(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params;
-    const data: SysPostForm = req.body;
-    const index = mockPosts.findIndex(p => p.postId === Number(id));
+  async update(req: Request, res: Response) {
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-    if (index === -1) {
-      return this.notFound(res, '岗位不存在');
-    }
+    const body = req.body as PostUpdateBody;
+    const safePostId = this.safeParam(body.postId, MAX_FIELD_LENGTH);
+    if (!safePostId) return this.badRequest(res, 'postId 必填');
 
-    if (data.postCode && data.postCode !== mockPosts[index].postCode) {
-      const exists = mockPosts.find(p => p.postCode === data.postCode && p.postId !== Number(id));
-      if (exists) {
-        return this.conflict(res, '岗位编码已存在');
-      }
-    }
+    const exist = mockPosts.find((p) => p.postId === safePostId);
+    if (!exist) return this.notFound(res, '岗位不存在');
+    const idx = mockPosts.indexOf(exist);
 
-    mockPosts[index] = {
-      ...mockPosts[index],
-      postCode: data.postCode ?? mockPosts[index].postCode,
-      postName: data.postName ?? mockPosts[index].postName,
-      postSort: data.postSort ?? mockPosts[index].postSort,
-      status: data.status ?? mockPosts[index].status,
-      remark: data.remark ?? mockPosts[index].remark,
+    if (!isValidPostName(body.postName)) return this.badRequest(res, 'postName 长度 2-50');
+    if (!isValidPostCode(body.postCode)) return this.badRequest(res, 'postCode 长度 2-50，仅允许字母数字下划线');
+
+    const postSort = body.postSort !== undefined ? body.postSort : exist.postSort;
+    if (!isValidPostSort(postSort)) return this.badRequest(res, 'postSort 必须是 0-9999 的数字');
+
+    const status = body.status !== undefined ? body.status : exist.status;
+    if (!isValidPostStatus(status)) return this.badRequest(res, 'status 必须是 0 或 1');
+
+    const remark = typeof body.remark === 'string'
+      ? body.remark.slice(0, MAX_FIELD_LENGTH)
+      : exist.remark;
+
+    const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    mockPosts[idx] = {
+      postId: exist.postId,
+      postCode: body.postCode,
+      postName: body.postName,
+      postSort,
+      status,
+      remark,
+      created_at: exist.created_at,
+      updated_at: now,
     };
 
-    return this.success(res, mockPosts[index], '更新成功');
+    return this.success(res, mockPosts[idx], '更新成功');
   }
 
   /**
-   * 删除岗位
+   * 删除单个岗位
    */
-  async delete(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params;
-    const index = mockPosts.findIndex(p => p.postId === Number(id));
+  async remove(req: Request, res: Response) {
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-    if (index === -1) {
-      return this.notFound(res, '岗位不存在');
-    }
+    const { postId } = req.params;
+    const safePostId = this.safeParam(postId, MAX_FIELD_LENGTH);
+    if (!safePostId) return this.badRequest(res, 'postId 参数非法');
 
-    mockPosts.splice(index, 1);
-    return this.success(res, null, '删除成功');
+    const idx = mockPosts.findIndex((p) => p.postId === safePostId);
+    if (idx === -1) return this.notFound(res, '岗位不存在');
+
+    mockPosts.splice(idx, 1);
+    return this.success(res, { postId: safePostId }, '删除成功');
   }
 
   /**
-   * 修改岗位状态
+   * 批量删除岗位
+   *
+   * body: { postIds: string[] }
    */
-  async changeStatus(req: Request, res: Response): Promise<Response> {
-    const { id, status } = req.body;
-    const post = mockPosts.find(p => p.postId === Number(id));
+  async batchRemove(req: Request, res: Response) {
+    const role = (req as any).user?.role;
+    if (role !== 'admin') return this.forbidden(res, '需要管理员权限');
 
-    if (!post) {
-      return this.notFound(res, '岗位不存在');
-    }
+    const body = req.body as BatchRemoveBody;
+    const batchErr = this.validateBatchSize(body.postIds, MAX_BATCH_SIZE);
+    if (batchErr) return this.badRequest(res, batchErr);
 
-    post.status = status;
-    return this.success(res, null, '状态修改成功');
+    const ids = (body.postIds as string[]).filter((id) =>
+      typeof id === 'string' && id.length > 0 && id.length <= MAX_FIELD_LENGTH,
+    );
+
+    const before = mockPosts.length;
+    mockPosts = mockPosts.filter((p) => !ids.includes(p.postId));
+    const deleted = before - mockPosts.length;
+
+    return this.success(res, { deleted, postIds: ids }, `批量删除成功，共删除 ${deleted} 条`);
   }
 
   /**
-   * 导出岗位
+   * 获取全部岗位列表（不分页，用于下拉选择）
    */
-  async export(_req: Request, res: Response): Promise<Response> {
-    return this.success(res, mockPosts);
+  async getAll(req: Request, res: Response) {
+    const list = [...mockPosts].sort((a, b) => a.postSort - b.postSort);
+    return this.success(res, list, '查询成功');
   }
 }
 
+/** 岗位控制器单例实例 */
 export const postController = new PostController();

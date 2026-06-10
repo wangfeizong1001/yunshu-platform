@@ -18,7 +18,79 @@ import type {
   DedupConfig,
   ApiResponse,
 } from './types';
-import { FetchAdapter } from '../adapters/fetch/FetchAdapter';
+import { RequestError } from './types';
+
+// ============================================================================
+// 安全常量
+// ============================================================================
+
+/** 请求 key 的最大长度（避免超大参数撑爆内存） */
+const REQUEST_KEY_MAX_LENGTH = 512;
+/** params / data 中单个字段值的最大字符串长度（超长的不进入 key） */
+const REQUEST_KEY_FIELD_VALUE_MAX = 200;
+/** params 的最大字节大小（粗略估算，超过则拒绝） */
+const PARAMS_MAX_SIZE = 100 * 1024; // 100KB
+/** data 请求体的最大字节大小（粗略估算，超过则拒绝） */
+const DATA_MAX_SIZE = 2 * 1024 * 1024; // 2MB
+/** 默认超时（毫秒） */
+const DEFAULT_TIMEOUT = 15000;
+
+// ============================================================================
+// 内部工具
+// ============================================================================
+
+/**
+ * 粗略估算 JSON 字符串化后的字节大小
+ */
+function roughSize(value: unknown): number {
+  try {
+    return new Blob([JSON.stringify(value ?? '')]).size;
+  } catch {
+    return String(value ?? '').length;
+  }
+}
+
+/**
+ * 排序并过滤 params，生成稳定的 JSON 字符串
+ * - key 按字母顺序排列（避免同参数不同顺序产生不同 key）
+ * - 过滤掉值字符串长度超过 REQUEST_KEY_FIELD_VALUE_MAX 的字段
+ *   （避免超大 payload 导致 key 无限膨胀，同时防止敏感信息进入 key）
+ */
+function canonicalObjectForCacheKey(value: unknown): unknown {
+  if (value === null || value === undefined) return value;
+  if (typeof value !== 'object') return value;
+  if (Array.isArray(value)) {
+    return value.map(canonicalObjectForCacheKey);
+  }
+  const obj = value as Record<string, unknown>;
+  const sortedKeys = Object.keys(obj).sort();
+  const result: Record<string, unknown> = {};
+  for (const k of sortedKeys) {
+    const v = obj[k];
+    if (v === undefined) continue;
+    if (typeof v === 'string' && v.length > REQUEST_KEY_FIELD_VALUE_MAX) continue;
+    const canon = canonicalObjectForCacheKey(v);
+    // 递归后依然是超长字符串的话再过滤一次
+    if (typeof canon === 'string' && canon.length > REQUEST_KEY_FIELD_VALUE_MAX) continue;
+    result[k] = canon;
+  }
+  return result;
+}
+
+/**
+ * 从浏览器 cookie 中读取指定名称的值
+ */
+function readCookie(name: string): string | null {
+  if (typeof document === 'undefined' || !document.cookie) return null;
+  const prefix = `${encodeURIComponent(name)}=`;
+  for (const part of document.cookie.split(';')) {
+    const trimmed = part.trim();
+    if (trimmed.startsWith(prefix)) {
+      return decodeURIComponent(trimmed.slice(prefix.length));
+    }
+  }
+  return null;
+}
 
 // ============================================================================
 // 内存缓存实现
@@ -48,7 +120,6 @@ class MemoryCache {
       this.cache.delete(key);
       return null;
     }
-    // LRU: 移到末尾
     this.cache.delete(key);
     this.cache.set(key, entry);
     return entry.data as T;
@@ -97,6 +168,12 @@ export interface HttpClientOptions {
   dedup?: DedupConfig;
   /** 缓存默认配置 */
   cache?: Partial<CacheOptions>;
+  /** 是否在浏览器环境自动注入 XSRF/CSRF header（默认 true） */
+  enableCsrf?: boolean;
+  /** CSRF cookie 名称，默认 XSRF-TOKEN */
+  xsrfCookieName?: string;
+  /** CSRF 请求头名称，默认 X-XSRF-TOKEN */
+  xsrfHeaderName?: string;
 }
 
 // ============================================================================
@@ -105,39 +182,31 @@ export interface HttpClientOptions {
 
 export class HttpClient {
   private readonly adapter: IHttpAdapter;
-  private readonly options: Required<HttpClientOptions>;
+  private readonly options: Required<Omit<HttpClientOptions, 'enableCsrf'>> & {
+    enableCsrf: boolean;
+  };
   private readonly memoryCache = new MemoryCache();
   private readonly dedupCache = new Map<string, Promise<HttpResponse>>();
   private readonly pendingRequests = new Map<string, AbortController>();
 
-  constructor(adapterOrOptions: IHttpAdapter | HttpClientOptions = {}) {
-    const isAdapter = (obj: IHttpAdapter | HttpClientOptions): obj is IHttpAdapter =>
-      typeof (obj as IHttpAdapter).request === 'function';
-
-    if (isAdapter(adapterOrOptions)) {
-      this.adapter = adapterOrOptions;
-      this.options = {
-        baseURL: '',
-        timeout: 15000,
-        headers: {},
-        dedup: { window: 1000 },
-        cache: { enabled: false, ttl: 5 * 60 * 1000 },
-      };
-    } else {
-      const options = adapterOrOptions as HttpClientOptions;
-      this.adapter = new FetchAdapter({ baseURL: options.baseURL, timeout: options.timeout });
-      this.options = {
-        baseURL: options.baseURL ?? '',
-        timeout: options.timeout ?? 15000,
-        headers: options.headers ?? {},
-        dedup: { window: options.dedup?.window ?? 1000 },
-        cache: {
-          enabled: options.cache?.enabled ?? false,
-          ttl: options.cache?.ttl ?? 5 * 60 * 1000,
-          key: options.cache?.key,
-        },
-      };
-    }
+  constructor(adapter: IHttpAdapter, options: HttpClientOptions = {}) {
+    this.adapter = adapter;
+    this.options = {
+      baseURL: options.baseURL ?? '',
+      timeout: options.timeout ?? DEFAULT_TIMEOUT,
+      headers: options.headers ?? {},
+      dedup: {
+        window: options.dedup?.window ?? 1000,
+      },
+      cache: {
+        enabled: options.cache?.enabled ?? false,
+        ttl: options.cache?.ttl ?? 5 * 60 * 1000,
+        key: options.cache?.key,
+      },
+      enableCsrf: options.enableCsrf ?? true,
+      xsrfCookieName: options.xsrfCookieName ?? 'XSRF-TOKEN',
+      xsrfHeaderName: options.xsrfHeaderName ?? 'X-XSRF-TOKEN',
+    };
   }
 
   // ========================================================================
@@ -146,11 +215,19 @@ export class HttpClient {
 
   /**
    * 生成请求的唯一标识
-   * 用于去重和缓存的 key 生成
+   * - params / data 做排序后再序列化（稳定 key，避免缓存击穿）
+   * - 过滤值长度过大的字段（避免敏感数据 / 超大 payload 进入 key）
+   * - 最终 key 限制在 REQUEST_KEY_MAX_LENGTH 以内
    */
   private generateRequestKey(config: RequestConfig): string {
     const { method = 'GET', url, params, data } = config;
-    return `${method}:${url}:${JSON.stringify(params)}:${JSON.stringify(data)}`;
+    const canonParams = canonicalObjectForCacheKey(params ?? {});
+    const canonData = canonicalObjectForCacheKey(data ?? {});
+    const raw = `${method}:${url}:${JSON.stringify(canonParams)}:${JSON.stringify(canonData)}`;
+    if (raw.length > REQUEST_KEY_MAX_LENGTH) {
+      return raw.slice(0, REQUEST_KEY_MAX_LENGTH);
+    }
+    return raw;
   }
 
   // ========================================================================
@@ -159,13 +236,33 @@ export class HttpClient {
 
   /**
    * 发送 HTTP 请求
+   * - 合并默认 header（含 X-Requested-With / CSRF token）
+   * - 合并超时
    */
   async request<T = unknown>(config: RequestConfig): Promise<HttpResponse<T>> {
+    const headers: Record<string, string> = {
+      ...this.options.headers,
+      ...config.headers,
+    };
+
+    // 标记为 AJAX 请求（帮助后端区分 CSRF 攻击来源）
+    if (!headers['X-Requested-With']) {
+      headers['X-Requested-With'] = 'XMLHttpRequest';
+    }
+
+    // 浏览器环境：从 cookie 读取 CSRF token 并注入 header
+    if (this.options.enableCsrf && !headers[this.options.xsrfHeaderName]) {
+      const token = readCookie(this.options.xsrfCookieName);
+      if (token) {
+        headers[this.options.xsrfHeaderName] = token;
+      }
+    }
+
     const fullConfig: RequestConfig = {
       ...config,
       baseURL: config.baseURL ?? this.options.baseURL,
-      timeout: config.timeout ?? this.options.timeout,
-      headers: { ...this.options.headers, ...config.headers },
+      timeout: config.timeout ?? this.options.timeout ?? DEFAULT_TIMEOUT,
+      headers,
     };
 
     return this.adapter.request<T>(fullConfig);
@@ -176,32 +273,36 @@ export class HttpClient {
    */
   async get<T = unknown>(
     url: string,
-    params?: object,
+    params?: Record<string, unknown>,
     cacheOptions?: CacheOptions,
   ): Promise<ApiResponse<T>> {
-    const config: RequestConfig = { method: 'GET', url, params: params as Record<string, unknown> | undefined };
+    // params 大小检查：避免拼出超长 URL
+    if (params !== undefined && roughSize(params) > PARAMS_MAX_SIZE) {
+      throw new RequestError(
+        `请求参数过大（限制 ${PARAMS_MAX_SIZE} 字节）`,
+        413,
+        'PAYLOAD_TOO_LARGE',
+      );
+    }
+
+    const config: RequestConfig = { method: 'GET', url, params };
     const requestKey = cacheOptions?.key ?? this.generateRequestKey(config);
 
-    // 1. 检查内存缓存
     if (cacheOptions?.enabled ?? this.options.cache.enabled) {
       const cached = this.memoryCache.get<ApiResponse<T>>(requestKey);
       if (cached) return cached;
     }
 
-    // 2. 检查请求去重
     if (this.dedupCache.has(requestKey)) {
       const response = await (this.dedupCache.get(requestKey) as Promise<HttpResponse<T>>);
       return response.data;
     }
 
-    // 3. 创建请求
     const requestPromise = this.request<T>(config).then((response) => {
-      // 缓存成功结果
       if (cacheOptions?.enabled ?? this.options.cache.enabled) {
         const ttl = cacheOptions?.ttl ?? this.options.cache.ttl!;
         this.memoryCache.set(requestKey, response.data, ttl);
       }
-      // 延迟清除去重条目
       setTimeout(() => this.dedupCache.delete(requestKey), this.options.dedup.window);
       return response;
     }).catch((error) => {
@@ -215,102 +316,63 @@ export class HttpClient {
   }
 
   /**
-   * POST 请求
+   * POST 请求（带 data 大小检查）
    */
-  async post<T = unknown>(
-    url: string,
-    data?: object,
-    extra?: { headers?: Record<string, string>; params?: object },
-  ): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({
-      method: 'POST',
-      url,
-      data,
-      headers: extra?.headers,
-      params: extra?.params as Record<string, unknown> | undefined,
-    });
+  async post<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+    if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
+      throw new RequestError(
+        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
+        413,
+        'PAYLOAD_TOO_LARGE',
+      );
+    }
+    const response = await this.request<T>({ method: 'POST', url, data });
     return response.data;
   }
 
   /**
-   * PUT 请求
+   * PUT 请求（带 data 大小检查）
    */
-  async put<T = unknown>(
-    url: string,
-    data?: object,
-    extra?: { headers?: Record<string, string>; params?: object },
-  ): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({
-      method: 'PUT',
-      url,
-      data,
-      headers: extra?.headers,
-      params: extra?.params as Record<string, unknown> | undefined,
-    });
+  async put<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+    if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
+      throw new RequestError(
+        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
+        413,
+        'PAYLOAD_TOO_LARGE',
+      );
+    }
+    const response = await this.request<T>({ method: 'PUT', url, data });
     return response.data;
   }
 
   /**
-   * PATCH 请求
+   * PATCH 请求（带 data 大小检查）
    */
-  async patch<T = unknown>(
-    url: string,
-    data?: object,
-    extra?: { headers?: Record<string, string>; params?: object },
-  ): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({
-      method: 'PATCH',
-      url,
-      data,
-      headers: extra?.headers,
-      params: extra?.params as Record<string, unknown> | undefined,
-    });
+  async patch<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+    if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
+      throw new RequestError(
+        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
+        413,
+        'PAYLOAD_TOO_LARGE',
+      );
+    }
+    const response = await this.request<T>({ method: 'PATCH', url, data });
     return response.data;
   }
 
   /**
-   * DELETE 请求
+   * DELETE 请求（带 data 大小检查）
    */
-  async delete<T = unknown>(
-    url: string,
-    extra?: {
-      data?: object;
-      headers?: Record<string, string>;
-      params?: object;
-    },
-  ): Promise<ApiResponse<T>> {
-    const response = await this.request<T>({
-      method: 'DELETE',
-      url,
-      data: extra?.data,
-      headers: extra?.headers,
-      params: extra?.params as Record<string, unknown> | undefined,
-    });
+  async delete<T = unknown>(url: string, data?: unknown): Promise<ApiResponse<T>> {
+    if (data !== undefined && roughSize(data) > DATA_MAX_SIZE) {
+      throw new RequestError(
+        `请求体过大（限制 ${DATA_MAX_SIZE} 字节）`,
+        413,
+        'PAYLOAD_TOO_LARGE',
+      );
+    }
+    const response = await this.request<T>({ method: 'DELETE', url, data });
     return response.data;
-  }
-
-  /**
-   * 文件下载
-   */
-  async download(
-    url: string,
-    params?: object,
-    filename?: string,
-  ): Promise<void> {
-    const queryString = params
-      ? '?' +
-        Object.entries(params as Record<string, unknown>)
-          .filter(([, v]) => v !== undefined && v !== null)
-          .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
-          .join('&')
-      : '';
-    const fullUrl = (this.options.baseURL + url + queryString);
-    const a = document.createElement('a');
-    a.href = fullUrl;
-    if (filename) a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   }
 
   // ========================================================================
@@ -381,7 +443,7 @@ export class HttpClient {
 
   /** 取消所有待处理请求 */
   cancelAllRequests(): void {
-    for (const [, controller] of this.pendingRequests) {
+    for (const [id, controller] of this.pendingRequests) {
       controller.abort();
     }
     this.pendingRequests.clear();

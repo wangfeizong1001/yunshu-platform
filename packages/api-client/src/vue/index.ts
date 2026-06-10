@@ -6,9 +6,10 @@
  * @module @yunshu/api-client/vue
  */
 
-import { ref, computed, type Ref, type ComputedRef } from 'vue';
+import { ref, computed, onUnmounted, type Ref, type ComputedRef } from 'vue';
 import type { HttpClient } from '../core/HttpClient';
-import type { ApiResponse } from '../core/types';
+import type { BaseAPI } from '../core/BaseAPI';
+import type { ApiResponse, CacheOptions } from '../core/types';
 
 // ============================================================================
 // Vue 插件
@@ -85,7 +86,7 @@ export function useApi<T>(
     lastArgs = args;
 
     try {
-      const response = await (fn as (...a: unknown[]) => Promise<ApiResponse<T>>)(...args);
+      const response = await fn(...args);
       data.value = response.data;
       return response.data;
     } catch (err) {
@@ -97,7 +98,7 @@ export function useApi<T>(
   }
 
   async function refresh(): Promise<T | null> {
-    return execute.apply(null, lastArgs as any);
+    return execute(...lastArgs);
   }
 
   function reset(): void {
@@ -165,7 +166,7 @@ export function useApiList<T>(
     lastArgs = args;
 
     try {
-      const response = await (fn as (...a: unknown[]) => Promise<ApiResponse<{ list?: T[]; items?: T[]; total: number }>>)(...args);
+      const response = await fn(...args);
       const items = response.data?.list ?? response.data?.items ?? [];
       data.value = items;
       total.value = response.data?.total ?? 0;
@@ -179,7 +180,7 @@ export function useApiList<T>(
   }
 
   async function refresh(): Promise<T[] | null> {
-    return execute.apply(null, lastArgs as any);
+    return execute(...lastArgs);
   }
 
   function setPage(newPage: number): void {

@@ -60,7 +60,7 @@ const defaultConfig = computed(() => {
     <h1 class="yun-error-page__title">{{ title || defaultConfig.title }}</h1>
     <p class="yun-error-page__desc">{{ description || defaultConfig.description }}</p>
     <div class="yun-error-page__actions">
-      <YunButton v-if="showHomeBtn" variant="primary" @click="emit('back')">
+      <YunButton v-if="showHomeBtn" variant="primary" @click="$emit('back')">
         返回首页
       </YunButton>
       <slot name="actions" />

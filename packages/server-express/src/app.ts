@@ -6,13 +6,14 @@
  * @module @yunshu/server-express/app
  */
 
+import crypto from 'node:crypto';
 import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
-import { createRouter } from './routes';
 import {
   globalErrorHandler,
   notFoundHandler,
 } from './middlewares/errorHandler';
+import { createRouter } from './routes';
 
 // ============================================================================
 // 应用工厂
@@ -41,6 +42,13 @@ export function createApp(options: {
   // --------------------------------------------------------------------------
   app.set('trust proxy', trustProxy);
   app.use(cors({ origin: corsOrigin, credentials: true }));
+
+  // 请求 ID：为每个请求分配唯一 requestId，用于日志追踪与问题定位
+  app.use((req: Request, _res: Response, next) => {
+    (req as any).requestId = crypto.randomUUID();
+    next();
+  });
+
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -53,6 +61,34 @@ export function createApp(options: {
       next();
     });
   }
+
+  // --------------------------------------------------------------------------
+  // 健康检查
+  // --------------------------------------------------------------------------
+  app.get(`${apiPrefix}/health`, (req: Request, res: Response) => {
+    res.status(200).json({
+      success: true,
+      status: 'UP',
+      timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version ?? '1.0.0',
+      requestId: (req as any).requestId,
+    });
+  });
+
+  // --------------------------------------------------------------------------
+  // 根路由信息
+  // --------------------------------------------------------------------------
+  app.get(apiPrefix, (_req: Request, res: Response) => {
+    res.status(200).json({
+      success: true,
+      message: '云枢中台 API 服务已就绪',
+      timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version ?? '1.0.0',
+      endpoints: {
+        health: `${apiPrefix}/health`,
+      },
+    });
+  });
 
   // --------------------------------------------------------------------------
   // 路由注册
@@ -84,12 +120,14 @@ export function startServer(port: number | string = 3000, host = '0.0.0.0'): voi
   const normalizedPort = typeof port === 'string' ? parseInt(port, 10) : port;
 
   const server = app.listen(normalizedPort, host, () => {
-    console.log(`\n╔══════════════════════════════════════════════════╗`);
-    console.log(`║   云枢中台 API 服务已就绪                         ║`);
-    console.log(`║   Local:    http://${host}:${normalizedPort}/api              ║`);
-    console.log(`║   Health:   http://${host}:${normalizedPort}/api/health       ║`);
-    console.log(`║   Env:      ${process.env.NODE_ENV ?? 'development'}                           ║`);
-    console.log(`╚══════════════════════════════════════════════════╝\n`);
+    console.log('');
+    console.log('==========================================');
+    console.log('  云枢中台 API 服务已就绪');
+    console.log(`  Local:    http://${host}:${normalizedPort}/api`);
+    console.log(`  Health:   http://${host}:${normalizedPort}/api/health`);
+    console.log(`  Env:      ${process.env.NODE_ENV ?? 'development'}`);
+    console.log('==========================================');
+    console.log('');
   });
 
   // --------------------------------------------------------------------------
@@ -102,7 +140,6 @@ export function startServer(port: number | string = 3000, host = '0.0.0.0'): voi
       process.exit(0);
     });
 
-    // 10 秒后强制退出
     setTimeout(() => {
       console.log('[WARN] 强制退出（10 秒超时）');
       process.exit(1);

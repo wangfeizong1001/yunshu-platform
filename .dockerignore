@@ -1,34 +1,65 @@
+# ========================================
+# Docker 构建忽略文件
+# 排除不需要复制到镜像中的文件和目录
+# ========================================
+
+# 依赖目录
 node_modules
-**/node_modules
-**/dist
-**/.git
-**/.gitignore
-**/.env
-**/.env.local
-**/.env.development.local
-**/.env.test.local
-**/.env.production.local
-**/coverage
-**/.turbo
-**/.cache
-**/Dockerfile*
-**/docker-compose.yml
-**/.dockerignore
-**/.github
-**/docs
-**/examples
-**/*.md
-**/.prettierrc
-**/.prettierignore
-**/eslint.config.js
-**/.npmrc
-**/pnpm-lock.yaml
-**/.editorconfig
-**/.DS_Store
-**/Thumbs.db
-**/.vscode
-**/.idea
-**/*.swp
-**/*.swo
-**/logs
-**/*.log
+.pnpm-store
+.npm
+
+# 构建产物
+dist
+build
+.turbo
+.cache
+.parcel-cache
+
+# Git 相关
+.git
+.gitignore
+.gitattributes
+.github
+
+# 环境变量（敏感信息，不打包进镜像）
+.env
+.env.local
+.env.*.local
+
+# pnpm 锁文件（已在 Dockerfile 中按需复制，此处防止意外重复）
+pnpm-lock.yaml
+
+# 日志
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log*
+
+# 测试覆盖率
+coverage
+.nyc_output
+
+# 测试结果
+test-results
+.playwright-report
+
+# 文档（减小镜像体积）
+*.md
+docs
+README*
+CHANGELOG*
+LICENSE
+
+# IDE / 编辑器
+.vscode
+.idea
+*.swp
+*.swo
+
+# 操作系统临时文件
+.DS_Store
+Thumbs.db
+
+# 临时目录
+tmp
+temp

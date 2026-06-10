@@ -5,6 +5,7 @@
  * 支持标题、内容、底部操作区、自定义宽度。
  */
 
+import { computed } from 'vue';
 import { useDialog } from '../../primitives/useDialog';
 
 export interface DialogProps {
@@ -29,7 +30,7 @@ const emit = defineEmits<{
   open: [];
 }>();
 
-const { isOpen, isClosing, closeDialog } = useDialog({
+const { isOpen, isClosing, closeDialog, openDialog } = useDialog({
   open: props.open,
   closeOnEsc: props.closeOnEsc,
 });

@@ -103,17 +103,17 @@ export abstract class BaseAPI<
 
   /** 创建实体 */
   async create(data: CreateDTO): Promise<ApiResponse<T>> {
-    return this.http.post<T>(this.buildUrl(), data as object | undefined);
+    return this.http.post<T>(this.buildUrl(), data);
   }
 
   /** 更新实体 */
   async update(id: string | number, data: UpdateDTO): Promise<ApiResponse<T>> {
-    return this.http.put<T>(this.buildUrl(String(id)), data as object | undefined);
+    return this.http.put<T>(this.buildUrl(String(id)), data);
   }
 
   /** 部分更新实体 */
   async patch(id: string | number, data: Partial<UpdateDTO>): Promise<ApiResponse<T>> {
-    return this.http.patch<T>(this.buildUrl(String(id)), data as object | undefined);
+    return this.http.patch<T>(this.buildUrl(String(id)), data);
   }
 
   /** 删除实体 */

@@ -6,7 +6,7 @@
  * @module @yunshu/ui/composables/useTheme
  */
 
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { TTheme } from '@yunshu/design-tokens';
 
 /** 主题状态 */

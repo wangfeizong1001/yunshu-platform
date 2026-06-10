@@ -1,49 +1,69 @@
 /**
- * Redis 连接管理器
+ * Redis 客户端管理模块
  *
  * 提供单例模式的 Redis 连接管理，支持：
- * - 连接池管理（通过 ioredis 内置）
+ * - 连接池管理
  * - 健康检查
+ * - 自动重连
  * - 优雅关闭
  *
  * @module @yunshu/server-core/cache/RedisClient
  */
 
-import type { Redis, RedisOptions } from 'ioredis';
+import type Redis from 'ioredis';
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
-/** Redis 连接配置 */
+/**
+ * Redis 连接配置
+ */
 export interface RedisConfig {
-  /** 主机地址 */
+  /** Redis 主机地址 */
   host?: string;
-  /** 端口 */
+  /** Redis 端口 */
   port?: number;
   /** 密码 */
   password?: string;
-  /** 数据库编号 */
+  /** 数据库索引 */
   db?: number;
+  /** 键前缀 */
+  keyPrefix?: string;
+  /** 连接超时（毫秒） */
+  connectTimeout?: number;
   /** 最大重试次数 */
-  maxRetries?: number;
-  /** 重试延迟（毫秒） */
-  retryDelayMs?: number;
+  maxRetriesPerRequest?: number;
+  /** 是否启用离线队列 */
+  enableOfflineQueue?: boolean;
+  /** 离线队列最大长度 */
+  offlineQueueMaxSize?: number;
 }
 
-/** Redis 客户端状态 */
-export type RedisClientStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error';
+/**
+ * Redis 客户端状态
+ */
+export type RedisClientStatus = 'disconnected' | 'connecting' | 'connected' | 'ready' | 'error';
 
-/** Redis 健康检查结果 */
+/**
+ * Redis 健康检查结果
+ */
 export interface RedisHealthCheckResult {
   /** 是否健康 */
   healthy: boolean;
+  /** 状态 */
+  status: RedisClientStatus;
   /** 响应时间（毫秒） */
   latency?: number;
-  /** 状态 */
-  status?: RedisClientStatus;
   /** 错误信息 */
   error?: string;
+  /** 服务器信息 */
+  serverInfo?: {
+    version?: string;
+    connectedClients?: number;
+    usedMemory?: string;
+    uptime?: number;
+  };
 }
 
 // ============================================================================
@@ -53,29 +73,55 @@ export interface RedisHealthCheckResult {
 const DEFAULT_CONFIG: Required<Omit<RedisConfig, 'password'>> & { password?: string } = {
   host: 'localhost',
   port: 6379,
+  password: undefined,
   db: 0,
-  maxRetries: 3,
-  retryDelayMs: 1000,
+  keyPrefix: 'yunshu:',
+  connectTimeout: 10000,
+  maxRetriesPerRequest: 3,
+  enableOfflineQueue: true,
+  offlineQueueMaxSize: 100,
 };
 
 // ============================================================================
-// Redis 连接管理器
+// Redis 客户端管理器
 // ============================================================================
 
 /**
- * Redis 连接管理器（单例模式）
+ * Redis 客户端管理器（单例模式）
+ *
+ * @example
+ * ```typescript
+ * // 初始化
+ * const redisManager = RedisClientManager.getInstance();
+ * await redisManager.connect({ host: 'localhost', port: 6379 });
+ *
+ * // 获取客户端
+ * const client = redisManager.getClient();
+ * if (client) {
+ *   await client.set('key', 'value');
+ * }
+ *
+ * // 健康检查
+ * const health = await redisManager.healthCheck();
+ * console.log(health.healthy);
+ *
+ * // 关闭连接
+ * await redisManager.disconnect();
+ * ```
  */
 export class RedisClientManager {
   private static instance: RedisClientManager | null = null;
 
   private client: Redis | null = null;
-  private config: RedisConfig = {};
   private status: RedisClientStatus = 'disconnected';
+  private config: RedisConfig = {};
   private connectionPromise: Promise<void> | null = null;
 
   private constructor() {}
 
-  /** 获取单例实例 */
+  /**
+   * 获取单例实例
+   */
   public static getInstance(): RedisClientManager {
     if (!RedisClientManager.instance) {
       RedisClientManager.instance = new RedisClientManager();
@@ -83,25 +129,30 @@ export class RedisClientManager {
     return RedisClientManager.instance;
   }
 
-  /** 重置单例（仅用于测试） */
+  /**
+   * 重置单例（仅用于测试）
+   */
   public static resetInstance(): void {
-    if (RedisClientManager.instance?.client) {
-      RedisClientManager.instance.client.disconnect();
-    }
     RedisClientManager.instance = null;
   }
 
-  /** 连接 Redis */
+  /**
+   * 连接 Redis
+   */
   public async connect(config: RedisConfig = {}): Promise<void> {
+    // 如果正在连接中，等待连接完成
     if (this.connectionPromise) {
       return this.connectionPromise;
     }
 
-    if (this.client && this.status === 'connected') {
+    // 如果已连接且配置相同，直接返回
+    if (this.client && this.status === 'ready') {
       return;
     }
 
     this.config = { ...DEFAULT_CONFIG, ...config };
+    this.status = 'connecting';
+
     this.connectionPromise = this.doConnect();
 
     try {
@@ -111,61 +162,83 @@ export class RedisClientManager {
     }
   }
 
+  /**
+   * 执行连接逻辑
+   */
   private async doConnect(): Promise<void> {
-    this.status = 'connecting';
-
     try {
-      const ioredisModule = await import('ioredis');
-      const RedisCtor = ioredisModule.default ?? ioredisModule.Redis;
+      // 动态导入 ioredis
+      const IORedis = await import('ioredis');
 
-      const options: RedisOptions = {
-        host: this.config.host,
-        port: this.config.port,
-        db: this.config.db,
-        password: this.config.password,
-        maxRetriesPerRequest: this.config.maxRetries ?? 3,
-        enableReadyCheck: true,
-        lazyConnect: false,
+      const mergedConfig = { ...DEFAULT_CONFIG, ...this.config };
+
+      this.client = new IORedis.default({
+        host: mergedConfig.host,
+        port: mergedConfig.port,
+        password: mergedConfig.password,
+        db: mergedConfig.db,
+        keyPrefix: mergedConfig.keyPrefix,
+        connectTimeout: mergedConfig.connectTimeout,
+        maxRetriesPerRequest: mergedConfig.maxRetriesPerRequest,
+        enableOfflineQueue: mergedConfig.enableOfflineQueue,
+        // 重试策略
         retryStrategy: (times: number) => {
-          const delay = this.config.retryDelayMs ?? 1000;
-          return Math.min(times * delay, 10000);
+          if (times > mergedConfig.maxRetriesPerRequest) {
+            console.error('[Redis] 连接重试次数超过上限，停止重试');
+            return null; // 停止重试
+          }
+          // 指数退避：1s, 2s, 4s, 8s...
+          const delay = Math.min(times * 1000, 10000);
+          console.warn(`[Redis] 第 ${times} 次重试连接，延迟 ${delay}ms`);
+          return delay;
         },
-      };
+      });
 
-      this.client = new RedisCtor(options) as Redis;
-
+      // 事件监听
       this.client.on('connect', () => {
         this.status = 'connected';
-        console.log('[Redis] 已连接');
+        console.log('[Redis] 已连接到服务器');
+      });
+
+      this.client.on('ready', () => {
+        this.status = 'ready';
+        console.log('[Redis] 客户端就绪');
+      });
+
+      this.client.on('error', (error: Error) => {
+        console.error('[Redis] 连接错误:', error.message);
+        this.status = 'error';
+      });
+
+      this.client.on('close', () => {
+        console.warn('[Redis] 连接已关闭');
+        this.status = 'disconnected';
       });
 
       this.client.on('reconnecting', () => {
-        this.status = 'reconnecting';
-        console.log('[Redis] 尝试重连...');
+        this.status = 'connecting';
+        console.log('[Redis] 正在重新连接...');
       });
 
-      this.client.on('error', (err) => {
-        this.status = 'error';
-        console.error('[Redis] 连接错误:', err.message);
-      });
-
-      // 等待连接就绪
+      // 等待就绪
       await new Promise<void>((resolve, reject) => {
         if (!this.client) {
-          reject(new Error('Redis client 未初始化'));
+          reject(new Error('Redis 客户端未初始化'));
           return;
         }
+
         const timeout = setTimeout(() => {
           reject(new Error('Redis 连接超时'));
-        }, 5000);
-        this.client.once('ready', () => {
+        }, mergedConfig.connectTimeout);
+
+        this.client!.once('ready', () => {
           clearTimeout(timeout);
-          this.status = 'connected';
           resolve();
         });
-        this.client.once('error', (err) => {
+
+        this.client!.once('error', (error: Error) => {
           clearTimeout(timeout);
-          reject(err);
+          reject(error);
         });
       });
 
@@ -176,41 +249,66 @@ export class RedisClientManager {
     }
   }
 
-  /** 获取 Redis 客户端 */
+  /**
+   * 获取 Redis 客户端
+   */
   public getClient(): Redis | null {
     return this.client;
   }
 
-  /** 获取当前状态 */
+  /**
+   * 检查是否已连接
+   */
+  public isConnected(): boolean {
+    return this.client !== null && this.status === 'ready';
+  }
+
+  /**
+   * 获取当前状态
+   */
   public getStatus(): RedisClientStatus {
     return this.status;
   }
 
-  /** 检查是否已连接 */
-  public isAvailable(): boolean {
-    return this.client !== null && this.status === 'connected';
-  }
-
-  /** 健康检查 */
+  /**
+   * 健康检查
+   */
   public async healthCheck(): Promise<RedisHealthCheckResult> {
-    if (!this.client) {
+    if (!this.client || this.status !== 'ready') {
       return {
         healthy: false,
         status: this.status,
-        error: 'Redis 客户端未初始化',
+        error: 'Redis 客户端未连接',
       };
     }
 
     try {
       const startTime = Date.now();
-      await this.client.ping();
+
+      // 执行 PING 命令
+      const pong = await this.client.ping();
       const latency = Date.now() - startTime;
+
+      if (pong !== 'PONG') {
+        return {
+          healthy: false,
+          status: this.status,
+          latency,
+          error: 'PING 响应异常',
+        };
+      }
+
+      // 获取服务器信息
+      const info = await this.client.info();
+      const serverInfo = this.parseRedisInfo(info);
 
       return {
         healthy: true,
-        latency,
         status: this.status,
+        latency,
+        serverInfo,
       };
+
     } catch (error) {
       return {
         healthy: false,
@@ -220,17 +318,55 @@ export class RedisClientManager {
     }
   }
 
-  /** 关闭连接 */
+  /**
+   * 解析 Redis INFO 命令输出
+   */
+  private parseRedisInfo(info: string): RedisHealthCheckResult['serverInfo'] {
+    const result: RedisHealthCheckResult['serverInfo'] = {};
+
+    const lines = info.split('\r\n');
+    for (const line of lines) {
+      const parts = line.split(':');
+      const value = parts[1];
+      if (!value) continue;
+
+      if (line.startsWith('redis_version:')) {
+        result.version = value;
+      } else if (line.startsWith('connected_clients:')) {
+        result.connectedClients = parseInt(value, 10);
+      } else if (line.startsWith('used_memory_human:')) {
+        result.usedMemory = value;
+      } else if (line.startsWith('uptime_in_seconds:')) {
+        result.uptime = parseInt(value, 10);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * 断开连接
+   */
   public async disconnect(): Promise<void> {
-    if (this.client) {
+    if (!this.client) {
+      return;
+    }
+
+    try {
       await this.client.quit();
+    } catch (error) {
+      // 强制关闭
+      this.client.disconnect(false);
+    } finally {
       this.client = null;
       this.status = 'disconnected';
       console.log('[Redis] 已断开连接');
     }
   }
 
-  /** 获取配置 */
+  /**
+   * 获取配置
+   */
   public getConfig(): RedisConfig {
     return { ...this.config };
   }
@@ -240,32 +376,30 @@ export class RedisClientManager {
 // 便捷函数
 // ============================================================================
 
-/** 获取 Redis 客户端 */
-export function getRedisClient(): ReturnType<typeof RedisClientManager.prototype.getClient> {
+/**
+ * 获取 Redis 客户端（便捷函数）
+ */
+export function getRedisClient(): Redis | null {
   return RedisClientManager.getInstance().getClient();
 }
 
-/** 检查 Redis 是否可用 */
+/**
+ * 检查 Redis 是否可用
+ */
 export function isRedisAvailable(): boolean {
-  return RedisClientManager.getInstance().isAvailable();
+  return RedisClientManager.getInstance().isConnected();
 }
 
-/** 获取当前状态 */
-export function getRedisStatus(): RedisClientStatus {
-  return RedisClientManager.getInstance().getStatus();
-}
-
-/** 初始化 Redis 连接 */
+/**
+ * 初始化 Redis 连接（便捷函数）
+ */
 export async function initRedis(config: RedisConfig = {}): Promise<void> {
   await RedisClientManager.getInstance().connect(config);
 }
 
-/** 关闭 Redis 连接 */
+/**
+ * 关闭 Redis 连接（便捷函数）
+ */
 export async function closeRedis(): Promise<void> {
   await RedisClientManager.getInstance().disconnect();
-}
-
-/** Redis 健康检查 */
-export async function healthCheck(): Promise<RedisHealthCheckResult> {
-  return RedisClientManager.getInstance().healthCheck();
 }

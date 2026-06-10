@@ -58,7 +58,7 @@ function onClick(e: MouseEvent) {
 <template>
   <button
     :class="classes"
-    :disabled="isDisabled"
+    :disabled="isDisabled.value"
     v-bind="handlers"
     @click="onClick"
   >

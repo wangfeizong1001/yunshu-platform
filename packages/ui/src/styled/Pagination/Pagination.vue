@@ -25,13 +25,13 @@ function goTo(page: number) {
   <nav class="yun-pagination" aria-label="分页导航">
     <button
       class="yun-pagination__btn"
-      :disabled="!hasPrev"
+      :disabled="!hasPrev.value"
       @click="goTo(current - 1)"
     >
       ‹ 上一页
     </button>
 
-    <template v-for="(item, idx) in pages" :key="idx">
+    <template v-for="(item, idx) in pages.value" :key="idx">
       <span v-if="item.type === 'ellipsis'" class="yun-pagination__ellipsis">…</span>
       <button
         v-else
@@ -45,7 +45,7 @@ function goTo(page: number) {
 
     <button
       class="yun-pagination__btn"
-      :disabled="!hasNext"
+      :disabled="!hasNext.value"
       @click="goTo(current + 1)"
     >
       下一页 ›
