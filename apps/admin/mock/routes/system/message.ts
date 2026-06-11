@@ -190,7 +190,7 @@ export default [
       }
 
       db.messages = db.messages.filter(m => !messageIds.includes(m.messageId))
-      return success(null, `删除成功')
+      return success(null, '删除成功')
     }
   },
 

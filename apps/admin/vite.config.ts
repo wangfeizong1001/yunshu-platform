@@ -86,7 +86,9 @@ function mockPlugin(): Plugin {
     name: 'yunshu-mock-server',
     configureServer(server) {
       server.middlewares.use('/api', async (req, res) => {
-        const url = req.url || '';
+        // Vite 中间件挂载在 /api 时，req.url 不包含 /api 前缀，需要手动拼接
+        // 同时去掉查询参数，只保留路径部分
+        const url = '/api' + ((req.url || '').split('?')[0]);
         const method = (req.method || 'get').toLowerCase();
 
         // 读取请求体

@@ -46,8 +46,7 @@
       "@vue/compiler-sfc": "3.4.29",
       "@vue/server-renderer": "3.4.29",
       "@vue/reactivity": "3.4.29",
-      "@vue/runtime-core": "3.4.29",
-      "@vue/shared": "3.4.29"
+      "@vue/runtime-core": "3.4.29"
     }
   }
 }
