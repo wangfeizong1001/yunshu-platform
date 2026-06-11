@@ -26,8 +26,8 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.0",
     "@playwright/test": "^1.44.0",
-    "@yunshu/eslint-config": "workspace:*",
-    "@yunshu/tsconfig": "workspace:*",
+    "@yunshu/eslint-config": "file:./tools/eslint-config",
+    "@yunshu/tsconfig": "file:./tools/tsconfig",
     "prettier": "^3.2.0",
     "turbo": "^1.13.0",
     "typescript": "^5.4.0"
@@ -36,5 +36,18 @@
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "vue": "3.4.29",
+      "@vue/shared": "3.4.29",
+      "@vue/compiler-dom": "3.4.29",
+      "@vue/runtime-dom": "3.4.29",
+      "@vue/compiler-sfc": "3.4.29",
+      "@vue/server-renderer": "3.4.29",
+      "@vue/reactivity": "3.4.29",
+      "@vue/runtime-core": "3.4.29",
+      "@vue/shared": "3.4.29"
+    }
   }
 }

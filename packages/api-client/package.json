@@ -31,15 +31,15 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@yunshu/shared": "workspace:*"
+    "@yunshu/shared": "file:../shared"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "@yunshu/tsconfig": "workspace:*",
+    "@yunshu/tsconfig": "file:../../tools/tsconfig",
     "tsup": "^8.0.0"
   },
   "peerDependencies": {
-    "vue": "^3.0.0",
+    "vue": "3.4.29",
     "react": "^18.0.0"
   },
   "peerDependenciesMeta": {

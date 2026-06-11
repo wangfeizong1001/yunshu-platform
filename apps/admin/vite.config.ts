@@ -51,7 +51,7 @@ function mockPlugin(): Plugin {
     const tryPaths = [
       `${__dirname}/node_modules/.bin/esbuild`,
       `${__dirname}/../../node_modules/.bin/esbuild`,
-      '/workspace/node_modules/.bin/esbuild',
+      '/workspace/node_modules/.pnpm/esbuild@0.21.5/node_modules/esbuild/bin/esbuild',
     ];
     for (const p of tryPaths) {
       if (fs.existsSync(p)) { esbuildCmd = p; break; }
@@ -59,7 +59,8 @@ function mockPlugin(): Plugin {
 
     const routes: Array<{ url: string; method: string; response: any }> = [];
     for (const tsFile of routeFiles) {
-      const jsFile = `${tmpDir}/${tsFile.split('/').slice(-2).join('_').replace(/\.ts$/, '.js')}`;
+      // 用 .cjs 扩展名，确保 Node 将其作为 CommonJS 处理（不受 package.json type:module 影响）
+      const jsFile = `${tmpDir}/${tsFile.split('/').slice(-2).join('_').replace(/\.ts$/, '.cjs')}`;
       // 用 esbuild CLI 编译
       const { execFileSync } = require('node:child_process');
       execFileSync(esbuildCmd, [

@@ -11,7 +11,7 @@
     "start": "node dist/server/index.js"
   },
   "dependencies": {
-    "vue": "^3.4.0",
+    "vue": "3.4.29",
     "vue-router": "^4.2.0",
     "pinia": "^2.1.0",
     "express": "^4.18.0",

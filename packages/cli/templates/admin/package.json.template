@@ -11,7 +11,7 @@
     "lint": "eslint \"src/**/*.{ts,vue}\""
   },
   "dependencies": {
-    "vue": "^3.4.0",
+    "vue": "3.4.29",
     "vue-router": "^4.2.0",
     "pinia": "^2.1.0",
     "element-plus": "^2.10.0",

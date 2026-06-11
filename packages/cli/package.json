@@ -29,7 +29,7 @@
     "@types/fs-extra": "^11.0.0",
     "@types/inquirer": "^9.0.0",
     "@types/node": "^20.10.0",
-    "@yunshu/tsconfig": "workspace:*",
+    "@yunshu/tsconfig": "file:../../tools/tsconfig",
     "tsup": "^8.0.0"
   },
   "engines": {

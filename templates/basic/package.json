@@ -12,7 +12,7 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "vue": "^3.4.0",
+    "vue": "3.4.29",
     "vue-router": "^4.2.0",
     "pinia": "^2.1.0",
     "@yunshu/design-tokens": "^0.1.0",
