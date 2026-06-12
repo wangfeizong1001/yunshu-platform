@@ -21,8 +21,8 @@
           {{ config.templateCode || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="状态">
-          <el-tag :type="config.status === '1' ? 'success' : 'danger'">
-            {{ config.status === '1' ? '启用' : '禁用' }}
+          <el-tag :type="getSmsStatusTagType(config.status)">
+            {{ getSmsStatusLabel(config.status) }}
           </el-tag>
         </el-descriptions-item>
       </el-descriptions>
@@ -49,8 +49,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'danger'" size="small">
-              {{ row.status === '1' ? '启用' : '禁用' }}
+            <el-tag :type="getSmsStatusTagType(row.status)" size="small">
+              {{ getSmsStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -86,8 +86,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="configForm.status">
-            <el-radio label="1">启用</el-radio>
-            <el-radio label="0">禁用</el-radio>
+            <el-radio :label="SMS_ENABLED">启用</el-radio>
+            <el-radio :label="SMS_DISABLED">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -122,8 +122,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="templateForm.status">
-            <el-radio label="1">启用</el-radio>
-            <el-radio label="0">禁用</el-radio>
+            <el-radio :label="SMS_ENABLED">启用</el-radio>
+            <el-radio :label="SMS_DISABLED">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -145,7 +145,7 @@
         <el-form-item label="模板" prop="templateCode">
           <el-select v-model="sendForm.templateCode" placeholder="请选择模板">
             <el-option
-              v-for="item in templateList.filter(t => t.status === '1')"
+              v-for="item in templateList.filter(t => t.status === SMS_ENABLED)"
               :key="item.templateCode"
               :label="item.templateName"
               :value="item.templateCode"
@@ -172,6 +172,16 @@ import { Edit, Plus } from '@element-plus/icons-vue'
 import { getSmsConfig, saveSmsConfig, sendSms } from '@/api/system/sms.api'
 import type { SmsConfig, SmsTemplate } from '@yunshu/shared'
 
+// 状态常量
+const SMS_ENABLED = '1'
+const SMS_DISABLED = '0'
+
+const getSmsStatusTagType = (val: string) =>
+  val === SMS_ENABLED ? 'success' : 'danger'
+
+const getSmsStatusLabel = (val: string) =>
+  val === SMS_ENABLED ? '启用' : '禁用'
+
 // 配置相关
 const config = reactive<SmsConfig>({
   id: 0,
@@ -180,7 +190,7 @@ const config = reactive<SmsConfig>({
   secretKey: '',
   signName: '',
   templateCode: '',
-  status: '0',
+  status: SMS_DISABLED,
 })
 
 const configVisible = ref(false)
@@ -192,7 +202,7 @@ const configForm = reactive({
   secretKey: '',
   signName: '',
   templateCode: '',
-  status: '1',
+  status: SMS_ENABLED,
 })
 
 const configRules = {
@@ -214,7 +224,7 @@ const templateForm = reactive({
   templateName: '',
   content: '',
   platform: 'aliyun' as 'aliyun' | 'qcloud',
-  status: '1',
+  status: SMS_ENABLED,
   remark: '',
 })
 

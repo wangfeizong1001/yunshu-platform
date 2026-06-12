@@ -117,7 +117,7 @@
                     v-has-permi="['tenant:tenant:status']"
                     @click="handleChangeStatus(row)"
                   >
-                    {{ row.status === '0' ? '停用' : '启用' }}
+                    {{ getTenantStatusToggleLabel(row.status) }}
                   </el-dropdown-item>
                   <el-dropdown-item
                     v-has-permi="['tenant:tenant:delete']"
@@ -170,6 +170,22 @@ import type { Tenant, TenantQuery } from '@yunshu/shared'
 import TenantForm from './TenantForm.vue'
 import TenantDetail from './TenantDetail.vue'
 import TenantPackage from './TenantPackage.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const TENANT_STATUS_NORMAL = '0'
+const TENANT_STATUS_DISABLED = '1'
+
+/** 租户状态 tag 类型 */
+const getTenantStatusTagType = (val: string) =>
+  val === TENANT_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 租户状态文本 */
+const getTenantStatusLabel = (val: string) =>
+  val === TENANT_STATUS_NORMAL ? '正常' : '停用'
+
+/** 租户状态切换操作文本 */
+const getTenantStatusToggleLabel = (val: string) =>
+  val === TENANT_STATUS_NORMAL ? '停用' : '启用'
 
 // 状态
 const loading = ref(false)
@@ -264,18 +280,19 @@ function handlePackage(row: Record<string, unknown>) {
 
 // 修改状态
 async function handleChangeStatus(row: Record<string, unknown>) {
-  const newStatus = row.status === '0' ? '1' : '0'
-  const action = newStatus === '0' ? '启用' : '停用'
+  const newStatus = row.status === TENANT_STATUS_NORMAL ? TENANT_STATUS_DISABLED : TENANT_STATUS_NORMAL
+  const actionLabel = getTenantStatusToggleLabel(row.status)
   try {
-    await ElMessageBox.confirm(`是否确认${action}租户"${row.tenantName}"？`, '提示', {
+    await ElMessageBox.confirm(`是否确认${actionLabel}租户"${row.tenantName}"？`, '提示', {
       type: 'warning',
     })
     await changeTenantStatus(row.tenantId, newStatus as '0' | '1' | '2')
-    ElMessage.success(`${action}成功`)
+    ElMessage.success(`${actionLabel}成功`)
     fetchTenantList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error(`${action}失败`, error)
+      console.error(`[TenantList] handleChangeStatus failed:`, error)
+      ElMessage.error(`${actionLabel}失败，请重试`)
     }
   }
 }

@@ -76,8 +76,8 @@
         <el-table-column prop="roleSort" label="显示顺序" width="100" align="center" />
         <el-table-column prop="status" label="状态" width="80" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getRoleStatusTagType(row.status)">
+              {{ getRoleStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -142,6 +142,17 @@ import { getRolePage, deleteRole } from '@/api/system/role.api'
 import type { SysRole } from '@yunshu/shared'
 import RoleForm from './RoleForm.vue'
 import RolePermission from './RolePermission.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const ROLE_STATUS_NORMAL = '0'
+
+/** 角色状态 tag 类型 */
+const getRoleStatusTagType = (val: string) =>
+  val === ROLE_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 角色状态文本 */
+const getRoleStatusLabel = (val: string) =>
+  val === ROLE_STATUS_NORMAL ? '正常' : '停用'
 
 // 状态
 const loading = ref(false)

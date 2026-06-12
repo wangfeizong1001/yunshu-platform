@@ -89,8 +89,8 @@
         <el-table-column label="操作模块" prop="operModule" width="120" align="center" />
         <el-table-column label="操作状态" prop="status" width="80" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '成功' : '失败' }}
+            <el-tag :type="getOperlogStatusTagType(row.status)">
+              {{ getOperlogStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -138,8 +138,8 @@
         </el-descriptions-item>
         <el-descriptions-item label="操作模块">{{ currentRow?.operModule }}</el-descriptions-item>
         <el-descriptions-item label="操作状态">
-          <el-tag :type="currentRow?.status === '0' ? 'success' : 'danger'">
-            {{ currentRow?.status === '0' ? '成功' : '失败' }}
+          <el-tag :type="getOperlogStatusTagType(currentRow?.status || '')">
+            {{ getOperlogStatusLabel(currentRow?.status || '') }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="请求方法">{{ currentRow?.requestMethod }}</el-descriptions-item>
@@ -166,6 +166,16 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
 import type { IOperlog, IOperlogQuery } from '@yunshu/shared'
 import * as operlogApi from '@/api/monitor/operlog.api'
+
+// 状态常量
+const OPERLOG_STATUS_SUCCESS = '0'
+const OPERLOG_STATUS_FAIL = '1'
+
+const getOperlogStatusTagType = (val: string) =>
+  val === OPERLOG_STATUS_SUCCESS ? 'success' : 'danger'
+
+const getOperlogStatusLabel = (val: string) =>
+  val === OPERLOG_STATUS_SUCCESS ? '成功' : '失败'
 
 const loading = ref(false)
 const tableData = ref<IOperlog[]>([])
@@ -268,8 +278,11 @@ const handleDelete = async (row: IOperlog) => {
     await operlogApi.deleteOperlog(Number(row.operId))
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[OperlogList] handleDelete failed:', err)
+      ElMessage.error('删除失败，请重试')
+    }
   }
 }
 
@@ -279,8 +292,11 @@ const handleBatchDelete = async () => {
     await operlogApi.batchDeleteOperlog(selectedIds.value.map(id => Number(id)))
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[OperlogList] handleBatchDelete failed:', err)
+      ElMessage.error('删除失败，请重试')
+    }
   }
 }
 
@@ -290,8 +306,11 @@ const handleClean = async () => {
     await operlogApi.cleanOperlog()
     ElMessage.success('清空成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[OperlogList] handleClean failed:', err)
+      ElMessage.error('清空失败，请重试')
+    }
   }
 }
 

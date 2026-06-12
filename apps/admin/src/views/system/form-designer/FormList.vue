@@ -58,10 +58,10 @@
         <el-table-column prop="formName" label="表单名称" width="200" />
         <el-table-column prop="formCode" label="表单编码" width="200" />
         <el-table-column prop="description" label="描述" show-overflow-tooltip />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'info'">
-              {{ row.status === '1' ? '已发布' : '草稿' }}
+            <el-tag :type="getFormStatusTagType(row.status)">
+              {{ getFormStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -72,7 +72,7 @@
             <el-button link type="primary" @click="handleDesign(row)">设计</el-button>
             <el-button link type="primary" @click="handlePreview(row)">预览</el-button>
             <el-button
-              v-if="row.status === '0'"
+              v-if="row.status === FORM_STATUS_DRAFT"
               link
               type="success"
               @click="handlePublish(row)"
@@ -80,7 +80,7 @@
               发布
             </el-button>
             <el-button
-              v-if="row.status === '1'"
+              v-if="row.status === FORM_STATUS_PUBLISHED"
               link
               type="warning"
               @click="handleStop(row)"
@@ -166,6 +166,18 @@ import {
 } from '@/api/system/form.api'
 
 const router = useRouter()
+
+// ========== 状态常量（与后端约定字段值） ==========
+const FORM_STATUS_DRAFT = '0'
+const FORM_STATUS_PUBLISHED = '1'
+
+/** 表单状态 tag 类型 */
+const getFormStatusTagType = (val: string) =>
+  val === FORM_STATUS_PUBLISHED ? 'success' : 'info'
+
+/** 表单状态文本 */
+const getFormStatusLabel = (val: string) =>
+  val === FORM_STATUS_PUBLISHED ? '已发布' : '草稿'
 
 // 状态
 const loading = ref(false)
@@ -315,7 +327,7 @@ async function handlePublish(row: Record<string, unknown>) {
     fetchFormList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('发布失败', error)
+      console.error('[FormList] handlePublish failed:', error)
     }
   }
 }
@@ -331,7 +343,7 @@ async function handleStop(row: Record<string, unknown>) {
     fetchFormList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('停用失败', error)
+      console.error('[FormList] handleStop failed:', error)
     }
   }
 }

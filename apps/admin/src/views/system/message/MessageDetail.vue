@@ -10,7 +10,7 @@
       <el-descriptions v-if="messageInfo" :column="1" border>
         <el-descriptions-item label="标题">
           <div class="detail-title">
-            <el-tag v-if="messageInfo.status === '0'" type="warning" size="small">未读</el-tag>
+            <el-tag v-if="messageInfo.status === MSG_STATUS_UNREAD" type="warning" size="small">未读</el-tag>
             {{ messageInfo.title }}
           </div>
         </el-descriptions-item>
@@ -36,7 +36,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose">关闭</el-button>
-        <el-button v-if="messageInfo && messageInfo.status === '0'" type="primary" @click="handleMarkRead">标为已读</el-button>
+        <el-button v-if="messageInfo && messageInfo.status === MSG_STATUS_UNREAD" type="primary" @click="handleMarkRead">标为已读</el-button>
       </div>
     </template>
   </el-dialog>
@@ -46,6 +46,17 @@
 import { ref, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getMessage, markAsRead, type MessageInfo } from '@/api/system/message.api'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const MSG_STATUS_UNREAD = '0'
+
+/** 消息状态 tag 类型 */
+const getMsgStatusTagType = (val?: string) =>
+  val === MSG_STATUS_UNREAD ? 'warning' : 'info'
+
+/** 消息状态文本 */
+const getMsgStatusLabel = (val?: string) =>
+  val === MSG_STATUS_UNREAD ? '未读' : '已读'
 
 const props = defineProps<{
   modelValue: boolean

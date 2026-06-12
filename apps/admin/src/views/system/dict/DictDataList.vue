@@ -73,19 +73,19 @@
         </template>
       </el-table-column>
       <el-table-column prop="isDefault" label="是否默认" width="100">
-        <template #default="{ row }">
-          <el-tag :type="row.isDefault === '1' ? 'success' : 'info'">
-            {{ row.isDefault === '1' ? '是' : '否' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
-        <template #default="{ row }">
-          <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-            {{ row.status === '0' ? '正常' : '停用' }}
-          </el-tag>
-        </template>
-      </el-table-column>
+          <template #default="{ row }">
+            <el-tag :type="getIsDefaultTagType(row.isDefault)">
+              {{ getIsDefaultLabel(row.isDefault) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="getDictStatusTagType(row.status)">
+              {{ getDictStatusLabel(row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
       <el-table-column prop="remark" label="备注" min-width="150" show-overflow-tooltip />
       <el-table-column label="操作" width="150" fixed="right">
         <template #default="{ row }">
@@ -151,6 +151,24 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+// ========== 状态常量（与后端约定字段值） ==========
+const IS_DEFAULT_YES = '1'
+const DICT_STATUS_NORMAL = '0'
+
+/** 是否默认 tag 类型 */
+const getIsDefaultTagType = (val: string) => (val === IS_DEFAULT_YES ? 'success' : 'info')
+
+/** 是否默认文本 */
+const getIsDefaultLabel = (val: string) => (val === IS_DEFAULT_YES ? '是' : '否')
+
+/** 字典数据状态 tag 类型 */
+const getDictStatusTagType = (val: string) =>
+  val === DICT_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 字典数据状态文本 */
+const getDictStatusLabel = (val: string) =>
+  val === DICT_STATUS_NORMAL ? '正常' : '停用'
 
 // 计算属性
 const visible = computed({
