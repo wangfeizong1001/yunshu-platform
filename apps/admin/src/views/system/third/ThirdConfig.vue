@@ -49,8 +49,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'danger'" size="small">
-              {{ row.status === '1' ? '启用' : '禁用' }}
+            <el-tag :type="getThirdConfigStatusTagType(row.status)" size="small">
+              {{ getThirdConfigStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -119,6 +119,16 @@ import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getThirdConfigList, updateThirdConfig } from '@/api/system/third.api'
 import type { ThirdLoginConfig, ThirdConfigQuery } from '@yunshu/shared'
 
+// 状态常量
+const THIRD_CONFIG_ENABLED = '1'
+const THIRD_CONFIG_DISABLED = '0'
+
+const getThirdConfigStatusTagType = (val: string) =>
+  val === THIRD_CONFIG_ENABLED ? 'success' : 'danger'
+
+const getThirdConfigStatusLabel = (val: string) =>
+  val === THIRD_CONFIG_ENABLED ? '启用' : '禁用'
+
 // 状态
 const loading = ref(false)
 const formLoading = ref(false)
@@ -137,7 +147,7 @@ const form = reactive({
   appSecret: '',
   callbackUrl: '',
   scopes: [] as string[],
-  status: '1',
+  status: THIRD_CONFIG_ENABLED,
   remark: '',
 })
 

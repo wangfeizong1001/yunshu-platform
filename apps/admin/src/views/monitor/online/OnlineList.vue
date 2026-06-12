@@ -148,8 +148,9 @@ const loadStats = async () => {
       const data = responseData.data as Record<string, unknown>
       stats.value.onlineCount = Number(data.onlineCount) || 0
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    console.error('[OnlineList] loadStats failed:', err)
+    // 静默降级，保持 stats 为 0
   }
 }
 
@@ -193,8 +194,11 @@ const handleForceLogout = async (row: OnlineInfo) => {
     ElMessage.success('强制下线成功')
     loadStats()
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[OnlineList] handleForceLogout failed:', err)
+      ElMessage.error('强制下线失败，请重试')
+    }
   }
 }
 
@@ -205,8 +209,11 @@ const handleBatchForceLogout = async () => {
     ElMessage.success('批量强制下线成功')
     loadStats()
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[OnlineList] handleBatchForceLogout failed:', err)
+      ElMessage.error('批量强制下线失败，请重试')
+    }
   }
 }
 

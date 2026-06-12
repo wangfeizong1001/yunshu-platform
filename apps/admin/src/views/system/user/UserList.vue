@@ -57,13 +57,13 @@
         <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
         <el-table-column prop="sex" label="性别" width="80">
           <template #default="{ row }">
-            {{ row.sex === '0' ? '男' : row.sex === '1' ? '女' : '未知' }}
+            {{ getSexLabel(row.sex) }}
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getUserStatusTagType(row.status)">
+              {{ getUserStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -131,6 +131,24 @@ const queryParams = reactive({
   pageNum: 1,
   pageSize: 10,
 })
+
+// ========== 状态常量（与后端约定字段值） ==========
+const USER_SEX_MALE = '0'
+const USER_SEX_FEMALE = '1'
+const USER_STATUS_NORMAL = '0'
+const USER_STATUS_DISABLED = '1'
+
+/** 性别文本 */
+const getSexLabel = (val: string) =>
+  val === USER_SEX_MALE ? '男' : val === USER_SEX_FEMALE ? '女' : '未知'
+
+/** 用户状态 tag 类型 */
+const getUserStatusTagType = (val: string) =>
+  val === USER_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 用户状态文本 */
+const getUserStatusLabel = (val: string) =>
+  val === USER_STATUS_NORMAL ? '正常' : '停用'
 
 async function fetchUserList() {
   loading.value = true

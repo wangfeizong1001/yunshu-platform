@@ -58,8 +58,8 @@
         <el-table-column prop="email" label="邮箱" width="180" />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getDeptStatusTagType(row.status)">
+              {{ getDeptStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -108,6 +108,17 @@ import { getDeptTree, deleteDept } from '@/api/system/dept.api'
 import type { DeptQuery } from '@/api/system/dept.api'
 import type { SysDept } from '@yunshu/shared'
 import DeptForm from './DeptForm.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const DEPT_STATUS_NORMAL = '0'
+
+/** 部门状态 tag 类型 */
+const getDeptStatusTagType = (val: string) =>
+  val === DEPT_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 部门状态文本 */
+const getDeptStatusLabel = (val: string) =>
+  val === DEPT_STATUS_NORMAL ? '正常' : '停用'
 
 // 状态
 const loading = ref(false)

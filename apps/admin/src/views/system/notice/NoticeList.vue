@@ -63,15 +63,15 @@
         <el-table-column prop="noticeTitle" label="公告标题" min-width="200" show-overflow-tooltip />
         <el-table-column prop="noticeType" label="公告类型" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.noticeType === '1' ? 'primary' : 'info'">
-              {{ row.noticeType === '1' ? '通知' : '公告' }}
+            <el-tag :type="getNoticeTypeTagType(row.noticeType)">
+              {{ getNoticeTypeLabel(row.noticeType) }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'warning'">
-              {{ row.status === '0' ? '发布' : '撤回' }}
+            <el-tag :type="getNoticeStatusTagType(row.status)">
+              {{ getNoticeStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -160,6 +160,28 @@ import {
 import type { SysNotice, SysNoticeQuery } from '@yunshu/shared'
 import NoticeForm from './NoticeForm.vue'
 import NoticeDetail from './NoticeDetail.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const NOTICE_TYPE_NOTIFY = '1'
+const NOTICE_TYPE_ANNOUNCE = '2'
+const NOTICE_STATUS_PUBLISHED = '0'
+const NOTICE_STATUS_WITHDRAWN = '1'
+
+/** 公告类型 tag 类型 */
+const getNoticeTypeTagType = (val: string) =>
+  val === NOTICE_TYPE_NOTIFY ? 'primary' : 'info'
+
+/** 公告类型文本 */
+const getNoticeTypeLabel = (val: string) =>
+  val === NOTICE_TYPE_NOTIFY ? '通知' : '公告'
+
+/** 公告状态 tag 类型 */
+const getNoticeStatusTagType = (val: string) =>
+  val === NOTICE_STATUS_PUBLISHED ? 'success' : 'warning'
+
+/** 公告状态文本 */
+const getNoticeStatusLabel = (val: string) =>
+  val === NOTICE_STATUS_PUBLISHED ? '发布' : '撤回'
 
 // 状态
 const loading = ref(false)

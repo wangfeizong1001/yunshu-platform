@@ -64,8 +64,8 @@
         </el-table-column>
         <el-table-column label="并发执行" prop="concurrent" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.concurrent === '0' ? 'success' : 'warning'">
-              {{ row.concurrent === '0' ? '允许' : '禁止' }}
+            <el-tag :type="getConcurrentTagType(row.concurrent)">
+              {{ getConcurrentLabel(row.concurrent) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -73,8 +73,8 @@
           <template #default="{ row }">
             <el-switch
               v-model="row.status"
-              active-value="0"
-              inactive-value="1"
+              :active-value="JOB_STATUS_NORMAL"
+              :inactive-value="JOB_STATUS_DISABLED"
               @change="handleStatusChange(row)"
             />
           </template>
@@ -130,6 +130,24 @@ import type { JobInfo, JobQuery } from '@/api/monitor/job.api'
 import * as jobApi from '@/api/monitor/job.api'
 import JobForm from './JobForm.vue'
 import JobLogDrawer from './JobLogDrawer.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const JOB_STATUS_NORMAL = '0'
+const JOB_STATUS_DISABLED = '1'
+const JOB_CONCURRENT_ALLOW = '0'
+const JOB_CONCURRENT_FORBID = '1'
+
+/** 任务并发执行状态 tag 类型 */
+const getConcurrentTagType = (val: string) =>
+  val === JOB_CONCURRENT_ALLOW ? 'success' : 'warning'
+
+/** 任务并发执行状态文本 */
+const getConcurrentLabel = (val: string) =>
+  val === JOB_CONCURRENT_ALLOW ? '允许' : '禁止'
+
+/** 任务状态切换后提示文本 */
+const getStatusToggleMessage = (val: string) =>
+  val === JOB_STATUS_NORMAL ? '任务已启用' : '任务已暂停'
 
 const loading = ref(false)
 const tableData = ref<JobInfo[]>([])
@@ -226,8 +244,11 @@ const handleDelete = async (row: JobInfo) => {
     await jobApi.deleteJob(row.jobId)
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[JobList] handleDelete failed:', err)
+      ElMessage.error('删除任务失败，请重试')
+    }
   }
 }
 
@@ -239,16 +260,20 @@ const handleBatchDelete = async () => {
     }
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[JobList] handleBatchDelete failed:', err)
+      ElMessage.error('批量删除失败，请重试')
+    }
   }
 }
 
 const handleStatusChange = async (row: IJob) => {
   try {
     await jobApi.changeJobStatus(Number(row.jobId), row.status)
-    ElMessage.success(row.status === '0' ? '任务已启用' : '任务已暂停')
-  } catch {
+    ElMessage.success(getStatusToggleMessage(row.status))
+  } catch (err) {
+    console.error('[JobList] handleStatusChange failed:', err)
     ElMessage.error('状态修改失败')
   }
 }
@@ -259,8 +284,11 @@ const handleExecute = async (row: JobInfo) => {
     await jobApi.runJob(row.jobId)
     ElMessage.success('任务执行成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[JobList] handleExecute failed:', err)
+      ElMessage.error('任务执行失败，请重试')
+    }
   }
 }
 

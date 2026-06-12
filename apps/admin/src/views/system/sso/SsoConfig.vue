@@ -59,8 +59,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'danger'" size="small">
-              {{ row.status === '1' ? '启用' : '禁用' }}
+            <el-tag :type="getSsoAppStatusTagType(row.status)" size="small">
+              {{ getSsoAppStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -148,8 +148,8 @@
           <el-col :span="12">
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="appForm.status">
-                <el-radio label="1">启用</el-radio>
-                <el-radio label="0">禁用</el-radio>
+                <el-radio :label="SSO_APP_ENABLED">启用</el-radio>
+                <el-radio :label="SSO_APP_DISABLED">禁用</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -197,6 +197,16 @@ import { getSsoConfig, saveSsoConfig } from '@/api/system/sso.api'
 import { getMockSsoAppPage } from '@/mock/system/sso.mock'
 import type { SsoConfig, SsoApplication, SsoAppQuery } from '@yunshu/shared'
 
+// 应用状态常量
+const SSO_APP_ENABLED = '1'
+const SSO_APP_DISABLED = '0'
+
+const getSsoAppStatusTagType = (val: string) =>
+  val === SSO_APP_ENABLED ? 'success' : 'danger'
+
+const getSsoAppStatusLabel = (val: string) =>
+  val === SSO_APP_ENABLED ? '启用' : '禁用'
+
 // 全局配置相关
 const config = reactive<SsoConfig>({
   type: 'oauth2',
@@ -240,7 +250,7 @@ const appForm = reactive({
   userInfoUrl: '',
   scopes: [] as string[],
   logo: '',
-  status: '1',
+  status: SSO_APP_ENABLED,
   remark: '',
 })
 

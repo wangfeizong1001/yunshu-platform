@@ -77,8 +77,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getPackageStatusTagType(row.status)">
+              {{ getPackageStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -133,6 +133,18 @@ import { getPackagePage, deletePackage } from '@/api/tenant/tenant.api'
 import type { TenantPackage, TenantPackageQuery } from '@yunshu/shared'
 import { PackageTypeEnum, ExpireTypeEnum } from '@yunshu/shared'
 import PackageForm from './PackageForm.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const PACKAGE_STATUS_NORMAL = '0'
+const PACKAGE_STATUS_DISABLED = '1'
+
+/** 套餐状态 tag 类型 */
+const getPackageStatusTagType = (val: string) =>
+  val === PACKAGE_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 套餐状态文本 */
+const getPackageStatusLabel = (val: string) =>
+  val === PACKAGE_STATUS_NORMAL ? '正常' : '停用'
 
 // 状态
 const loading = ref(false)

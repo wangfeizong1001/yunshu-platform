@@ -20,9 +20,9 @@
             >
               {{ tag }}
             </el-tag>
-            <el-tag :type="knowledgeData.status === '0' ? 'success' : 'info'" size="small">
-              {{ knowledgeData.status === '0' ? '已发布' : '草稿' }}
-            </el-tag>
+            <el-tag :type="getKnowledgeStatusTagType(knowledgeData.status)" size="small">
+          {{ getKnowledgeStatusLabel(knowledgeData.status) }}
+        </el-tag>
             <span class="meta-item">
               <el-icon><View /></el-icon>
               {{ knowledgeData.viewCount }}
@@ -68,6 +68,17 @@ import { ref, computed, watch } from 'vue'
 import SafeHtml from '@/components/SafeHtml/index.vue'
 import { View, User, Clock } from '@element-plus/icons-vue'
 import { getKnowledge, type KnowledgeInfo } from '@/api/system/knowledge.api'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const KNOWLEDGE_STATUS_PUBLISHED = '0'
+
+/** 知识库状态 tag 类型 */
+const getKnowledgeStatusTagType = (val?: string) =>
+  val === KNOWLEDGE_STATUS_PUBLISHED ? 'success' : 'info'
+
+/** 知识库状态文本 */
+const getKnowledgeStatusLabel = (val?: string) =>
+  val === KNOWLEDGE_STATUS_PUBLISHED ? '已发布' : '草稿'
 
 interface Props {
   modelValue: boolean

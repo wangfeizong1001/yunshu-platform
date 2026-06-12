@@ -10,12 +10,12 @@
       <div class="notice-header">
         <h2 class="notice-title">{{ noticeData?.noticeTitle }}</h2>
         <div class="notice-meta">
-          <el-tag :type="noticeData?.noticeType === '1' ? 'primary' : 'info'" size="small">
-            {{ noticeData?.noticeType === '1' ? '通知' : '公告' }}
-          </el-tag>
-          <el-tag :type="noticeData?.status === '0' ? 'success' : 'warning'" size="small">
-            {{ noticeData?.status === '0' ? '已发布' : '已撤回' }}
-          </el-tag>
+          <el-tag :type="getNoticeTypeTagType(noticeData?.noticeType)" size="small">
+          {{ getNoticeTypeLabel(noticeData?.noticeType) }}
+        </el-tag>
+        <el-tag :type="getNoticeStatusTagType(noticeData?.status)" size="small">
+          {{ getNoticeStatusLabel(noticeData?.status) }}
+        </el-tag>
           <span class="create-time">创建时间：{{ noticeData?.createTime }}</span>
         </div>
       </div>
@@ -39,6 +39,26 @@ import { ref, computed, watch } from 'vue'
 import SafeHtml from '@/components/SafeHtml/index.vue'
 import { getNoticeDetail } from '@/api/system/notice.api'
 import type { SysNotice } from '@yunshu/shared'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const NOTICE_TYPE_NOTIFY = '1'
+const NOTICE_STATUS_PUBLISHED = '0'
+
+/** 公告类型 tag 类型 */
+const getNoticeTypeTagType = (val?: string) =>
+  val === NOTICE_TYPE_NOTIFY ? 'primary' : 'info'
+
+/** 公告类型文本 */
+const getNoticeTypeLabel = (val?: string) =>
+  val === NOTICE_TYPE_NOTIFY ? '通知' : '公告'
+
+/** 公告状态 tag 类型 */
+const getNoticeStatusTagType = (val?: string) =>
+  val === NOTICE_STATUS_PUBLISHED ? 'success' : 'warning'
+
+/** 公告状态文本 */
+const getNoticeStatusLabel = (val?: string) =>
+  val === NOTICE_STATUS_PUBLISHED ? '已发布' : '已撤回'
 
 interface Props {
   modelValue: boolean

@@ -81,8 +81,8 @@
         <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getReportStatusTagType(row.status)">
+              {{ getReportStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -174,8 +174,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="formData.status">
-            <el-radio value="0">正常</el-radio>
-            <el-radio value="1">停用</el-radio>
+            <el-radio :value="REPORT_STATUS_NORMAL">正常</el-radio>
+            <el-radio :value="REPORT_STATUS_DISABLED">停用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -237,6 +237,16 @@ import {
 } from '@/api/report.api'
 import { exportToExcel } from '@/utils/export'
 
+// 状态常量
+const REPORT_STATUS_NORMAL = '0'
+const REPORT_STATUS_DISABLED = '1'
+
+const getReportStatusTagType = (val: string) =>
+  val === REPORT_STATUS_NORMAL ? 'success' : 'danger'
+
+const getReportStatusLabel = (val: string) =>
+  val === REPORT_STATUS_NORMAL ? '正常' : '停用'
+
 const router = useRouter()
 
 // 状态
@@ -268,7 +278,7 @@ const formData = reactive<ReportForm>({
   reportCode: '',
   reportType: 'chart',
   description: '',
-  status: '0',
+  status: REPORT_STATUS_NORMAL,
   remark: ''
 })
 

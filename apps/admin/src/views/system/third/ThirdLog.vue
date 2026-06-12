@@ -70,8 +70,8 @@
         <el-table-column prop="ip" label="IP 地址" width="140" />
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'danger'" size="small">
-              {{ row.status === '1' ? '成功' : '失败' }}
+            <el-tag :type="getThirdLogStatusTagType(row.status)" size="small">
+              {{ getThirdLogStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -104,6 +104,16 @@ import { ref, reactive, onMounted } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { getThirdLoginLogList } from '@/api/system/third.api'
 import type { ThirdLoginLog, ThirdLoginLogQuery } from '@yunshu/shared'
+
+// 状态常量
+const THIRD_LOG_SUCCESS = '1'
+const THIRD_LOG_ERROR = '0'
+
+const getThirdLogStatusTagType = (val: string) =>
+  val === THIRD_LOG_SUCCESS ? 'success' : 'danger'
+
+const getThirdLogStatusLabel = (val: string) =>
+  val === THIRD_LOG_SUCCESS ? '成功' : '失败'
 
 // 状态
 const loading = ref(false)

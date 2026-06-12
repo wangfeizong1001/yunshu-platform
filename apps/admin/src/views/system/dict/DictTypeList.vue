@@ -70,8 +70,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getDictStatusTagType(row.status)">
+              {{ getDictStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -131,6 +131,17 @@ import DictTypeForm from './DictTypeForm.vue'
 import DictDataList from './DictDataList.vue'
 
 // 状态
+// ========== 状态常量（与后端约定字段值） ==========
+const DICT_STATUS_NORMAL = '0'
+
+/** 字典状态 tag 类型 */
+const getDictStatusTagType = (val: string) =>
+  val === DICT_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 字典状态文本 */
+const getDictStatusLabel = (val: string) =>
+  val === DICT_STATUS_NORMAL ? '正常' : '停用'
+
 const loading = ref(false)
 const dictTypeList = ref<SysDictType[]>([])
 const total = ref(0)

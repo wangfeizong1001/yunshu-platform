@@ -59,8 +59,8 @@
         <el-table-column prop="postSort" label="显示顺序" width="100" />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getPostStatusTagType(row.status)">
+              {{ getPostStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -114,6 +114,17 @@ import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getPostPage, deletePost } from '@/api/system/post.api'
 import type { SysPost } from '@yunshu/shared'
 import PostForm from './PostForm.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const POST_STATUS_NORMAL = '0'
+
+/** 岗位状态 tag 类型 */
+const getPostStatusTagType = (val: string) =>
+  val === POST_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 岗位状态文本 */
+const getPostStatusLabel = (val: string) =>
+  val === POST_STATUS_NORMAL ? '正常' : '停用'
 
 // 状态
 const loading = ref(false)

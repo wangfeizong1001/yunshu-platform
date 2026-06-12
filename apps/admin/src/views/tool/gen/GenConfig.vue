@@ -417,7 +417,11 @@ const handleSave = async () => {
       }))
     })
     ElMessage.success('保存成功')
-  } catch {
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[GenConfig] handleSave failed:', err)
+      ElMessage.error('保存失败，请重试')
+    }
   }
 }
 
@@ -439,7 +443,11 @@ const handleSyncTable = async () => {
       }))
       ElMessage.success('同步成功')
     }
-  } catch {
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[GenConfig] handleSyncTable failed:', err)
+      ElMessage.error('同步字段失败，请重试')
+    }
   }
 }
 
