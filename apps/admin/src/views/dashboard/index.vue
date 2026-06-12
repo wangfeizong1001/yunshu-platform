@@ -3,110 +3,133 @@
     <!-- 欢迎区域 -->
     <el-row :gutter="16" class="welcome-section">
       <el-col :span="24">
-        <el-card shadow="hover" class="welcome-card">
-          <div class="welcome-content">
-            <div class="welcome-left">
-              <div class="welcome-text">
-                <h2>早安，{{ userStore.nickname || userStore.username }}！祝您今天工作愉快~</h2>
-                <p class="date-time">
-                  <el-icon><Calendar /></el-icon>
-                  {{ currentDateTime }}
-                </p>
-              </div>
-            </div>
-            <div class="welcome-right">
-              <div class="today-stats">
-                <div class="stat-item">
-                  <span class="stat-label">今日任务</span>
-                  <span class="stat-value warning">{{ todayStats.taskCount }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">已完成</span>
-                  <span class="stat-value success">{{ todayStats.completedCount }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">进行中</span>
-                  <span class="stat-value primary">{{ todayStats.inProgressCount }}</span>
-                </div>
-              </div>
+        <div class="welcome-card">
+          <div class="welcome-left">
+            <h2>
+              <span class="greeting">{{ greetingText }}</span>
+              {{ userStore.nickname || userStore.username }}！
+            </h2>
+            <p class="date-time">
+              <el-icon><Calendar /></el-icon>
+              {{ currentDateTime }}
+              <span class="separator">·</span>
+              <el-icon><Sunny v-if="isDaytime" /><Moon v-else /></el-icon>
+              {{ isDaytime ? '白天' : '夜晚' }}
+            </p>
+          </div>
+          <div class="welcome-right">
+            <div class="quick-stat" v-for="item in quickStats" :key="item.label">
+              <span class="stat-label">{{ item.label }}</span>
+              <span class="stat-value">{{ item.value }}</span>
+              <span class="stat-trend" :class="item.trend >= 0 ? 'up' : 'down'">
+                <el-icon><CaretTop v-if="item.trend >= 0" /><CaretBottom v-else /></el-icon>
+                {{ Math.abs(item.trend) }}%
+              </span>
             </div>
           </div>
-        </el-card>
+        </div>
       </el-col>
     </el-row>
 
     <!-- 统计卡片区域 -->
     <el-row :gutter="16" class="stat-section">
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-icon" style="background-color: #409eff">
-            <el-icon :size="32"><User /></el-icon>
+      <el-col :xs="24" :sm="12" :md="6" v-for="(card, idx) in statCards" :key="card.key">
+        <div class="stat-card" :style="{ '--card-color': card.color }">
+          <div class="stat-icon">
+            <el-icon :size="28"><component :is="card.icon" /></el-icon>
           </div>
           <div class="stat-info">
-            <div class="stat-value">{{ stats.userCount }}</div>
-            <div class="stat-label">用户总数</div>
+            <div class="stat-value">{{ formatNumber(overview[card.key] || 0) }}</div>
+            <div class="stat-label">{{ card.label }}</div>
           </div>
-          <div class="stat-trend up">
+          <div class="stat-trend" :class="overview[card.growthKey] >= 0 ? 'up' : 'down'">
             <el-icon><TrendCharts /></el-icon>
-            <span>+12%</span>
+            <span>{{ overview[card.growthKey] >= 0 ? '+' : '' }}{{ overview[card.growthKey] }}%</span>
+            <span class="trend-label">较昨日</span>
           </div>
-        </el-card>
-      </el-col>
-
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-icon" style="background-color: #67c23a">
-            <el-icon :size="32"><Key /></el-icon>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">{{ stats.roleCount }}</div>
-            <div class="stat-label">角色总数</div>
-          </div>
-          <div class="stat-trend up">
-            <el-icon><TrendCharts /></el-icon>
-            <span>+3</span>
-          </div>
-        </el-card>
-      </el-col>
-
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-icon" style="background-color: #e6a23c">
-            <el-icon :size="32"><UserFilled /></el-icon>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">{{ stats.onlineCount }}</div>
-            <div class="stat-label">在线人数</div>
-          </div>
-          <div class="stat-trend" :class="stats.onlineCount > 10 ? 'up' : 'down'">
-            <el-icon><TrendCharts /></el-icon>
-            <span>{{ stats.onlineCount > 10 ? '+5' : '-2' }}</span>
-          </div>
-        </el-card>
-      </el-col>
-
-      <el-col :xs="24" :sm="12" :md="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-icon" style="background-color: #f56c6c">
-            <el-icon :size="32"><Connection /></el-icon>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">{{ stats.todayVisit }}</div>
-            <div class="stat-label">今日访问量</div>
-          </div>
-          <div class="stat-trend up">
-            <el-icon><TrendCharts /></el-icon>
-            <span>+8%</span>
-          </div>
-        </el-card>
+          <div class="mini-chart" ref="miniChartRefs" :data-index="idx"></div>
+        </div>
       </el-col>
     </el-row>
 
-    <!-- 快捷操作和服务器信息 -->
-    <el-row :gutter="16" class="content-section">
+    <!-- 图表区域第一行 -->
+    <el-row :gutter="16" class="chart-section">
       <el-col :xs="24" :lg="14">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <el-icon><DataAnalysis /></el-icon>
+              <span>用户活跃趋势</span>
+            </div>
+            <div class="chart-tabs">
+              <el-radio-group v-model="growthTrendType" size="small">
+                <el-radio-button value="newUsers">新增用户</el-radio-button>
+                <el-radio-button value="activeUsers">活跃用户</el-radio-button>
+                <el-radio-button value="logins">登录次数</el-radio-button>
+              </el-radio-group>
+            </div>
+          </div>
+          <div class="chart-body">
+            <v-chart class="chart" :option="userGrowthChartOption" autoresize />
+          </div>
+        </div>
+      </el-col>
+      <el-col :xs="24" :lg="10">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <el-icon><PieChart /></el-icon>
+              <span>操作类型分布</span>
+            </div>
+          </div>
+          <div class="chart-body">
+            <v-chart class="chart" :option="operationTypeChartOption" autoresize />
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+
+    <!-- 图表区域第二行 -->
+    <el-row :gutter="16" class="chart-section">
+      <el-col :xs="24" :lg="14">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <el-icon><Monitor /></el-icon>
+              <span>系统资源使用率</span>
+            </div>
+            <div class="chart-subtitle">最近 24 小时</div>
+          </div>
+          <div class="chart-body">
+            <v-chart class="chart" :option="resourceChartOption" autoresize />
+          </div>
+        </div>
+      </el-col>
+      <el-col :xs="24" :lg="10">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              <el-icon><Histogram /></el-icon>
+              <span>登录时间分布</span>
+            </div>
+            <div class="chart-subtitle">按小时统计</div>
+          </div>
+          <div class="chart-body">
+            <v-chart class="chart" :option="loginDistributionChartOption" autoresize />
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+
+    <!-- 快捷操作和操作日志 -->
+    <el-row :gutter="16" class="content-section">
+      <el-col :xs="24" :lg="8">
         <!-- 快捷操作区域 -->
-        <el-card shadow="hover" header="快捷操作" class="quick-action-card">
+        <div class="action-card">
+          <div class="action-header">
+            <el-icon><MagicStick /></el-icon>
+            <span>快捷操作</span>
+          </div>
           <div class="quick-entry">
             <div
               v-for="item in quickEntries"
@@ -115,23 +138,75 @@
               @click="handleQuickEntry(item.path)"
             >
               <div class="quick-icon" :style="{ backgroundColor: item.color }">
-                <el-icon :size="24"><component :is="item.icon" /></el-icon>
+                <el-icon :size="20"><component :is="item.icon" /></el-icon>
               </div>
               <span class="quick-title">{{ item.title }}</span>
-              <span class="quick-desc">{{ item.desc }}</span>
             </div>
           </div>
-        </el-card>
+        </div>
 
+        <!-- 服务器信息概览 -->
+        <div class="server-card">
+          <div class="server-header">
+            <el-icon><Cpu /></el-icon>
+            <span>系统状态</span>
+            <span class="status-badge up">运行正常</span>
+          </div>
+          <div class="server-stats">
+            <div class="server-stat-item">
+              <div class="server-stat-label">CPU 使用率</div>
+              <div class="server-stat-bar">
+                <el-progress
+                  :percentage="serverInfo.cpuUsage"
+                  :stroke-width="8"
+                  :color="getProgressColor(serverInfo.cpuUsage)"
+                  :show-text="false"
+                />
+              </div>
+              <div class="server-stat-value">{{ serverInfo.cpuUsage }}%</div>
+            </div>
+            <div class="server-stat-item">
+              <div class="server-stat-label">内存使用率</div>
+              <div class="server-stat-bar">
+                <el-progress
+                  :percentage="serverInfo.memoryUsage"
+                  :stroke-width="8"
+                  :color="getProgressColor(serverInfo.memoryUsage)"
+                  :show-text="false"
+                />
+              </div>
+              <div class="server-stat-value">{{ serverInfo.memoryUsage }}%</div>
+            </div>
+            <div class="server-stat-item">
+              <div class="server-stat-label">磁盘使用率</div>
+              <div class="server-stat-bar">
+                <el-progress
+                  :percentage="serverInfo.diskUsage"
+                  :stroke-width="8"
+                  :color="getProgressColor(serverInfo.diskUsage)"
+                  :show-text="false"
+                />
+              </div>
+              <div class="server-stat-value">{{ serverInfo.diskUsage }}%</div>
+            </div>
+          </div>
+        </div>
+      </el-col>
+
+      <el-col :xs="24" :lg="16">
         <!-- 最近操作日志 -->
-        <el-card shadow="hover" header="最近操作日志" class="log-card">
-          <template #header-actions>
+        <div class="log-card">
+          <div class="log-header">
+            <div class="log-title">
+              <el-icon><Document /></el-icon>
+              <span>最近操作日志</span>
+            </div>
             <el-button type="primary" link @click="router.push('/monitor/operlog')">
               查看更多
               <el-icon><ArrowRight /></el-icon>
             </el-button>
-          </template>
-          <el-table :data="operLogs" style="width: 100%" :show-header="true" size="small">
+          </div>
+          <el-table :data="operLogs" style="width: 100%" :show-header="true" size="default" stripe>
             <el-table-column prop="operName" label="操作人" width="100" />
             <el-table-column prop="operModule" label="操作模块" width="120" />
             <el-table-column prop="operType" label="操作类型" width="80">
@@ -154,198 +229,81 @@
               </template>
             </el-table-column>
           </el-table>
-        </el-card>
-      </el-col>
-
-      <el-col :xs="24" :lg="10">
-        <!-- 服务器信息 -->
-        <el-card shadow="hover" header="服务器信息" class="server-card">
-          <template #header-actions>
-            <el-button type="primary" link @click="router.push('/monitor/server')">
-              详情
-              <el-icon><ArrowRight /></el-icon>
-            </el-button>
-          </template>
-          <div class="server-info">
-            <div class="server-header">
-              <div class="server-name">
-                <el-icon><Monitor /></el-icon>
-                <span>{{ serverInfo.serverName }}</span>
-              </div>
-              <div class="server-status">
-                <span class="status-dot"></span>
-                <span>运行正常</span>
-              </div>
-            </div>
-
-            <div class="server-base">
-              <div class="base-item">
-                <span class="base-label">操作系统</span>
-                <span class="base-value">{{ serverInfo.os }}</span>
-              </div>
-              <div class="base-item">
-                <span class="base-label">服务器地址</span>
-                <span class="base-value">{{ serverInfo.hostName }}</span>
-              </div>
-              <div class="base-item">
-                <span class="base-label">Java版本</span>
-                <span class="base-value">{{ serverInfo.javaVersion }}</span>
-              </div>
-              <div class="base-item">
-                <span class="base-label">数据库</span>
-                <span class="base-value">{{ serverInfo.database }}</span>
-              </div>
-            </div>
-
-            <div class="usage-section">
-              <h4>资源使用率</h4>
-
-              <div class="usage-item">
-                <div class="usage-header">
-                  <span class="usage-label">
-                    <el-icon><Cpu /></el-icon>
-                    CPU 使用率
-                  </span>
-                  <span class="usage-value">{{ serverInfo.cpuUsage }}%</span>
-                </div>
-                <el-progress
-                  :percentage="serverInfo.cpuUsage"
-                  :stroke-width="10"
-                  :color="getProgressColor(serverInfo.cpuUsage)"
-                  :show-text="false"
-                />
-              </div>
-
-              <div class="usage-item">
-                <div class="usage-header">
-                  <span class="usage-label">
-                    <el-icon><FolderOpened /></el-icon>
-                    内存使用率
-                  </span>
-                  <span class="usage-value">{{ serverInfo.memoryUsage }}%</span>
-                </div>
-                <el-progress
-                  :percentage="serverInfo.memoryUsage"
-                  :stroke-width="10"
-                  :color="getProgressColor(serverInfo.memoryUsage)"
-                  :show-text="false"
-                />
-                <div class="usage-detail">
-                  已用 {{ serverInfo.memoryUsed }} GB / 总计 {{ serverInfo.memoryTotal }} GB
-                </div>
-              </div>
-
-              <div class="usage-item">
-                <div class="usage-header">
-                  <span class="usage-label">
-                    <el-icon><FolderOpened /></el-icon>
-                    磁盘使用率
-                  </span>
-                  <span class="usage-value">{{ serverInfo.diskUsage }}%</span>
-                </div>
-                <el-progress
-                  :percentage="serverInfo.diskUsage"
-                  :stroke-width="10"
-                  :color="getProgressColor(serverInfo.diskUsage)"
-                  :show-text="false"
-                />
-                <div class="usage-detail">
-                  已用 {{ serverInfo.diskUsed }} GB / 总计 {{ serverInfo.diskTotal }} GB
-                </div>
-              </div>
-            </div>
-
-            <div class="uptime-section">
-              <el-icon><Timer /></el-icon>
-              <span>服务器运行时间：{{ formatUptime(serverInfo.uptime) }}</span>
-            </div>
-          </div>
-        </el-card>
+        </div>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick, markRaw } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/modules/user'
+import VChart from 'vue-echarts'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { LineChart, BarChart, PieChart } from 'echarts/charts'
 import {
-  Calendar,
-  TrendCharts,
-  Monitor,
-  Cpu,
-  FolderOpened,
-  Timer,
-  ArrowRight,
-} from '@element-plus/icons-vue'
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  VisualMapComponent
+} from 'echarts/components'
+import type { EChartsOption } from 'echarts'
+import {
+  getDashboardOverview,
+  getUserGrowthTrend,
+  getOperationTypeDistribution,
+  getSystemResourceTrend,
+  getLoginDistribution,
+  type DashboardOverview,
+  type UserGrowthData,
+  type OperationTypeData,
+  type SystemResourceData,
+  type LoginDistributionData
+} from '@/api/admin-dashboard.api'
 import { getServerInfo } from '@/api/monitor/server.api'
 import { getOperlogPage } from '@/api/monitor/operlog.api'
 import { getOnlineList } from '@/api/monitor/online.api'
-import type { IServer } from '@yunshu/shared'
-import type { IOperlog } from '@yunshu/shared'
-import { formatDate } from '@/utils/format'
+import type { IServer, IOperlog } from '@yunshu/shared'
+
+// 注册 ECharts 组件
+use([
+  CanvasRenderer,
+  LineChart,
+  BarChart,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  VisualMapComponent
+])
 
 const router = useRouter()
 const userStore = useUserStore()
 
-// 当前日期时间
+// ========== 时间相关 ==========
 const currentDateTime = ref('')
 let timer: ReturnType<typeof setInterval>
 
-// 统计数据
-const stats = ref({
-  userCount: 128,
-  roleCount: 8,
-  onlineCount: 12,
-  todayVisit: 1523,
+const greetingText = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '夜深了'
+  if (hour < 9) return '早上好'
+  if (hour < 12) return '上午好'
+  if (hour < 14) return '中午好'
+  if (hour < 18) return '下午好'
+  if (hour < 22) return '晚上好'
+  return '夜深了'
 })
 
-// 今日任务统计
-const todayStats = ref({
-  taskCount: 15,
-  completedCount: 8,
-  inProgressCount: 5,
+const isDaytime = computed(() => {
+  const hour = new Date().getHours()
+  return hour >= 6 && hour < 18
 })
 
-// 服务器信息
-const serverInfo = ref<IServer>({
-  serverName: '云枢生产服务器',
-  os: 'Ubuntu 22.04 LTS',
-  osArch: 'x64',
-  cpuCount: 8,
-  cpuUsage: 35.5,
-  memoryUsed: 12.5,
-  memoryTotal: 32,
-  memoryUsage: 39.06,
-  diskUsed: 256.8,
-  diskTotal: 500,
-  diskUsage: 51.36,
-  bootTime: '',
-  uptime: 2592000,
-  jvm: '',
-  javaVersion: '17.0.9',
-  database: 'PostgreSQL 16.1',
-  databaseVersion: '16.1',
-  projectPath: '',
-  hostName: 'yunshu-server-01',
-  collectTime: '',
-})
-
-// 操作日志
-const operLogs = ref<IOperlog[]>([])
-
-// 快捷入口
-const quickEntries = ref([
-  { title: '用户管理', desc: '管理系统用户', path: '/system/user', icon: 'User', color: '#409eff' },
-  { title: '角色管理', desc: '管理角色权限', path: '/system/role', icon: 'Key', color: '#67c23a' },
-  { title: '菜单管理', desc: '管理系统菜单', path: '/system/menu', icon: 'Menu', color: '#e6a23c' },
-  { title: '系统监控', desc: '监控服务器状态', path: '/monitor/server', icon: 'Monitor', color: '#f56c6c' },
-])
-
-/**
- * 更新时间
- */
 const updateDateTime = () => {
   const now = new Date()
   const year = now.getFullYear()
@@ -359,26 +317,410 @@ const updateDateTime = () => {
   currentDateTime.value = `${year}年${month}月${day}日 ${weekDay} ${hours}:${minutes}:${seconds}`
 }
 
-/**
- * 格式化时间
- */
+// ========== 数据相关 ==========
+const overview = reactive<DashboardOverview>({
+  userCount: 0,
+  roleCount: 0,
+  onlineCount: 0,
+  todayVisit: 0,
+  userGrowth: 0,
+  roleGrowth: 0,
+  onlineGrowth: 0,
+  visitGrowth: 0
+})
+
+const userGrowthData = ref<UserGrowthData[]>([])
+const operationTypeData = ref<OperationTypeData[]>([])
+const systemResourceData = ref<SystemResourceData[]>([])
+const loginDistributionData = ref<LoginDistributionData[]>([])
+
+const serverInfo = ref<IServer>({
+  serverName: '云枢生产服务器',
+  os: '',
+  osArch: '',
+  cpuCount: 0,
+  cpuUsage: 35,
+  memoryUsed: 0,
+  memoryTotal: 0,
+  memoryUsage: 40,
+  diskUsed: 0,
+  diskTotal: 0,
+  diskUsage: 50,
+  bootTime: '',
+  uptime: 0,
+  jvm: '',
+  javaVersion: '',
+  database: '',
+  databaseVersion: '',
+  projectPath: '',
+  hostName: '',
+  collectTime: ''
+})
+
+const operLogs = ref<IOperlog[]>([])
+const growthTrendType = ref<'newUsers' | 'activeUsers' | 'logins'>('activeUsers')
+
+// ========== 快捷统计 ==========
+const quickStats = computed(() => [
+  { label: '今日任务', value: '15', trend: 12.5 },
+  { label: '已完成', value: '8', trend: 8.3 },
+  { label: '进行中', value: '5', trend: -2.1 }
+])
+
+// ========== 统计卡片配置 ==========
+const statCards = [
+  { key: 'userCount', growthKey: 'userGrowth', label: '用户总数', icon: 'User', color: '#409EFF' },
+  { key: 'roleCount', growthKey: 'roleGrowth', label: '角色总数', icon: 'Key', color: '#67C23A' },
+  { key: 'onlineCount', growthKey: 'onlineGrowth', label: '在线人数', icon: 'UserFilled', color: '#E6A23C' },
+  { key: 'todayVisit', growthKey: 'visitGrowth', label: '今日访问', icon: 'Connection', color: '#F56C6C' }
+]
+
+// ========== 快捷入口 ==========
+const quickEntries = [
+  { title: '用户管理', path: '/system/user', icon: 'User', color: '#409EFF' },
+  { title: '角色管理', path: '/system/role', icon: 'Key', color: '#67C23A' },
+  { title: '菜单管理', path: '/system/menu', icon: 'Menu', color: '#E6A23C' },
+  { title: '系统监控', path: '/monitor/server', icon: 'Monitor', color: '#F56C6C' },
+  { title: '操作日志', path: '/monitor/operlog', icon: 'Document', color: '#909399' },
+  { title: '登录日志', path: '/monitor/logininfor', icon: 'Lock', color: '#606266' }
+]
+
+// ========== 图表配置 ==========
+
+// 用户增长趋势图
+const userGrowthChartOption = computed<EChartsOption>(() => {
+  const dates = userGrowthData.value.map(d => d.date)
+  const getSeriesData = (key: 'newUsers' | 'activeUsers' | 'logins') =>
+    userGrowthData.value.map(d => d[key])
+
+  return {
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e4e7ed',
+      borderWidth: 1,
+      textStyle: { color: '#303133' }
+    },
+    legend: {
+      data: ['新增用户', '活跃用户', '登录次数'],
+      bottom: 0,
+      textStyle: { color: '#606266' }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: dates,
+      axisLine: { lineStyle: { color: '#dcdfe6' } },
+      axisLabel: { color: '#909399' }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#f0f2f5' } },
+      axisLabel: { color: '#909399' }
+    },
+    series: [
+      {
+        name: '新增用户',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        data: getSeriesData('newUsers'),
+        lineStyle: { width: 2, color: '#409EFF' },
+        itemStyle: { color: '#409EFF' },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
+              { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
+            ]
+          }
+        }
+      },
+      {
+        name: '活跃用户',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        data: getSeriesData('activeUsers'),
+        lineStyle: { width: 2, color: '#67C23A' },
+        itemStyle: { color: '#67C23A' },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
+              { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
+            ]
+          }
+        }
+      },
+      {
+        name: '登录次数',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        data: getSeriesData('logins'),
+        lineStyle: { width: 2, color: '#E6A23C' },
+        itemStyle: { color: '#E6A23C' },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(230, 162, 60, 0.3)' },
+              { offset: 1, color: 'rgba(230, 162, 60, 0.05)' }
+            ]
+          }
+        }
+      }
+    ]
+  }
+})
+
+// 操作类型分布图（环形饼图）
+const operationTypeChartOption = computed<EChartsOption>(() => {
+  const colors = ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399', '#606266']
+  return {
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e4e7ed',
+      borderWidth: 1,
+      textStyle: { color: '#303133' },
+      formatter: '{b}: {c} ({d}%)'
+    },
+    legend: {
+      orient: 'vertical',
+      right: '5%',
+      top: 'center',
+      textStyle: { color: '#606266' },
+      itemWidth: 12,
+      itemHeight: 12,
+      icon: 'circle'
+    },
+    color: colors,
+    series: [
+      {
+        name: '操作类型',
+        type: 'pie',
+        radius: ['45%', '70%'],
+        center: ['35%', '50%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 4,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 14,
+            fontWeight: 'bold',
+            formatter: '{b}\n{d}%'
+          },
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.2)'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: operationTypeData.value.map((item, idx) => ({
+          value: item.value,
+          name: item.name
+        }))
+      }
+    ]
+  }
+})
+
+// 系统资源使用趋势图
+const resourceChartOption = computed<EChartsOption>(() => {
+  const times = systemResourceData.value.map(d => d.time)
+  const cpuData = systemResourceData.value.map(d => d.cpu)
+  const memoryData = systemResourceData.value.map(d => d.memory)
+  const diskData = systemResourceData.value.map(d => d.disk)
+
+  return {
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e4e7ed',
+      borderWidth: 1,
+      textStyle: { color: '#303133' },
+      formatter: (params: any) => {
+        let html = `<div style="font-weight: 600; margin-bottom: 4px">${params[0].axisValue}</div>`
+        params.forEach((p: any) => {
+          html += `<div style="display: flex; align-items: center; gap: 8px; margin: 2px 0">
+            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${p.color}"></span>
+            <span>${p.seriesName}: ${p.value}%</span>
+          </div>`
+        })
+        return html
+      }
+    },
+    legend: {
+      data: ['CPU', '内存', '磁盘'],
+      bottom: 0,
+      textStyle: { color: '#606266' }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: times,
+      axisLine: { lineStyle: { color: '#dcdfe6' } },
+      axisLabel: { color: '#909399' }
+    },
+    yAxis: {
+      type: 'value',
+      max: 100,
+      splitLine: { lineStyle: { color: '#f0f2f5' } },
+      axisLabel: { color: '#909399', formatter: '{value}%' }
+    },
+    series: [
+      {
+        name: 'CPU',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 4,
+        data: cpuData,
+        lineStyle: { width: 2, color: '#409EFF' },
+        itemStyle: { color: '#409EFF' }
+      },
+      {
+        name: '内存',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 4,
+        data: memoryData,
+        lineStyle: { width: 2, color: '#67C23A' },
+        itemStyle: { color: '#67C23A' }
+      },
+      {
+        name: '磁盘',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 4,
+        data: diskData,
+        lineStyle: { width: 2, color: '#E6A23C' },
+        itemStyle: { color: '#E6A23C' }
+      }
+    ]
+  }
+})
+
+// 登录时间分布图（柱状图）
+const loginDistributionChartOption = computed<EChartsOption>(() => {
+  const hours = loginDistributionData.value.map(d => `${d.hour}:00`)
+  const counts = loginDistributionData.value.map(d => d.count)
+
+  return {
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e4e7ed',
+      borderWidth: 1,
+      textStyle: { color: '#303133' },
+      axisPointer: { type: 'shadow' }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '10%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: hours,
+      axisLine: { lineStyle: { color: '#dcdfe6' } },
+      axisLabel: { color: '#909399', interval: 2, fontSize: 11 }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#f0f2f5' } },
+      axisLabel: { color: '#909399' }
+    },
+    series: [
+      {
+        name: '登录次数',
+        type: 'bar',
+        barWidth: '55%',
+        data: counts,
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: '#79bbff' },
+              { offset: 1, color: '#409EFF' }
+            ]
+          }
+        },
+        emphasis: {
+          itemStyle: {
+            color: {
+              type: 'linear',
+              x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: '#a0cfff' },
+                { offset: 1, color: '#66b1ff' }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+})
+
+// ========== 工具函数 ==========
+const formatNumber = (num: number) => {
+  if (num >= 10000) {
+    return (num / 10000).toFixed(1) + 'w'
+  }
+  return num.toLocaleString()
+}
+
 const formatTime = (time: string) => {
-  return formatDate(time)
+  return time
 }
 
-/**
- * 格式化运行时长
- */
-const formatUptime = (seconds: number) => {
-  const days = Math.floor(seconds / 86400)
-  const hours = Math.floor((seconds % 86400) / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  return `${days}天 ${hours}小时 ${minutes}分钟`
+const getProgressColor = (percentage: number) => {
+  if (percentage < 60) return '#67C23A'
+  if (percentage < 80) return '#E6A23C'
+  return '#F56C6C'
 }
 
-/**
- * 获取操作类型标签颜色
- */
 const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
   const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     查询: 'info',
@@ -386,67 +728,146 @@ const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | '
     修改: 'warning',
     删除: 'danger',
     导出: 'primary',
-    导入: 'primary',
+    导入: 'primary'
   }
-  return typeMap[type]
+  return typeMap[type] || 'info'
 }
 
-/**
- * 获取进度条颜色
- */
-const getProgressColor = (percentage: number) => {
-  if (percentage < 60) return '#67c23a'
-  if (percentage < 80) return '#e6a23c'
-  return '#f56c6c'
-}
-
-/**
- * 跳转到快捷入口
- */
 const handleQuickEntry = (path: string) => {
   router.push(path)
 }
 
-/**
- * 获取服务器信息
- */
+// ========== 数据加载 ==========
+const fetchOverview = async () => {
+  try {
+    const res = await getDashboardOverview() as any
+    if (res.data) {
+      Object.assign(overview, res.data)
+    }
+  } catch {
+    // 默认数据
+    Object.assign(overview, {
+      userCount: 128,
+      roleCount: 8,
+      onlineCount: 12,
+      todayVisit: 1523,
+      userGrowth: 12.5,
+      roleGrowth: 3.2,
+      onlineGrowth: -2.1,
+      visitGrowth: 8.6
+    })
+  }
+}
+
+const fetchUserGrowth = async () => {
+  try {
+    const res = await getUserGrowthTrend() as any
+    if (res.data) {
+      userGrowthData.value = res.data
+    }
+  } catch {
+    // 默认数据
+    userGrowthData.value = [
+      { date: '周一', newUsers: 25, activeUsers: 120, logins: 180 },
+      { date: '周二', newUsers: 32, activeUsers: 135, logins: 210 },
+      { date: '周三', newUsers: 28, activeUsers: 145, logins: 225 },
+      { date: '周四', newUsers: 18, activeUsers: 110, logins: 160 },
+      { date: '周五', newUsers: 35, activeUsers: 155, logins: 240 },
+      { date: '周六', newUsers: 12, activeUsers: 85, logins: 120 },
+      { date: '周日', newUsers: 15, activeUsers: 90, logins: 130 }
+    ]
+  }
+}
+
+const fetchOperationType = async () => {
+  try {
+    const res = await getOperationTypeDistribution() as any
+    if (res.data) {
+      operationTypeData.value = res.data
+    }
+  } catch {
+    operationTypeData.value = [
+      { name: '查询', value: 3421 },
+      { name: '新增', value: 586 },
+      { name: '修改', value: 423 },
+      { name: '删除', value: 128 },
+      { name: '导出', value: 95 },
+      { name: '登录', value: 2156 }
+    ]
+  }
+}
+
+const fetchSystemResource = async () => {
+  try {
+    const res = await getSystemResourceTrend() as any
+    if (res.data) {
+      systemResourceData.value = res.data
+    }
+  } catch {
+    // 默认数据
+    const data: SystemResourceData[] = []
+    for (let i = 0; i < 12; i++) {
+      const hour = (i * 2).toString().padStart(2, '0')
+      data.push({
+        time: `${hour}:00`,
+        cpu: Math.floor(Math.random() * 40) + 20,
+        memory: Math.floor(Math.random() * 30) + 35,
+        disk: Math.floor(Math.random() * 15) + 45
+      })
+    }
+    systemResourceData.value = data
+  }
+}
+
+const fetchLoginDistribution = async () => {
+  try {
+    const res = await getLoginDistribution() as any
+    if (res.data) {
+      loginDistributionData.value = res.data
+    }
+  } catch {
+    const data: LoginDistributionData[] = []
+    for (let i = 0; i < 24; i++) {
+      const hour = i.toString().padStart(2, '0')
+      let base = 5
+      if (i >= 9 && i <= 18) base = Math.floor(Math.random() * 80) + 60
+      else if (i >= 19 && i <= 22) base = Math.floor(Math.random() * 40) + 30
+      else if (i >= 6 && i <= 8) base = Math.floor(Math.random() * 30) + 20
+      else base = Math.floor(Math.random() * 10) + 2
+      data.push({ hour, count: base })
+    }
+    loginDistributionData.value = data
+  }
+}
+
 const fetchServerInfo = async () => {
   try {
-    const res = await getServerInfo()
-    const responseData = res as Record<string, unknown>
-    if (responseData.data) {
-      serverInfo.value = responseData.data as typeof serverInfo.value
+    const res = await getServerInfo() as any
+    if (res.data) {
+      serverInfo.value = { ...serverInfo.value, ...res.data }
     }
   } catch {
     // 使用默认数据
   }
 }
 
-/**
- * 获取操作日志
- */
 const fetchOperLogs = async () => {
   try {
-    const res = await getOperlogPage({ pageNum: 1, pageSize: 10 })
-    const responseData = res as Record<string, unknown>
-    if (responseData.rows) {
-      operLogs.value = responseData.rows as typeof operLogs.value
+    const res = await getOperlogPage({ pageNum: 1, pageSize: 10 }) as any
+    if (res.rows) {
+      operLogs.value = res.rows
     }
   } catch {
     // 使用默认数据
   }
 }
 
-/**
- * 获取在线人数
- */
 const fetchOnlineStats = async () => {
   try {
-    const res = await getOnlineList()
-    const responseData = res as Record<string, unknown>
-    const data = responseData.data as Record<string, unknown> | undefined
+    const res = await getOnlineList() as any
+    const data = res.data as Record<string, unknown> | undefined
     if (data) {
-      stats.value.onlineCount = Number(data.onlineCount) || 0
+      overview.onlineCount = Number(data.onlineCount) || 0
     }
   } catch {
     // 使用默认数据
@@ -457,6 +878,11 @@ onMounted(() => {
   updateDateTime()
   timer = setInterval(updateDateTime, 1000)
 
+  fetchOverview()
+  fetchUserGrowth()
+  fetchOperationType()
+  fetchSystemResource()
+  fetchLoginDistribution()
   fetchServerInfo()
   fetchOperLogs()
   fetchOnlineStats()
@@ -473,373 +899,384 @@ onUnmounted(() => {
 .dashboard {
   padding: 16px;
 
+  // ========== 欢迎区域 ==========
   .welcome-section {
     margin-bottom: 16px;
   }
 
   .welcome-card {
-    background: linear-gradient(135deg, #409eff 0%, #53a8ff 50%, #66b1ff 100%);
-    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    background: linear-gradient(135deg, #409EFF 0%, #66b1ff 50%, #79bbff 100%);
+    border-radius: 12px;
     color: #fff;
+    box-shadow: 0 4px 16px rgba(64, 158, 255, 0.25);
 
-    :deep(.el-card__body) {
-      padding: 24px;
-    }
-
-    .welcome-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        gap: 16px;
-      }
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px;
     }
 
     .welcome-left {
-      .welcome-text {
-        h2 {
-          margin: 0 0 8px 0;
-          font-size: 24px;
-          font-weight: 600;
-        }
+      h2 {
+        margin: 0 0 8px 0;
+        font-size: 24px;
+        font-weight: 600;
 
-        .date-time {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin: 0;
-          font-size: 14px;
+        .greeting {
           opacity: 0.9;
+          margin-right: 8px;
+        }
+      }
+
+      .date-time {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-size: 14px;
+        opacity: 0.9;
+
+        .separator {
+          opacity: 0.5;
         }
       }
     }
 
     .welcome-right {
-      .today-stats {
-        display: flex;
-        gap: 32px;
+      display: flex;
+      gap: 48px;
 
-        @media (max-width: 768px) {
-          gap: 16px;
+      @media (max-width: 768px) {
+        gap: 24px;
+      }
+
+      .quick-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+
+        .stat-label {
+          font-size: 13px;
+          opacity: 0.85;
         }
 
-        .stat-item {
+        .stat-value {
+          font-size: 28px;
+          font-weight: 700;
+          line-height: 1.2;
+        }
+
+        .stat-trend {
           display: flex;
-          flex-direction: column;
           align-items: center;
-
-          .stat-label {
-            font-size: 13px;
-            opacity: 0.8;
-            margin-bottom: 4px;
-          }
-
-          .stat-value {
-            font-size: 28px;
-            font-weight: bold;
-
-            &.warning {
-              color: #fdf6ec;
-            }
-
-            &.success {
-              color: #f0f9eb;
-            }
-
-            &.primary {
-              color: #fff;
-            }
-          }
+          gap: 2px;
+          font-size: 12px;
+          opacity: 0.9;
         }
       }
     }
   }
 
+  // ========== 统计卡片 ==========
   .stat-section {
     margin-bottom: 16px;
   }
 
   .stat-card {
-    display: flex;
-    align-items: center;
     position: relative;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
     margin-bottom: 16px;
-    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s;
+    overflow: hidden;
+    border: 1px solid #f0f2f5;
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     }
 
     .stat-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 64px;
-      height: 64px;
+      width: 52px;
+      height: 52px;
       border-radius: 12px;
       color: #fff;
-      flex-shrink: 0;
+      background: var(--card-color);
+      margin-bottom: 12px;
     }
 
     .stat-info {
-      margin-left: 16px;
-      flex: 1;
-
       .stat-value {
-        font-size: 28px;
-        font-weight: bold;
-        color: #333;
+        font-size: 32px;
+        font-weight: 700;
+        color: #303133;
         line-height: 1.2;
+        margin-bottom: 4px;
       }
 
       .stat-label {
         font-size: 14px;
         color: #909399;
-        margin-top: 4px;
       }
     }
 
     .stat-trend {
-      position: absolute;
-      top: 16px;
-      right: 16px;
       display: flex;
       align-items: center;
       gap: 4px;
+      margin-top: 12px;
       font-size: 13px;
 
       &.up {
-        color: #67c23a;
+        color: #67C23A;
       }
 
       &.down {
-        color: #f56c6c;
+        color: #F56C6C;
+      }
+
+      .trend-label {
+        color: #c0c4cc;
+        margin-left: 4px;
+        font-size: 12px;
+      }
+    }
+
+    .mini-chart {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 120px;
+      height: 50px;
+      opacity: 0.3;
+    }
+  }
+
+  // ========== 图表卡片 ==========
+  .chart-section {
+    margin-bottom: 16px;
+  }
+
+  .chart-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    height: 360px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f0f2f5;
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .chart-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #303133;
+
+        .el-icon {
+          color: #409EFF;
+        }
+      }
+
+      .chart-subtitle {
+        font-size: 12px;
+        color: #909399;
+      }
+
+      .chart-tabs {
+        :deep(.el-radio-button__inner) {
+          padding: 6px 14px;
+        }
+      }
+    }
+
+    .chart-body {
+      height: calc(100% - 50px);
+
+      .chart {
+        width: 100%;
+        height: 100%;
       }
     }
   }
 
+  // ========== 快捷操作 ==========
   .content-section {
     margin-bottom: 16px;
   }
 
-  .quick-action-card {
+  .action-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
     margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f0f2f5;
+
+    .action-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 16px;
+
+      .el-icon {
+        color: #409EFF;
+      }
+    }
 
     .quick-entry {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-
-      @media (max-width: 1200px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      @media (max-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
 
       .quick-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 20px 12px;
-        background: #f5f7fa;
+        gap: 8px;
+        padding: 14px 8px;
+        background: #fafafa;
         border-radius: 8px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.25s;
 
         &:hover {
           background: #ecf5ff;
           transform: translateY(-2px);
-
-          .quick-icon {
-            transform: scale(1.1);
-          }
         }
 
         .quick-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
           color: #fff;
-          margin-bottom: 12px;
-          transition: transform 0.3s;
         }
 
         .quick-title {
-          font-size: 14px;
-          font-weight: 500;
-          color: #303133;
-          margin-bottom: 4px;
-        }
-
-        .quick-desc {
           font-size: 12px;
-          color: #909399;
+          color: #606266;
+          text-align: center;
         }
       }
     }
   }
 
-  .log-card {
-    :deep(.el-card__header) {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
-
-      .el-card__header-title {
-        font-weight: 600;
-      }
-    }
-  }
-
+  // ========== 服务器状态 ==========
   .server-card {
-    :deep(.el-card__header) {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f0f2f5;
 
-      .el-card__header-title {
-        font-weight: 600;
+    .server-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 16px;
+
+      .el-icon {
+        color: #409EFF;
+      }
+
+      .status-badge {
+        margin-left: auto;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: normal;
+
+        &.up {
+          background: #f0f9eb;
+          color: #67C23A;
+        }
       }
     }
 
-    .server-info {
-      .server-header {
+    .server-stats {
+      .server-stat-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #ebeef5;
-        margin-bottom: 16px;
-
-        .server-name {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          color: #303133;
-        }
-
-        .server-status {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 13px;
-          color: #67c23a;
-
-          .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #67c23a;
-            animation: pulse 2s infinite;
-          }
-        }
-      }
-
-      .server-base {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
         gap: 12px;
-        margin-bottom: 20px;
+        padding: 8px 0;
 
-        .base-item {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
-          .base-label {
-            font-size: 12px;
-            color: #909399;
-          }
-
-          .base-value {
-            font-size: 13px;
-            color: #606266;
-          }
+        .server-stat-label {
+          width: 80px;
+          font-size: 13px;
+          color: #606266;
+          flex-shrink: 0;
         }
-      }
 
-      .usage-section {
-        h4 {
-          margin: 0 0 16px 0;
-          font-size: 14px;
+        .server-stat-bar {
+          flex: 1;
+        }
+
+        .server-stat-value {
+          width: 40px;
+          text-align: right;
+          font-size: 13px;
           font-weight: 600;
           color: #303133;
-        }
-
-        .usage-item {
-          margin-bottom: 16px;
-
-          &:last-child {
-            margin-bottom: 0;
-          }
-
-          .usage-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-
-            .usage-label {
-              display: flex;
-              align-items: center;
-              gap: 6px;
-              font-size: 13px;
-              color: #606266;
-            }
-
-            .usage-value {
-              font-size: 14px;
-              font-weight: 600;
-              color: #303133;
-            }
-          }
-
-          .usage-detail {
-            font-size: 12px;
-            color: #909399;
-            margin-top: 4px;
-          }
+          flex-shrink: 0;
         }
       }
+    }
+  }
 
-      .uptime-section {
+  // ========== 操作日志 ==========
+  .log-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f0f2f5;
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .log-title {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid #ebeef5;
-        margin-top: 16px;
-        font-size: 13px;
-        color: #606266;
+        font-size: 16px;
+        font-weight: 600;
+        color: #303133;
+
+        .el-icon {
+          color: #409EFF;
+        }
       }
     }
-  }
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-
-  100% {
-    opacity: 1;
   }
 }
 </style>
