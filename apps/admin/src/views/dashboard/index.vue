@@ -47,7 +47,6 @@
             <span>{{ overview[card.growthKey] >= 0 ? '+' : '' }}{{ overview[card.growthKey] }}%</span>
             <span class="trend-label">较昨日</span>
           </div>
-          <div class="mini-chart" ref="miniChartRefs" :data-index="idx"></div>
         </div>
       </el-col>
     </el-row>
@@ -78,7 +77,7 @@
         <div class="chart-card">
           <div class="chart-header">
             <div class="chart-title">
-              <el-icon><PieChart /></el-icon>
+              <el-icon><component :is="PieChartIcon" /></el-icon>
               <span>操作类型分布</span>
             </div>
           </div>
@@ -157,37 +156,37 @@
               <div class="server-stat-label">CPU 使用率</div>
               <div class="server-stat-bar">
                 <el-progress
-                  :percentage="serverInfo.cpuUsage"
+                  :percentage="Number(serverInfo.cpuUsage) || 0"
                   :stroke-width="8"
                   :color="getProgressColor(serverInfo.cpuUsage)"
                   :show-text="false"
                 />
               </div>
-              <div class="server-stat-value">{{ serverInfo.cpuUsage }}%</div>
+              <div class="server-stat-value">{{ Number(serverInfo.cpuUsage) || 0 }}%</div>
             </div>
             <div class="server-stat-item">
               <div class="server-stat-label">内存使用率</div>
               <div class="server-stat-bar">
                 <el-progress
-                  :percentage="serverInfo.memoryUsage"
+                  :percentage="Number(serverInfo.memoryUsage) || 0"
                   :stroke-width="8"
                   :color="getProgressColor(serverInfo.memoryUsage)"
                   :show-text="false"
                 />
               </div>
-              <div class="server-stat-value">{{ serverInfo.memoryUsage }}%</div>
+              <div class="server-stat-value">{{ Number(serverInfo.memoryUsage) || 0 }}%</div>
             </div>
             <div class="server-stat-item">
               <div class="server-stat-label">磁盘使用率</div>
               <div class="server-stat-bar">
                 <el-progress
-                  :percentage="serverInfo.diskUsage"
+                  :percentage="Number(serverInfo.diskUsage) || 0"
                   :stroke-width="8"
                   :color="getProgressColor(serverInfo.diskUsage)"
                   :show-text="false"
                 />
               </div>
-              <div class="server-stat-value">{{ serverInfo.diskUsage }}%</div>
+              <div class="server-stat-value">{{ Number(serverInfo.diskUsage) || 0 }}%</div>
             </div>
           </div>
         </div>
@@ -223,8 +222,8 @@
             </el-table-column>
             <el-table-column prop="status" label="状态" width="80" align="center">
               <template #default="{ row }">
-                <el-tag :type="row.status === '0' ? 'success' : 'danger'" size="small">
-                  {{ row.status === '0' ? '成功' : '失败' }}
+                <el-tag :type="getStatusTagType(row.status)" size="small">
+                  {{ getStatusText(row.status) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -236,9 +235,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick, markRaw } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/modules/user'
+import dayjs from 'dayjs'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -248,25 +248,82 @@ import {
   TooltipComponent,
   LegendComponent,
   GridComponent,
-  VisualMapComponent
+  VisualMapComponent,
 } from 'echarts/components'
 import type { EChartsOption } from 'echarts'
+import {
+  Calendar,
+  Sunny,
+  Moon,
+  CaretTop,
+  CaretBottom,
+  TrendCharts,
+  User,
+  Key,
+  UserFilled,
+  Connection,
+  DataAnalysis,
+  PieChart as PieChartIcon,
+  Monitor,
+  Histogram,
+  MagicStick,
+  Document,
+  Lock,
+  Cpu,
+  ArrowRight,
+} from '@element-plus/icons-vue'
 import {
   getDashboardOverview,
   getUserGrowthTrend,
   getOperationTypeDistribution,
   getSystemResourceTrend,
   getLoginDistribution,
+  getTaskStats,
   type DashboardOverview,
   type UserGrowthData,
   type OperationTypeData,
   type SystemResourceData,
-  type LoginDistributionData
+  type LoginDistributionData,
 } from '@/api/admin-dashboard.api'
-import { getServerInfo } from '@/api/monitor/server.api'
+import { request, type ApiResponse } from '@/utils/httpClient'
 import { getOperlogPage } from '@/api/monitor/operlog.api'
-import { getOnlineList } from '@/api/monitor/online.api'
 import type { IServer, IOperlog } from '@yunshu/shared'
+
+// ========== 常量配置 ==========
+// 操作日志 status 字段值常量（与后端约定）
+const OPERLOG_STATUS_SUCCESS = '0'
+const OPERLOG_STATUS_FAIL = '1'
+
+// 操作类型 -> Element Plus tag 类型的映射（扩展版，命中不到时回退到 info）
+const OPER_TYPE_TAG_MAP: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
+  查询: 'info',
+  新增: 'success',
+  创建: 'success',
+  修改: 'warning',
+  更新: 'warning',
+  删除: 'danger',
+  导出: 'primary',
+  导入: 'primary',
+  登录: 'success',
+  登出: 'info',
+  重置密码: 'warning',
+}
+
+// 图表主题色 —— 统一定义，便于未来主题切换
+const CHART_THEME = {
+  primary: '#409EFF',
+  success: '#67C23A',
+  warning: '#E6A23C',
+  danger: '#F56C6C',
+  info: '#909399',
+  muted: '#606266',
+  tooltipBg: 'rgba(255, 255, 255, 0.95)',
+  border: '#e4e7ed',
+  text: '#303133',
+  textMuted: '#606266',
+  labelMuted: '#909399',
+  splitLine: '#f0f2f5',
+}
 
 // 注册 ECharts 组件
 use([
@@ -278,7 +335,7 @@ use([
   TooltipComponent,
   LegendComponent,
   GridComponent,
-  VisualMapComponent
+  VisualMapComponent,
 ])
 
 const router = useRouter()
@@ -286,7 +343,7 @@ const userStore = useUserStore()
 
 // ========== 时间相关 ==========
 const currentDateTime = ref('')
-let timer: ReturnType<typeof setInterval>
+let clockTimer: ReturnType<typeof setInterval> | undefined
 
 const greetingText = computed(() => {
   const hour = new Date().getHours()
@@ -326,13 +383,21 @@ const overview = reactive<DashboardOverview>({
   userGrowth: 0,
   roleGrowth: 0,
   onlineGrowth: 0,
-  visitGrowth: 0
+  visitGrowth: 0,
 })
 
 const userGrowthData = ref<UserGrowthData[]>([])
 const operationTypeData = ref<OperationTypeData[]>([])
 const systemResourceData = ref<SystemResourceData[]>([])
 const loginDistributionData = ref<LoginDistributionData[]>([])
+const taskStats = ref<TaskStats>({
+  totalCount: 0,
+  completedCount: 0,
+  inProgressCount: 0,
+  totalGrowth: 0,
+  completedGrowth: 0,
+  inProgressGrowth: 0,
+})
 
 const serverInfo = ref<IServer>({
   serverName: '云枢生产服务器',
@@ -354,162 +419,158 @@ const serverInfo = ref<IServer>({
   databaseVersion: '',
   projectPath: '',
   hostName: '',
-  collectTime: ''
+  collectTime: '',
 })
 
 const operLogs = ref<IOperlog[]>([])
 const growthTrendType = ref<'newUsers' | 'activeUsers' | 'logins'>('activeUsers')
 
+// 请求取消控制器 —— 离开页面时中断未完成请求
+const abortController = new AbortController()
+let pollingTimer: ReturnType<typeof setInterval> | undefined
+
 // ========== 快捷统计 ==========
 const quickStats = computed(() => [
-  { label: '今日任务', value: '15', trend: 12.5 },
-  { label: '已完成', value: '8', trend: 8.3 },
-  { label: '进行中', value: '5', trend: -2.1 }
+  {
+    label: '今日任务',
+    value: String(taskStats.value.totalCount),
+    trend: taskStats.value.totalGrowth,
+  },
+  {
+    label: '已完成',
+    value: String(taskStats.value.completedCount),
+    trend: taskStats.value.completedGrowth,
+  },
+  {
+    label: '进行中',
+    value: String(taskStats.value.inProgressCount),
+    trend: taskStats.value.inProgressGrowth,
+  },
 ])
 
-// ========== 统计卡片配置 ==========
+// ========== 统计卡片配置（图标现在是真正的组件引用，不再是字符串） ==========
 const statCards = [
-  { key: 'userCount', growthKey: 'userGrowth', label: '用户总数', icon: 'User', color: '#409EFF' },
-  { key: 'roleCount', growthKey: 'roleGrowth', label: '角色总数', icon: 'Key', color: '#67C23A' },
-  { key: 'onlineCount', growthKey: 'onlineGrowth', label: '在线人数', icon: 'UserFilled', color: '#E6A23C' },
-  { key: 'todayVisit', growthKey: 'visitGrowth', label: '今日访问', icon: 'Connection', color: '#F56C6C' }
+  { key: 'userCount' as const, growthKey: 'userGrowth' as const, label: '用户总数', icon: User, color: CHART_THEME.primary },
+  { key: 'roleCount' as const, growthKey: 'roleGrowth' as const, label: '角色总数', icon: Key, color: CHART_THEME.success },
+  { key: 'onlineCount' as const, growthKey: 'onlineGrowth' as const, label: '在线人数', icon: UserFilled, color: CHART_THEME.warning },
+  { key: 'todayVisit' as const, growthKey: 'visitGrowth' as const, label: '今日访问', icon: Connection, color: CHART_THEME.danger },
 ]
 
 // ========== 快捷入口 ==========
 const quickEntries = [
-  { title: '用户管理', path: '/system/user', icon: 'User', color: '#409EFF' },
-  { title: '角色管理', path: '/system/role', icon: 'Key', color: '#67C23A' },
-  { title: '菜单管理', path: '/system/menu', icon: 'Menu', color: '#E6A23C' },
-  { title: '系统监控', path: '/monitor/server', icon: 'Monitor', color: '#F56C6C' },
-  { title: '操作日志', path: '/monitor/operlog', icon: 'Document', color: '#909399' },
-  { title: '登录日志', path: '/monitor/logininfor', icon: 'Lock', color: '#606266' }
+  { title: '用户管理', path: '/system/user', icon: User, color: CHART_THEME.primary },
+  { title: '角色管理', path: '/system/role', icon: Key, color: CHART_THEME.success },
+  { title: '菜单管理', path: '/system/menu', icon: MagicStick, color: CHART_THEME.warning },
+  { title: '系统监控', path: '/monitor/server', icon: Monitor, color: CHART_THEME.danger },
+  { title: '操作日志', path: '/monitor/operlog', icon: Document, color: CHART_THEME.info },
+  { title: '登录日志', path: '/monitor/logininfor', icon: Lock, color: CHART_THEME.muted },
 ]
 
 // ========== 图表配置 ==========
 
-// 用户增长趋势图
+// 用户增长趋势图 —— 根据 growthTrendType 高亮对应系列
 const userGrowthChartOption = computed<EChartsOption>(() => {
-  const dates = userGrowthData.value.map(d => d.date)
-  const getSeriesData = (key: 'newUsers' | 'activeUsers' | 'logins') =>
-    userGrowthData.value.map(d => d[key])
+  const dates = userGrowthData.value.map((d) => dayjs(d.date).format('MM-DD'))
+  const extract = (key: 'newUsers' | 'activeUsers' | 'logins') =>
+    userGrowthData.value.map((d) => d[key])
+
+  // 高亮当前选中的类型：线宽增大、symbol 增大
+  const buildSeries = (
+    name: string,
+    key: 'newUsers' | 'activeUsers' | 'logins',
+    color: string,
+  ) => {
+    const isActive = growthTrendType.value === key
+    return {
+      name,
+      type: 'line' as const,
+      smooth: true,
+      symbol: 'circle' as const,
+      symbolSize: isActive ? 10 : 6,
+      data: extract(key),
+      lineStyle: { width: isActive ? 3 : 2, color, opacity: isActive ? 1 : 0.65 },
+      itemStyle: { color, opacity: isActive ? 1 : 0.65 },
+      areaStyle: {
+        opacity: isActive ? 1 : 0.35,
+        color: {
+          type: 'linear' as const,
+          x: 0, y: 0, x2: 0, y2: 1,
+          colorStops: [
+            { offset: 0, color: `${color}4D` },
+            { offset: 1, color: `${color}0D` },
+          ],
+        },
+      },
+    }
+  }
 
   return {
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#e4e7ed',
+      backgroundColor: CHART_THEME.tooltipBg,
+      borderColor: CHART_THEME.border,
       borderWidth: 1,
-      textStyle: { color: '#303133' }
+      textStyle: { color: CHART_THEME.text },
     },
     legend: {
       data: ['新增用户', '活跃用户', '登录次数'],
       bottom: 0,
-      textStyle: { color: '#606266' }
+      textStyle: { color: CHART_THEME.textMuted },
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '15%',
       top: '10%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
       boundaryGap: false,
       data: dates,
-      axisLine: { lineStyle: { color: '#dcdfe6' } },
-      axisLabel: { color: '#909399' }
+      axisLine: { lineStyle: { color: CHART_THEME.border } },
+      axisLabel: { color: CHART_THEME.labelMuted },
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: '#f0f2f5' } },
-      axisLabel: { color: '#909399' }
+      splitLine: { lineStyle: { color: CHART_THEME.splitLine } },
+      axisLabel: { color: CHART_THEME.labelMuted },
     },
     series: [
-      {
-        name: '新增用户',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 6,
-        data: getSeriesData('newUsers'),
-        lineStyle: { width: 2, color: '#409EFF' },
-        itemStyle: { color: '#409EFF' },
-        areaStyle: {
-          color: {
-            type: 'linear',
-            x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-              { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
-            ]
-          }
-        }
-      },
-      {
-        name: '活跃用户',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 6,
-        data: getSeriesData('activeUsers'),
-        lineStyle: { width: 2, color: '#67C23A' },
-        itemStyle: { color: '#67C23A' },
-        areaStyle: {
-          color: {
-            type: 'linear',
-            x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
-              { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
-            ]
-          }
-        }
-      },
-      {
-        name: '登录次数',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 6,
-        data: getSeriesData('logins'),
-        lineStyle: { width: 2, color: '#E6A23C' },
-        itemStyle: { color: '#E6A23C' },
-        areaStyle: {
-          color: {
-            type: 'linear',
-            x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(230, 162, 60, 0.3)' },
-              { offset: 1, color: 'rgba(230, 162, 60, 0.05)' }
-            ]
-          }
-        }
-      }
-    ]
+      buildSeries('新增用户', 'newUsers', CHART_THEME.primary),
+      buildSeries('活跃用户', 'activeUsers', CHART_THEME.success),
+      buildSeries('登录次数', 'logins', CHART_THEME.warning),
+    ],
   }
 })
 
 // 操作类型分布图（环形饼图）
 const operationTypeChartOption = computed<EChartsOption>(() => {
-  const colors = ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399', '#606266']
+  const colors = [
+    CHART_THEME.primary,
+    CHART_THEME.success,
+    CHART_THEME.warning,
+    CHART_THEME.danger,
+    CHART_THEME.info,
+    CHART_THEME.muted,
+  ]
   return {
     tooltip: {
       trigger: 'item',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#e4e7ed',
+      backgroundColor: CHART_THEME.tooltipBg,
+      borderColor: CHART_THEME.border,
       borderWidth: 1,
-      textStyle: { color: '#303133' },
-      formatter: '{b}: {c} ({d}%)'
+      textStyle: { color: CHART_THEME.text },
+      formatter: '{b}: {c} ({d}%)',
     },
     legend: {
       orient: 'vertical',
       right: '5%',
       top: 'center',
-      textStyle: { color: '#606266' },
+      textStyle: { color: CHART_THEME.textMuted },
       itemWidth: 12,
       itemHeight: 12,
-      icon: 'circle'
+      icon: 'circle',
     },
     color: colors,
     series: [
@@ -519,155 +580,124 @@ const operationTypeChartOption = computed<EChartsOption>(() => {
         radius: ['45%', '70%'],
         center: ['35%', '50%'],
         avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 4,
-          borderColor: '#fff',
-          borderWidth: 2
-        },
-        label: {
-          show: false
-        },
+        itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
+        label: { show: false },
         emphasis: {
-          label: {
-            show: true,
-            fontSize: 14,
-            fontWeight: 'bold',
-            formatter: '{b}\n{d}%'
-          },
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.2)'
-          }
+          label: { show: true, fontSize: 14, fontWeight: 'bold', formatter: '{b}\n{d}%' },
+          itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.2)' },
         },
-        labelLine: {
-          show: false
-        },
-        data: operationTypeData.value.map((item, idx) => ({
+        labelLine: { show: false },
+        data: operationTypeData.value.map((item) => ({
           value: item.value,
-          name: item.name
-        }))
-      }
-    ]
+          name: item.name,
+        })),
+      },
+    ],
   }
 })
 
 // 系统资源使用趋势图
 const resourceChartOption = computed<EChartsOption>(() => {
-  const times = systemResourceData.value.map(d => d.time)
-  const cpuData = systemResourceData.value.map(d => d.cpu)
-  const memoryData = systemResourceData.value.map(d => d.memory)
-  const diskData = systemResourceData.value.map(d => d.disk)
+  const times = systemResourceData.value.map((d) => d.time)
+  const cpuData = systemResourceData.value.map((d) => d.cpu)
+  const memoryData = systemResourceData.value.map((d) => d.memory)
+  const diskData = systemResourceData.value.map((d) => d.disk)
+
+  const buildLine = (name: string, data: number[], color: string) => ({
+    name,
+    type: 'line' as const,
+    smooth: true,
+    symbol: 'circle' as const,
+    symbolSize: 4,
+    data,
+    lineStyle: { width: 2, color },
+    itemStyle: { color },
+  })
 
   return {
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#e4e7ed',
+      backgroundColor: CHART_THEME.tooltipBg,
+      borderColor: CHART_THEME.border,
       borderWidth: 1,
-      textStyle: { color: '#303133' },
-      formatter: (params: any) => {
-        let html = `<div style="font-weight: 600; margin-bottom: 4px">${params[0].axisValue}</div>`
-        params.forEach((p: any) => {
-          html += `<div style="display: flex; align-items: center; gap: 8px; margin: 2px 0">
-            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${p.color}"></span>
+      textStyle: { color: CHART_THEME.text },
+      formatter: (params: unknown[]) => {
+        const list = params as Array<{ seriesName: string; value: number; color: string; axisValueLabel?: string; axisValue?: string }>
+        const axisValue = list[0]?.axisValueLabel ?? list[0]?.axisValue ?? ''
+        let html = `<div style="font-weight:600;margin-bottom:4px">${axisValue}</div>`
+        list.forEach((p) => {
+          html += `<div style="display:flex;align-items:center;gap:8px;margin:2px 0">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color}"></span>
             <span>${p.seriesName}: ${p.value}%</span>
           </div>`
         })
         return html
-      }
+      },
     },
     legend: {
       data: ['CPU', '内存', '磁盘'],
       bottom: 0,
-      textStyle: { color: '#606266' }
+      textStyle: { color: CHART_THEME.textMuted },
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '15%',
       top: '10%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
       boundaryGap: false,
       data: times,
-      axisLine: { lineStyle: { color: '#dcdfe6' } },
-      axisLabel: { color: '#909399' }
+      axisLine: { lineStyle: { color: CHART_THEME.border } },
+      axisLabel: { color: CHART_THEME.labelMuted },
     },
     yAxis: {
       type: 'value',
       max: 100,
-      splitLine: { lineStyle: { color: '#f0f2f5' } },
-      axisLabel: { color: '#909399', formatter: '{value}%' }
+      splitLine: { lineStyle: { color: CHART_THEME.splitLine } },
+      axisLabel: { color: CHART_THEME.labelMuted, formatter: '{value}%' },
     },
     series: [
-      {
-        name: 'CPU',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 4,
-        data: cpuData,
-        lineStyle: { width: 2, color: '#409EFF' },
-        itemStyle: { color: '#409EFF' }
-      },
-      {
-        name: '内存',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 4,
-        data: memoryData,
-        lineStyle: { width: 2, color: '#67C23A' },
-        itemStyle: { color: '#67C23A' }
-      },
-      {
-        name: '磁盘',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 4,
-        data: diskData,
-        lineStyle: { width: 2, color: '#E6A23C' },
-        itemStyle: { color: '#E6A23C' }
-      }
-    ]
+      buildLine('CPU', cpuData, CHART_THEME.primary),
+      buildLine('内存', memoryData, CHART_THEME.success),
+      buildLine('磁盘', diskData, CHART_THEME.warning),
+    ],
   }
 })
 
 // 登录时间分布图（柱状图）
 const loginDistributionChartOption = computed<EChartsOption>(() => {
-  const hours = loginDistributionData.value.map(d => `${d.hour}:00`)
-  const counts = loginDistributionData.value.map(d => d.count)
+  const hours = loginDistributionData.value.map((d) => `${d.hour}:00`)
+  const counts = loginDistributionData.value.map((d) => d.count)
 
   return {
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#e4e7ed',
+      backgroundColor: CHART_THEME.tooltipBg,
+      borderColor: CHART_THEME.border,
       borderWidth: 1,
-      textStyle: { color: '#303133' },
-      axisPointer: { type: 'shadow' }
+      textStyle: { color: CHART_THEME.text },
+      axisPointer: { type: 'shadow' },
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '10%',
       top: '10%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
       data: hours,
-      axisLine: { lineStyle: { color: '#dcdfe6' } },
-      axisLabel: { color: '#909399', interval: 2, fontSize: 11 }
+      axisLine: { lineStyle: { color: CHART_THEME.border } },
+      axisLabel: { color: CHART_THEME.labelMuted, interval: 2, fontSize: 11 },
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: '#f0f2f5' } },
-      axisLabel: { color: '#909399' }
+      splitLine: { lineStyle: { color: CHART_THEME.splitLine } },
+      axisLabel: { color: CHART_THEME.labelMuted },
     },
     series: [
       {
@@ -682,9 +712,9 @@ const loginDistributionChartOption = computed<EChartsOption>(() => {
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
               { offset: 0, color: '#79bbff' },
-              { offset: 1, color: '#409EFF' }
-            ]
-          }
+              { offset: 1, color: CHART_THEME.primary },
+            ],
+          },
         },
         emphasis: {
           itemStyle: {
@@ -693,209 +723,246 @@ const loginDistributionChartOption = computed<EChartsOption>(() => {
               x: 0, y: 0, x2: 0, y2: 1,
               colorStops: [
                 { offset: 0, color: '#a0cfff' },
-                { offset: 1, color: '#66b1ff' }
-              ]
-            }
-          }
-        }
-      }
-    ]
+                { offset: 1, color: '#66b1ff' },
+              ],
+            },
+          },
+        },
+      },
+    ],
   }
 })
 
 // ========== 工具函数 ==========
+
+/** 数字格式化：>= 1 万显示 x.xw；其他按千分位显示。 */
 const formatNumber = (num: number) => {
-  if (num >= 10000) {
-    return (num / 10000).toFixed(1) + 'w'
+  const n = Number(num) || 0
+  if (n >= 10000) {
+    return `${(n / 10000).toFixed(1)}w`
   }
-  return num.toLocaleString()
+  return n.toLocaleString('zh-CN')
 }
 
+/** 时间格式化：解析 ISO/任意时间字符串，按 "YYYY-MM-DD HH:mm" 输出。 */
 const formatTime = (time: string) => {
-  return time
+  if (!time) return '-'
+  const d = dayjs(time)
+  if (!d.isValid()) return String(time)
+  return d.format('YYYY-MM-DD HH:mm')
 }
 
+/** 进度条颜色：安全归一化 percentage 值。 */
 const getProgressColor = (percentage: number) => {
-  if (percentage < 60) return '#67C23A'
-  if (percentage < 80) return '#E6A23C'
-  return '#F56C6C'
+  const p = Number(percentage) || 0
+  if (p < 60) return CHART_THEME.success
+  if (p < 80) return CHART_THEME.warning
+  return CHART_THEME.danger
 }
 
-const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' | undefined => {
-  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-    查询: 'info',
-    新增: 'success',
-    修改: 'warning',
-    删除: 'danger',
-    导出: 'primary',
-    导入: 'primary'
-  }
-  return typeMap[type] || 'info'
+/** 操作类型 -> tag 类型（兜底为 info）。 */
+const getOperTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  if (!type) return 'info'
+  return OPER_TYPE_TAG_MAP[type] || 'info'
+}
+
+/** 操作日志状态文本。 */
+const getStatusText = (status: string | number) => {
+  const s = typeof status === 'number' ? String(status) : status
+  return s === OPERLOG_STATUS_SUCCESS ? '成功' : '失败'
+}
+
+/** 操作日志状态 tag 类型。 */
+const getStatusTagType = (status: string | number) => {
+  const s = typeof status === 'number' ? String(status) : status
+  return s === OPERLOG_STATUS_SUCCESS ? 'success' : 'danger'
 }
 
 const handleQuickEntry = (path: string) => {
   router.push(path)
 }
 
-// ========== 数据加载 ==========
+// ========== 数据加载（带类型安全 + 错误上报 + 默认数据兜底） ==========
+
+const DEFAULT_OVERVIEW: DashboardOverview = {
+  userCount: 128,
+  roleCount: 8,
+  onlineCount: 12,
+  todayVisit: 1523,
+  userGrowth: 12.5,
+  roleGrowth: 3.2,
+  onlineGrowth: -2.1,
+  visitGrowth: 8.6,
+}
+
+const DEFAULT_TASK_STATS: TaskStats = {
+  totalCount: 15,
+  completedCount: 8,
+  inProgressCount: 5,
+  totalGrowth: 12.5,
+  completedGrowth: 8.3,
+  inProgressGrowth: -2.1,
+}
+
+function pickData<T>(resp: ApiResponse<T> | undefined | null): T | undefined {
+  return resp && resp.success && resp.data !== undefined && resp.data !== null
+    ? resp.data
+    : undefined
+}
+
 const fetchOverview = async () => {
   try {
-    const res = await getDashboardOverview() as any
-    if (res.data) {
-      Object.assign(overview, res.data)
-    }
-  } catch {
-    // 默认数据
-    Object.assign(overview, {
-      userCount: 128,
-      roleCount: 8,
-      onlineCount: 12,
-      todayVisit: 1523,
-      userGrowth: 12.5,
-      roleGrowth: 3.2,
-      onlineGrowth: -2.1,
-      visitGrowth: 8.6
-    })
+    const res = await getDashboardOverview()
+    const data = pickData(res) ?? DEFAULT_OVERVIEW
+    Object.assign(overview, data)
+  } catch (err) {
+    console.error('[dashboard] fetchOverview failed:', err)
+    Object.assign(overview, DEFAULT_OVERVIEW)
   }
 }
 
 const fetchUserGrowth = async () => {
   try {
-    const res = await getUserGrowthTrend() as any
-    if (res.data) {
-      userGrowthData.value = res.data
+    const res = await getUserGrowthTrend()
+    const data = pickData(res)
+    if (data && data.length) {
+      userGrowthData.value = data
     }
-  } catch {
-    // 默认数据
-    userGrowthData.value = [
-      { date: '周一', newUsers: 25, activeUsers: 120, logins: 180 },
-      { date: '周二', newUsers: 32, activeUsers: 135, logins: 210 },
-      { date: '周三', newUsers: 28, activeUsers: 145, logins: 225 },
-      { date: '周四', newUsers: 18, activeUsers: 110, logins: 160 },
-      { date: '周五', newUsers: 35, activeUsers: 155, logins: 240 },
-      { date: '周六', newUsers: 12, activeUsers: 85, logins: 120 },
-      { date: '周日', newUsers: 15, activeUsers: 90, logins: 130 }
-    ]
+  } catch (err) {
+    console.error('[dashboard] fetchUserGrowth failed:', err)
   }
 }
 
 const fetchOperationType = async () => {
   try {
-    const res = await getOperationTypeDistribution() as any
-    if (res.data) {
-      operationTypeData.value = res.data
+    const res = await getOperationTypeDistribution()
+    const data = pickData(res)
+    if (data && data.length) {
+      operationTypeData.value = data
     }
-  } catch {
-    operationTypeData.value = [
-      { name: '查询', value: 3421 },
-      { name: '新增', value: 586 },
-      { name: '修改', value: 423 },
-      { name: '删除', value: 128 },
-      { name: '导出', value: 95 },
-      { name: '登录', value: 2156 }
-    ]
+  } catch (err) {
+    console.error('[dashboard] fetchOperationType failed:', err)
   }
 }
 
 const fetchSystemResource = async () => {
   try {
-    const res = await getSystemResourceTrend() as any
-    if (res.data) {
-      systemResourceData.value = res.data
+    const res = await getSystemResourceTrend()
+    const data = pickData(res)
+    if (data && data.length) {
+      systemResourceData.value = data
     }
-  } catch {
-    // 默认数据
-    const data: SystemResourceData[] = []
-    for (let i = 0; i < 12; i++) {
-      const hour = (i * 2).toString().padStart(2, '0')
-      data.push({
-        time: `${hour}:00`,
-        cpu: Math.floor(Math.random() * 40) + 20,
-        memory: Math.floor(Math.random() * 30) + 35,
-        disk: Math.floor(Math.random() * 15) + 45
-      })
-    }
-    systemResourceData.value = data
+  } catch (err) {
+    console.error('[dashboard] fetchSystemResource failed:', err)
   }
 }
 
 const fetchLoginDistribution = async () => {
   try {
-    const res = await getLoginDistribution() as any
-    if (res.data) {
-      loginDistributionData.value = res.data
+    const res = await getLoginDistribution()
+    const data = pickData(res)
+    if (data && data.length) {
+      loginDistributionData.value = data
     }
-  } catch {
-    const data: LoginDistributionData[] = []
-    for (let i = 0; i < 24; i++) {
-      const hour = i.toString().padStart(2, '0')
-      let base = 5
-      if (i >= 9 && i <= 18) base = Math.floor(Math.random() * 80) + 60
-      else if (i >= 19 && i <= 22) base = Math.floor(Math.random() * 40) + 30
-      else if (i >= 6 && i <= 8) base = Math.floor(Math.random() * 30) + 20
-      else base = Math.floor(Math.random() * 10) + 2
-      data.push({ hour, count: base })
-    }
-    loginDistributionData.value = data
+  } catch (err) {
+    console.error('[dashboard] fetchLoginDistribution failed:', err)
+  }
+}
+
+const fetchTaskStats = async () => {
+  try {
+    const res = await getTaskStats()
+    const data = pickData(res) ?? DEFAULT_TASK_STATS
+    Object.assign(taskStats.value, data)
+  } catch (err) {
+    console.error('[dashboard] fetchTaskStats failed:', err)
+    Object.assign(taskStats.value, DEFAULT_TASK_STATS)
   }
 }
 
 const fetchServerInfo = async () => {
   try {
-    const res = await getServerInfo() as any
-    if (res.data) {
-      serverInfo.value = { ...serverInfo.value, ...res.data }
+    // 走统一 request 接口，/api/admin-dashboard/server-info 返回 IServer
+    const res = await request<IServer>({
+      url: '/api/admin-dashboard/server-info',
+      method: 'GET',
+    })
+    const data = pickData(res)
+    if (data) {
+      serverInfo.value = { ...serverInfo.value, ...data }
     }
-  } catch {
-    // 使用默认数据
+  } catch (err) {
+    console.error('[dashboard] fetchServerInfo failed:', err)
   }
 }
 
 const fetchOperLogs = async () => {
   try {
-    const res = await getOperlogPage({ pageNum: 1, pageSize: 10 }) as any
-    if (res.rows) {
-      operLogs.value = res.rows
+    const res = await getOperlogPage({ pageNum: 1, pageSize: 10 })
+    // 兼容 rows 直接存在或嵌套在 data 下两种契约
+    const maybeRows = (res as unknown as { rows?: IOperlog[] }).rows
+      ?? (res as unknown as { data?: { rows?: IOperlog[] } }).data?.rows
+    if (Array.isArray(maybeRows)) {
+      operLogs.value = maybeRows
     }
-  } catch {
-    // 使用默认数据
+  } catch (err) {
+    console.error('[dashboard] fetchOperLogs failed:', err)
   }
 }
 
-const fetchOnlineStats = async () => {
-  try {
-    const res = await getOnlineList() as any
-    const data = res.data as Record<string, unknown> | undefined
-    if (data) {
-      overview.onlineCount = Number(data.onlineCount) || 0
-    }
-  } catch {
-    // 使用默认数据
-  }
-}
-
-onMounted(() => {
-  updateDateTime()
-  timer = setInterval(updateDateTime, 1000)
-
+// 一次性加载所有仪表盘数据
+const loadAll = () => {
   fetchOverview()
   fetchUserGrowth()
   fetchOperationType()
   fetchSystemResource()
   fetchLoginDistribution()
+  fetchTaskStats()
   fetchServerInfo()
   fetchOperLogs()
-  fetchOnlineStats()
+}
+
+onMounted(() => {
+  updateDateTime()
+  clockTimer = setInterval(updateDateTime, 1000)
+
+  loadAll()
+
+  // 每 30 秒轮询一次"实时性较强"的数据：在线人数 / 系统资源 / 任务统计
+  pollingTimer = setInterval(() => {
+    if (document.hidden) return
+    fetchOverview()
+    fetchSystemResource()
+    fetchTaskStats()
+  }, 30_000)
 })
 
 onUnmounted(() => {
-  if (timer) {
-    clearInterval(timer)
+  if (clockTimer) clearInterval(clockTimer)
+  if (pollingTimer) clearInterval(pollingTimer)
+  try {
+    abortController.abort()
+  } catch {
+    /* noop */
   }
 })
 </script>
 
 <style scoped lang="scss">
+// ========== 颜色变量（优先继承 Element Plus 主题变量，便于暗色模式） ==========
+$color-primary: var(--el-color-primary, #409EFF);
+$color-success: var(--el-color-success, #67C23A);
+$color-warning: var(--el-color-warning, #E6A23C);
+$color-danger: var(--el-color-danger, #F56C6C);
+$color-text-primary: var(--el-text-color-primary, #303133);
+$color-text-regular: var(--el-text-color-regular, #606266);
+$color-text-secondary: var(--el-text-color-secondary, #909399);
+$color-border-lighter: var(--el-border-color-lighter, #f0f2f5);
+$color-fill-light: var(--el-fill-color-light, #fafafa);
+$color-fill-blank: var(--el-bg-color, #ffffff);
+$shadow-light: var(--el-box-shadow-light, 0 2px 8px rgba(0, 0, 0, 0.04));
+$shadow: var(--el-box-shadow, 0 8px 24px rgba(0, 0, 0, 0.08));
+
 .dashboard {
   padding: 16px;
 
@@ -909,7 +976,7 @@ onUnmounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 24px 32px;
-    background: linear-gradient(135deg, #409EFF 0%, #66b1ff 50%, #79bbff 100%);
+    background: linear-gradient(135deg, $color-primary 0%, color-mix(in srgb, $color-primary, #fff 30%) 50%, color-mix(in srgb, $color-primary, #fff 55%) 100%);
     border-radius: 12px;
     color: #fff;
     box-shadow: 0 4px 16px rgba(64, 158, 255, 0.25);
@@ -990,17 +1057,17 @@ onUnmounted(() => {
   .stat-card {
     position: relative;
     padding: 20px;
-    background: #fff;
+    background: $color-fill-blank;
     border-radius: 12px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: $shadow-light;
     transition: all 0.3s;
     overflow: hidden;
-    border: 1px solid #f0f2f5;
+    border: 1px solid $color-border-lighter;
 
     &:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      box-shadow: $shadow;
     }
 
     .stat-icon {
@@ -1019,14 +1086,14 @@ onUnmounted(() => {
       .stat-value {
         font-size: 32px;
         font-weight: 700;
-        color: #303133;
+        color: $color-text-primary;
         line-height: 1.2;
         margin-bottom: 4px;
       }
 
       .stat-label {
         font-size: 14px;
-        color: #909399;
+        color: $color-text-secondary;
       }
     }
 
@@ -1038,27 +1105,18 @@ onUnmounted(() => {
       font-size: 13px;
 
       &.up {
-        color: #67C23A;
+        color: $color-success;
       }
 
       &.down {
-        color: #F56C6C;
+        color: $color-danger;
       }
 
       .trend-label {
-        color: #c0c4cc;
+        color: $color-text-secondary;
         margin-left: 4px;
         font-size: 12px;
       }
-    }
-
-    .mini-chart {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 120px;
-      height: 50px;
-      opacity: 0.3;
     }
   }
 
@@ -1068,13 +1126,18 @@ onUnmounted(() => {
   }
 
   .chart-card {
-    background: #fff;
+    background: $color-fill-blank;
     border-radius: 12px;
     padding: 20px;
     height: 360px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f0f2f5;
+    box-shadow: $shadow-light;
+    border: 1px solid $color-border-lighter;
+
+    @media (max-width: 768px) {
+      height: 300px;
+      padding: 16px;
+    }
 
     .chart-header {
       display: flex;
@@ -1088,16 +1151,16 @@ onUnmounted(() => {
         gap: 8px;
         font-size: 16px;
         font-weight: 600;
-        color: #303133;
+        color: $color-text-primary;
 
         .el-icon {
-          color: #409EFF;
+          color: $color-primary;
         }
       }
 
       .chart-subtitle {
         font-size: 12px;
-        color: #909399;
+        color: $color-text-secondary;
       }
 
       .chart-tabs {
@@ -1123,12 +1186,12 @@ onUnmounted(() => {
   }
 
   .action-card {
-    background: #fff;
+    background: $color-fill-blank;
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f0f2f5;
+    box-shadow: $shadow-light;
+    border: 1px solid $color-border-lighter;
 
     .action-header {
       display: flex;
@@ -1136,11 +1199,11 @@ onUnmounted(() => {
       gap: 8px;
       font-size: 16px;
       font-weight: 600;
-      color: #303133;
+      color: $color-text-primary;
       margin-bottom: 16px;
 
       .el-icon {
-        color: #409EFF;
+        color: $color-primary;
       }
     }
 
@@ -1155,13 +1218,13 @@ onUnmounted(() => {
         align-items: center;
         gap: 8px;
         padding: 14px 8px;
-        background: #fafafa;
+        background: $color-fill-light;
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.25s;
 
         &:hover {
-          background: #ecf5ff;
+          background: color-mix(in srgb, $color-primary, #fff 85%);
           transform: translateY(-2px);
         }
 
@@ -1177,7 +1240,7 @@ onUnmounted(() => {
 
         .quick-title {
           font-size: 12px;
-          color: #606266;
+          color: $color-text-regular;
           text-align: center;
         }
       }
@@ -1186,11 +1249,11 @@ onUnmounted(() => {
 
   // ========== 服务器状态 ==========
   .server-card {
-    background: #fff;
+    background: $color-fill-blank;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f0f2f5;
+    box-shadow: $shadow-light;
+    border: 1px solid $color-border-lighter;
 
     .server-header {
       display: flex;
@@ -1198,11 +1261,11 @@ onUnmounted(() => {
       gap: 8px;
       font-size: 16px;
       font-weight: 600;
-      color: #303133;
+      color: $color-text-primary;
       margin-bottom: 16px;
 
       .el-icon {
-        color: #409EFF;
+        color: $color-primary;
       }
 
       .status-badge {
@@ -1213,8 +1276,8 @@ onUnmounted(() => {
         font-weight: normal;
 
         &.up {
-          background: #f0f9eb;
-          color: #67C23A;
+          background: color-mix(in srgb, $color-success, #fff 85%);
+          color: $color-success;
         }
       }
     }
@@ -1229,7 +1292,7 @@ onUnmounted(() => {
         .server-stat-label {
           width: 80px;
           font-size: 13px;
-          color: #606266;
+          color: $color-text-regular;
           flex-shrink: 0;
         }
 
@@ -1242,7 +1305,7 @@ onUnmounted(() => {
           text-align: right;
           font-size: 13px;
           font-weight: 600;
-          color: #303133;
+          color: $color-text-primary;
           flex-shrink: 0;
         }
       }
@@ -1251,12 +1314,12 @@ onUnmounted(() => {
 
   // ========== 操作日志 ==========
   .log-card {
-    background: #fff;
+    background: $color-fill-blank;
     border-radius: 12px;
     padding: 20px;
     height: 100%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f0f2f5;
+    box-shadow: $shadow-light;
+    border: 1px solid $color-border-lighter;
 
     .log-header {
       display: flex;
@@ -1270,10 +1333,10 @@ onUnmounted(() => {
         gap: 8px;
         font-size: 16px;
         font-weight: 600;
-        color: #303133;
+        color: $color-text-primary;
 
         .el-icon {
-          color: #409EFF;
+          color: $color-primary;
         }
       }
     }
