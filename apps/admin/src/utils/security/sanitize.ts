@@ -86,41 +86,46 @@ const FORBID_ATTR: readonly string[] = [
 export function sanitizeHtml(dirtyHtml: string): string {
   if (!dirtyHtml) return ''
 
-  return DOMPurify.sanitize(dirtyHtml, {
-    ALLOWED_TAGS: [...ALLOWED_TAGS],
-    ALLOWED_ATTR: [...ALLOWED_ATTR],
-    ALLOW_DATA_ATTR: false,
-    ALLOW_UNKNOWN_PROTOCOLS: false,
-    FORBID_TAGS: [...FORBID_TAGS],
-    FORBID_ATTR: [...FORBID_ATTR],
-    USE_PROFILES: { html: true },
-    IN_PLACE: false,
-    WHOLE_DOCUMENT: false,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
-    RETURN_DOM_IMPORT: false,
+  try {
+    return DOMPurify.sanitize(dirtyHtml, {
+      ALLOWED_TAGS: [...ALLOWED_TAGS],
+      ALLOWED_ATTR: [...ALLOWED_ATTR],
+      ALLOW_DATA_ATTR: false,
+      ALLOW_UNKNOWN_PROTOCOLS: false,
+      FORBID_TAGS: [...FORBID_TAGS],
+      FORBID_ATTR: [...FORBID_ATTR],
+      USE_PROFILES: { html: true },
+      IN_PLACE: false,
+      WHOLE_DOCUMENT: false,
+      RETURN_DOM: false,
+      RETURN_DOM_FRAGMENT: false,
+      RETURN_DOM_IMPORT: false,
 
-    // 对 <a> 标签强制添加安全属性
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    HOOKS: {
-      afterSanitizeAttributes: (node) => {
-        if (node.nodeName === 'A' && node instanceof Element) {
-          // 强制 rel 安全属性，防止新标签页 window.opener 泄露
-          node.setAttribute('rel', 'noopener noreferrer')
-          // 外部链接强制在新标签页打开
-          const href = node.getAttribute('href')
-          if (href && /^(https?:)?\/\//i.test(href)) {
-            node.setAttribute('target', '_blank')
+      // 对 <a> 标签强制添加安全属性
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      HOOKS: {
+        afterSanitizeAttributes: (node) => {
+          if (node.nodeName === 'A' && node instanceof Element) {
+            node.setAttribute('rel', 'noopener noreferrer')
+            const href = node.getAttribute('href')
+            if (href && /^(https?:)?\/\//i.test(href)) {
+              node.setAttribute('target', '_blank')
+            }
           }
         }
-
-        // 图片加载失败时隐藏破损图标
-        if (node.nodeName === 'IMG' && node instanceof Element) {
-          node.setAttribute('onerror', 'this.style.display="none"')
-        }
       }
-    }
-  })
+    })
+  } catch {
+    // 对不完整的 DOM（如 happy-dom）退化到简单文本清洗
+    return stripTagsSimple(dirtyHtml)
+  }
+}
+
+/**
+ * 退化/纯文本提取 —— 当 DOMPurify 无法运行时的安全降级
+ */
+function stripTagsSimple(html: string): string {
+  return html.replace(/<[^>]*>/g, '')
 }
 
 /**
