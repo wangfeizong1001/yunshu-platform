@@ -4,6 +4,15 @@
 
 import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
 
+// 验证码响应类型
+export interface CaptchaResponse {
+  captchaOnOff: boolean
+  uuid: string
+  img: string
+  /** 开发模式下返回验证码答案，方便测试 */
+  code?: string
+}
+
 // 登录表单类型
 export interface LoginForm {
   username: string
@@ -33,8 +42,8 @@ export interface UserInfo {
 }
 
 // 获取验证码
-export function getCaptchaApi() {
-  return request<{ captchaOnOff: boolean; img: string; uuid: string }>({
+export function getCaptchaApi(): Promise<{ code: number; data: CaptchaResponse }> {
+  return request<CaptchaResponse>({
     url: '/api/auth/captcha',
     method: 'GET'
   })

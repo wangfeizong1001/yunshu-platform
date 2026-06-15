@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, hasToken } from '@/utils/auth'
 
 describe('auth utils', () => {
   const testToken = 'test-token-123'
 
   beforeEach(() => {
-    localStorage.clear()
+    removeToken()
   })
 
   afterEach(() => {
-    localStorage.clear()
+    removeToken()
   })
 
   describe('setToken', () => {
-    it('should set token to localStorage', () => {
+    it('should set token and be readable via getToken', () => {
       setToken(testToken)
-      expect(localStorage.getItem('YUNSHU_TOKEN')).toBe(testToken)
+      expect(getToken()).toBe(testToken)
     })
   })
 
@@ -25,16 +25,26 @@ describe('auth utils', () => {
     })
 
     it('should return stored token when it exists', () => {
-      localStorage.setItem('YUNSHU_TOKEN', testToken)
+      setToken(testToken)
       expect(getToken()).toBe(testToken)
     })
   })
 
   describe('removeToken', () => {
-    it('should remove token from localStorage', () => {
-      localStorage.setItem('YUNSHU_TOKEN', testToken)
+    it('should remove token', () => {
+      setToken(testToken)
       removeToken()
-      expect(localStorage.getItem('YUNSHU_TOKEN')).toBeNull()
+      expect(getToken()).toBe('')
+    })
+  })
+
+  describe('hasToken', () => {
+    it('should return false when no token', () => {
+      expect(hasToken()).toBe(false)
+    })
+    it('should return true when token exists', () => {
+      setToken(testToken)
+      expect(hasToken()).toBe(true)
     })
   })
 })
