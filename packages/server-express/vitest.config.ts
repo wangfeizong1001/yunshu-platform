@@ -1,6 +1,13 @@
 import { defineConfig } from 'vitest/config';
+import path from 'node:path';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@yunshu/server-core': path.resolve(__dirname, '../server-core/src/index.ts'),
+      '@yunshu/shared': path.resolve(__dirname, '../shared/src/index.ts'),
+    },
+  },
   test: {
     globals: true,
     environment: 'node',

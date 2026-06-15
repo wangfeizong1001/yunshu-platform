@@ -19,6 +19,7 @@ import type {
   ApiResponse,
 } from './types';
 import { RequestError } from './types';
+import { FetchAdapter } from '../adapters/fetch/FetchAdapter';
 
 // ============================================================================
 // 安全常量
@@ -34,6 +35,7 @@ const PARAMS_MAX_SIZE = 100 * 1024; // 100KB
 const DATA_MAX_SIZE = 2 * 1024 * 1024; // 2MB
 /** 默认超时（毫秒） */
 const DEFAULT_TIMEOUT = 15000;
+const DEFAULT_DEDUP_WINDOW = 1000;
 
 // ============================================================================
 // 内部工具
@@ -189,7 +191,26 @@ export class HttpClient {
   private readonly dedupCache = new Map<string, Promise<HttpResponse>>();
   private readonly pendingRequests = new Map<string, AbortController>();
 
-  constructor(adapter: IHttpAdapter, options: HttpClientOptions = {}) {
+  /**
+   * 构造 HttpClient
+   * - 签名 1：new HttpClient(adapter, options?)
+   * - 签名 2：new HttpClient(options) → 自动创建 FetchAdapter（兼容
+   *   `packages/api-client/src/system/*` 的用法）
+   */
+  constructor(adapterOrOptions: IHttpAdapter | HttpClientOptions, maybeOptions: HttpClientOptions = {}) {
+    const isAdapter = (
+      adapterOrOptions &&
+      typeof (adapterOrOptions as Partial<IHttpAdapter>).request === 'function'
+    );
+    const adapter: IHttpAdapter = isAdapter
+      ? (adapterOrOptions as IHttpAdapter)
+      : new FetchAdapter({
+          baseURL: (adapterOrOptions as HttpClientOptions).baseURL,
+          timeout: (adapterOrOptions as HttpClientOptions).timeout,
+          headers: (adapterOrOptions as HttpClientOptions).headers,
+        });
+    const options = isAdapter ? maybeOptions : (adapterOrOptions as HttpClientOptions);
+
     this.adapter = adapter;
     this.options = {
       baseURL: options.baseURL ?? '',
@@ -287,30 +308,34 @@ export class HttpClient {
 
     const config: RequestConfig = { method: 'GET', url, params };
     const requestKey = cacheOptions?.key ?? this.generateRequestKey(config);
+    const useCache = cacheOptions?.enabled ?? this.options.cache.enabled;
+    const useDedup = (this.options.dedup.window ?? DEFAULT_DEDUP_WINDOW) > 0;
 
-    if (cacheOptions?.enabled ?? this.options.cache.enabled) {
+    if (useCache) {
       const cached = this.memoryCache.get<ApiResponse<T>>(requestKey);
       if (cached) return cached;
     }
 
-    if (this.dedupCache.has(requestKey)) {
+    if (useDedup && this.dedupCache.has(requestKey)) {
       const response = await (this.dedupCache.get(requestKey) as Promise<HttpResponse<T>>);
       return response.data;
     }
 
     const requestPromise = this.request<T>(config).then((response) => {
-      if (cacheOptions?.enabled ?? this.options.cache.enabled) {
+      if (useCache) {
         const ttl = cacheOptions?.ttl ?? this.options.cache.ttl!;
         this.memoryCache.set(requestKey, response.data, ttl);
       }
-      setTimeout(() => this.dedupCache.delete(requestKey), this.options.dedup.window);
+      if (useDedup) {
+        setTimeout(() => this.dedupCache.delete(requestKey), this.options.dedup.window);
+      }
       return response;
     }).catch((error) => {
       this.dedupCache.delete(requestKey);
       throw error;
     });
 
-    this.dedupCache.set(requestKey, requestPromise);
+    if (useDedup) this.dedupCache.set(requestKey, requestPromise);
     const response = await requestPromise;
     return response.data;
   }
@@ -416,15 +441,21 @@ export class HttpClient {
   /** 清除所有内存缓存 */
   clearCache(): void {
     this.memoryCache.clear();
+    this.dedupCache.clear();
   }
 
   /** 按前缀清除缓存 */
   clearCacheByPrefix(prefix: string): number {
-    return this.memoryCache.deleteByPrefix(prefix);
+    const res = this.memoryCache.deleteByPrefix(prefix);
+    for (const k of this.dedupCache.keys()) {
+      if (k.startsWith(prefix)) this.dedupCache.delete(k);
+    }
+    return res;
   }
 
   /** 删除指定键的缓存 */
   removeCache(key: string): boolean {
+    this.dedupCache.delete(key);
     return this.memoryCache.delete(key);
   }
 

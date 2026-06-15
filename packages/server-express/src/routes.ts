@@ -11,7 +11,8 @@ function bindHandler<T extends object>(controller: T, method: keyof T & string) 
   if (typeof handler !== 'function') {
     throw new Error(`Controller method ${String(method)} is not a function`);
   }
-  return (req: Request, res: Response, _next: NextFunction) => handler(req, res);
+  return (req: Request, res: Response, _next: NextFunction) =>
+    handler.call(controller, req, res);
 }
 
 export function registerRoutes(router: Router): void {

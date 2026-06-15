@@ -21,7 +21,9 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@yunshu/design-tokens": "workspace:*"
@@ -29,8 +31,12 @@
   "devDependencies": {
     "@yunshu/tsconfig": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vue/test-utils": "^2.4.0",
+    "happy-dom": "^12.0.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.0.0",
+    "vitest": "^1.0.0",
     "vue-tsc": "^2.0.0"
   },
   "peerDependencies": {

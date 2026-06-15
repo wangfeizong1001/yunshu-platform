@@ -68,7 +68,7 @@ function extractData<T>(resp: ApiResponse<T>, fallback?: T): T | undefined {
 // 获取仪表盘概览
 export async function getDashboardOverview(): Promise<ApiResponse<DashboardOverview>> {
   return request<DashboardOverview>({
-    url: '/api/admin-dashboard/overview',
+    url: '/admin-dashboard/overview',
     method: 'GET'
   })
 }
@@ -76,7 +76,7 @@ export async function getDashboardOverview(): Promise<ApiResponse<DashboardOverv
 // 获取用户增长趋势
 export async function getUserGrowthTrend(): Promise<ApiResponse<UserGrowthData[]>> {
   return request<UserGrowthData[]>({
-    url: '/api/admin-dashboard/user-growth',
+    url: '/admin-dashboard/user-growth',
     method: 'GET'
   })
 }
@@ -84,7 +84,7 @@ export async function getUserGrowthTrend(): Promise<ApiResponse<UserGrowthData[]
 // 获取操作类型分布
 export async function getOperationTypeDistribution(): Promise<ApiResponse<OperationTypeData[]>> {
   return request<OperationTypeData[]>({
-    url: '/api/admin-dashboard/operation-types',
+    url: '/admin-dashboard/operation-types',
     method: 'GET'
   })
 }
@@ -92,7 +92,7 @@ export async function getOperationTypeDistribution(): Promise<ApiResponse<Operat
 // 获取系统资源趋势
 export async function getSystemResourceTrend(): Promise<ApiResponse<SystemResourceData[]>> {
   return request<SystemResourceData[]>({
-    url: '/api/admin-dashboard/resource-trend',
+    url: '/admin-dashboard/resource-trend',
     method: 'GET'
   })
 }
@@ -100,7 +100,7 @@ export async function getSystemResourceTrend(): Promise<ApiResponse<SystemResour
 // 获取登录时间分布
 export async function getLoginDistribution(): Promise<ApiResponse<LoginDistributionData[]>> {
   return request<LoginDistributionData[]>({
-    url: '/api/admin-dashboard/login-distribution',
+    url: '/admin-dashboard/login-distribution',
     method: 'GET'
   })
 }
@@ -108,7 +108,7 @@ export async function getLoginDistribution(): Promise<ApiResponse<LoginDistribut
 // 获取今日任务统计
 export async function getTaskStats(): Promise<ApiResponse<TaskStats>> {
   return request<TaskStats>({
-    url: '/api/admin-dashboard/task-stats',
+    url: '/admin-dashboard/task-stats',
     method: 'GET'
   })
 }
