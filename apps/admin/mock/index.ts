@@ -17,6 +17,11 @@ import systemDept from './routes/system/dept'
 import systemPost from './routes/system/post'
 import systemMessage from './routes/system/message'
 import systemNotification from './routes/system/notification'
+import systemNotice from './routes/system/notice'
+import systemDict from './routes/system/dict'
+import systemSso from './routes/system/sso'
+import systemSms from './routes/system/sms'
+import systemThird from './routes/system/third'
 import monitorOperlog from './routes/monitor/operlog'
 import monitorLogininfor from './routes/monitor/logininfor'
 import monitorOnline from './routes/monitor/online'
@@ -27,6 +32,7 @@ import reportReport from './routes/report/report'
 import dashboardDashboard from './routes/dashboard/dashboard'
 import systemForm from './routes/system/form'
 import workflow from './routes/workflow'
+import tenantTenant from './routes/tenant/tenant'
 
 /**
  * 合并所有 Mock API
@@ -40,6 +46,11 @@ const mockPlugins: MockMethod[] = [
   ...systemPost,
   ...systemMessage,
   ...systemNotification,
+  ...systemNotice,
+  ...systemDict,
+  ...systemSso,
+  ...systemSms,
+  ...systemThird,
   ...monitorOperlog,
   ...monitorLogininfor,
   ...monitorOnline,
@@ -49,7 +60,8 @@ const mockPlugins: MockMethod[] = [
   ...reportReport,
   ...dashboardDashboard,
   ...systemForm,
-  ...workflow
+  ...workflow,
+  ...tenantTenant
 ]
 
 /**
