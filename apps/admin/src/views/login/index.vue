@@ -69,9 +69,14 @@
               style="width: 60%"
               maxlength="4"
               clearable
+              @keyup.enter="handleLogin"
             />
-            <div class="captcha" @click="getCaptcha">
-              <el-image :src="captchaData.img" fit="contain" />
+            <div class="captcha" @click="getCaptcha" :title="'点击刷新验证码'" role="button" tabindex="0" @keydown.enter="getCaptcha" @keydown.space.prevent="getCaptcha">
+              <el-image v-if="!captchaLoading && captchaData.img" :src="captchaData.img" fit="contain" alt="验证码图片" />
+              <div v-else-if="captchaLoading" class="captcha-loading">
+                <el-icon class="is-loading"><Refresh /></el-icon>
+              </div>
+              <el-icon v-else :size="24"><Picture /></el-icon>
             </div>
           </el-form-item>
 
@@ -104,8 +109,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock, CircleCheck, Document, Setting, Monitor, Tools } from '@element-plus/icons-vue'
-import { getCaptchaApi, loginApi } from '@/api/auth'
+import { User, Lock, CircleCheck, Document, Setting, Monitor, Tools, Refresh, Picture } from '@element-plus/icons-vue'
+import { getCaptchaApi, loginApi, type CaptchaResponse } from '@/api/auth'
 import { getToken, setToken } from '@/utils/auth'
 
 const router = useRouter()
@@ -113,10 +118,12 @@ const route = useRoute()
 
 const loginFormRef = ref()
 const loading = ref(false)
+const captchaLoading = ref(false)
 const captchaEnabled = ref(true)
-const captchaData = reactive({
+const captchaData = reactive<CaptchaResponse>({
   uuid: '',
   img: '',
+  captchaOnOff: true,
   code: ''
 })
 
@@ -135,20 +142,32 @@ const loginRules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 3, max: 20, message: '密码长度在 3 到 20 个字符', trigger: 'blur' }
+  ],
+  code: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { len: 4, message: '验证码长度为 4 个字符', trigger: 'blur' }
   ]
 }
 
 // 获取验证码
 const getCaptcha = async () => {
+  captchaLoading.value = true
   try {
-    const res: Record<string, unknown> = await getCaptchaApi()
+    const res = await getCaptchaApi()
     if (res.code === 200) {
       captchaData.uuid = res.data.uuid
       captchaData.img = res.data.img
-      captchaData.code = res.data.code
+      captchaData.code = res.data.code || ''
+      captchaEnabled.value = res.data.captchaOnOff
+      // 开发模式下在控制台输出验证码，方便测试
+      if (res.data.code) {
+        console.info('[Captcha] 开发模式验证码:', res.data.code)
+      }
     }
   } catch (error) {
     console.error('获取验证码失败:', error)
+  } finally {
+    captchaLoading.value = false
   }
 }
 
@@ -183,8 +202,9 @@ const handleLogin = async () => {
         // 跳转到目标页面
         router.push(redirect)
       } else {
-        ElMessage.error(res.msg || '登录失败')
-        // 刷新验证码
+        ElMessage.error(res.msg as string || '登录失败')
+        // 清空并刷新验证码
+        loginForm.code = ''
         if (captchaEnabled.value) {
           getCaptcha()
         }
@@ -192,7 +212,8 @@ const handleLogin = async () => {
     } catch (error: unknown) {
       const err = error as Record<string, unknown>
       ElMessage.error(err.message as string || '登录失败，请稍后重试')
-      // 刷新验证码
+      // 清空并刷新验证码
+      loginForm.code = ''
       if (captchaEnabled.value) {
         getCaptcha()
       }
@@ -315,10 +336,32 @@ onMounted(() => {
     border-radius: 4px;
     overflow: hidden;
     height: 40px;
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--el-fill-color-light);
+    border: 1px solid var(--el-border-color);
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: var(--el-color-primary);
+    }
 
     .el-image {
       width: 100%;
       height: 100%;
+    }
+
+    .captcha-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--el-color-primary);
+
+      .el-icon {
+        font-size: 20px;
+      }
     }
   }
 }
