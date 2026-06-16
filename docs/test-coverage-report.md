@@ -6,6 +6,11 @@
 > **状态**: 持续建设中
 > **基准分支**: `develop`（当前 commit `9ccf384`）
 
+> **🔗 文档关联**：本报告与 [project-plan.md](file:///workspace/docs/project-plan.md) 联动执行。
+> - **第7批（测试覆盖补充）** 中的每项任务完成后，需同步更新本报告对应章节的状态
+> - 每项任务完成后，在下方「任务完成进度表」中标记 ✅，并在对应章节中补充测试文件清单
+> - 开发流程：执行 [project-plan.md 第7批任务](file:///workspace/docs/project-plan.md#_7批--测试覆盖补充) → 完成一项 → 更新本报告状态
+
 ---
 
 ## 目录
@@ -18,6 +23,44 @@
 6. [六、运行方式](#六运行方式)
 7. [七、测试规范与约定](#七测试规范与约定)
 8. [八、改进建议与路线图](#八改进建议与路线图)
+
+---
+
+## 零、任务完成进度追踪表
+
+> **关联**：[project-plan.md 第7批 — 测试覆盖补充](file:///workspace/docs/project-plan.md#_7批--测试覆盖补充)
+> **更新规则**：每完成一项，立即在本表和对应章节中更新状态
+
+| # | 任务标题 | 关联章节 | 测试文件路径 | 状态 |
+|---|---------|---------|------------|------|
+| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/CommonTable.test.ts` | ⬜ 待开始 |
+| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/LanguageSwitch.test.ts` | ⬜ 待开始 |
+| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/TenantSelect.test.ts` | ⬜ 待开始 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/app.test.ts` | ⬜ 待开始 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/user.test.ts` | ⬜ 待开始 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/permission.test.ts` | ⬜ 待开始 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/tagsView.test.ts` | ⬜ 待开始 |
+| 7.3 | 路由守卫测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/router/guard.test.ts` | ⬜ 待开始 |
+| 7.4 | 工作流 E2E 测试 | [§4.5](#_45-playwright-e2e) | `playwright/tests/workflow.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-config.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-file.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-notice.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-message.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-knowledge.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-oss.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sms.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sso.spec.ts` | ⬜ 待开始 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-third.spec.ts` | ⬜ 待开始 |
+| 7.6 | 个人中心 E2E | [§4.5](#_45-playwright-e2e) | `playwright/tests/profile.spec.ts` | ⬜ 待开始 |
+| 7.7 | 布局组件 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/layout.spec.ts` | ⬜ 待开始 |
+
+**进度汇总**：0 / 20 项完成（0%）
+
+**图例**：
+- ⬜ 待开始 — 尚未开始
+- ⏳ 进行中 — 开发中，测试文件已创建但未通过
+- ✅ 已完成 — 测试文件已创建且 `pnpm test` / `pnpm test:e2e` 通过
+- ❌ 已废弃 — 任务不再需要（需在备注中说明原因）
 
 ---
 
@@ -565,4 +608,9 @@ packages/cli/          └── src/{__tests__/commands/{generate,theme},utils/
 
 ---
 
-> **维护方式**：本文件由人工定期审查 + 自动清单补充。建议在 CI 中增加「测试文件覆盖率」告警，当新增源码而未新增测试时发出提醒。
+> **维护方式**：
+> 1. 每完成 [project-plan.md 第7批](file:///workspace/docs/project-plan.md#_7批--测试覆盖补充) 中一项任务后，立即在本报告「零、任务完成进度追踪表」中标记状态（✅ / ⏳ / ❌）
+> 2. 在对应章节（§3 / §4）中补充已完成的测试文件清单和已覆盖功能点
+> 3. 更新顶部「进度汇总」数字
+> 4. 在 project-plan.md 第7批任务表格中同步标记对应项状态为 ✅ / ⏳
+> 5. 建议在 CI 中增加「测试文件覆盖率」告警，当新增源码而未新增测试时发出提醒
