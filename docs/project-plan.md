@@ -116,7 +116,7 @@ pnpm dev                # 应用能正常启动
 |------|------|-----------|
 | 基础设施缺陷 | 3 项 | locale 非响应式、httpClient 未注入 tenant-id、动态路由变量未隔离 |
 | 主题与布局体系 | 7 项 | 缺失暗色主题、语言切换入口未集成、头像硬编码、多处颜色硬编码 |
-| 个人中心与体验 | 4 项 | 个人中心为纯占位符、TagsView 无右键菜单、缺 403/500 页、全局搜索无菜单搜索 |
+| 个人中心与体验 | 4 项 | ~~个人中心为纯占位符~~✅、~~TagsView 无右键菜单~~✅、~~缺 403/500 页~~✅、~~全局搜索无菜单搜索~~✅ |
 | 用户/租户完善 | 3 项 | 重置密码仅提示、TenantStatusEnum 未定义、套餐下拉无数据 |
 | 工作流 Mock→真实 | 5 项 | 流程定义/任务/实例全部用 mock、所有操作仅弹消息无后端交互 |
 | 大屏设计器完善 | 4 项 | 组件渲染为纯文本、不可二次拖动、保存未持久化、无数据源绑定 |
@@ -172,14 +172,15 @@ pnpm dev                # 应用能正常启动
 **目标**：补全最明显的缺失页面，增强标签页交互体验。
 **预计总工时**：1 天
 **前置依赖**：第2批（需 Header 跳转完成后，个人中心才可被访问）
-**状态**：⬜ 待开始
+**状态**：✅ 已完成（2026-06-16 commit f838654）
+**关联分支**：`feature/batch3-user-experience`
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 3.1 | 完整实现个人中心页面 | [profile/index.vue](file:///workspace/apps/admin/src/views/user/profile/index.vue), [auth.ts](file:///workspace/apps/admin/src/api/auth.ts) | ① 基本信息卡（头像上传、昵称、邮箱、手机号、部门展示）；② 修改密码表单（旧密码/新密码/确认密码，带强度校验与一致性校验）；③ 操作日志列表（最近 20 条）；④ 保存按钮调用 `updateProfile` API；⑤ 表单验证使用 Element Plus rules | 页面打开显示当前用户信息，修改密码提交成功后后端验证通过并提示，操作日志表格有数据 | 5h | ⬜ |
-| 3.2 | TagsView 右键菜单 | [TagsView.vue](file:///workspace/apps/admin/src/layouts/components/TagsView.vue) | 对每个 tag 绑定 `@contextmenu.prevent` 弹出菜单；菜单项：刷新当前、关闭当前、关闭其他、关闭全部、关闭左侧、关闭右侧；通过 router + tagsViewStore 实现 | 右键任一标签弹出菜单，所有操作正常执行，当前活跃标签正确更新 | 2h | ⬜ |
-| 3.3 | 新增 403/500 错误页 | [403.vue](file:///workspace/apps/admin/src/views/error/403.vue)（新建）, [500.vue](file:///workspace/apps/admin/src/views/error/500.vue)（新建）, [router/index.ts](file:///workspace/apps/admin/src/router/index.ts), [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts#L76-L93) | 仿照 404 样式，使用 `el-result` 组件；403 文案"抱歉，您无权访问此页面"，按钮"返回首页"；500 文案"服务器开小差了，请稍后再试"，按钮"重新加载"；在路由中注册；httpClient 中 `status === 403` 跳 `/403`，`status >= 500` 跳 `/500` | 访问受限时跳转到 403 页；模拟后端抛错时跳转到 500 页；页面样式与 404 一致 | 1h | ⬜ |
-| 3.4 | 全局搜索集成菜单搜索 | [Search.vue](file:///workspace/apps/admin/src/layouts/components/Search.vue) | 使用 `usePermissionStore().routes` 生成可搜索项；用 Element Plus `el-autocomplete` 做搜索；点击结果调用 `router.push` 跳转 | 顶部搜索框输入"用户"、"角色"等关键字可匹配菜单项，点击后跳转到对应页面 | 1h | ⬜ |
+| 3.1 | 完整实现个人中心页面 | [profile/index.vue](file:///workspace/apps/admin/src/views/user/profile/index.vue), [auth.ts](file:///workspace/apps/admin/src/api/auth.ts) | ① 基本信息卡（头像上传、昵称、邮箱、手机号、部门展示）；② 修改密码表单（旧密码/新密码/确认密码，带强度校验与一致性校验）；③ 操作日志列表（最近 20 条）；④ 保存按钮调用 `updateProfile` API；⑤ 表单验证使用 Element Plus rules | 页面打开显示当前用户信息，修改密码提交成功后后端验证通过并提示，操作日志表格有数据 | 5h | ✅ |
+| 3.2 | TagsView 右键菜单 | [TagsView.vue](file:///workspace/apps/admin/src/layouts/components/TagsView.vue), [tagsView.ts](file:///workspace/apps/admin/src/store/modules/tagsView.ts) | 对每个 tag 绑定 `@contextmenu.prevent` 弹出菜单；菜单项：刷新当前、关闭当前、关闭左侧、关闭右侧、关闭其他、关闭全部；通过 router + tagsViewStore 实现；使用元素图标美化 | 右键任一标签弹出菜单，所有操作正常执行，当前活跃标签正确更新 | 2h | ✅ |
+| 3.3 | 新增 403/500 错误页 | [403.vue](file:///workspace/apps/admin/src/views/error/403.vue)（新建）, [500.vue](file:///workspace/apps/admin/src/views/error/500.vue)（新建）, [router/index.ts](file:///workspace/apps/admin/src/router/index.ts), [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts) | 仿照 404 样式，使用 `el-result` 组件；403 文案"抱歉，您无权访问此页面"，按钮"返回首页"；500 文案"服务器开小差了，请稍后再试"，按钮"重新加载"；在路由中注册；httpClient 中 `status === 403` 跳 `/403`，`status >= 500` 跳 `/500` | 访问受限时跳转到 403 页；模拟后端抛错时跳转到 500 页；页面样式与 404 一致 | 1h | ✅ |
+| 3.4 | 全局搜索集成菜单搜索 | [Search.vue](file:///workspace/apps/admin/src/layouts/components/Search.vue) | 使用 `usePermissionStore().routes` 生成可搜索项；用 el-dialog + el-input + el-autocomplete 风格实现搜索；支持键盘上下选择/Enter跳转/Esc关闭；点击结果调用 `router.push` 跳转 | 顶部搜索框输入"用户"、"角色"等关键字可匹配菜单项，点击后跳转到对应页面，键盘操作流畅 | 1h | ✅ |
 
 ---
 
