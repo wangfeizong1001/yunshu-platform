@@ -2,7 +2,7 @@
  * 云枢中台权限管理后台入口
  */
 
-import { createApp } from 'vue'
+import { createApp, watch } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -46,6 +46,27 @@ app.use(ElementPlus, {
 
 // 注册 i18n
 app.use(i18n)
+
+// 初始化暗色主题支持（必须在 app.mount 之前执行，因为 Pinia store 需要 app 已初始化）
+import { useAppStore } from '@/store/modules/app'
+const appStore = useAppStore()
+
+const initTheme = () => {
+  const currentTheme = appStore.theme
+  if (currentTheme === 'dark') {
+    document.documentElement.classList.add('dark')
+  }
+}
+initTheme()
+
+// 监听 theme 状态变化，实时更新 html class
+watch(() => appStore.theme, (newTheme) => {
+  if (newTheme === 'dark') {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
+})
 
 // 配置 dayjs 语言
 const getDayjsLocale = () => {

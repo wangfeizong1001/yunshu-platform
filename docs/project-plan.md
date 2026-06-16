@@ -160,17 +160,18 @@ pnpm dev                # 应用能正常启动
 **目标**：补全暗色主题、语言切换入口，消除布局中的硬编码与路径错误。
 **预计总工时**：1.5 天
 **前置依赖**：第1批（需 locale store 响应式修复完成）
-**状态**：⬜ 待开始
+**状态**：✅ 已完成（2026-06-16 5 个 commit）
+**关联分支**：`feature/batch2-theme-layout`
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 2.1 | app store 新增 theme 状态 | [app.ts](file:///workspace/apps/admin/src/store/modules/app.ts) | 新增 `theme: 'light' | 'dark'`（useLocalStorage 持久化）；新增 `toggleTheme()`、`setTheme(theme)`；保持与 `sidebarCollapsed` 相同风格 | Vue DevTools 中可看到 theme 状态；调用 toggleTheme 后 localStorage 中 `app-theme` 更新 | 2h | ⬜ |
-| 2.2 | 主题切换核心逻辑实现 | [main.ts](file:///workspace/apps/admin/src/main.ts), [index.scss](file:///workspace/apps/admin/src/styles/index.scss) | 在 main.ts 监听 `useAppStore().theme`，切换时为 `<html>` 添加/移除 `class="dark"`；补充 Element Plus 的暗色主题 import（`element-plus/theme-chalk/dark/css-vars.css`）；在 `index.scss` 定义自定义暗色变量（如 `--app-bg-dark`、`--app-text-dark`、`--app-sidebar-dark`） | 切暗色后所有 Element Plus 组件（表格、弹窗、表单）变为暗色；背景色、文字色统一变化 | 4h | ⬜ |
-| 2.3 | 布局组件移除硬编码颜色 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [index.vue](file:///workspace/apps/admin/src/layouts/index.vue#L83-L110) | 移除 Sidebar 的 `background-color="#304156"`，改为使用 `--el-bg-color` CSS 变量；移除 Header `background: #fff` 改为 `var(--el-bg-color)`；移除 `.app-main` 的 `background: #f0f2f5` 改为 `var(--el-fill-color-light)` | 切暗色后侧边栏/头部/内容区均自适应，无亮色块残留 | 2h | ⬜ |
-| 2.4 | Header 集成语言切换与主题切换按钮 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue) | 在 header-right 区域插入 `LanguageSwitch` 组件 + 主题切换按钮（sun/moon icon）；样式与其他按钮保持一致 | 顶部可看到语言切换下拉（中文/English）和主题切换按钮，点击可生效 | 2h | ⬜ |
-| 2.5 | 用户头像 URL 改为动态 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L38) | 将硬编码的 `https://cube.elemecdn.com/...` 改为 `userStore.avatar || 默认头像URL`；默认头像放入 `assets/avatar-default.png` | 不同用户登录显示各自头像，无头像时显示默认占位 | 1h | ⬜ |
-| 2.6 | 修复"个人中心"与"设置"路由跳转 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L84-L102), [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L284-L297) | 个人中心跳转改为 `/user/profile/index`；"设置"菜单要么移除下拉项，要么新增 `/settings` 路由与页面（可简化为仅显示当前用户信息） | 点击下拉菜单项跳转到正确页面，无 404 | 1h | ⬜ |
-| 2.7 | 登录页去除默认账号自动填充 | [login/index.vue](file:///workspace/apps/admin/src/views/login/index.vue#L130-L136) | 将 `username: 'admin'`、`password: 'admin123'` 改为空字符串；验证码部分也清空；保留 placeholder | 打开登录页，用户名/密码框为空，需要手动输入 | 30min | ⬜ |
+| 2.1 | app store 新增 theme 状态 | [app.ts](file:///workspace/apps/admin/src/store/modules/app.ts) | 新增 `theme: 'light' | 'dark'`（useLocalStorage 持久化）；新增 `toggleTheme()`、`setTheme(theme)`；保持与 `sidebarCollapsed` 相同风格 | Vue DevTools 中可看到 theme 状态；调用 toggleTheme 后 localStorage 中 `app-theme` 更新 | 2h | ✅ |
+| 2.2 | 主题切换核心逻辑实现 | [main.ts](file:///workspace/apps/admin/src/main.ts), [index.scss](file:///workspace/apps/admin/src/styles/index.scss) | 在 main.ts 监听 `useAppStore().theme`，切换时为 `<html>` 添加/移除 `class="dark"`；补充 Element Plus 的暗色主题 import（`element-plus/theme-chalk/dark/css-vars.css`）；在 `index.scss` 定义自定义暗色变量（如 `--app-bg-dark`、`--app-text-dark`、`--app-sidebar-dark`） | 切暗色后所有 Element Plus 组件（表格、弹窗、表单）变为暗色；背景色、文字色统一变化 | 4h | ✅ |
+| 2.3 | 布局组件移除硬编码颜色 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [index.vue](file:///workspace/apps/admin/src/layouts/index.vue#L83-L110) | 移除 Sidebar 的 `background-color="#304156"`，改为使用 `--el-bg-color` CSS 变量；移除 Header `background: #fff` 改为 `var(--el-bg-color)`；移除 `.app-main` 的 `background: #f0f2f5` 改为 `var(--el-fill-color-light)` | 切暗色后侧边栏/头部/内容区均自适应，无亮色块残留 | 2h | ✅ |
+| 2.4 | Header 集成语言切换与主题切换按钮 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue) | 在 header-right 区域插入 `LanguageSwitch` 组件 + 主题切换按钮（sun/moon icon）；样式与其他按钮保持一致 | 顶部可看到语言切换下拉（中文/English）和主题切换按钮，点击可生效 | 2h | ✅ |
+| 2.5 | 用户头像 URL 改为动态 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L38) | 将硬编码的 `https://cube.elemecdn.com/...` 改为 `userStore.avatar || 默认头像URL`；默认头像放入 `assets/avatar-default.png` | 不同用户登录显示各自头像，无头像时显示默认占位 | 1h | ✅ |
+| 2.6 | 修复"个人中心"与"设置"路由跳转 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L84-L102), [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L284-L297) | 个人中心跳转改为 `/user/profile/index`；"设置"菜单要么移除下拉项，要么新增 `/settings` 路由与页面（可简化为仅显示当前用户信息） | 点击下拉菜单项跳转到正确页面，无 404 | 1h | ✅ |
+| 2.7 | 登录页去除默认账号自动填充 | [login/index.vue](file:///workspace/apps/admin/src/views/login/index.vue#L130-L136) | 将 `username: 'admin'`、`password: 'admin123'` 改为空字符串；验证码部分也清空；保留 placeholder | 打开登录页，用户名/密码框为空，需要手动输入 | 30min | ✅ |
 
 ---
 
