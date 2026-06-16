@@ -20,6 +20,38 @@
   --sidebar-logo-color: #ffffff;
 }
 
+// ===== 暗色主题变量覆盖 =====
+// 注意：--el-color-primary 保持为品牌色 #4a9eff，不随主题变化
+html.dark {
+  /* 侧边栏 */
+  --sidebar-bg: #1d1d1d;
+  --sidebar-text-color: #b0b0b0;
+  --sidebar-logo-color: #ffffff;
+
+  /* 全局背景 */
+  --background: #121212;
+  --surface-1: #1e1e1e;
+  --surface-2: #252525;
+
+  /* 文字 */
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-muted: #707070;
+
+  /* 边框 */
+  --border: #333333;
+
+  /* Element Plus 覆盖 */
+  --el-bg-color: #1e1e1e;
+  --el-fill-color-light: #2a2a2a;
+  --el-fill-color-blank: #1e1e1e;
+  --el-text-color-primary: #e0e0e0;
+  --el-text-color-regular: #a0a0a0;
+  --el-text-color-secondary: #707070;
+  --el-border-color: #333333;
+  --el-border-color-light: #2a2a2a;
+}
+
 @import './variables.scss';
 @import './mixins.scss';
 @import './transition.scss';
