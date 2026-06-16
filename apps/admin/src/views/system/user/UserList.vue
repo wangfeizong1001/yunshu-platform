@@ -101,6 +101,31 @@
 
     <UserForm v-model="formVisible" :user-data="currentUser" @refresh="handleQuery" />
     <AssignRoleDialog v-model="assignRoleVisible" :user-id="currentUserId" @refresh="handleQuery" />
+
+    <el-dialog v-model="resetPwdVisible" title="重置密码" width="480px" :close-on-click-modal="false">
+      <el-form :model="resetPwdForm" ref="resetPwdFormRef" :rules="resetPwdRules" label-width="100px">
+        <el-form-item label="新密码" prop="password">
+          <el-input
+            v-model="resetPwdForm.password"
+            type="password"
+            placeholder="请输入新密码（至少8位）"
+            show-password
+          />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input
+            v-model="resetPwdForm.confirmPassword"
+            type="password"
+            placeholder="请再次输入新密码"
+            show-password
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="resetPwdVisible = false">取消</el-button>
+        <el-button type="primary" :loading="resetPwdLoading" @click="handleResetPasswordConfirm">确认重置</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -108,7 +133,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue'
-import { getUserPage, deleteUser, exportUser } from '@/api/system/user.api'
+import { getUserPage, deleteUser, exportUser, resetUserPwd } from '@/api/system/user.api'
 import { getDeptTreeSelect } from '@/api/system/dept.api'
 import type { UserInfo, DeptInfo } from './types'
 import UserForm from './UserForm.vue'
@@ -123,6 +148,35 @@ const formVisible = ref(false)
 const assignRoleVisible = ref(false)
 const currentUser = ref<UserInfo | null>(null)
 const currentUserId = ref<number>()
+
+const resetPwdVisible = ref(false)
+const resetPwdLoading = ref(false)
+const resetPwdUserId = ref<number>(0)
+const resetPwdFormRef = ref<InstanceType<typeof import('element-plus').ElForm> | null>(null)
+const resetPwdForm = reactive({
+  password: '',
+  confirmPassword: '',
+})
+
+const resetPwdRules = {
+  password: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 8, message: '密码长度至少为8位', trigger: 'blur' },
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    {
+      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+        if (value !== resetPwdForm.password) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur',
+    },
+  ],
+}
 
 const queryParams = reactive({
   keyword: '',
@@ -214,7 +268,30 @@ async function handleDelete(row: UserInfo) {
 }
 
 function handleResetPassword(row: UserInfo) {
-  ElMessage.info(`重置密码功能开发中，用户ID: ${row.userId}`)
+  resetPwdUserId.value = row.userId
+  resetPwdForm.password = ''
+  resetPwdForm.confirmPassword = ''
+  resetPwdVisible.value = true
+}
+
+async function handleResetPasswordConfirm() {
+  const formRef = resetPwdFormRef.value
+  if (!formRef) return
+
+  try {
+    await formRef.validate()
+    resetPwdLoading.value = true
+    await resetUserPwd(resetPwdUserId.value, resetPwdForm.password)
+    ElMessage.success('密码重置成功')
+    resetPwdVisible.value = false
+    fetchUserList()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('重置密码失败', error)
+    }
+  } finally {
+    resetPwdLoading.value = false
+  }
 }
 
 function handleAssignRole(row: UserInfo) {
