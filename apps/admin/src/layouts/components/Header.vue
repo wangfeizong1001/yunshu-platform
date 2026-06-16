@@ -48,7 +48,7 @@
       <div class="header-item user-info">
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="user-dropdown">
-            <el-avatar :size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+            <el-avatar :size="32" :src="avatarUrl" />
             <span class="username">{{ username }}</span>
             <el-icon class="el-icon--right">
               <ArrowDown />
@@ -59,10 +59,6 @@
               <el-dropdown-item command="profile">
                 <el-icon><User /></el-icon>
                 个人中心
-              </el-dropdown-item>
-              <el-dropdown-item command="settings">
-                <el-icon><Setting /></el-icon>
-                设置
               </el-dropdown-item>
               <el-dropdown-item divided command="logout">
                 <el-icon><SwitchButton /></el-icon>
@@ -93,6 +89,15 @@ const isCollapsed = computed(() => appStore.sidebarCollapsed)
 const username = computed(() => userStore.username)
 const isDark = computed(() => appStore.theme === 'dark')
 
+const avatarUrl = computed(() => {
+  const url = userStore.avatar
+  // 如果有以 http 开头的 URL 则使用，否则返回空字符串（使用 el-avatar 默认占位图）
+  if (url && typeof url === 'string' && url.startsWith('http')) {
+    return url
+  }
+  return ''
+})
+
 const toggleSidebar = () => {
   appStore.toggleSidebar()
 }
@@ -104,10 +109,7 @@ const toggleTheme = () => {
 const handleCommand = async (command: string) => {
   switch (command) {
     case 'profile':
-      router.push('/profile')
-      break
-    case 'settings':
-      router.push('/settings')
+      router.push('/user/profile/index')
       break
     case 'logout':
       try {
