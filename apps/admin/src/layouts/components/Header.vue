@@ -31,6 +31,19 @@
         <Notification />
       </div>
 
+      <!-- 语言切换 -->
+      <div class="header-item">
+        <LanguageSwitch />
+      </div>
+
+      <!-- 主题切换 -->
+      <div class="header-item theme-toggle" @click="toggleTheme" title="切换主题">
+        <el-icon :size="18">
+          <Sunny v-if="isDark" />
+          <Moon v-else />
+        </el-icon>
+      </div>
+
       <!-- 用户信息 -->
       <div class="header-item user-info">
         <el-dropdown trigger="click" @command="handleCommand">
@@ -69,6 +82,8 @@ import { useUserStore } from '@/store/modules/user'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import LanguageSwitch from '@/components/LanguageSwitch/index.vue'
+import { Sunny, Moon } from '@element-plus/icons-vue'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
@@ -76,9 +91,14 @@ const router = useRouter()
 
 const isCollapsed = computed(() => appStore.sidebarCollapsed)
 const username = computed(() => userStore.username)
+const isDark = computed(() => appStore.theme === 'dark')
 
 const toggleSidebar = () => {
   appStore.toggleSidebar()
+}
+
+const toggleTheme = () => {
+  appStore.toggleTheme()
 }
 
 const handleCommand = async (command: string) => {
@@ -146,6 +166,16 @@ const handleCommand = async (command: string) => {
   cursor: pointer;
   color: var(--text-secondary);
   transition: color $transition-duration $transition-function;
+
+  &:hover {
+    color: var(--el-color-primary);
+  }
+}
+
+.theme-toggle {
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.3s;
 
   &:hover {
     color: var(--el-color-primary);
