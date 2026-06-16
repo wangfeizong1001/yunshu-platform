@@ -30,32 +30,34 @@
 
 > **关联**：[project-plan.md 第7批 — 测试覆盖补充](file:///workspace/docs/project-plan.md#_7批--测试覆盖补充)
 > **更新规则**：每完成一项，立即在本表和对应章节中更新状态
-> **最后更新**：2026-06-16
+> **最后更新**：2026-06-16（完成第1批时新增了 3 个 store/utils 单测文件，7.2 进度 1/4）
 
 | # | 任务标题 | 关联章节 | 测试文件路径 | 状态 | 备注 |
 |---|---------|---------|------------|------|------|
-| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/CommonTable.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/LanguageSwitch.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/TenantSelect.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/app.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/user.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/permission.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/tagsView.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.3 | 路由守卫测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/router/guard.test.ts` | ⬜ 待开始 | 缺失 |
-| 7.4 | 工作流 E2E 测试 | [§4.5](#_45-playwright-e2e) | `playwright/tests/workflow.spec.ts` | ⏳ 部分覆盖 | 已有基础流程列表/设计器场景，缺发布/挂起/激活/删除确认深度断言 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-config.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-file.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-notice.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-message.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-knowledge.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-oss.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sms.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sso.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-third.spec.ts` | ⬜ 待开始 | 缺失 |
-| 7.6 | 个人中心 E2E | [§4.5](#_45-playwright-e2e) | `playwright/tests/profile.spec.ts` | ⏳ 部分覆盖 | 已有 `user.spec.ts` 覆盖基础加载/输入，缺修改密码正反用例 + 头像上传 |
-| 7.7 | 布局组件 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/layout.spec.ts` | ⏳ 部分覆盖 | 已有 `layout.spec.ts` 覆盖顶部导航/侧边栏，缺 TagsView 右键菜单 + 全局搜索菜单跳转 |
+| 7.1 | 公共组件单元测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/components/CommonTable.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.1 | 公共组件单元测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/components/LanguageSwitch.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.1 | 公共组件单元测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/components/TenantSelect.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.2 | Store 状态管理测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/store/app.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.2 | Store 状态管理测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/store/user.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.2 | Store 状态管理测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/store/permission.test.ts` | ✅ 已完成 | 第1批 1.3 完成时新增（5 用例） |
+| 7.2 | Store 状态管理测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/store/tagsView.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.3 | 路由守卫测试 | [§3.1 缺失](#_31-appsadmin-前端单元测试) | `apps/admin/src/__tests__/router/guard.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.4 | 工作流 E2E 增强 | [§3.2 部分覆盖](#_32-playwright-e2e) | `playwright/tests/workflow.spec.ts` | ⏳ 部分覆盖 | 已有基础流程列表/设计器场景，缺发布/挂起/激活/删除确认深度断言 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-config.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-file.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-notice.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-message.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-knowledge.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-oss.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-sms.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-sso.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§3.2 缺失](#_32-playwright-e2e) | `playwright/tests/system-third.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.6 | 个人中心 E2E 增强 | [§3.2 部分覆盖](#_32-playwright-e2e) | `playwright/tests/user.spec.ts` | ⏳ 部分覆盖 | 已有 `user.spec.ts` 覆盖基础加载/输入，缺修改密码正反用例 + 头像上传 |
+| 7.7 | 布局组件 E2E 增强 | [§3.2 部分覆盖](#_32-playwright-e2e) | `playwright/tests/layout.spec.ts` | ⏳ 部分覆盖 | 已有 `layout.spec.ts` 覆盖顶部导航/侧边栏，缺 TagsView 右键菜单 + 全局搜索菜单跳转 |
+| **附属** | httpClient tenant-id 注入 | [project-plan §1.2](file:///workspace/docs/project-plan.md#_1批--核心基础设施修复) | `apps/admin/src/__tests__/utils/requestHeaders.test.ts` | ✅ 已完成 | 第1批 1.2 完成时新增（6 用例） |
+| **附属** | locale store 响应式 | [project-plan §1.1](file:///workspace/docs/project-plan.md#_1批--核心基础设施修复) | `apps/admin/src/__tests__/store/locale.test.ts` | ✅ 已完成 | 第1批 1.1 完成时新增（7 用例） |
 
-**进度汇总**：0 项完成 / 9 项部分覆盖 / 11 项缺失（总计 20 项 → 整体进度 22.5%）
+**进度汇总**：3 项完成（第1批附属新增） / 9 项部分覆盖 / 12 项缺失（总计 24 项 → 完整 12.5% + 部分 37.5% = 整体进展 50%）
 
 **图例**：
 - ⬜ 待开始 — 尚未开始

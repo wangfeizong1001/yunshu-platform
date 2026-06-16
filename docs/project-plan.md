@@ -140,13 +140,19 @@ pnpm dev                # 应用能正常启动
 **目标**：修复底层运行时问题，打通后续批次的地基。
 **预计总工时**：4 小时
 **前置依赖**：无
-**状态**：⬜ 待开始
+**状态**：✅ 已完成（2026-06-16 4 个 commit）
+**关联 PR / 分支**：`feature/batch1-infra-fix`（基于 `trae/solo-agent-psMgmg`）
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 1.1 | locale store 响应式修复 | [locale.ts](file:///workspace/apps/admin/src/store/modules/locale.ts) | 将手写的非响应式 `useLocalStorage` 替换为 `@vueuse/core` 的 `useLocalStorage`；`locales` 列表改为响应式对象；统一切换逻辑 | 切换中英文后界面文字立即刷新，刷新页面后语言保留 | 1h | ⬜ |
-| 1.2 | httpClient 注入 tenant-id 头 | [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts), [tenant.ts](file:///workspace/apps/admin/src/utils/tenant.ts) | 在 `service.interceptors.request.use` 中新增调用 `addTenantIdToRequest(config)`；为请求头加上 `tenant-id` | F12 查看任意请求，Request Headers 中存在 `tenant-id` 且值等于当前登录租户 | 1h | ⬜ |
-| 1.3 | 动态路由变量移入 store | [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L381-L444), [permission.ts](file:///workspace/apps/admin/src/store/modules/permission.ts) | 删除模块级 `let isDynamicRouteAdded = false`；在 `usePermissionStore` 中新增 `dynamicRouteAdded: boolean`；登出时调用 `resetRoutes()` 同步重置 | 登出→重新登录，不会出现路由重复注册警告；HMR 刷新后路由正常 | 2h | ⬜ |
+| 1.1 | locale store 响应式修复 | [locale.ts](file:///workspace/apps/admin/src/store/modules/locale.ts) | 将手写的非响应式 `useLocalStorage` 替换为 `@vueuse/core` 的 `useLocalStorage`；`locales` 列表改为响应式对象；统一切换逻辑 | 切换中英文后界面文字立即刷新，刷新页面后语言保留 | 1h | ✅ |
+| 1.2 | httpClient 注入 tenant-id 头 | [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts), [requestHeaders.ts](file:///workspace/apps/admin/src/utils/requestHeaders.ts), [tenant.ts](file:///workspace/apps/admin/src/utils/tenant.ts) | 新增纯函数 `buildAuthHeaders` 集中处理 Authorization + tenant-id 注入；httpClient 拦截器改为调用 `buildAuthHeaders` | F12 查看任意请求，Request Headers 中存在 `tenant-id` 且值等于当前登录租户 | 1h | ✅ |
+| 1.3 | 动态路由变量移入 store | [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L381-L444), [permission.ts](file:///workspace/apps/admin/src/store/modules/permission.ts) | 在 `usePermissionStore` 中新增 `dynamicRouteAdded: boolean`；`resetRoutes()` 一并重置；`resetRouter()` 委托给 store | 登出→重新登录，不会出现路由重复注册警告；HMR 刷新后路由正常 | 2h | ✅ |
+
+**新增单测**（任务外增强）：
+- `apps/admin/src/__tests__/store/locale.test.ts`（7 个用例）
+- `apps/admin/src/__tests__/utils/requestHeaders.test.ts`（6 个用例）
+- `apps/admin/src/__tests__/store/permission.test.ts`（5 个用例）
 
 ---
 
