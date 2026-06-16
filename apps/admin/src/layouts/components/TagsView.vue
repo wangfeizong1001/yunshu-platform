@@ -20,6 +20,8 @@
       <li @click="refreshSelectedTag(selectedTag)">刷新</li>
       <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭</li>
       <li @click="closeOtherTags">关闭其它</li>
+      <li @click="handleCloseLeft(selectedTag)">关闭左侧</li>
+      <li @click="handleCloseRight(selectedTag)">关闭右侧</li>
       <li @click="closeAllTags">关闭所有</li>
     </ul>
   </div>
@@ -27,7 +29,7 @@
 
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
-import { Close } from '@element-plus/icons-vue'
+import { Close, DArrowLeft, DArrowRight } from '@element-plus/icons-vue'
 import { useTagsViewStore } from '@/store/modules/tagsView'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useRoute, useRouter } from 'vue-router'
@@ -153,6 +155,16 @@ const closeOtherTags = () => {
 const closeAllTags = () => {
   tagsViewStore.delAllViews()
   router.push('/')
+}
+
+const handleCloseLeft = (tag: TagView) => {
+  tagsViewStore.delLeftViews(tag)
+  visible.value = false
+}
+
+const handleCloseRight = (tag: TagView) => {
+  tagsViewStore.delRightViews(tag)
+  visible.value = false
 }
 
 watch(
