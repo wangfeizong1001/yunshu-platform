@@ -1,4 +1,7 @@
 node_modules/
+# 允许 design-tokens 的构建产物（取消全局 dist/ 规则的忽略）
+!packages/design-tokens/dist/
+!packages/design-tokens/dist/**
 dist/
 .turbo/
 .DS_Store

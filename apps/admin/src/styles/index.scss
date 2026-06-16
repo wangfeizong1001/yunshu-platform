@@ -1,4 +1,20 @@
 // 全局样式入口
+
+// ===== 设计系统 CSS 变量 =====
+@import '@yunshu/design-tokens/css';
+
+// ===== Element Plus 主色覆盖为项目品牌色 =====
+:root {
+  /* 全站统一品牌色：覆盖 Element Plus 默认主色 */
+  --el-color-primary: #4a9eff;
+  --el-color-primary-light-3: #6eb1ff;
+  --el-color-primary-light-5: #8cc5ff;
+  --el-color-primary-light-7: #c6e2ff;
+  --el-color-primary-light-8: #d9ecff;
+  --el-color-primary-light-9: #ecf5ff;
+  --el-color-primary-dark-2: #2a6fd0;
+}
+
 @import './variables.scss';
 @import './mixins.scss';
 @import './transition.scss';

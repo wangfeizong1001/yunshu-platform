@@ -1,0 +1,139 @@
+/**
+ * 云枢中台 — 设计令牌 SCSS
+ *
+ * 此文件由 @yunshu/design-tokens 自动生成，请勿手动编辑。
+ *
+ * 使用方式：
+ *   @use '@yunshu/design-tokens/scss' as yun;
+ *   padding: yun.$spacing-md;
+ */
+
+// ===== 间距系统 =====
+$spacing-base: 4px;
+$spacing-0: 0px;
+$spacing-1: 4px;
+$spacing-2: 8px;
+$spacing-3: 12px;
+$spacing-4: 16px;
+$spacing-5: 20px;
+$spacing-6: 24px;
+$spacing-7: 28px;
+$spacing-8: 32px;
+$spacing-9: 36px;
+$spacing-10: 40px;
+$spacing-12: 48px;
+$spacing-16: 64px;
+
+// 语义化间距
+$spacing-xs: $spacing-1;
+$spacing-sm: $spacing-2;
+$spacing-md: $spacing-4;
+$spacing-lg: $spacing-6;
+$spacing-xl: $spacing-8;
+$spacing-2xl: $spacing-12;
+$spacing-3xl: $spacing-16;
+
+// ===== 字体系统 =====
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+$font-size-4xl: 36px;
+
+$font-light: 300;
+$font-normal: 400;
+$font-medium: 500;
+$font-semibold: 600;
+$font-bold: 700;
+
+$leading-none: 1;
+$leading-tight: 1.25;
+$leading-normal: 1.5;
+$leading-relaxed: 1.625;
+
+// ===== 圆角系统 =====
+$radius-none: 0;
+$radius-sm: 2px;
+$radius-base: 4px;
+$radius-md: 6px;
+$radius-lg: 8px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-full: 9999px;
+
+// ===== 阴影系统 =====
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// ===== 过渡动画 =====
+$transition-fast: 150ms ease-in-out;
+$transition-normal: 250ms ease-in-out;
+$transition-slow: 350ms ease-in-out;
+
+// ===== Z-Index 层级 =====
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modalBackdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// ===== 响应式断点 =====
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// ===== 浅色主题颜色 =====
+$primary: #4a9eff;
+$primary-light: #6eb1ff;
+$primary-dark: #2a6fd0;
+$secondary: #f5f5f5;
+$accent: #8a2be2;
+$background: #ffffff;
+$surface-1: #ffffff;
+$surface-2: #f8f9fa;
+$surface-3: #e9ecef;
+$surface-4: #dee2e6;
+$text-primary: #212529;
+$text-secondary: #6c757d;
+$text-muted: #adb5bd;
+$success: #27ae60;
+$warning: #d35400;
+$danger: #c0392b;
+$error: #c0392b;
+$info: #3498db;
+$border: #dee2e6;
+$border-light: #e9ecef;
+
+// ===== 深色主题颜色 =====
+$dark-primary: #4a9eff;
+$dark-primary-light: #6eb1ff;
+$dark-primary-dark: #2a6fd0;
+$dark-secondary: #1a1d23;
+$dark-accent: #8a2be2;
+$dark-background: #0a0e27;
+$dark-surface-1: #1a1d2e;
+$dark-surface-2: #22273a;
+$dark-surface-3: #2a2f45;
+$dark-surface-4: #333852;
+$dark-text-primary: #e0e0e0;
+$dark-text-secondary: #a0a0a0;
+$dark-text-muted: #666666;
+$dark-success: #27ae60;
+$dark-warning: #d35400;
+$dark-danger: #c0392b;
+$dark-error: #c0392b;
+$dark-info: #3498db;
+$dark-border: #2a2f45;
+$dark-border-light: #333852;
