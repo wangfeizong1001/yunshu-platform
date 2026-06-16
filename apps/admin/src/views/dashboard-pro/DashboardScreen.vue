@@ -84,6 +84,13 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * ECharts 图表配置中的颜色值说明：
+ * - 这些颜色是 ECharts 图表库的配色方案，ECharts 本身不支持 CSS 变量
+ * - 大屏设计器需要深色主题配色，与 Element Plus 浅色主题有所区别
+ * - 图表库本身需要使用具体的颜色值才能正常工作
+ */
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -531,10 +538,22 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+/* 大屏深色主题专用 CSS 变量 */
 .dashboard-screen {
+  --screen-primary: #00d4ff;
+  --screen-secondary: #ffd700;
+  --screen-success: #00ff88;
+  --screen-danger: #ff6b6b;
+  --screen-accent: #a855f7;
+  --screen-deep: #0a0e27;
+  --screen-deep-light: #1a1f3a;
+  --screen-primary-rgb: 0, 212, 255;
+  --screen-secondary-rgb: 255, 215, 0;
+  --screen-success-rgb: 0, 255, 136;
+
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+  background: linear-gradient(135deg, var(--screen-deep) 0%, var(--screen-deep-light) 50%, var(--screen-deep) 100%);
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
@@ -563,13 +582,13 @@ onUnmounted(() => {
       margin: 0;
       font-size: 28px;
       font-weight: bold;
-      color: #00d4ff;
-      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+      color: var(--screen-primary);
+      text-shadow: 0 0 10px rgba(var(--screen-primary-rgb), 0.5);
     }
 
     .current-time {
       font-size: 16px;
-      color: #fff;
+      color: var(--text-inverse);
       opacity: 0.8;
     }
   }
@@ -582,13 +601,13 @@ onUnmounted(() => {
     .fullscreen-btn {
       width: 40px;
       height: 40px;
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      color: #00d4ff;
+      background: rgba(var(--screen-primary-rgb), 0.1);
+      border: 1px solid rgba(var(--screen-primary-rgb), 0.3);
+      color: var(--screen-primary);
 
       &:hover {
-        background: rgba(0, 212, 255, 0.2);
-        border-color: rgba(0, 212, 255, 0.5);
+        background: rgba(var(--screen-primary-rgb), 0.2);
+        border-color: rgba(var(--screen-primary-rgb), 0.5);
       }
     }
   }
@@ -609,8 +628,8 @@ onUnmounted(() => {
 
 .chart-card {
   flex: 1;
-  background: rgba(0, 102, 255, 0.05);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: rgba(var(--screen-primary-rgb), 0.05);
+  border: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   border-radius: 8px;
   padding: 15px;
   display: flex;
@@ -619,10 +638,10 @@ onUnmounted(() => {
   .chart-title {
     font-size: 16px;
     font-weight: bold;
-    color: #00d4ff;
+    color: var(--screen-primary);
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    border-bottom: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   }
 
   .chart {
@@ -642,8 +661,8 @@ onUnmounted(() => {
   margin-bottom: 20px;
 
   .metric-item {
-    background: rgba(0, 102, 255, 0.1);
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: rgba(var(--screen-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--screen-primary-rgb), 0.2);
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -651,13 +670,13 @@ onUnmounted(() => {
     .metric-value {
       font-size: 28px;
       font-weight: bold;
-      color: #00d4ff;
+      color: var(--screen-primary);
       margin-bottom: 8px;
     }
 
     .metric-label {
       font-size: 14px;
-      color: #fff;
+      color: var(--text-inverse);
       opacity: 0.8;
       margin-bottom: 8px;
     }
@@ -670,29 +689,29 @@ onUnmounted(() => {
       font-size: 14px;
 
       &.up {
-        color: #00ff88;
+        color: var(--screen-success);
       }
 
       &.down {
-        color: #ff6b6b;
+        color: var(--screen-danger);
       }
     }
   }
 }
 
 .realtime-data {
-  background: rgba(0, 102, 255, 0.05);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: rgba(var(--screen-primary-rgb), 0.05);
+  border: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   border-radius: 8px;
   padding: 15px;
 
   .realtime-title {
     font-size: 16px;
     font-weight: bold;
-    color: #00d4ff;
+    color: var(--screen-primary);
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    border-bottom: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   }
 
   .realtime-items {
@@ -705,7 +724,7 @@ onUnmounted(() => {
       .realtime-label {
         display: block;
         font-size: 14px;
-        color: #fff;
+        color: var(--text-inverse);
         opacity: 0.8;
         margin-bottom: 8px;
       }
@@ -713,7 +732,7 @@ onUnmounted(() => {
       .realtime-value {
         font-size: 24px;
         font-weight: bold;
-        color: #ffd700;
+        color: var(--screen-secondary);
       }
     }
   }
