@@ -33,34 +33,47 @@
 
 ### 2.1 颜色值体系决策
 
-**决策**：design-tokens (`--primary`) 与 Element Plus (`--el-color-primary`) **各自独立**，通过 CSS 变量命名空间分离，不强制统一数值。
+**决策**：全站统一使用项目品牌色 `#4a9eff`，包括 Element Plus 组件。
 
 **设计逻辑**：
-- Element Plus 组件（el-button、el-link 等）内部使用 `--el-color-primary`（`#409eff`）
-- 项目自定义品牌色（自定义组件、布局背景、强调色）使用 `--primary` 等 design-tokens 变量（`#4a9eff`）
-- 两者共存但**职责分离**：
-  - `--el-color-*` → Element Plus 组件的默认主题色（不可随意修改，会影响组件库内置样式）
-  - `--primary` / `--surface-*` 等 → 项目自定义组件和布局的品牌色
+- **唯一品牌色**：`#4a9eff` 作为全站唯一主色，通过 CSS 变量 `--el-color-primary` 覆盖 Element Plus 默认色
+- 所有组件（Element Plus + 自定义组件）均使用 `--el-color-primary`（已被覆盖为 `#4a9eff`）
+- 项目自定义 design-tokens CSS 变量（`--primary`）与 Element Plus 变量（`--el-color-primary`）指向同一数值
+
+**实现方式**：
+在 `index.scss` 中通过 CSS 变量覆盖实现：
+
+```scss
+// apps/admin/src/styles/index.scss
+:root {
+  // 将 Element Plus 主色覆盖为项目品牌色
+  --el-color-primary: #4a9eff;
+  --el-color-primary-light-3: #6eb1ff;
+  --el-color-primary-light-5: #8cc5ff;
+  --el-color-primary-light-7: #c6e2ff;
+  --el-color-primary-light-8: #d9ecff;
+  --el-color-primary-light-9: #ecf5ff;
+  --el-color-primary-dark-2: #2a6fd0;
+}
+```
 
 **影响范围**：
 - `packages/design-tokens/src/tokens/colors.ts`：`primary: #4a9eff` 保持不变
-- `apps/admin/src/styles/variables.scss`：保留 SCSS 变量体系，作为 design-tokens 的 SCSS 版本
-- `apps/admin/src/styles/index.scss`：引入 `@yunshu/design-tokens/css`，使 `--primary` 等 CSS 变量全局生效
-- Element Plus 的 `--el-color-primary` 保持 `#409eff`（不改动，避免破坏组件库默认样式）
-
-> ⚠️ **重要澄清**：design-tokens 的 primary (`#4a9eff`) 与 Element Plus 的 primary (`#409eff`) 是**故意不同**的——design-tokens 用于项目自定义品牌色，Element Plus 用于 UI 组件库默认色。两者通过 CSS 变量命名空间分离（`--primary` vs `--el-color-primary`），无需强制对齐。
+- `apps/admin/src/styles/variables.scss`：`$color-primary` 更新为 `#4a9eff`
+- `apps/admin/src/styles/index.scss`：引入 `@yunshu/design-tokens/css` + Element Plus 变量覆盖
+- Element Plus 的 `--el-color-primary` 在运行时被覆盖为 `#4a9eff`（无需修改 Element Plus 源码）
 
 ### 2.2 CSS 变量体系决策
 
-**决策**：统一使用 `design-tokens` 生成的 CSS 变量
+**决策**：统一使用 `design-tokens` 生成的 CSS 变量 + Element Plus 变量（已覆盖为品牌色）
 
 **变量优先级（从高到低）**：
 
 | 优先级 | 来源 | 示例 | 适用场景 |
 |--------|------|------|----------|
-| 1 | Element Plus 原生变量 | `--el-color-primary` | Element Plus 组件（el-button、el-link 等）的默认主题色 |
-| 2 | design-tokens CSS 变量 | `--primary`、`--surface-1`、`--text-primary` | 项目自定义组件（布局、卡片、表格行等） |
-| 3 | 项目 SCSS 变量 | `$color-primary` | 保留用于 SCSS 混合器/函数，编译时展开为 CSS 变量 |
+| 1 | Element Plus 变量（已覆盖为品牌色） | `--el-color-primary`（=`#4a9eff`） | 所有需要主色的场景 |
+| 2 | design-tokens CSS 变量 | `--primary`、`--surface-1`、`--text-primary` | 项目自定义组件和布局 |
+| 3 | 项目 SCSS 变量 | `$color-primary`（=`#4a9eff`） | SCSS 混合器/函数 |
 
 **绝对禁止**：
 - ❌ 直接在 Vue template / script 中写 hex 值（如 `color: #409eff`）
@@ -87,7 +100,7 @@ color: '#4a9eff'
 
 ## 三、执行方案
 
-### 3.1 任务 8.1：统一 variables.scss 与 design-tokens 颜色定义
+### 3.1 任务 8.1：统一 design-tokens + 覆盖 Element Plus 主色
 
 **步骤**：
 
@@ -100,19 +113,32 @@ color: '#4a9eff'
    pnpm build:tokens
    ```
    生成文件：
-   - `dist/css/tokens.css` — CSS 变量文件
+   - `dist/css/tokens.css` — CSS 变量文件（含 `--primary: #4a9eff`）
    - `dist/scss/_tokens.scss` — SCSS 变量文件
 3. 修改 `apps/admin/src/styles/variables.scss`：
-   - 在文件顶部添加 `@use` 引入 design-tokens SCSS 变量
-   - 或直接引用生成文件中的颜色值
+   - 更新 `$color-primary` 为 `#4a9eff`（与 design-tokens 对齐）
 4. 修改 `apps/admin/src/styles/index.scss`：
    - 在顶部添加 `@import '@yunshu/design-tokens/css';`
-   - 使 `--primary`、`--surface-1` 等 CSS 变量在全局可用
+   - 在 `:root` 中覆盖 Element Plus 主色变量：
+   ```scss
+   :root {
+     /* 全站统一品牌色：覆盖 Element Plus 默认主色 */
+     --el-color-primary: #4a9eff;
+     --el-color-primary-light-3: #6eb1ff;
+     --el-color-primary-light-5: #8cc5ff;
+     --el-color-primary-light-7: #c6e2ff;
+     --el-color-primary-light-8: #d9ecff;
+     --el-color-primary-light-9: #ecf5ff;
+     --el-color-primary-dark-2: #2a6fd0;
+   }
+   ```
+   - 使 `--primary`、`--surface-1`、覆盖后的 `--el-color-primary` 等 CSS 变量在全局可用
 
 **验收标准**：
 - `dist/css/tokens.css` 存在且包含 `--primary: #4a9eff`
-- `index.scss` 引入 tokens.css 后，全局 CSS 变量生效
-- `variables.scss` 中的颜色定义与 design-tokens 保持一致
+- `index.scss` 引入 tokens.css + Element Plus 覆盖后，全局 CSS 变量生效
+- 浏览器 DevTools 检查：`:root` 中 `--el-color-primary` 为 `#4a9eff`
+- Element Plus 组件（按钮、链接等）在浏览器中显示的品牌色为 `#4a9eff`
 
 ### 3.2 任务 8.2：新增 Stylelint 配置
 
@@ -185,7 +211,7 @@ color: '#4a9eff'
   3. 映射到对应的 design-tokens CSS 变量或 Element Plus 变量
   4. 替换
 
-**变量映射表**（使用 `design-tokens` CSS 变量为主，Element Plus 变量兜底）：
+**变量映射表**（使用统一品牌色 `#4a9eff`）：
 
 | 原 hex 值 | 语义 | 替换为 |
 |-----------|------|--------|
@@ -198,10 +224,10 @@ color: '#4a9eff'
 | `#67c23a` / `#27ae60` | 成功色 | `var(--success)` |
 | `#e6a23c` / `#d35400` | 警告色 | `var(--warning)` |
 | `#f56c6c` / `#c0392b` | 危险色 | `var(--danger)` |
-| `#4a9eff` | 项目品牌主色 | `var(--primary)` |
-| `#409eff` | Element Plus 组件主色 | `var(--el-color-primary)`（仅用于 Element Plus 组件适配） |
+| `#4a9eff` | 项目品牌主色 | `var(--primary)` 或 `var(--el-color-primary)` |
+| `#409eff` | Element Plus 默认主色 | `var(--el-color-primary)`（已在 index.scss 中覆盖为 `#4a9eff`） |
 
-> **说明**：设计系统 CSS 变量（`--text-primary` 等）来源于 `@yunshu/design-tokens/css` 生成文件；Element Plus 变量（`--el-*`）来源于 Element Plus 内置变量。两套变量可同时使用，互不冲突。
+> **说明**：全站主色统一为 `#4a9eff`，通过 CSS 变量 `--el-color-primary`（Element Plus）和 `--primary`（design-tokens）覆盖实现。两套变量指向同一数值，互不冲突。
 
 **重点修复文件**（按优先级）：
 
