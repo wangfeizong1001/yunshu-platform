@@ -264,11 +264,16 @@ const saveDashboard = () => {
 </script>
 
 <style scoped lang="scss">
+/* 大屏设计器画布专用 CSS 变量 */
+$screen-deep: #0a0e27;
+$screen-deep-light: #1a1f3a;
+$screen-primary: #00d4ff;
+
 .dashboard-design {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f5f7fa;
+  background: var(--surface-2);
 }
 
 .design-header {
@@ -276,8 +281,8 @@ const saveDashboard = () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
 
   .header-left {
     display: flex;
@@ -304,7 +309,7 @@ const saveDashboard = () => {
 
 .widget-panel,
 .property-panel {
-  background: #fff;
+  background: var(--background);
   border-radius: 8px;
   padding: 15px;
   overflow-y: auto;
@@ -313,10 +318,10 @@ const saveDashboard = () => {
 .panel-title {
   font-size: 16px;
   font-weight: bold;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--border);
 }
 
 .widget-list {
@@ -329,14 +334,14 @@ const saveDashboard = () => {
     align-items: center;
     gap: 10px;
     padding: 12px;
-    background: #f5f7fa;
+    background: var(--surface-2);
     border-radius: 6px;
     cursor: grab;
     transition: all 0.2s;
 
     &:hover {
-      background: #ecf5ff;
-      color: #409eff;
+      background: var(--primary-light-9);
+      color: var(--el-color-primary);
     }
 
     &:active {
@@ -346,7 +351,7 @@ const saveDashboard = () => {
 }
 
 .canvas-container {
-  background: #fff;
+  background: var(--background);
   border-radius: 8px;
   padding: 15px;
   overflow: auto;
@@ -355,15 +360,15 @@ const saveDashboard = () => {
 .canvas {
   position: relative;
   min-height: 600px;
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+  background: linear-gradient(135deg, $screen-deep 0%, $screen-deep-light 50%, $screen-deep 100%);
   border-radius: 4px;
-  border: 2px dashed #409eff;
+  border: 2px dashed var(--el-color-primary);
 }
 
 .canvas-widget {
   position: absolute;
   background: rgba(0, 102, 255, 0.1);
-  border: 2px solid #00d4ff;
+  border: 2px solid $screen-primary;
   border-radius: 8px;
   overflow: hidden;
   cursor: move;
@@ -379,14 +384,14 @@ const saveDashboard = () => {
     align-items: center;
     padding: 8px 12px;
     background: rgba(0, 212, 255, 0.2);
-    color: #00d4ff;
+    color: $screen-primary;
     font-size: 12px;
 
     .delete-icon {
       cursor: pointer;
 
       &:hover {
-        color: #ff6b6b;
+        color: var(--danger);
       }
     }
   }
@@ -402,7 +407,7 @@ const saveDashboard = () => {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: #909399;
+  color: var(--text-muted);
 
   .el-icon {
     margin-bottom: 10px;

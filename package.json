@@ -13,6 +13,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report playwright/test-results/report",
     "lint": "turbo lint",
+    "lint:style": "stylelint \"**/*.scss\" \"**/*.vue\" --custom-syntax postcss-scss",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "type-check": "turbo type-check",
@@ -31,6 +32,8 @@
     "@yunshu/tsconfig": "workspace:*",
     "playwright": "^1.48.0",
     "prettier": "^3.2.0",
+    "stylelint": "^17.13.0",
+    "stylelint-config-standard-scss": "^17.0.0",
     "turbo": "^1.13.0",
     "typescript": "^5.4.0"
   },
@@ -38,5 +41,6 @@
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
-  }
+  },
+  "engineStrict": true
 }

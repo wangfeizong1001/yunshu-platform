@@ -90,14 +90,14 @@
                 refY="3"
                 orient="auto"
               >
-                <polygon points="0 0, 10 3, 0 6" fill="#606266" />
+                <polygon points="0 0, 10 3, 0 6" fill="var(--text-secondary)" />
               </marker>
             </defs>
             <g v-for="(line, idx) in connections" :key="'line-' + idx">
               <path
                 :d="getLinePath(line)"
                 fill="none"
-                stroke="#606266"
+                stroke="var(--text-secondary)"
                 stroke-width="2"
                 marker-end="url(#arrowhead)"
               />
@@ -733,40 +733,40 @@ onMounted(() => {
         align-items: center;
         gap: 8px;
         padding: 12px;
-        background: #f5f7fa;
+        background: var(--surface-2);
         border-radius: 8px;
         cursor: grab;
         transition: all 0.2s;
         &:hover {
-          background: #e6f4ff;
+          background: var(--el-color-primary-light-8);
         }
         .icon {
           font-size: 20px;
           font-weight: bold;
         }
         &.start .icon {
-          color: #67c23a;
+          color: var(--success);
         }
         &.end .icon {
-          color: #f56c6c;
+          color: var(--danger);
         }
         &.task .icon {
-          color: #409eff;
+          color: var(--el-color-primary);
         }
         &.approval .icon {
-          color: #409eff;
+          color: var(--el-color-primary);
         }
         &.copy .icon {
-          color: #909399;
+          color: var(--text-muted);
         }
         &.gateway .icon {
-          color: #e6a23c;
+          color: var(--warning);
         }
         &.condition .icon {
-          color: #f0a020;
+          color: var(--warning);
         }
         &.subtask .icon {
-          color: #8c8c8c;
+          color: var(--text-muted);
         }
       }
     }
@@ -838,7 +838,7 @@ onMounted(() => {
         color: white;
       }
       &.selected .node-body {
-        box-shadow: 0 0 0 3px #409eff;
+        box-shadow: 0 0 0 3px var(--el-color-primary);
       }
       .node-body {
         width: 100%;
@@ -868,12 +868,12 @@ onMounted(() => {
           width: 12px;
           height: 12px;
           background: white;
-          border: 2px solid #409eff;
+          border: 2px solid var(--el-color-primary);
           border-radius: 50%;
           pointer-events: auto;
           cursor: crosshair;
           &:hover {
-            background: #409eff;
+            background: var(--el-color-primary);
           }
           &.port-top {
             top: -6px;
@@ -893,7 +893,7 @@ onMounted(() => {
         right: -8px;
         width: 20px;
         height: 20px;
-        background: #f56c6c;
+        background: var(--danger);
         color: white;
         border-radius: 50%;
         display: flex;
