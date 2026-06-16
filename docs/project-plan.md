@@ -110,7 +110,7 @@ pnpm dev                # 应用能正常启动
 
 ## 二、问题总览
 
-经过对 `apps/admin` 下 40+ 视图文件、API 层、Store、路由、布局组件及测试体系的完整审查，共识别 **7 个批次 26+ 项待完成任务**，涵盖：
+经过对 `apps/admin` 下 40+ 视图文件、API 层、Store、路由、布局组件及测试体系的完整审查，共识别 **8 个批次 31+ 项待完成任务**，涵盖：
 
 | 类别 | 数量 | 代表性问题 |
 |------|------|-----------|
@@ -121,6 +121,7 @@ pnpm dev                # 应用能正常启动
 | 工作流 Mock→真实 | 5 项 | 流程定义/任务/实例全部用 mock、所有操作仅弹消息无后端交互 |
 | 大屏设计器完善 | 4 项 | 组件渲染为纯文本、不可二次拖动、保存未持久化、无数据源绑定 |
 | 测试覆盖补充 | 7 项 | 视图层 0 单测、9 个模块 0 测试、E2E 深度不足 |
+| **设计系统合规** | **4 项** | **46 个文件硬编码颜色、variables.scss 与 design-tokens 冲突、无 Stylelint 检查** |
 
 ---
 
@@ -238,6 +239,20 @@ pnpm dev                # 应用能正常启动
 
 ---
 
+### ⚫ 第8批 — 设计系统合规检查
+**目标**：确保所有样式变更都通过设计系统实现，禁止硬编码颜色/间距。
+**预计总工时**：1 天
+**前置依赖**：第2批（主题体系完善后，设计令牌才有完整使用场景）
+
+| # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 |
+|---|---------|---------|---------|---------|------|
+| 8.1 | 统一 variables.scss 与 design-tokens 颜色定义 | [variables.scss](file:///workspace/apps/admin/src/styles/variables.scss), [colors.ts](file:///workspace/packages/design-tokens/src/tokens/colors.ts) | 将 `$color-primary: #409eff` 改为 `#4a9eff`（与 design-tokens 对齐）；或将 design-tokens 的 `primary` 改为 `#409eff`（与 Element Plus 对齐）；确保两边颜色值完全一致；在 variables.scss 中引入 design-tokens 生成的 CSS 变量 | 两套颜色定义完全一致；切换主题时无颜色冲突 | 1h |
+| 8.2 | 新增 Stylelint 配置 | [.stylelintrc.js](file:///workspace/.stylelintrc.js)（新建）, [package.json](file:///workspace/package.json) | 安装 `stylelint` + `stylelint-config-standard-scss` + `stylelint-color-no-hex`；配置规则：`color-no-hex: true`（禁止硬编码 hex）、`color-named: never`（禁止颜色名）、`declaration-property-value-disallowed-list` 禁止硬编码间距值；在 package.json 中添加 `lint:style` 脚本 | `pnpm lint:style` 可检测出硬编码颜色/间距 | 2h |
+| 8.3 | ESLint 新增硬编码颜色检测规则 | [eslint-config/index.js](file:///workspace/tools/eslint-config/index.js) | 新增自定义 ESLint 规则检测 Vue template 中的硬编码颜色（`#[0-9a-fA-F]{3,6}`）；在 `rules` 中添加 `no-hardcoded-color: error`；允许使用 CSS 变量、SCSS 变量、design-tokens 导入 | `pnpm lint` 可检测出 Vue template 中的硬编码颜色 | 2h |
+| 8.4 | 修复现有 46 个硬编码颜色文件 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [DashboardScreen.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardScreen.vue) 等 46 个文件 | 将所有硬编码颜色值替换为 CSS 变量或 SCSS 变量；优先使用 `var(--el-color-primary)` 等 Element Plus 变量；自定义颜色使用 `var(--color-surface-1)` 等 design-tokens 变量；间距使用 `$spacing-*` 变量 | `pnpm lint:style` + `pnpm lint` 无硬编码颜色警告；暗色主题切换时所有颜色自适应 | 4h |
+
+---
+
 ## 四、每批开始前检查清单
 
 执行任何一批前，确保满足以下条件：
@@ -257,11 +272,13 @@ pnpm dev                # 应用能正常启动
 ## 五、每批完成后验证清单
 
 - [ ] `pnpm lint` — 代码风格通过
+- [ ] `pnpm lint:style` — Stylelint 检查通过（无硬编码颜色/间距）
 - [ ] `pnpm type-check` — TypeScript 类型检查通过
 - [ ] `pnpm --filter @yunshu/admin test` — 单元测试全部通过
 - [ ] `pnpm build` — 全仓库构建通过
 - [ ] `pnpm test:e2e` — E2E 测试通过（如该批影响到任何现有 E2E）
 - [ ] 手动冒烟测试：打开对应页面，检查交互正常
+- [ ] **设计系统合规检查**：新增样式是否使用设计令牌（无硬编码颜色/间距）
 - [ ] 提交规范：`feat(<模块>): <描述>` / `fix(<模块>): <描述>` / `test(<模块>): <描述>`
 - [ ] 关联 PR 已创建，并包含本次修改的文件列表和截图/录屏
 
@@ -277,6 +294,7 @@ pnpm dev                # 应用能正常启动
 | 大屏设计器交互复杂易引入 bug | 第6批延期 | 拆分子任务：先渲染、再拖动、再数据源；每步完成后立即 E2E 验证 |
 | E2E 测试随功能变化需反复更新 | 第7批成本上升 | 第7批放在功能稳定后执行；使用 page object pattern 抽取公共操作 |
 | 暗色主题样式细节需反复调整 | 第2批超期 | 先让 Element Plus 内置暗色生效，再逐步修复自定义组件的细节；分两阶段交付 |
+| **设计系统合规检查引入大量修改** | **第8批工作量超预期** | **分阶段执行：先统一颜色定义 + 配置 Stylelint（8.1-8.3），再分批修复硬编码文件（8.4 可拆分为多日执行）；允许例外标注（eslint-disable-next-line）** |
 
 ---
 
@@ -291,7 +309,8 @@ pnpm dev                # 应用能正常启动
 | 第5批 | 工作流真实 API | 20-28 小时 | Day 6-8 |
 | 第6批 | 大屏设计器完善 | 16 小时 | Day 9-10 |
 | 第7批 | 测试覆盖补充 | 22 小时 | Day 11-13 |
-| **合计** | | **约 6-7 个工作日（1人）** | **2 周左右** |
+| 第8批 | 设计系统合规检查 | 9 小时 | Day 3-4（与第2批并行） |
+| **合计** | | **约 7-8 个工作日（1人）** | **2 周左右** |
 
 ---
 
