@@ -11,15 +11,37 @@
 
 ### 1.1 包管理器强制要求
 
-| 项目 | 要求 |
-|------|------|
-| 包管理器 | **pnpm** — 严禁使用 `npm install` / `yarn` |
-| 版本 | `>= 9.0.0` 且锁定为 `9.0.0`（与 `package.json#packageManager` 对齐） |
-| 镜像源 | `https://registry.npmmirror.com/`（见 [.npmrc](file:///workspace/.npmrc)） |
-| workspace 配置 | 见 [pnpm-workspace.yaml](file:///workspace/pnpm-workspace.yaml) |
-| Node.js | `>= 20.0.0`（见 [package.json](file:///workspace/package.json#L38-L41)） |
+| 项目 | 要求 | 说明 |
+|------|------|------|
+| 包管理器 | **pnpm** — 严禁使用 `npm install` / `yarn` | 违反将导致 lockfile 冲突 |
+| 版本 | **9.0.0**（精确版本，与 `package.json#packageManager` 对齐） | CI 已自动校验一致性 |
+| 镜像源 | `https://registry.npmmirror.com/` | 见 [.npmrc](file:///workspace/.npmrc) |
+| workspace 配置 | 见 [pnpm-workspace.yaml](file:///workspace/pnpm-workspace.yaml) | workspace 内包自动相互链接 |
+| Node.js | `>=20.0.0` | 见 [.nvmrc](file:///workspace/.nvmrc) |
+| 版本强制校验 | **engine-strict=true** | `.npmrc` + `package.json#engineStrict` 双层校验 |
+| CI 版本一致性 | 自动校验 | 见 [ci.yml](file:///workspace/.github/workflows/ci.yml) 的 `pnpm-version-check` job |
 
-### 1.2 正确的 pnpm 命令速查
+### 1.2 约束机制详解
+
+#### 三层强制校验（任何一层不满足均会失败）
+
+```
+第1层：.npmrc  → engine-strict=true（安装时校验 Node/pnpm 版本）
+第2层：CI     → pnpm-version-check job（CI 每次构建前校验）
+第3层：本地   → package.json#packageManager + packageManager 字段（自动提示）
+```
+
+#### 新增文件说明
+
+| 文件 | 作用 | 团队成员操作 |
+|------|------|------------|
+| [.nvmrc](file:///workspace/.nvmrc) | 锁定 Node.js 版本为 `20.0.0` | `nvm use` / `volta pin node@20` 自动读取 |
+| [.npmrc](file:///workspace/.npmrc) | 增强配置（engine-strict + public-hoist） | 无需手动操作，`pnpm install` 自动读取 |
+| [ci.yml](file:///workspace/.github/workflows/ci.yml) | CI 自动校验 pnpm 版本与 package.json 一致 | PR 时自动执行，无需手动触发 |
+
+> ⚠️ `.npmrc` 中的 `engine-strict=true` 和 `package.json` 中的 `engineStrict: true` **同时生效**，任意一层不满足 Node/pnpm 版本要求，pnpm 都会拒绝安装。
+
+### 1.3 正确的 pnpm 命令速查
 
 在 **仓库根目录** 执行以下命令：
 
@@ -52,7 +74,7 @@ pnpm update               # 交互式升级（谨慎使用）
 pnpm why <pkg>            # 查看某个包被谁依赖
 ```
 
-### 1.3 禁止事项
+### 1.4 禁止事项
 
 以下行为 **必须避免**，如违反将导致 workspace 依赖树损坏：
 
@@ -62,7 +84,7 @@ pnpm why <pkg>            # 查看某个包被谁依赖
 - ❌ **禁止** 在 `.gitignore` 中移除 `node_modules`
 - ❌ **禁止** 使用 `npm link` / `yarn link` — 应使用 workspace 的 `workspace:*` 协议（已在 [admin/package.json](file:///workspace/apps/admin/package.json#L25-L28) 使用）
 
-### 1.4 环境初始化（新成员入职）
+### 1.5 环境初始化（新成员入职）
 
 ```bash
 # 1. 安装/激活正确版本的 Node 与 pnpm
@@ -220,8 +242,9 @@ pnpm dev                # 应用能正常启动
 
 执行任何一批前，确保满足以下条件：
 
-- [ ] `pnpm --version` 输出 `>= 9.0.0`
+- [ ] `pnpm --version` 输出 `9.0.0`
 - [ ] `node --version` 输出 `>= 20.0.0`
+- [ ] `.nvmrc` 文件存在且版本为 `20.0.0`（团队统一 Node 版本）
 - [ ] `pnpm install` 已在根目录执行，无警告
 - [ ] `pnpm --filter @yunshu/admin test` 所有现有测试通过
 - [ ] `pnpm --filter @yunshu/admin type-check` 无 TS 错误
@@ -275,6 +298,15 @@ pnpm dev                # 应用能正常启动
 ## 八、pNpM 快速故障排查
 
 ```bash
+# ========== 问题0：engine-strict 拒绝安装 ==========
+# 错误：pnpm engine-strict 报错 "Unsupported engine"
+# 原因：当前 Node/pnpm 版本不满足 engines 字段要求
+# 解决：
+nvm use 20                 # 激活 .nvmrc 指定的 Node 版本
+corepack enable            # 确保 Corepack 激活
+corepack prepare pnpm@9.0.0 --activate  # 确保 pnpm 版本正确
+pnpm install               # 重试
+
 # 问题1：依赖版本错乱
 pnpm why <package-name>        # 查看引用链
 pnpm list -r                  # 查看所有 workspace 的依赖树
