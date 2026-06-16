@@ -30,36 +30,37 @@
 
 > **关联**：[project-plan.md 第7批 — 测试覆盖补充](file:///workspace/docs/project-plan.md#_7批--测试覆盖补充)
 > **更新规则**：每完成一项，立即在本表和对应章节中更新状态
+> **最后更新**：2026-06-16
 
-| # | 任务标题 | 关联章节 | 测试文件路径 | 状态 |
-|---|---------|---------|------------|------|
-| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/CommonTable.test.ts` | ⬜ 待开始 |
-| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/LanguageSwitch.test.ts` | ⬜ 待开始 |
-| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/TenantSelect.test.ts` | ⬜ 待开始 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/app.test.ts` | ⬜ 待开始 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/user.test.ts` | ⬜ 待开始 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/permission.test.ts` | ⬜ 待开始 |
-| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/tagsView.test.ts` | ⬜ 待开始 |
-| 7.3 | 路由守卫测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/router/guard.test.ts` | ⬜ 待开始 |
-| 7.4 | 工作流 E2E 测试 | [§4.5](#_45-playwright-e2e) | `playwright/tests/workflow.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-config.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-file.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-notice.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-message.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-knowledge.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-oss.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sms.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sso.spec.ts` | ⬜ 待开始 |
-| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-third.spec.ts` | ⬜ 待开始 |
-| 7.6 | 个人中心 E2E | [§4.5](#_45-playwright-e2e) | `playwright/tests/profile.spec.ts` | ⬜ 待开始 |
-| 7.7 | 布局组件 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/layout.spec.ts` | ⬜ 待开始 |
+| # | 任务标题 | 关联章节 | 测试文件路径 | 状态 | 备注 |
+|---|---------|---------|------------|------|------|
+| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/CommonTable.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/LanguageSwitch.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.1 | 公共组件单元测试 | [§4.1 P1](#p1--中优补充) | `apps/admin/src/__tests__/components/TenantSelect.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/app.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/user.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/permission.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.2 | Store 状态管理测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/store/tagsView.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.3 | 路由守卫测试 | [§4.1 P0](#p0--高优补充) | `apps/admin/src/__tests__/router/guard.test.ts` | ⬜ 待开始 | 缺失 |
+| 7.4 | 工作流 E2E 测试 | [§4.5](#_45-playwright-e2e) | `playwright/tests/workflow.spec.ts` | ⏳ 部分覆盖 | 已有基础流程列表/设计器场景，缺发布/挂起/激活/删除确认深度断言 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-config.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-file.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-notice.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-message.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-knowledge.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-oss.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sms.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-sso.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.5 | system 缺失子模块 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/system-third.spec.ts` | ⬜ 待开始 | 缺失 |
+| 7.6 | 个人中心 E2E | [§4.5](#_45-playwright-e2e) | `playwright/tests/profile.spec.ts` | ⏳ 部分覆盖 | 已有 `user.spec.ts` 覆盖基础加载/输入，缺修改密码正反用例 + 头像上传 |
+| 7.7 | 布局组件 E2E | [§4.1 P1](#p1--中优补充) | `playwright/tests/layout.spec.ts` | ⏳ 部分覆盖 | 已有 `layout.spec.ts` 覆盖顶部导航/侧边栏，缺 TagsView 右键菜单 + 全局搜索菜单跳转 |
 
-**进度汇总**：0 / 20 项完成（0%）
+**进度汇总**：0 项完成 / 9 项部分覆盖 / 11 项缺失（总计 20 项 → 整体进度 22.5%）
 
 **图例**：
 - ⬜ 待开始 — 尚未开始
-- ⏳ 进行中 — 开发中，测试文件已创建但未通过
-- ✅ 已完成 — 测试文件已创建且 `pnpm test` / `pnpm test:e2e` 通过
+- ⏳ 进行中 — 测试文件已存在但深度不足，需补充断言
+- ✅ 已完成 — 测试文件已创建且 `pnpm test` / `pnpm test:e2e` 通过，覆盖深度达标
 - ❌ 已废弃 — 任务不再需要（需在备注中说明原因）
 
 ---
@@ -96,7 +97,7 @@
 | 模块 | 测试文件数 | 覆盖率观感 | 状态 |
 |------|-----------|-----------|------|
 | **apps/admin**（前端中台 单元测试） | 15 | 中 ~ 45% | 🟡 中等覆盖 |
-| **Playwright E2E** | 18 个 spec | 中 | 🟡 中等覆盖 |
+| **Playwright E2E** | 17 个 spec | 中 | 🟡 中等覆盖 |
 | **packages/api-client**（API 客户端） | 13 | 高 | 🟢 良好覆盖 |
 | **packages/server-core**（后端核心） | 21 | 中高 | 🟡 中等覆盖 |
 | **packages/server-express**（后端 HTTP） | 20 | 高 | 🟢 良好覆盖 |
@@ -125,25 +126,33 @@
 
 ### 3.1 apps/admin 前端单元测试
 
-**测试文件清单**（共 15 个）：
+**测试文件清单**（当前共 **15 个**，待补充 7 个）：
 
-| 文件 | 模块 | 说明 |
-|------|------|------|
-| `apps/admin/src/__tests__/components/CommonButton.test.ts` | 通用按钮组件 | 渲染 / props / 事件 |
-| `apps/admin/src/__tests__/utils/auth.test.ts` | 认证工具 | Token 存取 |
-| `apps/admin/src/__tests__/utils/auth-ext.test.ts` | 认证工具（扩展） | 复杂场景 |
-| `apps/admin/src/__tests__/utils/cache.test.ts` | 缓存工具 | 过期 / TTL / 清除 |
-| `apps/admin/src/__tests__/utils/date.test.ts` | 日期工具 | 格式化 / 相对时间 |
-| `apps/admin/src/__tests__/utils/date-ext.test.ts` | 日期工具（扩展） | 边界 / 时区 |
-| `apps/admin/src/__tests__/utils/httpClient.test.ts` | HTTP 客户端 | 请求 / 响应 / 错误 |
-| `apps/admin/src/__tests__/utils/validate.test.ts` | 校验工具 | 表单校验 schema |
-| `apps/admin/src/__tests__/utils/validate-ext.test.ts` | 校验工具（扩展） | API 响应校验 |
-| `apps/admin/src/__tests__/utils/security/authStorage.test.ts` | 安全存储 | Token 加密存储 |
-| `apps/admin/src/__tests__/utils/security/authStorage-ext.test.ts` | 安全存储（扩展） | 异常场景 |
-| `apps/admin/src/__tests__/utils/security/sanitize.test.ts` | HTML 清洗 | XSS 防护 |
-| `apps/admin/src/__tests__/utils/security/sanitize-ext.test.ts` | HTML 清洗（扩展） | 退化 / 完整 DOM 场景 |
-| `apps/admin/src/__tests__/utils/security/storage.test.ts` | 存储抽象 | 安全读写 |
-| `apps/admin/src/__tests__/utils/security/storage-ext.test.ts` | 存储抽象（扩展） | 并发 / 空值场景 |
+| 文件 | 模块 | 说明 | 状态 | 关联任务 |
+|------|------|------|------|---------|
+| `apps/admin/src/__tests__/components/CommonButton.test.ts` | 通用按钮组件 | 渲染 / props / 事件 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/auth.test.ts` | 认证工具 | Token 存取 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/auth-ext.test.ts` | 认证工具（扩展） | 复杂场景 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/cache.test.ts` | 缓存工具 | 过期 / TTL / 清除 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/date.test.ts` | 日期工具 | 格式化 / 相对时间 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/date-ext.test.ts` | 日期工具（扩展） | 边界 / 时区 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/httpClient.test.ts` | HTTP 客户端 | 请求 / 响应 / 错误 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/validate.test.ts` | 校验工具 | 表单校验 schema | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/validate-ext.test.ts` | 校验工具（扩展） | API 响应校验 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/security/authStorage.test.ts` | 安全存储 | Token 加密存储 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/security/authStorage-ext.test.ts` | 安全存储（扩展） | 异常场景 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/security/sanitize.test.ts` | HTML 清洗 | XSS 防护 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/security/sanitize-ext.test.ts` | HTML 清洗（扩展） | 退化 / 完整 DOM 场景 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/security/storage.test.ts` | 存储抽象 | 安全读写 | ✅ 已覆盖 | — |
+| `apps/admin/src/__tests__/utils/security/storage-ext.test.ts` | 存储抽象（扩展） | 并发 / 空值场景 | ✅ 已覆盖 | — |
+| ⬜ `apps/admin/src/__tests__/components/CommonTable.test.ts` | 通用表格组件 | props / columns / pagination / emit | ⬜ 待新建 | 7.1 |
+| ⬜ `apps/admin/src/__tests__/components/LanguageSwitch.test.ts` | 语言切换组件 | 中英文切换触发 setLocale | ⬜ 待新建 | 7.1 |
+| ⬜ `apps/admin/src/__tests__/components/TenantSelect.test.ts` | 租户选择组件 | 租户切换后调用 setTenantId | ⬜ 待新建 | 7.1 |
+| ⬜ `apps/admin/src/__tests__/store/app.test.ts` | App Store | theme / sidebarCollapsed 切换 | ⬜ 待新建 | 7.2 |
+| ⬜ `apps/admin/src/__tests__/store/user.test.ts` | User Store | 登录 / 登出 / userInfo | ⬜ 待新建 | 7.2 |
+| ⬜ `apps/admin/src/__tests__/store/permission.test.ts` | Permission Store | 动态路由 / 重置路由 | ⬜ 待新建 | 7.2 |
+| ⬜ `apps/admin/src/__tests__/store/tagsView.test.ts` | TagsView Store | 添加/删除/关闭标签 | ⬜ 待新建 | 7.2 |
+| ⬜ `apps/admin/src/__tests__/router/guard.test.ts` | 路由守卫 | 登录拦截 / 权限校验 | ⬜ 待新建 | 7.3 |
 
 **已覆盖功能点**：
 - ✅ Token / 用户信息存取（auth / authStorage）
@@ -154,32 +163,52 @@
 - ✅ HTML 清洗防 XSS（含 DOMPurify 退化）
 - ✅ 通用按钮组件
 
+**待补充功能点**（对应 7.1 / 7.2 / 7.3 任务）：
+- ⬜ 公共组件（3 个）：CommonTable / LanguageSwitch / TenantSelect
+- ⬜ Store（4 个）：app / user / permission / tagsView
+- ⬜ 路由守卫（1 个）：guard.test.ts
+
 ### 3.2 Playwright E2E
 
-**测试文件清单**（共 18 个 spec）：
+**测试文件清单**（当前共 **17 个 spec**，待补充 9 个）：
 
-| 文件 | 说明 |
-|------|------|
-| `playwright/tests/login.spec.ts` + `login-ext.spec.ts` | 登录（基本 + 验证码 / 错误锁定 / 多语言） |
-| `playwright/tests/dashboard.spec.ts` + `dashboard-ext.spec.ts` | 仪表盘（基本 + 图表 / 数字卡片 / 刷新） |
-| `playwright/tests/system.spec.ts` + `system-ext.spec.ts` | 系统管理（用户 / 角色 / 部门 / 字典 / 菜单 CRUD） |
-| `playwright/tests/monitor.spec.ts` + `monitor-ext.spec.ts` | 监控（定时任务 / 日志 / 在线用户 / 服务器） |
-| `playwright/tests/tenant.spec.ts` + `tenant-ext.spec.ts` | 租户（列表 / 新增 / 套餐 / 详情） |
-| `playwright/tests/tool.spec.ts` + `tool-ext.spec.ts` | 工具（代码生成器 / 表单设计器） |
-| `playwright/tests/report.spec.ts` | 报表（列表 / 设计 / 查看） |
-| `playwright/tests/user.spec.ts` | 用户中心（资料 / 密码 / 头像） |
-| `playwright/tests/workflow.spec.ts` | 工作流（定义 / 待办 / 已办 / 实例） |
-| `playwright/tests/layout.spec.ts` | 布局（侧边栏 / 标签 / 退出） |
-| `playwright/tests/error.spec.ts` | 错误页（404 / 回首页） |
+| 文件 | 说明 | 状态 | 关联任务 |
+|------|------|------|---------|
+| `playwright/tests/login.spec.ts` + `login-ext.spec.ts` | 登录（基本 + 验证码 / 错误锁定 / 多语言） | ✅ 已覆盖 | — |
+| `playwright/tests/dashboard.spec.ts` + `dashboard-ext.spec.ts` | 仪表盘（基本 + 图表 / 数字卡片 / 刷新） | ✅ 已覆盖 | — |
+| `playwright/tests/system.spec.ts` + `system-ext.spec.ts` | 系统管理（用户 / 角色 / 部门 / 字典 / 菜单 / 岗位） | ⏳ 部分覆盖 | 7.5 |
+| `playwright/tests/monitor.spec.ts` + `monitor-ext.spec.ts` | 监控（定时任务 / 日志 / 在线用户 / 服务器） | ✅ 已覆盖 | — |
+| `playwright/tests/tenant.spec.ts` + `tenant-ext.spec.ts` | 租户（列表 / 新增 / 套餐 / 详情） | ✅ 已覆盖 | — |
+| `playwright/tests/tool.spec.ts` + `tool-ext.spec.ts` | 工具（代码生成器 / 表单设计器） | ✅ 已覆盖 | — |
+| `playwright/tests/report.spec.ts` | 报表（列表 / 设计 / 查看） | ✅ 已覆盖 | — |
+| `playwright/tests/user.spec.ts` | 用户中心（资料 / 密码 / 头像）— 基础场景 | ⏳ 部分覆盖 | 7.6 |
+| `playwright/tests/workflow.spec.ts` | 工作流（定义 / 设计 / 待办 / 已办 / 实例）— 基础场景 | ⏳ 部分覆盖 | 7.4 |
+| `playwright/tests/layout.spec.ts` | 布局（侧边栏 / 标签 / 退出）— 基础场景 | ⏳ 部分覆盖 | 7.7 |
+| `playwright/tests/error.spec.ts` | 错误页（404 / 回首页） | ✅ 已覆盖 | — |
+| ⬜ `playwright/tests/system-config.spec.ts` | 参数配置 | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-file.spec.ts` | 文件管理 | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-notice.spec.ts` | 通知公告 | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-message.spec.ts` | 消息管理 | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-knowledge.spec.ts` | 知识库 | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-oss.spec.ts` | 对象存储 OSS | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-sms.spec.ts` | 短信服务 | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-sso.spec.ts` | 单点登录 | ⬜ 待新建 | 7.5 |
+| ⬜ `playwright/tests/system-third.spec.ts` | 第三方登录 | ⬜ 待新建 | 7.5 |
 
 **已覆盖功能点**：
 - ✅ 登录 / 退出 / 权限控制
 - ✅ 仪表盘渲染与数据刷新
-- ✅ 系统管理（用户 / 角色 / 部门 / 字典 / 菜单 / 岗位等）基本 CRUD
+- ✅ 系统管理（用户 / 角色 / 部门 / 字典 / 菜单 / 岗位）基本 CRUD
 - ✅ 监控（定时任务 / 日志 / 在线用户 / 服务器）
 - ✅ 租户与套餐
-- ✅ 代码生成器 / 报表 / 工作流
-- ✅ 用户中心 / 布局交互 / 错误页
+- ✅ 代码生成器 / 报表
+- ✅ 用户中心基础 / 布局交互基础 / 错误页
+
+**待补充功能点**（对应 7.4 / 7.5 / 7.6 / 7.7 任务）：
+- ⏳ 工作流：发布 / 挂起 / 激活 / 删除二次确认 / 任务审批-驳回-转办-加签
+- ⏳ 用户中心：修改密码正反用例 / 头像上传预览
+- ⏳ 布局：TagsView 右键菜单（关闭当前/其他/全部） / 全局搜索菜单跳转
+- ⬜ system 子模块（9 个）：config / file / notice / message / knowledge / oss / sms / sso / third
 
 ### 3.3 packages/api-client（API 客户端）
 
