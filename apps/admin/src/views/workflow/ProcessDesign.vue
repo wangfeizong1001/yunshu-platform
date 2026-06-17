@@ -90,14 +90,14 @@
                 refY="3"
                 orient="auto"
               >
-                <polygon points="0 0, 10 3, 0 6" fill="#606266" />
+                <polygon points="0 0, 10 3, 0 6" fill="var(--text-secondary)" />
               </marker>
             </defs>
             <g v-for="(line, idx) in connections" :key="'line-' + idx">
               <path
                 :d="getLinePath(line)"
                 fill="none"
-                stroke="#606266"
+                stroke="var(--text-secondary)"
                 stroke-width="2"
                 marker-end="url(#arrowhead)"
               />
@@ -733,22 +733,22 @@ onMounted(() => {
         align-items: center;
         gap: 8px;
         padding: 12px;
-        background: var(--el-fill-color-light);
+        background: var(--surface-2);
         border-radius: 8px;
         cursor: grab;
         transition: all 0.2s;
         &:hover {
-          background: var(--el-color-primary-light-9);
+          background: var(--el-color-primary-light-8);
         }
         .icon {
           font-size: 20px;
           font-weight: bold;
         }
         &.start .icon {
-          color: var(--el-color-success);
+          color: var(--success);
         }
         &.end .icon {
-          color: var(--el-color-danger);
+          color: var(--danger);
         }
         &.task .icon {
           color: var(--el-color-primary);
@@ -757,16 +757,16 @@ onMounted(() => {
           color: var(--el-color-primary);
         }
         &.copy .icon {
-          color: var(--el-text-color-secondary);
+          color: var(--text-muted);
         }
         &.gateway .icon {
-          color: var(--el-color-warning);
+          color: var(--warning);
         }
         &.condition .icon {
-          color: #f0a020;
+          color: var(--warning);
         }
         &.subtask .icon {
-          color: #8c8c8c;
+          color: var(--text-muted);
         }
       }
     }
@@ -814,11 +814,11 @@ onMounted(() => {
         color: white;
       }
       &.task .node-body {
-        background: linear-gradient(135deg, var(--el-color-primary-light-1), var(--el-color-primary));
+        background: linear-gradient(135deg, #93c5fd, #409eff);
         color: white;
       }
       &.approval .node-body {
-        background: linear-gradient(135deg, var(--el-color-primary-light-2), var(--el-color-primary-dark-2));
+        background: linear-gradient(135deg, #79bbff, #1890ff);
         color: white;
       }
       &.copy .node-body {
@@ -893,7 +893,7 @@ onMounted(() => {
         right: -8px;
         width: 20px;
         height: 20px;
-        background: var(--el-color-danger);
+        background: var(--danger);
         color: white;
         border-radius: 50%;
         display: flex;

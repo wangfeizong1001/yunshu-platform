@@ -122,12 +122,12 @@ function handleClose() {
 .file-upload {
   .upload-icon {
     font-size: 67px;
-    color: var(--el-text-color-secondary);
+    color: var(--text-muted);
     margin-bottom: 16px;
   }
 
   .upload-text {
-    color: var(--el-text-color-regular);
+    color: var(--text-secondary);
     font-size: 14px;
 
     em {
@@ -137,7 +137,7 @@ function handleClose() {
   }
 
   .upload-tip {
-    color: var(--el-text-color-secondary);
+    color: var(--text-muted);
     font-size: 12px;
     margin-top: 8px;
   }

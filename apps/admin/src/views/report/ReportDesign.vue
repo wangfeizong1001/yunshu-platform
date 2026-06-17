@@ -508,15 +508,15 @@ onUnmounted(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--el-fill-color-light);
+  background-color: var(--surface-2);
 
   .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: var(--el-bg-color);
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
 
     .toolbar-left {
       display: flex;
@@ -526,7 +526,7 @@ onUnmounted(() => {
       .title {
         font-size: 16px;
         font-weight: 600;
-        color: var(--el-text-color-primary);
+        color: var(--text-primary);
       }
     }
   }
@@ -540,7 +540,7 @@ onUnmounted(() => {
 
     .left-panel {
       width: 400px;
-      background-color: var(--el-bg-color);
+      background-color: var(--background);
       border-radius: 4px;
       overflow-y: auto;
 
@@ -569,7 +569,7 @@ onUnmounted(() => {
             width: 100%;
             height: 300px;
             padding: 12px;
-            border: 1px solid var(--el-border-color);
+            border: 1px solid var(--border);
             border-radius: 4px;
             resize: none;
             font-family: monospace;
@@ -586,7 +586,7 @@ onUnmounted(() => {
 
     .right-panel {
       flex: 1;
-      background-color: var(--el-bg-color);
+      background-color: var(--background);
       border-radius: 4px;
       display: flex;
       flex-direction: column;
@@ -594,9 +594,9 @@ onUnmounted(() => {
 
       .preview-header {
         padding: 12px 16px;
-        border-bottom: 1px solid var(--el-border-color-lighter);
+        border-bottom: 1px solid var(--border);
         font-weight: 600;
-        color: var(--el-text-color-primary);
+        color: var(--text-primary);
       }
 
       .preview-content {

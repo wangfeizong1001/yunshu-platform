@@ -84,6 +84,13 @@
 </template>
 
 <script setup lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * ECharts 图表配置中的颜色值说明：
+ * - 这些颜色是 ECharts 图表库的配色方案，ECharts 本身不支持 CSS 变量
+ * - 大屏设计器需要深色主题配色，与 Element Plus 浅色主题有所区别
+ * - 图表库本身需要使用具体的颜色值才能正常工作
+ */
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -129,27 +136,6 @@ use([
   GeoComponent
 ])
 
-// ===== 大屏深色主题色板（集中定义，便于维护和主题切换）=====
-const DASHBOARD_COLORS = {
-  cyan: '#00d4ff',
-  gold: '#ffd700',
-  green: '#00ff88',
-  red: '#ff6b6b',
-  purple: '#a855f7',
-  darkBlue: '#0066ff',
-  bgPrimary: '#0a0e27',
-  bgSecondary: '#1a1f3a',
-  text: '#ffffff',
-} as const
-
-const CATEGORY_COLORS = [
-  DASHBOARD_COLORS.cyan,
-  DASHBOARD_COLORS.gold,
-  DASHBOARD_COLORS.green,
-  DASHBOARD_COLORS.red,
-  DASHBOARD_COLORS.purple,
-]
-
 const isFullscreen = ref(false)
 const currentTime = ref('')
 const realtimeData = ref({
@@ -191,13 +177,13 @@ const salesTrendOption = computed(() => {
       type: 'category',
       boundaryGap: false,
       data: salesTrendData.value.map(d => d.date),
-      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
-      axisLabel: { color: DASHBOARD_COLORS.text }
+      axisLine: { lineStyle: { color: '#00d4ff' } },
+      axisLabel: { color: '#fff' }
     },
     yAxis: {
       type: 'value',
-      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
-      axisLabel: { color: DASHBOARD_COLORS.text },
+      axisLine: { lineStyle: { color: '#00d4ff' } },
+      axisLabel: { color: '#fff' },
       splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.1)' } }
     },
     series: [
@@ -206,7 +192,7 @@ const salesTrendOption = computed(() => {
         type: 'line',
         smooth: true,
         data: salesTrendData.value.map(d => d.sales),
-        itemStyle: { color: DASHBOARD_COLORS.cyan },
+        itemStyle: { color: '#00d4ff' },
         areaStyle: {
           color: {
             type: 'linear',
@@ -226,7 +212,7 @@ const salesTrendOption = computed(() => {
         type: 'line',
         smooth: true,
         data: salesTrendData.value.map(d => d.orders),
-        itemStyle: { color: DASHBOARD_COLORS.gold },
+        itemStyle: { color: '#ffd700' },
         areaStyle: {
           color: {
             type: 'linear',
@@ -262,13 +248,13 @@ const orderStatsOption = computed(() => {
     xAxis: {
       type: 'category',
       data: salesTrendData.value.slice(-6).map(d => d.date),
-      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
-      axisLabel: { color: DASHBOARD_COLORS.text }
+      axisLine: { lineStyle: { color: '#00d4ff' } },
+      axisLabel: { color: '#fff' }
     },
     yAxis: {
       type: 'value',
-      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
-      axisLabel: { color: DASHBOARD_COLORS.text },
+      axisLine: { lineStyle: { color: '#00d4ff' } },
+      axisLabel: { color: '#fff' },
       splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.1)' } }
     },
     series: [
@@ -284,8 +270,8 @@ const orderStatsOption = computed(() => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: DASHBOARD_COLORS.cyan },
-              { offset: 1, color: DASHBOARD_COLORS.darkBlue }
+              { offset: 0, color: '#00d4ff' },
+              { offset: 1, color: '#0066ff' }
             ]
           },
           borderRadius: [4, 4, 0, 0]
@@ -309,10 +295,10 @@ const mapOption = computed(() => {
       text: ['高', '低'],
       calculable: true,
       inRange: {
-        color: [DASHBOARD_COLORS.darkBlue, DASHBOARD_COLORS.cyan, DASHBOARD_COLORS.green]
+        color: ['#0066ff', '#00d4ff', '#00ff88']
       },
       textStyle: {
-        color: DASHBOARD_COLORS.text
+        color: '#fff'
       }
     },
     geo: {
@@ -320,18 +306,18 @@ const mapOption = computed(() => {
       roam: true,
       label: {
         show: true,
-        color: DASHBOARD_COLORS.text
+        color: '#fff'
       },
       itemStyle: {
         areaColor: 'rgba(0, 102, 255, 0.2)',
-        borderColor: DASHBOARD_COLORS.cyan
+        borderColor: '#00d4ff'
       },
       emphasis: {
         itemStyle: {
           areaColor: 'rgba(0, 212, 255, 0.5)'
         },
         label: {
-          color: DASHBOARD_COLORS.text
+          color: '#fff'
         }
       }
     },
@@ -356,7 +342,7 @@ const categoryOption = computed(() => {
     legend: {
       orient: 'vertical',
       left: 'left',
-      textStyle: { color: DASHBOARD_COLORS.text }
+      textStyle: { color: '#fff' }
     },
     series: [
       {
@@ -366,12 +352,12 @@ const categoryOption = computed(() => {
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 10,
-          borderColor: DASHBOARD_COLORS.bgPrimary,
+          borderColor: '#0a0e27',
           borderWidth: 2
         },
         label: {
           show: true,
-          color: DASHBOARD_COLORS.text
+          color: '#fff'
         },
         emphasis: {
           label: {
@@ -383,7 +369,9 @@ const categoryOption = computed(() => {
         data: categoryData.value.map((d, index) => ({
           name: d.name,
           value: d.value,
-          itemStyle: { color: CATEGORY_COLORS[index] }
+          itemStyle: {
+            color: ['#00d4ff', '#ffd700', '#00ff88', '#ff6b6b', '#a855f7'][index]
+          }
         }))
       }
     ]
@@ -405,13 +393,13 @@ const userGrowthOption = computed(() => {
       type: 'category',
       boundaryGap: false,
       data: salesTrendData.value.slice(-6).map(d => d.date),
-      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
-      axisLabel: { color: DASHBOARD_COLORS.text }
+      axisLine: { lineStyle: { color: '#00d4ff' } },
+      axisLabel: { color: '#fff' }
     },
     yAxis: {
       type: 'value',
-      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
-      axisLabel: { color: DASHBOARD_COLORS.text },
+      axisLine: { lineStyle: { color: '#00d4ff' } },
+      axisLabel: { color: '#fff' },
       splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.1)' } }
     },
     series: [
@@ -420,7 +408,7 @@ const userGrowthOption = computed(() => {
         type: 'line',
         smooth: true,
         data: salesTrendData.value.slice(-6).map(d => d.visitors),
-        itemStyle: { color: DASHBOARD_COLORS.green },
+        itemStyle: { color: '#00ff88' },
         areaStyle: {
           color: {
             type: 'linear',
@@ -550,28 +538,22 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-// ===== 大屏深色主题变量（局部作用域，不污染全局）=====
-$dash-cyan: #00d4ff;
-$dash-gold: #ffd700;
-$dash-green: #00ff88;
-$dash-red: #ff6b6b;
-$dash-dark-blue: #0066ff;
-$dash-bg-primary: #0a0e27;
-$dash-bg-secondary: #1a1f3a;
-$dash-text: #ffffff;
-// 透明色派生
-$dash-cyan-05: rgba(0, 212, 255, 0.05);
-$dash-cyan-10: rgba(0, 212, 255, 0.1);
-$dash-cyan-20: rgba(0, 212, 255, 0.2);
-$dash-cyan-30: rgba(0, 212, 255, 0.3);
-$dash-cyan-50: rgba(0, 212, 255, 0.5);
-$dash-dark-blue-10: rgba(0, 102, 255, 0.1);
-$dash-dark-blue-20: rgba(0, 102, 255, 0.2);
-
+/* 大屏深色主题专用 CSS 变量 */
 .dashboard-screen {
+  --screen-primary: #00d4ff;
+  --screen-secondary: #ffd700;
+  --screen-success: #00ff88;
+  --screen-danger: #ff6b6b;
+  --screen-accent: #a855f7;
+  --screen-deep: #0a0e27;
+  --screen-deep-light: #1a1f3a;
+  --screen-primary-rgb: 0, 212, 255;
+  --screen-secondary-rgb: 255, 215, 0;
+  --screen-success-rgb: 0, 255, 136;
+
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, $dash-bg-primary 0%, $dash-bg-secondary 50%, $dash-bg-primary 100%);
+  background: linear-gradient(135deg, var(--screen-deep) 0%, var(--screen-deep-light) 50%, var(--screen-deep) 100%);
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
@@ -587,8 +569,8 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
   align-items: center;
   margin-bottom: 20px;
   padding: 15px 25px;
-  background: linear-gradient(90deg, $dash-dark-blue-10 0%, $dash-cyan-10 50%, $dash-dark-blue-10 100%);
-  border: 1px solid $dash-cyan-20;
+  background: linear-gradient(90deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 50%, rgba(0, 102, 255, 0.1) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
 
   .header-left {
@@ -600,13 +582,13 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
       margin: 0;
       font-size: 28px;
       font-weight: bold;
-      color: $dash-cyan;
-      text-shadow: 0 0 10px $dash-cyan-50;
+      color: var(--screen-primary);
+      text-shadow: 0 0 10px rgba(var(--screen-primary-rgb), 0.5);
     }
 
     .current-time {
       font-size: 16px;
-      color: $dash-text;
+      color: var(--text-inverse);
       opacity: 0.8;
     }
   }
@@ -619,13 +601,13 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
     .fullscreen-btn {
       width: 40px;
       height: 40px;
-      background: $dash-cyan-10;
-      border: 1px solid $dash-cyan-30;
-      color: $dash-cyan;
+      background: rgba(var(--screen-primary-rgb), 0.1);
+      border: 1px solid rgba(var(--screen-primary-rgb), 0.3);
+      color: var(--screen-primary);
 
       &:hover {
-        background: $dash-cyan-20;
-        border-color: $dash-cyan-50;
+        background: rgba(var(--screen-primary-rgb), 0.2);
+        border-color: rgba(var(--screen-primary-rgb), 0.5);
       }
     }
   }
@@ -646,8 +628,8 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
 
 .chart-card {
   flex: 1;
-  background: $dash-cyan-05;
-  border: 1px solid $dash-cyan-20;
+  background: rgba(var(--screen-primary-rgb), 0.05);
+  border: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   border-radius: 8px;
   padding: 15px;
   display: flex;
@@ -656,10 +638,10 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
   .chart-title {
     font-size: 16px;
     font-weight: bold;
-    color: $dash-cyan;
+    color: var(--screen-primary);
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid $dash-cyan-20;
+    border-bottom: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   }
 
   .chart {
@@ -679,8 +661,8 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
   margin-bottom: 20px;
 
   .metric-item {
-    background: $dash-cyan-10;
-    border: 1px solid $dash-cyan-20;
+    background: rgba(var(--screen-primary-rgb), 0.1);
+    border: 1px solid rgba(var(--screen-primary-rgb), 0.2);
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -688,13 +670,13 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
     .metric-value {
       font-size: 28px;
       font-weight: bold;
-      color: $dash-cyan;
+      color: var(--screen-primary);
       margin-bottom: 8px;
     }
 
     .metric-label {
       font-size: 14px;
-      color: $dash-text;
+      color: var(--text-inverse);
       opacity: 0.8;
       margin-bottom: 8px;
     }
@@ -707,29 +689,29 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
       font-size: 14px;
 
       &.up {
-        color: $dash-green;
+        color: var(--screen-success);
       }
 
       &.down {
-        color: $dash-red;
+        color: var(--screen-danger);
       }
     }
   }
 }
 
 .realtime-data {
-  background: $dash-cyan-05;
-  border: 1px solid $dash-cyan-20;
+  background: rgba(var(--screen-primary-rgb), 0.05);
+  border: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   border-radius: 8px;
   padding: 15px;
 
   .realtime-title {
     font-size: 16px;
     font-weight: bold;
-    color: $dash-cyan;
+    color: var(--screen-primary);
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid $dash-cyan-20;
+    border-bottom: 1px solid rgba(var(--screen-primary-rgb), 0.2);
   }
 
   .realtime-items {
@@ -742,7 +724,7 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
       .realtime-label {
         display: block;
         font-size: 14px;
-        color: $dash-text;
+        color: var(--text-inverse);
         opacity: 0.8;
         margin-bottom: 8px;
       }
@@ -750,7 +732,7 @@ $dash-dark-blue-20: rgba(0, 102, 255, 0.2);
       .realtime-value {
         font-size: 24px;
         font-weight: bold;
-        color: $dash-gold;
+        color: var(--screen-secondary);
       }
     }
   }

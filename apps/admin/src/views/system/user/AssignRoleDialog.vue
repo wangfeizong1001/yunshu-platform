@@ -100,7 +100,7 @@ watch(visible, (val) => {
 .role-tree {
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid var(--el-border-color);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 8px;
 }

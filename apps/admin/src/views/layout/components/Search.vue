@@ -25,7 +25,7 @@ const handleSearch = () => {
   transition: color 0.3s;
 
   &:hover {
-    color: var(--el-color-primary);
+    color: #409eff;
   }
 }
 </style>

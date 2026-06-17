@@ -82,7 +82,7 @@ const handleCommand = async (key: string) => {
 }
 
 .is-active {
-  color: var(--el-color-primary);
+  color: var(--primary-color, #409eff);
   font-weight: 500;
 }
 </style>

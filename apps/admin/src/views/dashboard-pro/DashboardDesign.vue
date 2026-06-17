@@ -160,41 +160,28 @@ const selectedWidget = computed(() => {
 
 
 
-// 大屏深色主题色板
-const DASHBOARD_COLORS = {
-  cyan: '#00d4ff',
-  gold: '#ffd700',
-  green: '#00ff88',
-  red: '#ff6b6b',
-  purple: '#a855f7',
-  indigo: '#6366f1',
-  darkBlue: '#0066ff',
-  bgPrimary: '#0a0e27',
-  bgSecondary: '#1a1f3a',
-} as const
-
 const LineChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.cyan + ';">折线图</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00d4ff;">折线图</div>'
 }
 
 const BarChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.gold + ';">柱状图</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ffd700;">柱状图</div>'
 }
 
 const PieChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.green + ';">饼图</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00ff88;">饼图</div>'
 }
 
 const TableWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.purple + ';">数据表格</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#a855f7;">数据表格</div>'
 }
 
 const NumberWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.red + ';">数字卡片</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ff6b6b;">数字卡片</div>'
 }
 
 const GaugeWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.indigo + ';">仪表盘</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#6366f1;">仪表盘</div>'
 }
 
 const getWidgetComponent = (type: string) => {
@@ -235,7 +222,7 @@ const handleDrop = (event: DragEvent) => {
         width: 300,
         height: 200,
         backgroundColor: 'rgba(0, 102, 255, 0.1)',
-        borderColor: DASHBOARD_COLORS.cyan,
+        borderColor: '#00d4ff',
         data: {}
       }
 
@@ -277,11 +264,16 @@ const saveDashboard = () => {
 </script>
 
 <style scoped lang="scss">
+/* 大屏设计器画布专用 CSS 变量 */
+$screen-deep: #0a0e27;
+$screen-deep-light: #1a1f3a;
+$screen-primary: #00d4ff;
+
 .dashboard-design {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--el-fill-color-light);
+  background: var(--surface-2);
 }
 
 .design-header {
@@ -289,8 +281,8 @@ const saveDashboard = () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background: var(--el-bg-color);
-  border-bottom: 1px solid var(--el-border-color);
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
 
   .header-left {
     display: flex;
@@ -317,7 +309,7 @@ const saveDashboard = () => {
 
 .widget-panel,
 .property-panel {
-  background: var(--el-bg-color);
+  background: var(--background);
   border-radius: 8px;
   padding: 15px;
   overflow-y: auto;
@@ -326,10 +318,10 @@ const saveDashboard = () => {
 .panel-title {
   font-size: 16px;
   font-weight: bold;
-  color: var(--el-text-color-primary);
+  color: var(--text-primary);
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
+  border-bottom: 1px solid var(--border);
 }
 
 .widget-list {
@@ -342,13 +334,13 @@ const saveDashboard = () => {
     align-items: center;
     gap: 10px;
     padding: 12px;
-    background: var(--el-fill-color-light);
+    background: var(--surface-2);
     border-radius: 6px;
     cursor: grab;
     transition: all 0.2s;
 
     &:hover {
-      background: var(--el-color-primary-light-9);
+      background: var(--primary-light-9);
       color: var(--el-color-primary);
     }
 
@@ -359,7 +351,7 @@ const saveDashboard = () => {
 }
 
 .canvas-container {
-  background: var(--el-bg-color);
+  background: var(--background);
   border-radius: 8px;
   padding: 15px;
   overflow: auto;
@@ -368,7 +360,7 @@ const saveDashboard = () => {
 .canvas {
   position: relative;
   min-height: 600px;
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+  background: linear-gradient(135deg, $screen-deep 0%, $screen-deep-light 50%, $screen-deep 100%);
   border-radius: 4px;
   border: 2px dashed var(--el-color-primary);
 }
@@ -376,7 +368,7 @@ const saveDashboard = () => {
 .canvas-widget {
   position: absolute;
   background: rgba(0, 102, 255, 0.1);
-  border: 2px solid #00d4ff;
+  border: 2px solid $screen-primary;
   border-radius: 8px;
   overflow: hidden;
   cursor: move;
@@ -392,14 +384,14 @@ const saveDashboard = () => {
     align-items: center;
     padding: 8px 12px;
     background: rgba(0, 212, 255, 0.2);
-    color: #00d4ff;
+    color: $screen-primary;
     font-size: 12px;
 
     .delete-icon {
       cursor: pointer;
 
       &:hover {
-        color: var(--el-color-danger);
+        color: var(--danger);
       }
     }
   }
@@ -415,7 +407,7 @@ const saveDashboard = () => {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: var(--el-text-color-regular);
+  color: var(--text-muted);
 
   .el-icon {
     margin-bottom: 10px;
@@ -425,5 +417,16 @@ const saveDashboard = () => {
     margin: 0;
     font-size: 14px;
   }
+}
+
+.property-form {
+  .el-divider {
+    margin: 15px 0;
+  }
+}
+
+.preview-container {
+  height: 80vh;
+  overflow: hidden;
 }
 </style>

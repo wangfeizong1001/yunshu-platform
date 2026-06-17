@@ -2,7 +2,7 @@ import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse 
 import { ref, shallowRef } from 'vue';
 import type { Ref, ShallowRef } from 'vue';
 import { ElMessage, ElLoading } from 'element-plus';
-import { getToken } from '@/utils/auth';
+import { buildAuthHeaders } from '@/utils/requestHeaders';
 
 export interface ApiResponse<T = unknown> {
   readonly success: boolean;
@@ -51,11 +51,8 @@ const service: AxiosInstance = axios.create({
 
 service.interceptors.request.use(
   (config) => {
-    const token = getToken();
-    if (token && config.headers) {
-      (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
-    }
-    return config;
+    // 统一由 buildAuthHeaders 处理：注入 Authorization + tenant-id 头
+    return buildAuthHeaders(config) as typeof config;
   },
   (error: unknown): Promise<never> => {
     console.error('[httpClient] 请求失败:', error);
@@ -82,8 +79,10 @@ service.interceptors.response.use(
       window.dispatchEvent(new CustomEvent('yunshu:auth-expired'));
     } else if (status === 403) {
       ElMessage.error('无访问权限');
+      window.location.hash = '#/403';
     } else if (status !== undefined && status >= 500) {
       ElMessage.error(`服务器异常 (${status})，请稍后重试`);
+      window.location.hash = '#/500';
     } else {
       ElMessage.error(message);
     }

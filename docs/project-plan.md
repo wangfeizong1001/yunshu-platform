@@ -1,7 +1,7 @@
 # 云枢中台 — 完整任务清单
 
 > 文档编号：`YUNSHU-PLAN-2026-06-v1`
-> 更新日期：2026-06-17
+> 更新日期：2026-06-16
 > 负责人：前端团队
 > 执行要求：**本仓库严格使用 pnpm 作为唯一包管理器，严禁使用 npm / yarn**
 
@@ -114,14 +114,14 @@ pnpm dev                # 应用能正常启动
 
 | 类别 | 数量 | 代表性问题 |
 |------|------|-----------|
-| 基础设施缺陷 | 3 项 | locale 非响应式、httpClient 未注入 tenant-id、动态路由变量未隔离 |
-| 主题与布局体系 | 7 项 | 缺失暗色主题、语言切换入口未集成、头像硬编码、多处颜色硬编码 |
-| 个人中心与体验 | 4 项 | 个人中心为纯占位符、TagsView 无右键菜单、缺 403/500 页、全局搜索无菜单搜索 |
-| 用户/租户完善 | 3 项 | 重置密码仅提示、TenantStatusEnum 未定义、套餐下拉无数据 |
+| 基础设施缺陷 | 3 项 | ~~locale 非响应式~~✅、~~httpClient 未注入 tenant-id~~✅、~~动态路由变量未隔离~~✅ |
+| 主题与布局体系 | 7 项 | ~~缺失暗色主题~~✅、~~语言切换入口未集成~~✅、~~头像硬编码~~✅、~~多处颜色硬编码~~✅ |
+| 个人中心与体验 | 4 项 | ~~个人中心为纯占位符~~✅、~~TagsView 无右键菜单~~✅、~~缺 403/500 页~~✅、~~全局搜索无菜单搜索~~✅ |
+| 用户/租户完善 | 3 项 | ~~重置密码仅提示~~✅、~~TenantStatusEnum 未定义~~✅、~~套餐下拉无数据~~✅ |
 | 工作流 Mock→真实 | 5 项 | 流程定义/任务/实例全部用 mock、所有操作仅弹消息无后端交互 |
 | 大屏设计器完善 | 4 项 | 组件渲染为纯文本、不可二次拖动、保存未持久化、无数据源绑定 |
 | 测试覆盖补充 | 7 项 | 视图层 0 单测、9 个模块 0 测试、E2E 深度不足 |
-| **设计系统合规** | **4 项** | **46 个文件硬编码颜色、variables.scss 与 design-tokens 冲突、无 Stylelint 检查** |
+| **设计系统合规** | **4 项** | ~~46 个文件硬编码颜色~~✅、~~variables.scss 与 design-tokens 冲突~~✅、~~无 Stylelint 检查~~✅ |
 
 ---
 
@@ -140,13 +140,13 @@ pnpm dev                # 应用能正常启动
 **目标**：修复底层运行时问题，打通后续批次的地基。
 **预计总工时**：4 小时
 **前置依赖**：无
-**状态**：⬜ 待开始
+**状态**：✅ 已完成（远程 develop 已存在）
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 1.1 | locale store 响应式修复 | [locale.ts](file:///workspace/apps/admin/src/store/modules/locale.ts) | 将手写的非响应式 `useLocalStorage` 替换为 `@vueuse/core` 的 `useLocalStorage`；`locales` 列表改为响应式对象；统一切换逻辑 | 切换中英文后界面文字立即刷新，刷新页面后语言保留 | 1h | ⬜ |
-| 1.2 | httpClient 注入 tenant-id 头 | [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts), [tenant.ts](file:///workspace/apps/admin/src/utils/tenant.ts) | 在 `service.interceptors.request.use` 中新增调用 `addTenantIdToRequest(config)`；为请求头加上 `tenant-id` | F12 查看任意请求，Request Headers 中存在 `tenant-id` 且值等于当前登录租户 | 1h | ⬜ |
-| 1.3 | 动态路由变量移入 store | [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L381-L444), [permission.ts](file:///workspace/apps/admin/src/store/modules/permission.ts) | 删除模块级 `let isDynamicRouteAdded = false`；在 `usePermissionStore` 中新增 `dynamicRouteAdded: boolean`；登出时调用 `resetRoutes()` 同步重置 | 登出→重新登录，不会出现路由重复注册警告；HMR 刷新后路由正常 | 2h | ⬜ |
+| 1.1 | locale store 响应式修复 | [locale.ts](file:///workspace/apps/admin/src/store/modules/locale.ts) | 将手写的非响应式 `useLocalStorage` 替换为 `@vueuse/core` 的 `useLocalStorage`；`locales` 列表改为响应式对象；统一切换逻辑 | 切换中英文后界面文字立即刷新，刷新页面后语言保留 | 1h | ✅ |
+| 1.2 | httpClient 注入 tenant-id 头 | [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts), [tenant.ts](file:///workspace/apps/admin/src/utils/tenant.ts) | 在 `service.interceptors.request.use` 中新增调用 `addTenantIdToRequest(config)`；为请求头加上 `tenant-id` | F12 查看任意请求，Request Headers 中存在 `tenant-id` 且值等于当前登录租户 | 1h | ✅ |
+| 1.3 | 动态路由变量移入 store | [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L381-L444), [permission.ts](file:///workspace/apps/admin/src/store/modules/permission.ts) | 删除模块级 `let isDynamicRouteAdded = false`；在 `usePermissionStore` 中新增 `dynamicRouteAdded: boolean`；登出时调用 `resetRoutes()` 同步重置 | 登出→重新登录，不会出现路由重复注册警告；HMR 刷新后路由正常 | 2h | ✅ |
 
 ---
 
@@ -154,17 +154,17 @@ pnpm dev                # 应用能正常启动
 **目标**：补全暗色主题、语言切换入口，消除布局中的硬编码与路径错误。
 **预计总工时**：1.5 天
 **前置依赖**：第1批（需 locale store 响应式修复完成）
-**状态**：⬜ 待开始
+**状态**：✅ 已完成（远程 develop 已存在）
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 2.1 | app store 新增 theme 状态 | [app.ts](file:///workspace/apps/admin/src/store/modules/app.ts) | 新增 `theme: 'light' | 'dark'`（useLocalStorage 持久化）；新增 `toggleTheme()`、`setTheme(theme)`；保持与 `sidebarCollapsed` 相同风格 | Vue DevTools 中可看到 theme 状态；调用 toggleTheme 后 localStorage 中 `app-theme` 更新 | 2h | ⬜ |
-| 2.2 | 主题切换核心逻辑实现 | [main.ts](file:///workspace/apps/admin/src/main.ts), [index.scss](file:///workspace/apps/admin/src/styles/index.scss) | 在 main.ts 监听 `useAppStore().theme`，切换时为 `<html>` 添加/移除 `class="dark"`；补充 Element Plus 的暗色主题 import（`element-plus/theme-chalk/dark/css-vars.css`）；在 `index.scss` 定义自定义暗色变量（如 `--app-bg-dark`、`--app-text-dark`、`--app-sidebar-dark`） | 切暗色后所有 Element Plus 组件（表格、弹窗、表单）变为暗色；背景色、文字色统一变化 | 4h | ⬜ |
-| 2.3 | 布局组件移除硬编码颜色 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [index.vue](file:///workspace/apps/admin/src/layouts/index.vue#L83-L110) | 移除 Sidebar 的 `background-color="#304156"`，改为使用 `--el-bg-color` CSS 变量；移除 Header `background: #fff` 改为 `var(--el-bg-color)`；移除 `.app-main` 的 `background: #f0f2f5` 改为 `var(--el-fill-color-light)` | 切暗色后侧边栏/头部/内容区均自适应，无亮色块残留 | 2h | ⬜ |
-| 2.4 | Header 集成语言切换与主题切换按钮 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue) | 在 header-right 区域插入 `LanguageSwitch` 组件 + 主题切换按钮（sun/moon icon）；样式与其他按钮保持一致 | 顶部可看到语言切换下拉（中文/English）和主题切换按钮，点击可生效 | 2h | ⬜ |
-| 2.5 | 用户头像 URL 改为动态 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L38) | 将硬编码的 `https://cube.elemecdn.com/...` 改为 `userStore.avatar || 默认头像URL`；默认头像放入 `assets/avatar-default.png` | 不同用户登录显示各自头像，无头像时显示默认占位 | 1h | ⬜ |
-| 2.6 | 修复"个人中心"与"设置"路由跳转 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L84-L102), [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L284-L297) | 个人中心跳转改为 `/user/profile/index`；"设置"菜单要么移除下拉项，要么新增 `/settings` 路由与页面（可简化为仅显示当前用户信息） | 点击下拉菜单项跳转到正确页面，无 404 | 1h | ⬜ |
-| 2.7 | 登录页去除默认账号自动填充 | [login/index.vue](file:///workspace/apps/admin/src/views/login/index.vue#L130-L136) | 将 `username: 'admin'`、`password: 'admin123'` 改为空字符串；验证码部分也清空；保留 placeholder | 打开登录页，用户名/密码框为空，需要手动输入 | 30min | ⬜ |
+| 2.1 | app store 新增 theme 状态 | [app.ts](file:///workspace/apps/admin/src/store/modules/app.ts) | 新增 `theme: 'light' | 'dark'`（useLocalStorage 持久化）；新增 `toggleTheme()`、`setTheme(theme)`；保持与 `sidebarCollapsed` 相同风格 | Vue DevTools 中可看到 theme 状态；调用 toggleTheme 后 localStorage 中 `app-theme` 更新 | 2h | ✅ |
+| 2.2 | 主题切换核心逻辑实现 | [main.ts](file:///workspace/apps/admin/src/main.ts), [index.scss](file:///workspace/apps/admin/src/styles/index.scss) | 在 main.ts 监听 `useAppStore().theme`，切换时为 `<html>` 添加/移除 `class="dark"`；补充 Element Plus 的暗色主题 import（`element-plus/theme-chalk/dark/css-vars.css`）；在 `index.scss` 定义自定义暗色变量（如 `--app-bg-dark`、`--app-text-dark`、`--app-sidebar-dark`） | 切暗色后所有 Element Plus 组件（表格、弹窗、表单）变为暗色；背景色、文字色统一变化 | 4h | ✅ |
+| 2.3 | 布局组件移除硬编码颜色 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [index.vue](file:///workspace/apps/admin/src/layouts/index.vue#L83-L110) | 移除 Sidebar 的 `background-color="#304156"`，改为使用 `--el-bg-color` CSS 变量；移除 Header `background: #fff` 改为 `var(--el-bg-color)`；移除 `.app-main` 的 `background: #f0f2f5` 改为 `var(--el-fill-color-light)` | 切暗色后侧边栏/头部/内容区均自适应，无亮色块残留 | 2h | ✅ |
+| 2.4 | Header 集成语言切换与主题切换按钮 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue) | 在 header-right 区域插入 `LanguageSwitch` 组件 + 主题切换按钮（sun/moon icon）；样式与其他按钮保持一致 | 顶部可看到语言切换下拉（中文/English）和主题切换按钮，点击可生效 | 2h | ✅ |
+| 2.5 | 用户头像 URL 改为动态 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L38) | 将硬编码的 `https://cube.elemecdn.com/...` 改为 `userStore.avatar || 默认头像URL`；默认头像放入 `assets/avatar-default.png` | 不同用户登录显示各自头像，无头像时显示默认占位 | 1h | ✅ |
+| 2.6 | 修复"个人中心"与"设置"路由跳转 | [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue#L84-L102), [router/index.ts](file:///workspace/apps/admin/src/router/index.ts#L284-L297) | 个人中心跳转改为 `/user/profile/index`；"设置"菜单要么移除下拉项，要么新增 `/settings` 路由与页面（可简化为仅显示当前用户信息） | 点击下拉菜单项跳转到正确页面，无 404 | 1h | ✅ |
+| 2.7 | 登录页去除默认账号自动填充 | [login/index.vue](file:///workspace/apps/admin/src/views/login/index.vue#L130-L136) | 将 `username: 'admin'`、`password: 'admin123'` 改为空字符串；验证码部分也清空；保留 placeholder | 打开登录页，用户名/密码框为空，需要手动输入 | 30min | ✅ |
 
 ---
 
@@ -172,14 +172,15 @@ pnpm dev                # 应用能正常启动
 **目标**：补全最明显的缺失页面，增强标签页交互体验。
 **预计总工时**：1 天
 **前置依赖**：第2批（需 Header 跳转完成后，个人中心才可被访问）
-**状态**：⬜ 待开始
+**状态**：✅ 已完成（2026-06-16 commit f838654）
+**关联分支**：`feature/batch3-user-experience`
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 3.1 | 完整实现个人中心页面 | [profile/index.vue](file:///workspace/apps/admin/src/views/user/profile/index.vue), [auth.ts](file:///workspace/apps/admin/src/api/auth.ts) | ① 基本信息卡（头像上传、昵称、邮箱、手机号、部门展示）；② 修改密码表单（旧密码/新密码/确认密码，带强度校验与一致性校验）；③ 操作日志列表（最近 20 条）；④ 保存按钮调用 `updateProfile` API；⑤ 表单验证使用 Element Plus rules | 页面打开显示当前用户信息，修改密码提交成功后后端验证通过并提示，操作日志表格有数据 | 5h | ⬜ |
-| 3.2 | TagsView 右键菜单 | [TagsView.vue](file:///workspace/apps/admin/src/layouts/components/TagsView.vue) | 对每个 tag 绑定 `@contextmenu.prevent` 弹出菜单；菜单项：刷新当前、关闭当前、关闭其他、关闭全部、关闭左侧、关闭右侧；通过 router + tagsViewStore 实现 | 右键任一标签弹出菜单，所有操作正常执行，当前活跃标签正确更新 | 2h | ⬜ |
-| 3.3 | 新增 403/500 错误页 | [403.vue](file:///workspace/apps/admin/src/views/error/403.vue)（新建）, [500.vue](file:///workspace/apps/admin/src/views/error/500.vue)（新建）, [router/index.ts](file:///workspace/apps/admin/src/router/index.ts), [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts#L76-L93) | 仿照 404 样式，使用 `el-result` 组件；403 文案"抱歉，您无权访问此页面"，按钮"返回首页"；500 文案"服务器开小差了，请稍后再试"，按钮"重新加载"；在路由中注册；httpClient 中 `status === 403` 跳 `/403`，`status >= 500` 跳 `/500` | 访问受限时跳转到 403 页；模拟后端抛错时跳转到 500 页；页面样式与 404 一致 | 1h | ⬜ |
-| 3.4 | 全局搜索集成菜单搜索 | [Search.vue](file:///workspace/apps/admin/src/layouts/components/Search.vue) | 使用 `usePermissionStore().routes` 生成可搜索项；用 Element Plus `el-autocomplete` 做搜索；点击结果调用 `router.push` 跳转 | 顶部搜索框输入"用户"、"角色"等关键字可匹配菜单项，点击后跳转到对应页面 | 1h | ⬜ |
+| 3.1 | 完整实现个人中心页面 | [profile/index.vue](file:///workspace/apps/admin/src/views/user/profile/index.vue), [auth.ts](file:///workspace/apps/admin/src/api/auth.ts) | ① 基本信息卡（头像上传、昵称、邮箱、手机号、部门展示）；② 修改密码表单（旧密码/新密码/确认密码，带强度校验与一致性校验）；③ 操作日志列表（最近 20 条）；④ 保存按钮调用 `updateProfile` API；⑤ 表单验证使用 Element Plus rules | 页面打开显示当前用户信息，修改密码提交成功后后端验证通过并提示，操作日志表格有数据 | 5h | ✅ |
+| 3.2 | TagsView 右键菜单 | [TagsView.vue](file:///workspace/apps/admin/src/layouts/components/TagsView.vue), [tagsView.ts](file:///workspace/apps/admin/src/store/modules/tagsView.ts) | 对每个 tag 绑定 `@contextmenu.prevent` 弹出菜单；菜单项：刷新当前、关闭当前、关闭左侧、关闭右侧、关闭其他、关闭全部；通过 router + tagsViewStore 实现；使用元素图标美化 | 右键任一标签弹出菜单，所有操作正常执行，当前活跃标签正确更新 | 2h | ✅ |
+| 3.3 | 新增 403/500 错误页 | [403.vue](file:///workspace/apps/admin/src/views/error/403.vue)（新建）, [500.vue](file:///workspace/apps/admin/src/views/error/500.vue)（新建）, [router/index.ts](file:///workspace/apps/admin/src/router/index.ts), [httpClient.ts](file:///workspace/apps/admin/src/utils/httpClient.ts) | 仿照 404 样式，使用 `el-result` 组件；403 文案"抱歉，您无权访问此页面"，按钮"返回首页"；500 文案"服务器开小差了，请稍后再试"，按钮"重新加载"；在路由中注册；httpClient 中 `status === 403` 跳 `/403`，`status >= 500` 跳 `/500` | 访问受限时跳转到 403 页；模拟后端抛错时跳转到 500 页；页面样式与 404 一致 | 1h | ✅ |
+| 3.4 | 全局搜索集成菜单搜索 | [Search.vue](file:///workspace/apps/admin/src/layouts/components/Search.vue) | 使用 `usePermissionStore().routes` 生成可搜索项；用 el-dialog + el-input + el-autocomplete 风格实现搜索；支持键盘上下选择/Enter跳转/Esc关闭；点击结果调用 `router.push` 跳转 | 顶部搜索框输入"用户"、"角色"等关键字可匹配菜单项，点击后跳转到对应页面，键盘操作流畅 | 1h | ✅ |
 
 ---
 
@@ -187,13 +188,14 @@ pnpm dev                # 应用能正常启动
 **目标**：完善 CRUD 闭环，修复潜在运行时错误。
 **预计总工时**：5 小时
 **前置依赖**：无
-**状态**：⬜ 待开始
+**状态**：✅ 已完成（2026-06-16 1 个 commit）
+**关联分支**：`feature/batch4-user-tenant`
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 4.1 | 用户管理 — 重置密码功能 | [UserList.vue](file:///workspace/apps/admin/src/views/system/user/UserList.vue#L217), [user.api.ts](file:///workspace/apps/admin/src/api/system/user.api.ts) | 在 user.api.ts 新增 `resetUserPassword(userId, newPassword)` API 函数；在 UserList.vue 中用 `el-dialog` 显示"重置密码"弹窗，含"新密码/确认密码"输入；提交后调用 API 并反馈成功；与现有"重置密码"按钮绑定 | 点击行操作列中的"重置密码"→弹出对话框→输入并提交→成功提示，密码已更新 | 2h | ⬜ |
-| 4.2 | TenantStatusEnum 未定义修复 | [TenantList.vue](file:///workspace/apps/admin/src/views/tenant/TenantList.vue) | 在文件顶部 import 区域定义并导出 `TenantStatusEnum` 常量对象（如 `{ NORMAL: 0, DISABLED: 1 }` 或字符串形式，取决于后端字段类型）；替换文件中所有硬编码的状态值；检查 [shared 类型](file:///workspace/packages/shared/src/types/tenant/index.ts) 是否已有枚举定义，如已存在则从 shared 导入 | 页面无 TS 类型错误，无运行时 ReferenceError；状态显示、切换、筛选均正常 | 1h | ⬜ |
-| 4.3 | 租户管理 — 套餐下拉框加载数据 | [TenantList.vue](file:///workspace/apps/admin/src/views/tenant/TenantList.vue), [tenant.api.ts](file:///workspace/apps/admin/src/api/tenant/tenant.api.ts), [package.api.ts](file:///workspace/apps/admin/src/api/tenant/tenant.api.ts) | 新增 `getTenantPackageOptions()` API；在 TenantList.vue 的 `setup` 中 onMounted 调用该接口，将返回数据填充到 `packageList`；为筛选区的套餐下拉框绑定 v-model | 搜索区套餐下拉框可看到真实套餐列表，选择后按套餐筛选租户 | 2h | ⬜ |
+| 4.1 | 用户管理 — 重置密码功能 | [UserList.vue](file:///workspace/apps/admin/src/views/system/user/UserList.vue#L105-L128), [user.api.ts](file:///workspace/apps/admin/src/api/system/user.api.ts) | 在 UserList.vue 中用 `el-dialog` 显示"重置密码"弹窗，含"新密码/确认密码"输入和校验；调用 `resetUserPwd` API；提交后反馈成功 | 点击"重置密码"→弹出对话框→输入并提交→成功提示，密码已更新 | 2h | ✅ |
+| 4.2 | TenantStatusEnum 未定义修复 | [TenantList.vue](file:///workspace/apps/admin/src/views/tenant/TenantList.vue), [TenantDetail.vue](file:///workspace/apps/admin/src/views/tenant/TenantDetail.vue) | 从 `@yunshu/shared` 导入已定义的 `TenantStatusEnum`；替换文件中所有硬编码的状态值使用枚举 | 页面无 TS 类型错误，无运行时 ReferenceError；状态显示、切换、筛选均正常 | 1h | ✅ |
+| 4.3 | 租户管理 — 套餐下拉框加载数据 | [TenantList.vue](file:///workspace/apps/admin/src/views/tenant/TenantList.vue), [tenant.api.ts](file:///workspace/apps/admin/src/api/tenant/tenant.api.ts) | 调用 `getPackageList` API 在 onMounted 时加载套餐列表；填充到 `packageList`；为筛选区套餐下拉框绑定 v-model | 搜索区套餐下拉框可看到套餐列表，选择后按套餐筛选租户 | 2h | ✅ |
 
 ---
 
@@ -250,23 +252,14 @@ pnpm dev                # 应用能正常启动
 **目标**：确保所有样式变更都通过设计系统实现，禁止硬编码颜色/间距。
 **预计总工时**：1 天
 **前置依赖**：第2批（主题体系完善后，设计令牌才有完整使用场景）
-**状态**：✅ **已完成**
+**状态**：✅ 已完成（远程 develop 已存在）
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
 | 8.1 | 统一 variables.scss 与 design-tokens 颜色定义 | [variables.scss](file:///workspace/apps/admin/src/styles/variables.scss), [colors.ts](file:///workspace/packages/design-tokens/src/tokens/colors.ts) | 将 `$color-primary: #409eff` 改为 `#4a9eff`（与 design-tokens 对齐）；或将 design-tokens 的 `primary` 改为 `#409eff`（与 Element Plus 对齐）；确保两边颜色值完全一致；在 variables.scss 中引入 design-tokens 生成的 CSS 变量 | 两套颜色定义完全一致；切换主题时无颜色冲突 | 1h | ✅ |
-| 8.2 | 新增 Stylelint 配置 | [.stylelintrc.js](file:///workspace/.stylelintrc.js)（新建）, [package.json](file:///workspace/package.json) | 安装 `stylelint` + `stylelint-config-standard-scss` + `stylelint-color-no-hex`；配置规则：`color-no-hex: true`（禁止硬编码 hex）、`color-named: never`（禁止颜色名）、`declaration-property-value-disallowed-list` 禁止硬编码间距值；在 package.json 中添加 `lint:style` 脚本 | `pnpm lint:style` 可检测出硬编码颜色/间距 | 2h | ✅ |
+| 8.2 | 新增 Stylelint 配置 | [.stylelintrc.cjs](file:///workspace/.stylelintrc.cjs)（新建）, [package.json](file:///workspace/package.json) | 安装 `stylelint` + `stylelint-config-standard-scss` + `stylelint-color-no-hex`；配置规则：`color-no-hex: true`（禁止硬编码 hex）、`color-named: never`（禁止颜色名）、`declaration-property-value-disallowed-list` 禁止硬编码间距值；在 package.json 中添加 `lint:style` 脚本 | `pnpm lint:style` 可检测出硬编码颜色/间距 | 2h | ✅ |
 | 8.3 | ESLint 新增硬编码颜色检测规则 | [eslint-config/index.js](file:///workspace/tools/eslint-config/index.js) | 新增自定义 ESLint 规则检测 Vue template 中的硬编码颜色（`#[0-9a-fA-F]{3,6}`）；在 `rules` 中添加 `no-hardcoded-color: error`；允许使用 CSS 变量、SCSS 变量、design-tokens 导入 | `pnpm lint` 可检测出 Vue template 中的硬编码颜色 | 2h | ✅ |
 | 8.4 | 修复现有 46 个硬编码颜色文件 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [DashboardScreen.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardScreen.vue) 等 46 个文件 | 将所有硬编码颜色值替换为 CSS 变量或 SCSS 变量；优先使用 `var(--el-color-primary)` 等 Element Plus 变量；自定义颜色使用 `var(--color-surface-1)` 等 design-tokens 变量；间距使用 `$spacing-*` 变量 | `pnpm lint:style` + `pnpm lint` 无硬编码颜色警告；暗色主题切换时所有颜色自适应 | 4h | ✅ |
-
-**完成说明**：
-- ✅ 品牌色统一为 `#4a9eff`，全局通过 `var(--el-color-primary)` 引用
-- ✅ 创建 `.stylelintrc.js`，添加 `color-no-hex` 规则
-- ✅ ESLint 配置 `no-restricted-syntax` 规则检测 JS/TS 中的硬编码颜色
-- ✅ CI 集成 `lint-style` job
-- ✅ 修复 300+ 处硬编码颜色，布局文件零硬编码
-- ✅ `#409eff`（Element Plus 默认主色）全部替换完成
-- ✅ 保留专用色板：大屏可视化色、流程图节点渐变、代码高亮主题
 
 ---
 

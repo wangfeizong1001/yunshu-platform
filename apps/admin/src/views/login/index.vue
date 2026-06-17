@@ -128,8 +128,8 @@ const captchaData = reactive<CaptchaResponse>({
 })
 
 const loginForm = reactive({
-  username: 'admin',
-  password: 'admin123',
+  username: '',
+  password: '',
   code: '',
   uuid: '',
   rememberMe: false

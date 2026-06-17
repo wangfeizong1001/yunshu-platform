@@ -165,8 +165,11 @@ import {
   getTenantPage,
   deleteTenant,
   changeTenantStatus,
+  getPackageList,
 } from '@/api/tenant/tenant.api'
 import type { Tenant, TenantQuery } from '@yunshu/shared'
+import { TenantStatusEnum } from '@yunshu/shared'
+import type { TenantPackageInfo } from '@/api/tenant/tenant.api'
 import TenantForm from './TenantForm.vue'
 import TenantDetail from './TenantDetail.vue'
 import TenantPackage from './TenantPackage.vue'
@@ -191,7 +194,7 @@ const getTenantStatusToggleLabel = (val: string) =>
 const loading = ref(false)
 const tenantList = ref<Tenant[]>([])
 const total = ref(0)
-const packageList = ref<{ packageId: number; packageName: string }[]>([])
+const packageList = ref<TenantPackageInfo[]>([])
 const formVisible = ref(false)
 const detailVisible = ref(false)
 const packageVisible = ref(false)
@@ -321,7 +324,17 @@ async function handleExport() {
 // 初始化
 onMounted(() => {
   fetchTenantList()
+  fetchPackageList()
 })
+
+async function fetchPackageList() {
+  try {
+    const res = await getPackageList({ pageSize: 100 })
+    packageList.value = (res?.data as TenantPackageInfo[]) || []
+  } catch (error) {
+    console.error('加载套餐列表失败', error)
+  }
+}
 </script>
 
 <style scoped lang="scss">

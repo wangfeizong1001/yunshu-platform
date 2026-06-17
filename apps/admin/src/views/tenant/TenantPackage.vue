@@ -170,7 +170,7 @@ watch(
 
   .desc {
     font-size: 12px;
-    color: var(--el-text-color-secondary);
+    color: var(--text-muted);
   }
 }
 </style>

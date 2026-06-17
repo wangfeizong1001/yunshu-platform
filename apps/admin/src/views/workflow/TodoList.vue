@@ -534,12 +534,12 @@ onMounted(() => {
         .timeline-action {
           margin-top: 4px;
           &.start {
-            color: var(--el-color-success);
+            color: var(--success);
           }
         }
         .timeline-comment {
           margin-top: 8px;
-          color: var(--el-text-color-regular);
+          color: var(--text-secondary);
         }
       }
     }

@@ -85,7 +85,7 @@ const isCollapsed = computed(() => appStore.sidebarCollapsed)
   margin-top: $layout-header-height + $layout-tags-view-height;
   padding: $spacing-base;
   min-height: calc(100vh - #{$layout-header-height} - #{$layout-tags-view-height});
-  background: var(--page-bg);
+  background: var(--surface-2);
   overflow-y: auto;
 }
 

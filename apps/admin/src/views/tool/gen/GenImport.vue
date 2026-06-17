@@ -263,7 +263,7 @@ const handleClose = () => {
 
   .search-card {
     margin-bottom: 16px;
-    background: var(--el-fill-color-light);
+    background: var(--surface-2);
   }
 
   .toolbar {
@@ -274,7 +274,7 @@ const handleClose = () => {
 
     .toolbar-left {
       .selected-info {
-        color: var(--el-text-color-regular);
+        color: var(--text-secondary);
         font-size: 14px;
       }
     }

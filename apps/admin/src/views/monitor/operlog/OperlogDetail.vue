@@ -122,7 +122,7 @@ onMounted(() => {
   .json-content {
     margin: 0;
     padding: 8px;
-    background: var(--el-fill-color-light);
+    background: var(--surface-2);
     border-radius: 4px;
     white-space: pre-wrap;
     word-break: break-all;

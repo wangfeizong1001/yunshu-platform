@@ -142,7 +142,7 @@ const getFileTagType = (fileName: string): 'primary' | 'success' | 'warning' | '
 }
 
 const getFileIconColor = (fileName?: string): string => {
-  if (!fileName) return 'var(--el-text-color-secondary)'
+  if (!fileName) return '#909399'
   const ext = getFileExt(fileName)
   const colorMap: Record<string, string> = {
     java: '#b07219',
@@ -154,7 +154,7 @@ const getFileIconColor = (fileName?: string): string => {
     html: '#e34c26',
     css: '#563d7c'
   }
-  return colorMap[ext] || 'var(--el-text-color-secondary)'
+  return colorMap[ext] || '#909399'
 }
 
 const isJavaFile = (fileName?: string): boolean => {
@@ -312,17 +312,17 @@ const handleClose = () => {
 
     .file-list {
       width: 280px;
-      border-right: 1px solid var(--el-border-color-lighter);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      background: var(--el-fill-color-light);
+      background: var(--surface-2);
 
       .file-list-header {
         padding: 12px 16px;
-        background: var(--el-bg-color);
-        border-bottom: 1px solid var(--el-border-color-lighter);
+        background: var(--background);
+        border-bottom: 1px solid var(--border);
         font-weight: 600;
-        color: var(--el-text-color-primary);
+        color: var(--text-primary);
         font-size: 14px;
       }
 
@@ -340,7 +340,7 @@ const handleClose = () => {
           border-radius: 6px;
           margin-bottom: 4px;
           transition: all 0.2s;
-          background: var(--el-bg-color);
+          background: var(--background);
           border: 1px solid transparent;
 
           &:hover {
@@ -367,7 +367,7 @@ const handleClose = () => {
           }
 
           .el-icon {
-            color: var(--el-text-color-secondary);
+            color: var(--text-muted);
           }
         }
       }
@@ -377,15 +377,15 @@ const handleClose = () => {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: var(--el-bg-color);
+      background: #fff;
 
       .code-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 12px 16px;
-        background: var(--el-fill-color-light);
-        border-bottom: 1px solid var(--el-border-color-lighter);
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--border);
 
         .header-left {
           display: flex;
@@ -399,7 +399,7 @@ const handleClose = () => {
           .file-path {
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 13px;
-            color: var(--el-text-color-regular);
+            color: var(--text-secondary);
           }
         }
       }

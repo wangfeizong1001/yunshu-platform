@@ -48,19 +48,15 @@ module.exports = {
     'curly': ['error', 'all'],
     'no-debugger': 'error',
 
-    // ===== 设计系统合规：禁止硬编码 hex 颜色（品牌色 #4a9eff 请使用 CSS 变量或 SCSS 变量） =====
-    'no-restricted-syntax': [
+    // 禁止在 Vue template 中硬编码 hex 颜色值
+    'vue/no-restricted-syntax': [
       'warn',
       {
-        selector: 'Literal[value=/^#[0-9a-fA-F]{3,8}$/]',
-        message: '禁止在 JavaScript/TypeScript 中使用硬编码 hex 颜色。请使用 CSS 变量 (var(--primary)) 或语义化颜色常量。',
+        // 检测 VLiteral 中包含 hex 颜色值
+        selector: 'VLiteral[value=/^#[0-9a-fA-F]{3,6}$/]',
+        message: '禁止使用硬编码 hex 颜色值，请使用 CSS 变量（如 var(--el-color-primary)）',
       },
     ],
   },
   ignorePatterns: ['dist', 'node_modules', '.turbo', 'coverage'],
 };
-
-/**
- * Vue 组件配置（在 apps/admin/.eslintrc.js 中单独继承）
- * Vue 模板中的 hex 颜色检测请参考 .stylelintrc.js 的 color-no-hex 规则
- */

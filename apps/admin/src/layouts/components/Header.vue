@@ -31,11 +31,24 @@
         <Notification />
       </div>
 
+      <!-- 语言切换 -->
+      <div class="header-item">
+        <LanguageSwitch />
+      </div>
+
+      <!-- 主题切换 -->
+      <div class="header-item theme-toggle" @click="toggleTheme" title="切换主题">
+        <el-icon :size="18">
+          <Sunny v-if="isDark" />
+          <Moon v-else />
+        </el-icon>
+      </div>
+
       <!-- 用户信息 -->
       <div class="header-item user-info">
         <el-dropdown trigger="click" @command="handleCommand">
           <span class="user-dropdown">
-            <el-avatar :size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+            <el-avatar :size="32" :src="avatarUrl" />
             <span class="username">{{ username }}</span>
             <el-icon class="el-icon--right">
               <ArrowDown />
@@ -46,10 +59,6 @@
               <el-dropdown-item command="profile">
                 <el-icon><User /></el-icon>
                 个人中心
-              </el-dropdown-item>
-              <el-dropdown-item command="settings">
-                <el-icon><Setting /></el-icon>
-                设置
               </el-dropdown-item>
               <el-dropdown-item divided command="logout">
                 <el-icon><SwitchButton /></el-icon>
@@ -69,6 +78,8 @@ import { useUserStore } from '@/store/modules/user'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import LanguageSwitch from '@/components/LanguageSwitch/index.vue'
+import { Sunny, Moon } from '@element-plus/icons-vue'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
@@ -76,18 +87,29 @@ const router = useRouter()
 
 const isCollapsed = computed(() => appStore.sidebarCollapsed)
 const username = computed(() => userStore.username)
+const isDark = computed(() => appStore.theme === 'dark')
+
+const avatarUrl = computed(() => {
+  const url = userStore.avatar
+  // 如果有以 http 开头的 URL 则使用，否则返回空字符串（使用 el-avatar 默认占位图）
+  if (url && typeof url === 'string' && url.startsWith('http')) {
+    return url
+  }
+  return ''
+})
 
 const toggleSidebar = () => {
   appStore.toggleSidebar()
 }
 
+const toggleTheme = () => {
+  appStore.toggleTheme()
+}
+
 const handleCommand = async (command: string) => {
   switch (command) {
     case 'profile':
-      router.push('/profile')
-      break
-    case 'settings':
-      router.push('/settings')
+      router.push('/user/profile/index')
       break
     case 'logout':
       try {
@@ -108,7 +130,7 @@ const handleCommand = async (command: string) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--el-bg-color);
+  background: var(--background);
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   padding: 0 16px;
 }
@@ -123,7 +145,7 @@ const handleCommand = async (command: string) => {
   align-items: center;
   padding: 0 12px;
   cursor: pointer;
-  color: var(--el-text-color-regular);
+  color: var(--text-secondary);
 
   &:hover {
     color: var(--el-color-primary);
@@ -144,8 +166,18 @@ const handleCommand = async (command: string) => {
   align-items: center;
   padding: 0 12px;
   cursor: pointer;
-  color: var(--el-text-color-regular);
+  color: var(--text-secondary);
   transition: color $transition-duration $transition-function;
+
+  &:hover {
+    color: var(--el-color-primary);
+  }
+}
+
+.theme-toggle {
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.3s;
 
   &:hover {
     color: var(--el-color-primary);

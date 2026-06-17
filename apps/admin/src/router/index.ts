@@ -38,6 +38,18 @@ export const constantRoutes: RouteRecordRaw[] = [
     meta: { title: '404', hidden: true }
   },
   {
+    path: '/403',
+    name: 'Forbidden',
+    component: () => import('@/views/error/403.vue'),
+    meta: { title: '403', hidden: true }
+  },
+  {
+    path: '/500',
+    name: 'ServerError',
+    component: () => import('@/views/error/500.vue'),
+    meta: { title: '500', hidden: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/404',
     meta: { hidden: true }
@@ -377,9 +389,6 @@ const router = createRouter({
 // 路由白名单
 const whiteList = ['/login', '/404']
 
-// 标记是否已添加动态路由
-let isDynamicRouteAdded = false
-
 // 路由守卫
 router.beforeEach(async (to, _from, next) => {
   // 设置页面标题
@@ -409,8 +418,8 @@ router.beforeEach(async (to, _from, next) => {
             router.addRoute(route)
           })
 
-          // 标记已添加动态路由
-          isDynamicRouteAdded = true
+          // 标记已添加动态路由（由 store 统一管理，HMR/登出可正确重置）
+          permissionStore.dynamicRouteAdded = true
 
           // 确保导航到目标路由
           next({ ...to, replace: true })
@@ -422,11 +431,11 @@ router.beforeEach(async (to, _from, next) => {
         }
       } else {
         // 已有用户信息，检查是否需要添加动态路由
-        if (!isDynamicRouteAdded && permissionStore.addRoutes.length > 0) {
+        if (!permissionStore.dynamicRouteAdded && permissionStore.addRoutes.length > 0) {
           permissionStore.addRoutes.forEach((route) => {
             router.addRoute(route)
           })
-          isDynamicRouteAdded = true
+          permissionStore.dynamicRouteAdded = true
           next({ ...to, replace: true })
         } else {
           next()
@@ -445,10 +454,11 @@ router.beforeEach(async (to, _from, next) => {
 
 /**
  * 重置路由
- * 用于退出登录时清除动态路由
+ * 用于退出登录时清除动态路由 — 委托给 store 统一管理
  */
 export function resetRouter() {
-  isDynamicRouteAdded = false
+  const permissionStore = usePermissionStore()
+  permissionStore.resetRoutes()
 }
 
 export default router

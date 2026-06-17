@@ -195,20 +195,20 @@ function handleClose() {
     align-items: center;
     justify-content: center;
     padding: 12px 8px;
-    border: 1px solid var(--el-border-color);
+    border: 1px solid var(--border);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
       border-color: var(--el-color-primary);
-      background-color: var(--el-color-primary-light-8);
+      background-color: #ecf5ff;
     }
 
     &.active {
       border-color: var(--el-color-primary);
       background-color: var(--el-color-primary);
-      color: var(--el-bg-color);
+      color: var(--background);
     }
 
     .icon-name {

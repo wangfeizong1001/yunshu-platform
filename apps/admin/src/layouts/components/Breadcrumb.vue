@@ -30,17 +30,17 @@ const matches = computed(() => {
 
   :deep(.el-breadcrumb__inner) {
     a {
-      color: var(--el-text-color-regular);
+      color: #606266;
       font-weight: normal;
 
       &:hover {
-        color: var(--el-color-primary);
+        color: #409eff;
       }
     }
   }
 
   .breadcrumb-current {
-    color: var(--el-text-color-primary);
+    color: #303133;
     font-weight: 500;
   }
 }

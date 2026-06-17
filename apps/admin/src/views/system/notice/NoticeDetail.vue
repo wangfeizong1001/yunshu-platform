@@ -126,7 +126,7 @@ watch(visible, (val) => {
       display: flex;
       align-items: center;
       gap: 12px;
-      color: var(--el-text-color-secondary);
+      color: var(--text-muted);
       font-size: 14px;
 
       .create-time {
@@ -147,7 +147,7 @@ watch(visible, (val) => {
   .notice-footer {
     display: flex;
     justify-content: space-between;
-    color: var(--el-text-color-secondary);
+    color: var(--text-muted);
     font-size: 14px;
   }
 }

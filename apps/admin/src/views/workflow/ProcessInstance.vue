@@ -417,7 +417,7 @@ onMounted(() => {
       align-items: center;
       gap: 16px;
       padding: 24px;
-      background: var(--el-fill-color-light);
+      background: var(--surface-2);
       border-radius: 8px;
       flex-wrap: wrap;
       .flow-node {
@@ -434,21 +434,20 @@ onMounted(() => {
         }
         .node-assignee {
           font-size: 10px;
-          color: var(--el-text-color-secondary);
+          color: var(--text-muted);
         }
         &.start .node-icon {
-          color: var(--el-color-success);
+          color: var(--success);
         }
         &.done .node-icon {
-          color: var(--el-color-success);
+          color: var(--success);
         }
         &.done .node-label {
-          color: var(--el-color-success);
+          color: var(--success);
         }
         &.current {
           .node-icon {
             color: var(--el-color-primary);
-            animation: pulse 2s infinite;
           }
           .node-label {
             color: var(--el-color-primary);
@@ -456,14 +455,14 @@ onMounted(() => {
           }
         }
         &.pending .node-icon {
-          color: var(--el-text-color-placeholder);
+          color: var(--text-muted);
         }
         &.pending .node-label {
-          color: var(--el-text-color-placeholder);
+          color: var(--text-muted);
         }
       }
       .flow-arrow {
-        color: var(--el-text-color-placeholder);
+        color: var(--text-muted);
         font-size: 20px;
       }
     }
@@ -475,12 +474,12 @@ onMounted(() => {
       .timeline-action {
         margin-top: 4px;
         &.start {
-          color: var(--el-color-success);
+          color: var(--success);
         }
       }
       .timeline-comment {
         margin-top: 8px;
-        color: var(--el-text-color-regular);
+        color: var(--text-secondary);
       }
     }
   }

@@ -17,7 +17,7 @@
           :unique-opened="true"
           background-color="#304156"
           text-color="#bfcbd9"
-          active-text-color="var(--el-color-primary)"
+          active-text-color="#409EFF"
           router
         >
           <sidebar-item
@@ -256,7 +256,7 @@ const handleUserCommand = async (command: string) => {
       transition: color 0.3s;
 
       &:hover {
-        color: var(--el-color-primary);
+        color: #409eff;
       }
     }
 

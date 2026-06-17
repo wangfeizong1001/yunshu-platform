@@ -211,12 +211,12 @@ watch(
 <style lang="scss" scoped>
 .search-form {
   padding: 16px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
+  border-bottom: 1px solid #ebeef5;
 }
 
 .toolbar {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
+  border-bottom: 1px solid #ebeef5;
 }
 
 .log-table {
@@ -231,7 +231,7 @@ watch(
 }
 
 .error-text {
-  color: var(--el-color-danger);
+  color: #f56c6c;
   font-size: 12px;
 }
 </style>

@@ -311,7 +311,7 @@ const OPER_TYPE_TAG_MAP: Record<string, 'primary' | 'success' | 'warning' | 'inf
 
 // 图表主题色 —— 统一定义，便于未来主题切换
 const CHART_THEME = {
-  primary: '#4a9eff',
+  primary: '#409EFF',
   success: '#67C23A',
   warning: '#E6A23C',
   danger: '#F56C6C',
@@ -950,7 +950,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 // ========== 颜色变量（优先继承 Element Plus 主题变量，便于暗色模式） ==========
-$color-primary: var(--el-color-primary, #4a9eff);
+$color-primary: var(--el-color-primary, #409EFF);
 $color-success: var(--el-color-success, #67C23A);
 $color-warning: var(--el-color-warning, #E6A23C);
 $color-danger: var(--el-color-danger, #F56C6C);

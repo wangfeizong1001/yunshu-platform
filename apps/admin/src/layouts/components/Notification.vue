@@ -27,7 +27,7 @@ const openNotification = () => {
   transition: color $transition-duration $transition-function;
 
   &:hover {
-    color: var(--el-color-primary);
+    color: #409eff;
   }
 }
 </style>

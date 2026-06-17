@@ -141,7 +141,7 @@ watch(visible, (val) => {
         font-size: 24px;
         font-weight: 600;
         margin: 0 0 12px 0;
-        color: var(--el-text-color-primary);
+        color: var(--text-primary);
       }
 
       .detail-meta {
@@ -149,7 +149,7 @@ watch(visible, (val) => {
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
-        color: var(--el-text-color-secondary);
+        color: var(--text-muted);
         font-size: 14px;
 
         .meta-item {
@@ -161,7 +161,7 @@ watch(visible, (val) => {
     }
 
     .detail-summary {
-      background-color: var(--el-fill-color-light);
+      background-color: var(--surface-2);
       padding: 16px;
       border-radius: 4px;
       margin-bottom: 24px;
@@ -169,12 +169,12 @@ watch(visible, (val) => {
       h4 {
         margin: 0 0 8px 0;
         font-size: 14px;
-        color: var(--el-text-color-regular);
+        color: var(--text-secondary);
       }
 
       p {
         margin: 0;
-        color: var(--el-text-color-regular);
+        color: var(--text-secondary);
         line-height: 1.6;
       }
     }
@@ -182,7 +182,7 @@ watch(visible, (val) => {
     .detail-body {
       .content-wrapper {
         line-height: 1.8;
-        color: var(--el-text-color-primary);
+        color: var(--text-primary);
         font-size: 15px;
 
         :deep(h1),
@@ -193,7 +193,7 @@ watch(visible, (val) => {
         :deep(h6) {
           margin: 20px 0 10px 0;
           font-weight: 600;
-          color: var(--el-text-color-primary);
+          color: var(--text-primary);
         }
 
         :deep(h1) {
@@ -226,8 +226,8 @@ watch(visible, (val) => {
           border-left: 4px solid var(--el-color-primary);
           padding: 10px 15px;
           margin: 16px 0;
-          background-color: var(--el-color-primary-light-9);
-          color: var(--el-text-color-regular);
+          background-color: #f0f9ff;
+          color: var(--text-secondary);
         }
 
         :deep(img) {
@@ -237,12 +237,12 @@ watch(visible, (val) => {
         }
 
         :deep(code) {
-          background-color: var(--el-fill-color-light);
+          background-color: var(--surface-2);
           padding: 2px 6px;
           border-radius: 3px;
           font-family: 'Consolas', 'Monaco', monospace;
           font-size: 14px;
-          color: var(--el-color-warning);
+          color: var(--warning);
         }
 
         :deep(pre) {
@@ -266,13 +266,13 @@ watch(visible, (val) => {
 
           th,
           td {
-            border: 1px solid var(--el-border-color);
+            border: 1px solid var(--border);
             padding: 8px 12px;
             text-align: left;
           }
 
           th {
-            background-color: var(--el-fill-color-light);
+            background-color: var(--surface-2);
             font-weight: 600;
           }
         }
@@ -281,7 +281,7 @@ watch(visible, (val) => {
 
     .detail-footer {
       .remark {
-        color: var(--el-text-color-secondary);
+        color: var(--text-muted);
         font-size: 14px;
       }
     }
