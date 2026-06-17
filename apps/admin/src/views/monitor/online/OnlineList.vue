@@ -239,12 +239,12 @@ onMounted(() => {
       .stat-value {
         font-size: 32px;
         font-weight: 700;
-        color: #303133;
+        color: var(--el-text-color-primary);
       }
 
       .stat-label {
         font-size: 14px;
-        color: #909399;
+        color: var(--el-text-color-secondary);
         margin-top: 4px;
       }
     }
@@ -256,7 +256,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
+      color: var(--el-bg-color);
 
       &.total {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

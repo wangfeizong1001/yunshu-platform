@@ -160,28 +160,41 @@ const selectedWidget = computed(() => {
 
 
 
+// 大屏深色主题色板
+const DASHBOARD_COLORS = {
+  cyan: '#00d4ff',
+  gold: '#ffd700',
+  green: '#00ff88',
+  red: '#ff6b6b',
+  purple: '#a855f7',
+  indigo: '#6366f1',
+  darkBlue: '#0066ff',
+  bgPrimary: '#0a0e27',
+  bgSecondary: '#1a1f3a',
+} as const
+
 const LineChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00d4ff;">折线图</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.cyan + ';">折线图</div>'
 }
 
 const BarChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ffd700;">柱状图</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.gold + ';">柱状图</div>'
 }
 
 const PieChartWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#00ff88;">饼图</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.green + ';">饼图</div>'
 }
 
 const TableWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#a855f7;">数据表格</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.purple + ';">数据表格</div>'
 }
 
 const NumberWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ff6b6b;">数字卡片</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.red + ';">数字卡片</div>'
 }
 
 const GaugeWidget = {
-  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#6366f1;">仪表盘</div>'
+  template: '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:' + DASHBOARD_COLORS.indigo + ';">仪表盘</div>'
 }
 
 const getWidgetComponent = (type: string) => {
@@ -222,7 +235,7 @@ const handleDrop = (event: DragEvent) => {
         width: 300,
         height: 200,
         backgroundColor: 'rgba(0, 102, 255, 0.1)',
-        borderColor: '#00d4ff',
+        borderColor: DASHBOARD_COLORS.cyan,
         data: {}
       }
 
@@ -268,7 +281,7 @@ const saveDashboard = () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f5f7fa;
+  background: var(--el-fill-color-light);
 }
 
 .design-header {
@@ -276,8 +289,8 @@ const saveDashboard = () => {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--el-bg-color);
+  border-bottom: 1px solid var(--el-border-color);
 
   .header-left {
     display: flex;
@@ -304,7 +317,7 @@ const saveDashboard = () => {
 
 .widget-panel,
 .property-panel {
-  background: #fff;
+  background: var(--el-bg-color);
   border-radius: 8px;
   padding: 15px;
   overflow-y: auto;
@@ -313,10 +326,10 @@ const saveDashboard = () => {
 .panel-title {
   font-size: 16px;
   font-weight: bold;
-  color: #303133;
+  color: var(--el-text-color-primary);
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
 .widget-list {
@@ -329,14 +342,14 @@ const saveDashboard = () => {
     align-items: center;
     gap: 10px;
     padding: 12px;
-    background: #f5f7fa;
+    background: var(--el-fill-color-light);
     border-radius: 6px;
     cursor: grab;
     transition: all 0.2s;
 
     &:hover {
-      background: #ecf5ff;
-      color: #409eff;
+      background: var(--el-color-primary-light-9);
+      color: var(--el-color-primary);
     }
 
     &:active {
@@ -346,7 +359,7 @@ const saveDashboard = () => {
 }
 
 .canvas-container {
-  background: #fff;
+  background: var(--el-bg-color);
   border-radius: 8px;
   padding: 15px;
   overflow: auto;
@@ -357,7 +370,7 @@ const saveDashboard = () => {
   min-height: 600px;
   background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
   border-radius: 4px;
-  border: 2px dashed #409eff;
+  border: 2px dashed var(--el-color-primary);
 }
 
 .canvas-widget {
@@ -386,7 +399,7 @@ const saveDashboard = () => {
       cursor: pointer;
 
       &:hover {
-        color: #ff6b6b;
+        color: var(--el-color-danger);
       }
     }
   }
@@ -402,7 +415,7 @@ const saveDashboard = () => {
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: #909399;
+  color: var(--el-text-color-regular);
 
   .el-icon {
     margin-bottom: 10px;
@@ -412,16 +425,5 @@ const saveDashboard = () => {
     margin: 0;
     font-size: 14px;
   }
-}
-
-.property-form {
-  .el-divider {
-    margin: 15px 0;
-  }
-}
-
-.preview-container {
-  height: 80vh;
-  overflow: hidden;
 }
 </style>

@@ -13,6 +13,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report playwright/test-results/report",
     "lint": "turbo lint",
+    "lint:style": "stylelint \"apps/admin/src/**/*.{css,scss,vue}\" \"packages/**/src/**/*.{css,scss,vue}\" --config .stylelintrc.js",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "type-check": "turbo type-check",

@@ -1,4 +1,6 @@
 // 全局样式入口
+// ===== 设计令牌（品牌色 #4a9eff） =====
+@import '@yunshu/design-tokens/css';
 @import './variables.scss';
 @import './mixins.scss';
 @import './transition.scss';

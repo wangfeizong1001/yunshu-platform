@@ -58,7 +58,7 @@
             :editor="editorRef"
             :defaultConfig="toolbarConfig"
             mode="default"
-            style="border-bottom: 1px solid #ccc; z-index: 100;"
+            style="border-bottom: 1px solid var(--el-border-color); z-index: 100;"
           />
           <Editor
             v-model="formData.content"
@@ -279,7 +279,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .editor-wrapper {
-  border: 1px solid #dcdfe6;
+  border: 1px solid var(--el-border-color);
   border-radius: 4px;
 }
 </style>

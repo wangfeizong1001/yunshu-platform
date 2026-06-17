@@ -231,12 +231,12 @@ onMounted(() => {
         .value {
           font-size: 36px;
           font-weight: 700;
-          color: #303133;
+          color: var(--el-text-color-primary);
         }
 
         .unit {
           font-size: 18px;
-          color: #909399;
+          color: var(--el-text-color-secondary);
         }
       }
 
@@ -247,7 +247,7 @@ onMounted(() => {
       .stat-detail {
         text-align: center;
         font-size: 13px;
-        color: #909399;
+        color: var(--el-text-color-secondary);
       }
     }
   }

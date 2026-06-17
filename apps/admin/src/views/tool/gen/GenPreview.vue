@@ -142,7 +142,7 @@ const getFileTagType = (fileName: string): 'primary' | 'success' | 'warning' | '
 }
 
 const getFileIconColor = (fileName?: string): string => {
-  if (!fileName) return '#909399'
+  if (!fileName) return 'var(--el-text-color-secondary)'
   const ext = getFileExt(fileName)
   const colorMap: Record<string, string> = {
     java: '#b07219',
@@ -154,7 +154,7 @@ const getFileIconColor = (fileName?: string): string => {
     html: '#e34c26',
     css: '#563d7c'
   }
-  return colorMap[ext] || '#909399'
+  return colorMap[ext] || 'var(--el-text-color-secondary)'
 }
 
 const isJavaFile = (fileName?: string): boolean => {
@@ -312,17 +312,17 @@ const handleClose = () => {
 
     .file-list {
       width: 280px;
-      border-right: 1px solid #e4e7ed;
+      border-right: 1px solid var(--el-border-color-lighter);
       display: flex;
       flex-direction: column;
-      background: #f5f7fa;
+      background: var(--el-fill-color-light);
 
       .file-list-header {
         padding: 12px 16px;
-        background: #fff;
-        border-bottom: 1px solid #e4e7ed;
+        background: var(--el-bg-color);
+        border-bottom: 1px solid var(--el-border-color-lighter);
         font-weight: 600;
-        color: #303133;
+        color: var(--el-text-color-primary);
         font-size: 14px;
       }
 
@@ -340,21 +340,21 @@ const handleClose = () => {
           border-radius: 6px;
           margin-bottom: 4px;
           transition: all 0.2s;
-          background: #fff;
+          background: var(--el-bg-color);
           border: 1px solid transparent;
 
           &:hover {
-            background: #ecf5ff;
-            border-color: #d9ecff;
+            background: var(--el-color-primary-light-8);
+            border-color: var(--el-color-primary-light-7);
           }
 
           &.active {
-            background: #ecf5ff;
-            border-color: #409eff;
-            color: #409eff;
+            background: var(--el-color-primary-light-8);
+            border-color: var(--el-color-primary);
+            color: var(--el-color-primary);
 
             .el-icon {
-              color: #409eff;
+              color: var(--el-color-primary);
             }
           }
 
@@ -367,7 +367,7 @@ const handleClose = () => {
           }
 
           .el-icon {
-            color: #909399;
+            color: var(--el-text-color-secondary);
           }
         }
       }
@@ -377,15 +377,15 @@ const handleClose = () => {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background: #fff;
+      background: var(--el-bg-color);
 
       .code-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 12px 16px;
-        background: #f5f7fa;
-        border-bottom: 1px solid #e4e7ed;
+        background: var(--el-fill-color-light);
+        border-bottom: 1px solid var(--el-border-color-lighter);
 
         .header-left {
           display: flex;
@@ -399,7 +399,7 @@ const handleClose = () => {
           .file-path {
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 13px;
-            color: #606266;
+            color: var(--el-text-color-regular);
           }
         }
       }

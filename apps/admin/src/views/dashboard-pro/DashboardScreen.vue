@@ -129,6 +129,27 @@ use([
   GeoComponent
 ])
 
+// ===== 大屏深色主题色板（集中定义，便于维护和主题切换）=====
+const DASHBOARD_COLORS = {
+  cyan: '#00d4ff',
+  gold: '#ffd700',
+  green: '#00ff88',
+  red: '#ff6b6b',
+  purple: '#a855f7',
+  darkBlue: '#0066ff',
+  bgPrimary: '#0a0e27',
+  bgSecondary: '#1a1f3a',
+  text: '#ffffff',
+} as const
+
+const CATEGORY_COLORS = [
+  DASHBOARD_COLORS.cyan,
+  DASHBOARD_COLORS.gold,
+  DASHBOARD_COLORS.green,
+  DASHBOARD_COLORS.red,
+  DASHBOARD_COLORS.purple,
+]
+
 const isFullscreen = ref(false)
 const currentTime = ref('')
 const realtimeData = ref({
@@ -170,13 +191,13 @@ const salesTrendOption = computed(() => {
       type: 'category',
       boundaryGap: false,
       data: salesTrendData.value.map(d => d.date),
-      axisLine: { lineStyle: { color: '#00d4ff' } },
-      axisLabel: { color: '#fff' }
+      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
+      axisLabel: { color: DASHBOARD_COLORS.text }
     },
     yAxis: {
       type: 'value',
-      axisLine: { lineStyle: { color: '#00d4ff' } },
-      axisLabel: { color: '#fff' },
+      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
+      axisLabel: { color: DASHBOARD_COLORS.text },
       splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.1)' } }
     },
     series: [
@@ -185,7 +206,7 @@ const salesTrendOption = computed(() => {
         type: 'line',
         smooth: true,
         data: salesTrendData.value.map(d => d.sales),
-        itemStyle: { color: '#00d4ff' },
+        itemStyle: { color: DASHBOARD_COLORS.cyan },
         areaStyle: {
           color: {
             type: 'linear',
@@ -205,7 +226,7 @@ const salesTrendOption = computed(() => {
         type: 'line',
         smooth: true,
         data: salesTrendData.value.map(d => d.orders),
-        itemStyle: { color: '#ffd700' },
+        itemStyle: { color: DASHBOARD_COLORS.gold },
         areaStyle: {
           color: {
             type: 'linear',
@@ -241,13 +262,13 @@ const orderStatsOption = computed(() => {
     xAxis: {
       type: 'category',
       data: salesTrendData.value.slice(-6).map(d => d.date),
-      axisLine: { lineStyle: { color: '#00d4ff' } },
-      axisLabel: { color: '#fff' }
+      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
+      axisLabel: { color: DASHBOARD_COLORS.text }
     },
     yAxis: {
       type: 'value',
-      axisLine: { lineStyle: { color: '#00d4ff' } },
-      axisLabel: { color: '#fff' },
+      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
+      axisLabel: { color: DASHBOARD_COLORS.text },
       splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.1)' } }
     },
     series: [
@@ -263,8 +284,8 @@ const orderStatsOption = computed(() => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: '#00d4ff' },
-              { offset: 1, color: '#0066ff' }
+              { offset: 0, color: DASHBOARD_COLORS.cyan },
+              { offset: 1, color: DASHBOARD_COLORS.darkBlue }
             ]
           },
           borderRadius: [4, 4, 0, 0]
@@ -288,10 +309,10 @@ const mapOption = computed(() => {
       text: ['高', '低'],
       calculable: true,
       inRange: {
-        color: ['#0066ff', '#00d4ff', '#00ff88']
+        color: [DASHBOARD_COLORS.darkBlue, DASHBOARD_COLORS.cyan, DASHBOARD_COLORS.green]
       },
       textStyle: {
-        color: '#fff'
+        color: DASHBOARD_COLORS.text
       }
     },
     geo: {
@@ -299,18 +320,18 @@ const mapOption = computed(() => {
       roam: true,
       label: {
         show: true,
-        color: '#fff'
+        color: DASHBOARD_COLORS.text
       },
       itemStyle: {
         areaColor: 'rgba(0, 102, 255, 0.2)',
-        borderColor: '#00d4ff'
+        borderColor: DASHBOARD_COLORS.cyan
       },
       emphasis: {
         itemStyle: {
           areaColor: 'rgba(0, 212, 255, 0.5)'
         },
         label: {
-          color: '#fff'
+          color: DASHBOARD_COLORS.text
         }
       }
     },
@@ -335,7 +356,7 @@ const categoryOption = computed(() => {
     legend: {
       orient: 'vertical',
       left: 'left',
-      textStyle: { color: '#fff' }
+      textStyle: { color: DASHBOARD_COLORS.text }
     },
     series: [
       {
@@ -345,12 +366,12 @@ const categoryOption = computed(() => {
         avoidLabelOverlap: false,
         itemStyle: {
           borderRadius: 10,
-          borderColor: '#0a0e27',
+          borderColor: DASHBOARD_COLORS.bgPrimary,
           borderWidth: 2
         },
         label: {
           show: true,
-          color: '#fff'
+          color: DASHBOARD_COLORS.text
         },
         emphasis: {
           label: {
@@ -362,9 +383,7 @@ const categoryOption = computed(() => {
         data: categoryData.value.map((d, index) => ({
           name: d.name,
           value: d.value,
-          itemStyle: {
-            color: ['#00d4ff', '#ffd700', '#00ff88', '#ff6b6b', '#a855f7'][index]
-          }
+          itemStyle: { color: CATEGORY_COLORS[index] }
         }))
       }
     ]
@@ -386,13 +405,13 @@ const userGrowthOption = computed(() => {
       type: 'category',
       boundaryGap: false,
       data: salesTrendData.value.slice(-6).map(d => d.date),
-      axisLine: { lineStyle: { color: '#00d4ff' } },
-      axisLabel: { color: '#fff' }
+      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
+      axisLabel: { color: DASHBOARD_COLORS.text }
     },
     yAxis: {
       type: 'value',
-      axisLine: { lineStyle: { color: '#00d4ff' } },
-      axisLabel: { color: '#fff' },
+      axisLine: { lineStyle: { color: DASHBOARD_COLORS.cyan } },
+      axisLabel: { color: DASHBOARD_COLORS.text },
       splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.1)' } }
     },
     series: [
@@ -401,7 +420,7 @@ const userGrowthOption = computed(() => {
         type: 'line',
         smooth: true,
         data: salesTrendData.value.slice(-6).map(d => d.visitors),
-        itemStyle: { color: '#00ff88' },
+        itemStyle: { color: DASHBOARD_COLORS.green },
         areaStyle: {
           color: {
             type: 'linear',
@@ -531,10 +550,28 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
+// ===== 大屏深色主题变量（局部作用域，不污染全局）=====
+$dash-cyan: #00d4ff;
+$dash-gold: #ffd700;
+$dash-green: #00ff88;
+$dash-red: #ff6b6b;
+$dash-dark-blue: #0066ff;
+$dash-bg-primary: #0a0e27;
+$dash-bg-secondary: #1a1f3a;
+$dash-text: #ffffff;
+// 透明色派生
+$dash-cyan-05: rgba(0, 212, 255, 0.05);
+$dash-cyan-10: rgba(0, 212, 255, 0.1);
+$dash-cyan-20: rgba(0, 212, 255, 0.2);
+$dash-cyan-30: rgba(0, 212, 255, 0.3);
+$dash-cyan-50: rgba(0, 212, 255, 0.5);
+$dash-dark-blue-10: rgba(0, 102, 255, 0.1);
+$dash-dark-blue-20: rgba(0, 102, 255, 0.2);
+
 .dashboard-screen {
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+  background: linear-gradient(135deg, $dash-bg-primary 0%, $dash-bg-secondary 50%, $dash-bg-primary 100%);
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
@@ -550,8 +587,8 @@ onUnmounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding: 15px 25px;
-  background: linear-gradient(90deg, rgba(0, 102, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 50%, rgba(0, 102, 255, 0.1) 100%);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: linear-gradient(90deg, $dash-dark-blue-10 0%, $dash-cyan-10 50%, $dash-dark-blue-10 100%);
+  border: 1px solid $dash-cyan-20;
   border-radius: 8px;
 
   .header-left {
@@ -563,13 +600,13 @@ onUnmounted(() => {
       margin: 0;
       font-size: 28px;
       font-weight: bold;
-      color: #00d4ff;
-      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+      color: $dash-cyan;
+      text-shadow: 0 0 10px $dash-cyan-50;
     }
 
     .current-time {
       font-size: 16px;
-      color: #fff;
+      color: $dash-text;
       opacity: 0.8;
     }
   }
@@ -582,13 +619,13 @@ onUnmounted(() => {
     .fullscreen-btn {
       width: 40px;
       height: 40px;
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.3);
-      color: #00d4ff;
+      background: $dash-cyan-10;
+      border: 1px solid $dash-cyan-30;
+      color: $dash-cyan;
 
       &:hover {
-        background: rgba(0, 212, 255, 0.2);
-        border-color: rgba(0, 212, 255, 0.5);
+        background: $dash-cyan-20;
+        border-color: $dash-cyan-50;
       }
     }
   }
@@ -609,8 +646,8 @@ onUnmounted(() => {
 
 .chart-card {
   flex: 1;
-  background: rgba(0, 102, 255, 0.05);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: $dash-cyan-05;
+  border: 1px solid $dash-cyan-20;
   border-radius: 8px;
   padding: 15px;
   display: flex;
@@ -619,10 +656,10 @@ onUnmounted(() => {
   .chart-title {
     font-size: 16px;
     font-weight: bold;
-    color: #00d4ff;
+    color: $dash-cyan;
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    border-bottom: 1px solid $dash-cyan-20;
   }
 
   .chart {
@@ -642,8 +679,8 @@ onUnmounted(() => {
   margin-bottom: 20px;
 
   .metric-item {
-    background: rgba(0, 102, 255, 0.1);
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: $dash-cyan-10;
+    border: 1px solid $dash-cyan-20;
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -651,13 +688,13 @@ onUnmounted(() => {
     .metric-value {
       font-size: 28px;
       font-weight: bold;
-      color: #00d4ff;
+      color: $dash-cyan;
       margin-bottom: 8px;
     }
 
     .metric-label {
       font-size: 14px;
-      color: #fff;
+      color: $dash-text;
       opacity: 0.8;
       margin-bottom: 8px;
     }
@@ -670,29 +707,29 @@ onUnmounted(() => {
       font-size: 14px;
 
       &.up {
-        color: #00ff88;
+        color: $dash-green;
       }
 
       &.down {
-        color: #ff6b6b;
+        color: $dash-red;
       }
     }
   }
 }
 
 .realtime-data {
-  background: rgba(0, 102, 255, 0.05);
-  border: 1px solid rgba(0, 212, 255, 0.2);
+  background: $dash-cyan-05;
+  border: 1px solid $dash-cyan-20;
   border-radius: 8px;
   padding: 15px;
 
   .realtime-title {
     font-size: 16px;
     font-weight: bold;
-    color: #00d4ff;
+    color: $dash-cyan;
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    border-bottom: 1px solid $dash-cyan-20;
   }
 
   .realtime-items {
@@ -705,7 +742,7 @@ onUnmounted(() => {
       .realtime-label {
         display: block;
         font-size: 14px;
-        color: #fff;
+        color: $dash-text;
         opacity: 0.8;
         margin-bottom: 8px;
       }
@@ -713,7 +750,7 @@ onUnmounted(() => {
       .realtime-value {
         font-size: 24px;
         font-weight: bold;
-        color: #ffd700;
+        color: $dash-gold;
       }
     }
   }

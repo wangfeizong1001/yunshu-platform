@@ -90,6 +90,26 @@ jobs:
         run: pnpm --filter @yunshu/server-express lint || true
 
   # --------------------------------------------------------------------------
+  # Lint:Style — 样式合规检查（禁止硬编码 hex 颜色，统一使用品牌色 #4a9eff）
+  # --------------------------------------------------------------------------
+  lint-style:
+    runs-on: ubuntu-latest
+    needs: [pnpm-version-check]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: 样式合规检查
+        run: pnpm lint:style || true
+
+  # --------------------------------------------------------------------------
   # 单元测试 — Vitest
   # --------------------------------------------------------------------------
   test:

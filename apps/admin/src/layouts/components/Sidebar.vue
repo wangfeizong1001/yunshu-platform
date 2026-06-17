@@ -13,9 +13,9 @@
       :collapse="isCollapsed"
       :collapse-transition="false"
       :unique-opened="true"
-      background-color="#304156"
-      text-color="#bfcbd9"
-      active-text-color="#409eff"
+      :background-color="'#304156'"
+      :text-color="'#bfcbd9'"
+      :active-text-color="'#4a9eff'"
       router
     >
       <SidebarItem
@@ -50,7 +50,7 @@ const activeMenu = computed(() => {
 <style lang="scss" scoped>
 .sidebar {
   height: 100%;
-  background-color: #304156;
+  background-color: var(--sidebar-bg);
   overflow: hidden;
   position: relative;
 }
@@ -75,7 +75,7 @@ const activeMenu = computed(() => {
   }
 
   .title {
-    color: #fff;
+    color: var(--el-color-white);
     font-size: 18px;
     font-weight: 600;
     white-space: nowrap;

@@ -508,15 +508,15 @@ onUnmounted(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
 
   .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #e4e7ed;
+    background-color: var(--el-bg-color);
+    border-bottom: 1px solid var(--el-border-color-lighter);
 
     .toolbar-left {
       display: flex;
@@ -526,7 +526,7 @@ onUnmounted(() => {
       .title {
         font-size: 16px;
         font-weight: 600;
-        color: #303133;
+        color: var(--el-text-color-primary);
       }
     }
   }
@@ -540,7 +540,7 @@ onUnmounted(() => {
 
     .left-panel {
       width: 400px;
-      background-color: #fff;
+      background-color: var(--el-bg-color);
       border-radius: 4px;
       overflow-y: auto;
 
@@ -569,7 +569,7 @@ onUnmounted(() => {
             width: 100%;
             height: 300px;
             padding: 12px;
-            border: 1px solid #dcdfe6;
+            border: 1px solid var(--el-border-color);
             border-radius: 4px;
             resize: none;
             font-family: monospace;
@@ -577,7 +577,7 @@ onUnmounted(() => {
 
             &:focus {
               outline: none;
-              border-color: #409eff;
+              border-color: var(--el-color-primary);
             }
           }
         }
@@ -586,7 +586,7 @@ onUnmounted(() => {
 
     .right-panel {
       flex: 1;
-      background-color: #fff;
+      background-color: var(--el-bg-color);
       border-radius: 4px;
       display: flex;
       flex-direction: column;
@@ -594,9 +594,9 @@ onUnmounted(() => {
 
       .preview-header {
         padding: 12px 16px;
-        border-bottom: 1px solid #e4e7ed;
+        border-bottom: 1px solid var(--el-border-color-lighter);
         font-weight: 600;
-        color: #303133;
+        color: var(--el-text-color-primary);
       }
 
       .preview-content {

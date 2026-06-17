@@ -108,7 +108,7 @@ const handleCommand = async (command: string) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
+  background: var(--el-bg-color);
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   padding: 0 16px;
 }
@@ -123,10 +123,10 @@ const handleCommand = async (command: string) => {
   align-items: center;
   padding: 0 12px;
   cursor: pointer;
-  color: #666;
+  color: var(--el-text-color-regular);
 
   &:hover {
-    color: #409eff;
+    color: var(--el-color-primary);
   }
 }
 
@@ -144,11 +144,11 @@ const handleCommand = async (command: string) => {
   align-items: center;
   padding: 0 12px;
   cursor: pointer;
-  color: #666;
+  color: var(--el-text-color-regular);
   transition: color $transition-duration $transition-function;
 
   &:hover {
-    color: #409eff;
+    color: var(--el-color-primary);
   }
 }
 

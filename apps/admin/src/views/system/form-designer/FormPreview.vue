@@ -284,15 +284,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
 
   .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #e4e7ed;
+    background-color: var(--el-bg-color);
+    border-bottom: 1px solid var(--el-border-color-lighter);
 
     .left {
       display: flex;
@@ -302,7 +302,7 @@ onMounted(() => {
         margin-left: 16px;
         font-size: 16px;
         font-weight: 500;
-        color: #303133;
+        color: var(--el-text-color-primary);
       }
     }
   }
@@ -318,7 +318,7 @@ onMounted(() => {
   .preview-card {
     width: 100%;
     max-width: 800px;
-    background-color: #fff;
+    background-color: var(--el-bg-color);
     border-radius: 4px;
     padding: 40px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -326,8 +326,8 @@ onMounted(() => {
     .form-description {
       margin-bottom: 24px;
       padding-bottom: 16px;
-      border-bottom: 1px solid #e4e7ed;
-      color: #606266;
+      border-bottom: 1px solid var(--el-border-color-lighter);
+      color: var(--el-text-color-regular);
       font-size: 14px;
     }
 

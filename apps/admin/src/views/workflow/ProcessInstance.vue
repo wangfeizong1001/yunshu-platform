@@ -417,7 +417,7 @@ onMounted(() => {
       align-items: center;
       gap: 16px;
       padding: 24px;
-      background: #f5f7fa;
+      background: var(--el-fill-color-light);
       border-radius: 8px;
       flex-wrap: wrap;
       .flow-node {
@@ -434,36 +434,36 @@ onMounted(() => {
         }
         .node-assignee {
           font-size: 10px;
-          color: #909399;
+          color: var(--el-text-color-secondary);
         }
         &.start .node-icon {
-          color: #67c23a;
+          color: var(--el-color-success);
         }
         &.done .node-icon {
-          color: #67c23a;
+          color: var(--el-color-success);
         }
         &.done .node-label {
-          color: #67c23a;
+          color: var(--el-color-success);
         }
         &.current {
           .node-icon {
-            color: #409eff;
+            color: var(--el-color-primary);
             animation: pulse 2s infinite;
           }
           .node-label {
-            color: #409eff;
+            color: var(--el-color-primary);
             font-weight: 600;
           }
         }
         &.pending .node-icon {
-          color: #c0c4cc;
+          color: var(--el-text-color-placeholder);
         }
         &.pending .node-label {
-          color: #c0c4cc;
+          color: var(--el-text-color-placeholder);
         }
       }
       .flow-arrow {
-        color: #c0c4cc;
+        color: var(--el-text-color-placeholder);
         font-size: 20px;
       }
     }
@@ -475,12 +475,12 @@ onMounted(() => {
       .timeline-action {
         margin-top: 4px;
         &.start {
-          color: #67c23a;
+          color: var(--el-color-success);
         }
       }
       .timeline-comment {
         margin-top: 8px;
-        color: #606266;
+        color: var(--el-text-color-regular);
       }
     }
   }

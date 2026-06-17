@@ -326,15 +326,15 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
 
   .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #e4e7ed;
+    background-color: var(--el-bg-color);
+    border-bottom: 1px solid var(--el-border-color-lighter);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -347,7 +347,7 @@ onMounted(() => {
       .title {
         font-size: 16px;
         font-weight: 600;
-        color: #303133;
+        color: var(--el-text-color-primary);
       }
     }
   }
@@ -358,13 +358,13 @@ onMounted(() => {
 
     .loading-container,
     .error-container {
-      background-color: #fff;
+      background-color: var(--el-bg-color);
       padding: 40px;
       border-radius: 4px;
     }
 
     .report-content {
-      background-color: #fff;
+      background-color: var(--el-bg-color);
       padding: 40px;
       border-radius: 4px;
       max-width: 1400px;
@@ -374,18 +374,18 @@ onMounted(() => {
         text-align: center;
         margin-bottom: 40px;
         padding-bottom: 20px;
-        border-bottom: 2px solid #f0f2f5;
+        border-bottom: 2px solid var(--el-fill-color-light);
 
         .report-title {
           font-size: 28px;
           font-weight: 700;
-          color: #303133;
+          color: var(--el-text-color-primary);
           margin: 0 0 12px 0;
         }
 
         .report-description {
           font-size: 14px;
-          color: #909399;
+          color: var(--el-text-color-secondary);
           margin: 0 0 16px 0;
         }
 
@@ -394,7 +394,7 @@ onMounted(() => {
           justify-content: center;
           gap: 32px;
           font-size: 12px;
-          color: #c0c4cc;
+          color: var(--el-text-color-placeholder);
         }
       }
 
@@ -412,7 +412,7 @@ onMounted(() => {
       }
 
       .data-detail {
-        border-top: 1px solid #f0f2f5;
+        border-top: 1px solid var(--el-fill-color-light);
         padding-top: 24px;
 
         .detail-header {
@@ -421,7 +421,7 @@ onMounted(() => {
           h3 {
             font-size: 16px;
             font-weight: 600;
-            color: #303133;
+            color: var(--el-text-color-primary);
             margin: 0;
           }
         }

@@ -122,22 +122,22 @@ function handleClose() {
 .file-upload {
   .upload-icon {
     font-size: 67px;
-    color: #8c939d;
+    color: var(--el-text-color-secondary);
     margin-bottom: 16px;
   }
 
   .upload-text {
-    color: #606266;
+    color: var(--el-text-color-regular);
     font-size: 14px;
 
     em {
-      color: #409eff;
+      color: var(--el-color-primary);
       font-style: normal;
     }
   }
 
   .upload-tip {
-    color: #909399;
+    color: var(--el-text-color-secondary);
     font-size: 12px;
     margin-top: 8px;
   }

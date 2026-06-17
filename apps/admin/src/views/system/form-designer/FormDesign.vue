@@ -437,15 +437,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
 
   .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #e4e7ed;
+    background-color: var(--el-bg-color);
+    border-bottom: 1px solid var(--el-border-color-lighter);
 
     .left {
       display: flex;
@@ -455,7 +455,7 @@ onMounted(() => {
         margin-left: 16px;
         font-size: 16px;
         font-weight: 500;
-        color: #303133;
+        color: var(--el-text-color-primary);
       }
     }
   }
@@ -471,7 +471,7 @@ onMounted(() => {
   .component-panel,
   .design-panel,
   .props-panel {
-    background-color: #fff;
+    background-color: var(--el-bg-color);
     border-radius: 4px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   }
@@ -480,8 +480,8 @@ onMounted(() => {
     padding: 12px 16px;
     font-size: 14px;
     font-weight: 500;
-    color: #303133;
-    border-bottom: 1px solid #e4e7ed;
+    color: var(--el-text-color-primary);
+    border-bottom: 1px solid var(--el-border-color-lighter);
   }
 
   .component-panel {
@@ -496,14 +496,14 @@ onMounted(() => {
         align-items: center;
         padding: 8px 12px;
         margin-bottom: 8px;
-        background-color: #f5f7fa;
+        background-color: var(--el-fill-color-light);
         border-radius: 4px;
         cursor: pointer;
         transition: all 0.3s;
 
         &:hover {
-          background-color: #ecf5ff;
-          color: #409eff;
+          background-color: var(--el-color-primary-light-8);
+          color: var(--el-color-primary);
         }
 
         .component-icon {
@@ -536,17 +536,17 @@ onMounted(() => {
       .form-component {
         margin-bottom: 16px;
         padding: 12px;
-        border: 2px dashed #e4e7ed;
+        border: 2px dashed var(--el-border-color-lighter);
         border-radius: 4px;
         transition: all 0.3s;
 
         &:hover {
-          border-color: #409eff;
+          border-color: var(--el-color-primary);
         }
 
         &.active {
-          border-color: #409eff;
-          background-color: #f0f9ff;
+          border-color: var(--el-color-primary);
+          background-color: var(--el-color-primary-light-9);
         }
 
         .component-header {
@@ -554,12 +554,12 @@ onMounted(() => {
           align-items: center;
           margin-bottom: 8px;
           padding-bottom: 8px;
-          border-bottom: 1px solid #e4e7ed;
+          border-bottom: 1px solid var(--el-border-color-lighter);
 
           .drag-handle {
             margin-right: 8px;
             cursor: grab;
-            color: #909399;
+            color: var(--el-text-color-secondary);
 
             &:active {
               cursor: grabbing;
@@ -569,7 +569,7 @@ onMounted(() => {
           .component-label {
             flex: 1;
             font-size: 14px;
-            color: #606266;
+            color: var(--el-text-color-regular);
           }
 
           .component-actions {
@@ -578,15 +578,15 @@ onMounted(() => {
 
             .action-icon {
               cursor: pointer;
-              color: #909399;
+              color: var(--el-text-color-secondary);
               transition: color 0.3s;
 
               &:hover {
-                color: #409eff;
+                color: var(--el-color-primary);
               }
 
               &.delete:hover {
-                color: #f56c6c;
+                color: var(--el-color-danger);
               }
             }
           }
@@ -599,7 +599,7 @@ onMounted(() => {
 
       .empty-tip {
         text-align: center;
-        color: #909399;
+        color: var(--el-text-color-secondary);
         padding: 40px 0;
       }
     }
@@ -616,7 +616,7 @@ onMounted(() => {
 
     .empty-tip {
       text-align: center;
-      color: #909399;
+      color: var(--el-text-color-secondary);
       padding: 40px 0;
     }
 
@@ -629,7 +629,7 @@ onMounted(() => {
         .option-delete {
           margin-left: 8px;
           cursor: pointer;
-          color: #f56c6c;
+          color: var(--el-color-danger);
         }
       }
     }

@@ -204,7 +204,7 @@ watch(visible, (val) => {
     width: 100%;
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #dcdfe6;
+    border: 1px solid var(--el-border-color);
     border-radius: 4px;
     padding: 8px;
   }

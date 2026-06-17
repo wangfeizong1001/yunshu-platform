@@ -508,7 +508,7 @@ onMounted(() => {
     justify-content: center;
     gap: 12px;
     padding: 24px 16px;
-    background: #fff;
+    background: var(--el-bg-color);
     border-radius: 4px;
     margin-top: 16px;
   }
