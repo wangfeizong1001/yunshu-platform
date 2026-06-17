@@ -30,7 +30,7 @@ const matches = computed(() => {
 
   :deep(.el-breadcrumb__inner) {
     a {
-      color: #606266;
+      color: var(--el-text-color-regular);
       font-weight: normal;
 
       &:hover {
@@ -40,7 +40,7 @@ const matches = computed(() => {
   }
 
   .breadcrumb-current {
-    color: #303133;
+    color: var(--el-text-color-primary);
     font-weight: 500;
   }
 }
