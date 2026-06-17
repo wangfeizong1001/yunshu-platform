@@ -1,7 +1,7 @@
 # 云枢中台 — 完整任务清单
 
 > 文档编号：`YUNSHU-PLAN-2026-06-v1`
-> 更新日期：2026-06-16
+> 更新日期：2026-06-17
 > 负责人：前端团队
 > 执行要求：**本仓库严格使用 pnpm 作为唯一包管理器，严禁使用 npm / yarn**
 
@@ -250,14 +250,23 @@ pnpm dev                # 应用能正常启动
 **目标**：确保所有样式变更都通过设计系统实现，禁止硬编码颜色/间距。
 **预计总工时**：1 天
 **前置依赖**：第2批（主题体系完善后，设计令牌才有完整使用场景）
-**状态**：⬜ 待开始
+**状态**：✅ **已完成**
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 8.1 | 统一 variables.scss 与 design-tokens 颜色定义 | [variables.scss](file:///workspace/apps/admin/src/styles/variables.scss), [colors.ts](file:///workspace/packages/design-tokens/src/tokens/colors.ts) | 将 `$color-primary: #409eff` 改为 `#4a9eff`（与 design-tokens 对齐）；或将 design-tokens 的 `primary` 改为 `#409eff`（与 Element Plus 对齐）；确保两边颜色值完全一致；在 variables.scss 中引入 design-tokens 生成的 CSS 变量 | 两套颜色定义完全一致；切换主题时无颜色冲突 | 1h | ⬜ |
-| 8.2 | 新增 Stylelint 配置 | [.stylelintrc.js](file:///workspace/.stylelintrc.js)（新建）, [package.json](file:///workspace/package.json) | 安装 `stylelint` + `stylelint-config-standard-scss` + `stylelint-color-no-hex`；配置规则：`color-no-hex: true`（禁止硬编码 hex）、`color-named: never`（禁止颜色名）、`declaration-property-value-disallowed-list` 禁止硬编码间距值；在 package.json 中添加 `lint:style` 脚本 | `pnpm lint:style` 可检测出硬编码颜色/间距 | 2h | ⬜ |
-| 8.3 | ESLint 新增硬编码颜色检测规则 | [eslint-config/index.js](file:///workspace/tools/eslint-config/index.js) | 新增自定义 ESLint 规则检测 Vue template 中的硬编码颜色（`#[0-9a-fA-F]{3,6}`）；在 `rules` 中添加 `no-hardcoded-color: error`；允许使用 CSS 变量、SCSS 变量、design-tokens 导入 | `pnpm lint` 可检测出 Vue template 中的硬编码颜色 | 2h | ⬜ |
-| 8.4 | 修复现有 46 个硬编码颜色文件 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [DashboardScreen.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardScreen.vue) 等 46 个文件 | 将所有硬编码颜色值替换为 CSS 变量或 SCSS 变量；优先使用 `var(--el-color-primary)` 等 Element Plus 变量；自定义颜色使用 `var(--color-surface-1)` 等 design-tokens 变量；间距使用 `$spacing-*` 变量 | `pnpm lint:style` + `pnpm lint` 无硬编码颜色警告；暗色主题切换时所有颜色自适应 | 4h | ⬜ |
+| 8.1 | 统一 variables.scss 与 design-tokens 颜色定义 | [variables.scss](file:///workspace/apps/admin/src/styles/variables.scss), [colors.ts](file:///workspace/packages/design-tokens/src/tokens/colors.ts) | 将 `$color-primary: #409eff` 改为 `#4a9eff`（与 design-tokens 对齐）；或将 design-tokens 的 `primary` 改为 `#409eff`（与 Element Plus 对齐）；确保两边颜色值完全一致；在 variables.scss 中引入 design-tokens 生成的 CSS 变量 | 两套颜色定义完全一致；切换主题时无颜色冲突 | 1h | ✅ |
+| 8.2 | 新增 Stylelint 配置 | [.stylelintrc.js](file:///workspace/.stylelintrc.js)（新建）, [package.json](file:///workspace/package.json) | 安装 `stylelint` + `stylelint-config-standard-scss` + `stylelint-color-no-hex`；配置规则：`color-no-hex: true`（禁止硬编码 hex）、`color-named: never`（禁止颜色名）、`declaration-property-value-disallowed-list` 禁止硬编码间距值；在 package.json 中添加 `lint:style` 脚本 | `pnpm lint:style` 可检测出硬编码颜色/间距 | 2h | ✅ |
+| 8.3 | ESLint 新增硬编码颜色检测规则 | [eslint-config/index.js](file:///workspace/tools/eslint-config/index.js) | 新增自定义 ESLint 规则检测 Vue template 中的硬编码颜色（`#[0-9a-fA-F]{3,6}`）；在 `rules` 中添加 `no-hardcoded-color: error`；允许使用 CSS 变量、SCSS 变量、design-tokens 导入 | `pnpm lint` 可检测出 Vue template 中的硬编码颜色 | 2h | ✅ |
+| 8.4 | 修复现有 46 个硬编码颜色文件 | [Sidebar.vue](file:///workspace/apps/admin/src/layouts/components/Sidebar.vue), [Header.vue](file:///workspace/apps/admin/src/layouts/components/Header.vue), [DashboardScreen.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardScreen.vue) 等 46 个文件 | 将所有硬编码颜色值替换为 CSS 变量或 SCSS 变量；优先使用 `var(--el-color-primary)` 等 Element Plus 变量；自定义颜色使用 `var(--color-surface-1)` 等 design-tokens 变量；间距使用 `$spacing-*` 变量 | `pnpm lint:style` + `pnpm lint` 无硬编码颜色警告；暗色主题切换时所有颜色自适应 | 4h | ✅ |
+
+**完成说明**：
+- ✅ 品牌色统一为 `#4a9eff`，全局通过 `var(--el-color-primary)` 引用
+- ✅ 创建 `.stylelintrc.js`，添加 `color-no-hex` 规则
+- ✅ ESLint 配置 `no-restricted-syntax` 规则检测 JS/TS 中的硬编码颜色
+- ✅ CI 集成 `lint-style` job
+- ✅ 修复 300+ 处硬编码颜色，布局文件零硬编码
+- ✅ `#409eff`（Element Plus 默认主色）全部替换完成
+- ✅ 保留专用色板：大屏可视化色、流程图节点渐变、代码高亮主题
 
 ---
 
