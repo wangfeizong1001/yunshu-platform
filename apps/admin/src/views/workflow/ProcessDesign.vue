@@ -814,11 +814,11 @@ onMounted(() => {
         color: white;
       }
       &.task .node-body {
-        background: linear-gradient(135deg, #93c5fd, #409eff);
+        background: linear-gradient(135deg, var(--el-color-primary-light-1), var(--el-color-primary));
         color: white;
       }
       &.approval .node-body {
-        background: linear-gradient(135deg, #79bbff, #1890ff);
+        background: linear-gradient(135deg, var(--el-color-primary-light-2), var(--el-color-primary-dark-2));
         color: white;
       }
       &.copy .node-body {

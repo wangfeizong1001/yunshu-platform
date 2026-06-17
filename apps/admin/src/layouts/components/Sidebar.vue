@@ -15,7 +15,7 @@
       :unique-opened="true"
       :background-color="'#304156'"
       :text-color="'#bfcbd9'"
-      :active-text-color="'#4a9eff'"
+      :active-text-color="'var(--el-color-primary)'"
       router
     >
       <SidebarItem

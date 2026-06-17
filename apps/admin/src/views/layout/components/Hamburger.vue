@@ -33,7 +33,7 @@ const toggle = () => {
   transition: color 0.3s;
 
   &:hover {
-    color: #409eff;
+    color: var(--el-color-primary);
   }
 }
 </style>
