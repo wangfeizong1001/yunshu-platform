@@ -34,7 +34,7 @@ const matches = computed(() => {
       font-weight: normal;
 
       &:hover {
-        color: #409eff;
+        color: var(--el-color-primary);
       }
     }
   }

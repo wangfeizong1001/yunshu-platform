@@ -814,7 +814,7 @@ onMounted(() => {
         color: white;
       }
       &.task .node-body {
-        background: linear-gradient(135deg, #93c5fd, #409eff);
+        background: linear-gradient(135deg, #93c5fd, #4a9eff);
         color: white;
       }
       &.approval .node-body {
