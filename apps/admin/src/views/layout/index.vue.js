@@ -108,7 +108,7 @@ const __VLS_5 = __VLS_asFunctionalComponent(__VLS_4, new __VLS_4({
     uniqueOpened: (true),
     backgroundColor: "#304156",
     textColor: "#bfcbd9",
-    activeTextColor: "#409EFF",
+    activeTextColor: "var(--el-color-primary)",
     router: true,
 }));
 const __VLS_6 = __VLS_5({
@@ -118,7 +118,7 @@ const __VLS_6 = __VLS_5({
     uniqueOpened: (true),
     backgroundColor: "#304156",
     textColor: "#bfcbd9",
-    activeTextColor: "#409EFF",
+    activeTextColor: "var(--el-color-primary)",
     router: true,
 }, ...__VLS_functionalComponentArgsRest(__VLS_5));
 __VLS_7.slots.default;

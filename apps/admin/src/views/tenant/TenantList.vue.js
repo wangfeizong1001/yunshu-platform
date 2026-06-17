@@ -1,7 +1,8 @@
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search, Refresh, Plus, Download, More } from '@element-plus/icons-vue';
-import { getTenantPage, deleteTenant, changeTenantStatus, } from '@/api/tenant/tenant.api';
+import { getTenantPage, deleteTenant, changeTenantStatus, getPackageList, } from '@/api/tenant/tenant.api';
+import { TenantStatusEnum } from '@yunshu/shared';
 import TenantForm from './TenantForm.vue';
 import TenantDetail from './TenantDetail.vue';
 import TenantPackage from './TenantPackage.vue';
@@ -136,7 +137,17 @@ async function handleExport() {
 // 初始化
 onMounted(() => {
     fetchTenantList();
+    fetchPackageList();
 });
+async function fetchPackageList() {
+    try {
+        const res = await getPackageList({ pageSize: 100 });
+        packageList.value = res?.data || [];
+    }
+    catch (error) {
+        console.error('加载套餐列表失败', error);
+    }
+}
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_ctx = {};
 let __VLS_components;

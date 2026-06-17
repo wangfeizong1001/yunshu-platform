@@ -38,14 +38,14 @@ const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({
     collapse: (false),
     backgroundColor: "#304156",
     textColor: "#bfcbd9",
-    activeTextColor: "#409EFF",
+    activeTextColor: "var(--el-color-primary)",
 }));
 const __VLS_2 = __VLS_1({
     defaultActive: (__VLS_ctx.activeMenu),
     collapse: (false),
     backgroundColor: "#304156",
     textColor: "#bfcbd9",
-    activeTextColor: "#409EFF",
+    activeTextColor: "var(--el-color-primary)",
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 var __VLS_4 = {};
 __VLS_3.slots.default;

@@ -17,8 +17,8 @@ const captchaData = reactive({
     code: ''
 });
 const loginForm = reactive({
-    username: 'admin',
-    password: 'admin123',
+    username: '',
+    password: '',
     code: '',
     uuid: '',
     rememberMe: false

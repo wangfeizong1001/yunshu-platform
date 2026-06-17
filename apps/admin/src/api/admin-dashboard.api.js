@@ -55,4 +55,144 @@ export async function getTaskStats() {
     });
 }
 export { extractData };
+/**
+ * 获取大屏模板列表
+ * @returns 模板列表
+ */
+export async function getDashboardTemplates() {
+    try {
+        const response = await request({
+            url: '/dashboard/templates',
+            method: 'GET',
+        });
+        // 处理响应数据
+        const responseData = response;
+        if (responseData && responseData.success && responseData.data) {
+            return responseData.data;
+        }
+        // 如果没有数据，返回默认模板
+        return [
+            { id: 'enterprise', name: '企业运营监控', config: '', description: '企业运营数据监控大屏模板' },
+            { id: 'sales', name: '销售数据分析', config: '', description: '销售数据可视化分析模板' },
+            { id: 'realtime', name: '实时数据监控', config: '', description: '实时数据监控大屏模板' },
+        ];
+    }
+    catch (error) {
+        console.error('获取模板列表失败:', error);
+        // 返回默认模板
+        return [
+            { id: 'enterprise', name: '企业运营监控', config: '', description: '企业运营数据监控大屏模板' },
+            { id: 'sales', name: '销售数据分析', config: '', description: '销售数据可视化分析模板' },
+            { id: 'realtime', name: '实时数据监控', config: '', description: '实时数据监控大屏模板' },
+        ];
+    }
+}
+/**
+ * 获取大屏详情
+ * @param dashboardId 大屏ID
+ * @returns 大屏配置信息
+ */
+export async function getDashboard(dashboardId) {
+    try {
+        const response = await request({
+            url: `/dashboard/${dashboardId}`,
+            method: 'GET',
+        });
+        const responseData = response;
+        if (responseData && responseData.success && responseData.data) {
+            return responseData.data;
+        }
+        return null;
+    }
+    catch (error) {
+        console.error('获取大屏详情失败:', error);
+        return null;
+    }
+}
+/**
+ * 保存大屏配置
+ * @param dashboard 大屏配置数据
+ * @returns 保存结果（包含新创建的ID）
+ */
+export async function saveDashboard(dashboard) {
+    try {
+        const response = await request({
+            url: '/dashboard',
+            method: 'POST',
+            data: dashboard,
+        });
+        const responseData = response;
+        if (responseData && responseData.success) {
+            return { dashboardId: responseData.data.dashboardId || Date.now() };
+        }
+        return null;
+    }
+    catch (error) {
+        console.error('保存大屏失败:', error);
+        return null;
+    }
+}
+/**
+ * 更新大屏配置
+ * @param dashboardId 大屏ID
+ * @param dashboard 大屏配置数据
+ * @returns 更新结果
+ */
+export async function updateDashboard(dashboardId, dashboard) {
+    try {
+        const response = await request({
+            url: `/dashboard/${dashboardId}`,
+            method: 'PUT',
+            data: dashboard,
+        });
+        const responseData = response;
+        return responseData && responseData.success === true;
+    }
+    catch (error) {
+        console.error('更新大屏失败:', error);
+        return false;
+    }
+}
+/**
+ * 删除大屏
+ * @param dashboardId 大屏ID
+ * @returns 删除结果
+ */
+export async function deleteDashboard(dashboardId) {
+    try {
+        const response = await request({
+            url: `/dashboard/${dashboardId}`,
+            method: 'DELETE',
+        });
+        const responseData = response;
+        return responseData && responseData.success === true;
+    }
+    catch (error) {
+        console.error('删除大屏失败:', error);
+        return false;
+    }
+}
+/**
+ * 获取大屏列表
+ * @param params 查询参数
+ * @returns 大屏列表
+ */
+export async function getDashboardList(params) {
+    try {
+        const response = await request({
+            url: '/dashboard/list',
+            method: 'GET',
+            params,
+        });
+        const responseData = response;
+        if (responseData && responseData.success && responseData.data) {
+            return responseData.data;
+        }
+        return { rows: [], total: 0 };
+    }
+    catch (error) {
+        console.error('获取大屏列表失败:', error);
+        return { rows: [], total: 0 };
+    }
+}
 //# sourceMappingURL=admin-dashboard.api.js.map

@@ -4,21 +4,32 @@ import { useUserStore } from '@/store/modules/user';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import LanguageSwitch from '@/components/LanguageSwitch/index.vue';
+import { Sunny, Moon } from '@element-plus/icons-vue';
 const appStore = useAppStore();
 const userStore = useUserStore();
 const router = useRouter();
 const isCollapsed = computed(() => appStore.sidebarCollapsed);
 const username = computed(() => userStore.username);
+const isDark = computed(() => appStore.theme === 'dark');
+const avatarUrl = computed(() => {
+    const url = userStore.avatar;
+    // 如果有以 http 开头的 URL 则使用，否则返回空字符串（使用 el-avatar 默认占位图）
+    if (url && typeof url === 'string' && url.startsWith('http')) {
+        return url;
+    }
+    return '';
+});
 const toggleSidebar = () => {
     appStore.toggleSidebar();
+};
+const toggleTheme = () => {
+    appStore.toggleTheme();
 };
 const handleCommand = async (command) => {
     switch (command) {
         case 'profile':
-            router.push('/profile');
-            break;
-        case 'settings':
-            router.push('/settings');
+            router.push('/user/profile/index');
             break;
         case 'logout':
             try {
@@ -110,142 +121,156 @@ const __VLS_24 = {}.Notification;
 const __VLS_25 = __VLS_asFunctionalComponent(__VLS_24, new __VLS_24({}));
 const __VLS_26 = __VLS_25({}, ...__VLS_functionalComponentArgsRest(__VLS_25));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "header-item" },
+});
+/** @type {[typeof LanguageSwitch, ]} */ ;
+// @ts-ignore
+const __VLS_28 = __VLS_asFunctionalComponent(LanguageSwitch, new LanguageSwitch({}));
+const __VLS_29 = __VLS_28({}, ...__VLS_functionalComponentArgsRest(__VLS_28));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ onClick: (__VLS_ctx.toggleTheme) },
+    ...{ class: "header-item theme-toggle" },
+    title: "切换主题",
+});
+const __VLS_31 = {}.ElIcon;
+/** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
+// @ts-ignore
+const __VLS_32 = __VLS_asFunctionalComponent(__VLS_31, new __VLS_31({
+    size: (18),
+}));
+const __VLS_33 = __VLS_32({
+    size: (18),
+}, ...__VLS_functionalComponentArgsRest(__VLS_32));
+__VLS_34.slots.default;
+if (__VLS_ctx.isDark) {
+    const __VLS_35 = {}.Sunny;
+    /** @type {[typeof __VLS_components.Sunny, ]} */ ;
+    // @ts-ignore
+    const __VLS_36 = __VLS_asFunctionalComponent(__VLS_35, new __VLS_35({}));
+    const __VLS_37 = __VLS_36({}, ...__VLS_functionalComponentArgsRest(__VLS_36));
+}
+else {
+    const __VLS_39 = {}.Moon;
+    /** @type {[typeof __VLS_components.Moon, ]} */ ;
+    // @ts-ignore
+    const __VLS_40 = __VLS_asFunctionalComponent(__VLS_39, new __VLS_39({}));
+    const __VLS_41 = __VLS_40({}, ...__VLS_functionalComponentArgsRest(__VLS_40));
+}
+var __VLS_34;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "header-item user-info" },
 });
-const __VLS_28 = {}.ElDropdown;
+const __VLS_43 = {}.ElDropdown;
 /** @type {[typeof __VLS_components.ElDropdown, typeof __VLS_components.elDropdown, typeof __VLS_components.ElDropdown, typeof __VLS_components.elDropdown, ]} */ ;
 // @ts-ignore
-const __VLS_29 = __VLS_asFunctionalComponent(__VLS_28, new __VLS_28({
+const __VLS_44 = __VLS_asFunctionalComponent(__VLS_43, new __VLS_43({
     ...{ 'onCommand': {} },
     trigger: "click",
 }));
-const __VLS_30 = __VLS_29({
+const __VLS_45 = __VLS_44({
     ...{ 'onCommand': {} },
     trigger: "click",
-}, ...__VLS_functionalComponentArgsRest(__VLS_29));
-let __VLS_32;
-let __VLS_33;
-let __VLS_34;
-const __VLS_35 = {
+}, ...__VLS_functionalComponentArgsRest(__VLS_44));
+let __VLS_47;
+let __VLS_48;
+let __VLS_49;
+const __VLS_50 = {
     onCommand: (__VLS_ctx.handleCommand)
 };
-__VLS_31.slots.default;
+__VLS_46.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
     ...{ class: "user-dropdown" },
 });
-const __VLS_36 = {}.ElAvatar;
+const __VLS_51 = {}.ElAvatar;
 /** @type {[typeof __VLS_components.ElAvatar, typeof __VLS_components.elAvatar, ]} */ ;
 // @ts-ignore
-const __VLS_37 = __VLS_asFunctionalComponent(__VLS_36, new __VLS_36({
+const __VLS_52 = __VLS_asFunctionalComponent(__VLS_51, new __VLS_51({
     size: (32),
-    src: "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
+    src: (__VLS_ctx.avatarUrl),
 }));
-const __VLS_38 = __VLS_37({
+const __VLS_53 = __VLS_52({
     size: (32),
-    src: "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
-}, ...__VLS_functionalComponentArgsRest(__VLS_37));
+    src: (__VLS_ctx.avatarUrl),
+}, ...__VLS_functionalComponentArgsRest(__VLS_52));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
     ...{ class: "username" },
 });
 (__VLS_ctx.username);
-const __VLS_40 = {}.ElIcon;
+const __VLS_55 = {}.ElIcon;
 /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
 // @ts-ignore
-const __VLS_41 = __VLS_asFunctionalComponent(__VLS_40, new __VLS_40({
+const __VLS_56 = __VLS_asFunctionalComponent(__VLS_55, new __VLS_55({
     ...{ class: "el-icon--right" },
 }));
-const __VLS_42 = __VLS_41({
+const __VLS_57 = __VLS_56({
     ...{ class: "el-icon--right" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_41));
-__VLS_43.slots.default;
-const __VLS_44 = {}.ArrowDown;
+}, ...__VLS_functionalComponentArgsRest(__VLS_56));
+__VLS_58.slots.default;
+const __VLS_59 = {}.ArrowDown;
 /** @type {[typeof __VLS_components.ArrowDown, ]} */ ;
 // @ts-ignore
-const __VLS_45 = __VLS_asFunctionalComponent(__VLS_44, new __VLS_44({}));
-const __VLS_46 = __VLS_45({}, ...__VLS_functionalComponentArgsRest(__VLS_45));
-var __VLS_43;
+const __VLS_60 = __VLS_asFunctionalComponent(__VLS_59, new __VLS_59({}));
+const __VLS_61 = __VLS_60({}, ...__VLS_functionalComponentArgsRest(__VLS_60));
+var __VLS_58;
 {
-    const { dropdown: __VLS_thisSlot } = __VLS_31.slots;
-    const __VLS_48 = {}.ElDropdownMenu;
+    const { dropdown: __VLS_thisSlot } = __VLS_46.slots;
+    const __VLS_63 = {}.ElDropdownMenu;
     /** @type {[typeof __VLS_components.ElDropdownMenu, typeof __VLS_components.elDropdownMenu, typeof __VLS_components.ElDropdownMenu, typeof __VLS_components.elDropdownMenu, ]} */ ;
     // @ts-ignore
-    const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({}));
-    const __VLS_50 = __VLS_49({}, ...__VLS_functionalComponentArgsRest(__VLS_49));
-    __VLS_51.slots.default;
-    const __VLS_52 = {}.ElDropdownItem;
+    const __VLS_64 = __VLS_asFunctionalComponent(__VLS_63, new __VLS_63({}));
+    const __VLS_65 = __VLS_64({}, ...__VLS_functionalComponentArgsRest(__VLS_64));
+    __VLS_66.slots.default;
+    const __VLS_67 = {}.ElDropdownItem;
     /** @type {[typeof __VLS_components.ElDropdownItem, typeof __VLS_components.elDropdownItem, typeof __VLS_components.ElDropdownItem, typeof __VLS_components.elDropdownItem, ]} */ ;
     // @ts-ignore
-    const __VLS_53 = __VLS_asFunctionalComponent(__VLS_52, new __VLS_52({
+    const __VLS_68 = __VLS_asFunctionalComponent(__VLS_67, new __VLS_67({
         command: "profile",
     }));
-    const __VLS_54 = __VLS_53({
+    const __VLS_69 = __VLS_68({
         command: "profile",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_53));
-    __VLS_55.slots.default;
-    const __VLS_56 = {}.ElIcon;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_68));
+    __VLS_70.slots.default;
+    const __VLS_71 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_57 = __VLS_asFunctionalComponent(__VLS_56, new __VLS_56({}));
-    const __VLS_58 = __VLS_57({}, ...__VLS_functionalComponentArgsRest(__VLS_57));
-    __VLS_59.slots.default;
-    const __VLS_60 = {}.User;
+    const __VLS_72 = __VLS_asFunctionalComponent(__VLS_71, new __VLS_71({}));
+    const __VLS_73 = __VLS_72({}, ...__VLS_functionalComponentArgsRest(__VLS_72));
+    __VLS_74.slots.default;
+    const __VLS_75 = {}.User;
     /** @type {[typeof __VLS_components.User, ]} */ ;
     // @ts-ignore
-    const __VLS_61 = __VLS_asFunctionalComponent(__VLS_60, new __VLS_60({}));
-    const __VLS_62 = __VLS_61({}, ...__VLS_functionalComponentArgsRest(__VLS_61));
-    var __VLS_59;
-    var __VLS_55;
-    const __VLS_64 = {}.ElDropdownItem;
+    const __VLS_76 = __VLS_asFunctionalComponent(__VLS_75, new __VLS_75({}));
+    const __VLS_77 = __VLS_76({}, ...__VLS_functionalComponentArgsRest(__VLS_76));
+    var __VLS_74;
+    var __VLS_70;
+    const __VLS_79 = {}.ElDropdownItem;
     /** @type {[typeof __VLS_components.ElDropdownItem, typeof __VLS_components.elDropdownItem, typeof __VLS_components.ElDropdownItem, typeof __VLS_components.elDropdownItem, ]} */ ;
     // @ts-ignore
-    const __VLS_65 = __VLS_asFunctionalComponent(__VLS_64, new __VLS_64({
-        command: "settings",
-    }));
-    const __VLS_66 = __VLS_65({
-        command: "settings",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_65));
-    __VLS_67.slots.default;
-    const __VLS_68 = {}.ElIcon;
-    /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
-    // @ts-ignore
-    const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({}));
-    const __VLS_70 = __VLS_69({}, ...__VLS_functionalComponentArgsRest(__VLS_69));
-    __VLS_71.slots.default;
-    const __VLS_72 = {}.Setting;
-    /** @type {[typeof __VLS_components.Setting, ]} */ ;
-    // @ts-ignore
-    const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({}));
-    const __VLS_74 = __VLS_73({}, ...__VLS_functionalComponentArgsRest(__VLS_73));
-    var __VLS_71;
-    var __VLS_67;
-    const __VLS_76 = {}.ElDropdownItem;
-    /** @type {[typeof __VLS_components.ElDropdownItem, typeof __VLS_components.elDropdownItem, typeof __VLS_components.ElDropdownItem, typeof __VLS_components.elDropdownItem, ]} */ ;
-    // @ts-ignore
-    const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({
+    const __VLS_80 = __VLS_asFunctionalComponent(__VLS_79, new __VLS_79({
         divided: true,
         command: "logout",
     }));
-    const __VLS_78 = __VLS_77({
+    const __VLS_81 = __VLS_80({
         divided: true,
         command: "logout",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_77));
-    __VLS_79.slots.default;
-    const __VLS_80 = {}.ElIcon;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_80));
+    __VLS_82.slots.default;
+    const __VLS_83 = {}.ElIcon;
     /** @type {[typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, typeof __VLS_components.ElIcon, typeof __VLS_components.elIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({}));
-    const __VLS_82 = __VLS_81({}, ...__VLS_functionalComponentArgsRest(__VLS_81));
-    __VLS_83.slots.default;
-    const __VLS_84 = {}.SwitchButton;
+    const __VLS_84 = __VLS_asFunctionalComponent(__VLS_83, new __VLS_83({}));
+    const __VLS_85 = __VLS_84({}, ...__VLS_functionalComponentArgsRest(__VLS_84));
+    __VLS_86.slots.default;
+    const __VLS_87 = {}.SwitchButton;
     /** @type {[typeof __VLS_components.SwitchButton, ]} */ ;
     // @ts-ignore
-    const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({}));
-    const __VLS_86 = __VLS_85({}, ...__VLS_functionalComponentArgsRest(__VLS_85));
-    var __VLS_83;
-    var __VLS_79;
-    var __VLS_51;
+    const __VLS_88 = __VLS_asFunctionalComponent(__VLS_87, new __VLS_87({}));
+    const __VLS_89 = __VLS_88({}, ...__VLS_functionalComponentArgsRest(__VLS_88));
+    var __VLS_86;
+    var __VLS_82;
+    var __VLS_66;
 }
-var __VLS_31;
+var __VLS_46;
 /** @type {__VLS_StyleScopedClasses['header']} */ ;
 /** @type {__VLS_StyleScopedClasses['header-left']} */ ;
 /** @type {__VLS_StyleScopedClasses['collapse-btn']} */ ;
@@ -255,6 +280,9 @@ var __VLS_31;
 /** @type {__VLS_StyleScopedClasses['header-item']} */ ;
 /** @type {__VLS_StyleScopedClasses['header-item']} */ ;
 /** @type {__VLS_StyleScopedClasses['header-item']} */ ;
+/** @type {__VLS_StyleScopedClasses['header-item']} */ ;
+/** @type {__VLS_StyleScopedClasses['theme-toggle']} */ ;
+/** @type {__VLS_StyleScopedClasses['header-item']} */ ;
 /** @type {__VLS_StyleScopedClasses['user-info']} */ ;
 /** @type {__VLS_StyleScopedClasses['user-dropdown']} */ ;
 /** @type {__VLS_StyleScopedClasses['username']} */ ;
@@ -263,9 +291,15 @@ var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
+            LanguageSwitch: LanguageSwitch,
+            Sunny: Sunny,
+            Moon: Moon,
             isCollapsed: isCollapsed,
             username: username,
+            isDark: isDark,
+            avatarUrl: avatarUrl,
             toggleSidebar: toggleSidebar,
+            toggleTheme: toggleTheme,
             handleCommand: handleCommand,
         };
     },

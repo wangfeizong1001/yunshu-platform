@@ -91,6 +91,14 @@ const closeAllTags = () => {
     tagsViewStore.delAllViews();
     router.push('/');
 };
+const handleCloseLeft = (tag) => {
+    tagsViewStore.delLeftViews(tag);
+    visible.value = false;
+};
+const handleCloseRight = (tag) => {
+    tagsViewStore.delRightViews(tag);
+    visible.value = false;
+};
 watch(() => route.path, () => {
     addTags();
 });
@@ -199,6 +207,16 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li
     ...{ onClick: (__VLS_ctx.closeOtherTags) },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
+    ...{ onClick: (...[$event]) => {
+            __VLS_ctx.handleCloseLeft(__VLS_ctx.selectedTag);
+        } },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
+    ...{ onClick: (...[$event]) => {
+            __VLS_ctx.handleCloseRight(__VLS_ctx.selectedTag);
+        } },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({
     ...{ onClick: (__VLS_ctx.closeAllTags) },
 });
 /** @type {__VLS_StyleScopedClasses['tags-view']} */ ;
@@ -223,6 +241,8 @@ const __VLS_self = (await import('vue')).defineComponent({
             refreshSelectedTag: refreshSelectedTag,
             closeOtherTags: closeOtherTags,
             closeAllTags: closeAllTags,
+            handleCloseLeft: handleCloseLeft,
+            handleCloseRight: handleCloseRight,
         };
     },
 });
