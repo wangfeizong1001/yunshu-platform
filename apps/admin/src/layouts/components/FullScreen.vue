@@ -39,7 +39,7 @@ onUnmounted(() => {
   transition: color $transition-duration $transition-function;
 
   &:hover {
-    color: #409eff;
+    color: var(--el-color-primary);
   }
 }
 </style>

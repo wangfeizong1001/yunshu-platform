@@ -438,7 +438,7 @@ const formatTime = (time: string) => {
 
 <style scoped lang="scss">
 // ========== CSS 变量 ==========
-$color-primary: var(--el-color-primary, #409eff);
+$color-primary: var(--el-color-primary);
 $color-success: var(--el-color-success, #67c23a);
 $color-warning: var(--el-color-warning, #e6a23c);
 $color-danger: var(--el-color-danger, #f56c6c);
