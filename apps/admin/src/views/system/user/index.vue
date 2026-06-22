@@ -316,7 +316,7 @@ function handleAdd() {
 
 // 编辑
 function handleEdit(row: Record<string, unknown>) {
-  currentUser.value = { ...row }
+  currentUser.value = { ...row } as unknown as SysUser | null
   formVisible.value = true
 }
 
@@ -326,7 +326,7 @@ async function handleDelete(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
       type: 'warning',
     })
-    await deleteUser(row.userId)
+    await deleteUser(row.userId as number)
     ElMessage.success('删除成功')
     fetchUserList()
   } catch (error) {
@@ -338,7 +338,7 @@ async function handleDelete(row: Record<string, unknown>) {
 
 // 重置密码
 function handleResetPassword(row: Record<string, unknown>) {
-  currentUserId.value = row.userId
+  currentUserId.value = row.userId as number
   resetPwdForm.password = ''
   resetPwdForm.confirmPassword = ''
   resetPwdVisible.value = true
@@ -362,7 +362,7 @@ async function handleResetPwdSubmit() {
 
 // 分配角色
 function handleAssignRole(row: Record<string, unknown>) {
-  currentUserId.value = row.userId
+  currentUserId.value = row.userId as number
   assignRoleVisible.value = true
 }
 

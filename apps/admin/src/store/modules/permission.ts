@@ -14,6 +14,7 @@ interface PermissionState {
   defaultRoutes: RouteRecordRaw[]
   topbarRouters: RouteRecordRaw[]
   cachedViews: string[]        // 缓存的视图
+  dynamicRouteAdded: boolean   // 动态路由是否已添加
 }
 
 /**

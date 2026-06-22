@@ -193,17 +193,17 @@ function handleAdd() {
   formVisible.value = true
 }
 
-function handleEdit(row: UserInfo) {
-  currentUser.value = { ...row }
+function handleEdit(row: Record<string, unknown>) {
+  currentUser.value = { ...row } as UserInfo
   formVisible.value = true
 }
 
-async function handleDelete(row: UserInfo) {
+async function handleDelete(row: Record<string, unknown>) {
   try {
     await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
       type: 'warning',
     })
-    await deleteUser(row.userId)
+    await deleteUser(row.userId as number)
     ElMessage.success('删除成功')
     fetchUserList()
   } catch (error) {
@@ -213,12 +213,12 @@ async function handleDelete(row: UserInfo) {
   }
 }
 
-function handleResetPassword(row: UserInfo) {
+function handleResetPassword(row: Record<string, unknown>) {
   ElMessage.info(`重置密码功能开发中，用户ID: ${row.userId}`)
 }
 
-function handleAssignRole(row: UserInfo) {
-  currentUserId.value = row.userId
+function handleAssignRole(row: Record<string, unknown>) {
+  currentUserId.value = row.userId as number
   assignRoleVisible.value = true
 }
 

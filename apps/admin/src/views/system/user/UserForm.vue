@@ -53,7 +53,7 @@
             <el-tree-select
               v-model="formData.deptId"
               :data="deptTree"
-              :props="{ value: 'deptId', label: 'deptName', children: 'children' }"
+              :props="{ label: 'deptName', children: 'children' }"
               placeholder="请选择部门"
               check-strictly
               filterable
@@ -177,7 +177,7 @@ async function fetchPostList() {
 async function fetchRoleList() {
   try {
     const res = await getAllRoles()
-    roleList.value = (res?.data as RoleInfo[]) || []
+    roleList.value = (res?.data as unknown as RoleInfo[]) || []
   } catch (error) {
     console.error('加载角色列表失败', error)
   }
