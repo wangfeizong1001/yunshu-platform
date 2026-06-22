@@ -2,17 +2,17 @@
 
 ## 概述
 
-当前代码库存在约 **126** 个 TypeScript 类型错误，主要分布在以下模块：
-- `views/system/form-designer/` - 32 个错误
+当前代码库存在约 **133** 个 TypeScript 类型错误，主要分布在以下模块：
+- `views/system/form-designer/` - 18 个错误
 - `views/report/` - 26 个错误
 - `views/system/oss/` - 12 个错误
 - `views/monitor/job/` - 10 个错误
 - `views/system/post/` - 8 个错误
-- 其他模块 - 约 38 个错误
+- 其他模块 - 约 49 个错误
 
 ---
 
-## 已修复的错误（约 72 个）
+## 已修复的错误（约 75 个）
 
 ### ✅ Mock 文件类型导入（19 个）- 已完成
 | 文件 | 修复内容 | 状态 |
@@ -59,21 +59,28 @@
 | `src/__tests__/utils/cache.test.ts` | 7 | 使用 `CacheType.LOCAL` 替代字符串 `'local'` | ✅ 完成 |
 | `src/__tests__/utils/security/authStorage-ext.test.ts` | 40 | 为 `getUserProfile` 添加泛型类型参数 | ✅ 完成 |
 
+### ✅ API 响应类型错误（3 个）- 已完成
+| 文件 | 行号 | 修复内容 | 状态 |
+|------|------|---------|------|
+| `src/api/auth.ts` | 46 | 修复返回类型为 `ApiResponse<CaptchaResponse>` | ✅ 完成 |
+| `src/utils/download.ts` | 26 | 添加 `as BlobPart` 类型断言 | ✅ 完成 |
+| `src/utils/export.ts` | 22 | 添加 `as Record<string, unknown>[]` 类型断言 | ✅ 完成 |
+
+### ✅ Form Designer 模块（约 14 个）- 进行中
+| 文件 | 行号 | 修复内容 | 状态 |
+|------|------|---------|------|
+| `FormDesign.vue` | 422-423 | 修复 fetchFormInfo API 响应处理 | ✅ 完成 |
+| `FormList.vue` | 184-188 | 修复 formList/selectedRows/currentForm 类型 | ✅ 完成 |
+| `FormList.vue` | 217-226 | 修复 fetchFormList API 响应处理 | ✅ 完成 |
+| `FormList.vue` | 255-271 | 修复 handleEdit API 响应处理 | ✅ 完成 |
+| `FormList.vue` | 273-361 | 修复 handleDelete/BatchDelete/Publish 等函数的类型断言 | ✅ 完成 |
+| `FormPreview.vue` | 263-275 | 修复 fetchFormInfo API 响应处理 | ✅ 完成 |
+
 ---
 
-## 剩余错误详细清单（126 个）
+## 剩余错误详细清单（133 个）
 
-### 1. API 响应类型错误（3 个）
-
-| 文件 | 行号 | 错误代码 | 问题描述 |
-|------|------|---------|---------|
-| `src/api/auth.ts` | 46 | TS2322 | ApiResponse<CaptchaResponse> 与 { code, data } 不兼容 |
-| `src/utils/download.ts` | 26 | TS2322 | unknown 不能赋值给 BlobPart |
-| `src/utils/export.ts` | 22 | TS2345 | unknown[] 不能赋值给 Record<string, unknown>[] |
-
-**修复方案**：统一 API 响应处理模式，使用 res?.data 访问
-
-### 3. 组件类型错误（8 个）
+### 1. 组件类型错误（8 个）
 
 | 文件 | 行号 | 错误代码 | 问题描述 |
 |------|------|---------|---------|
@@ -316,10 +323,10 @@ if (typeof value === 'string') {
 
 ## 附录：错误统计
 
-### 剩余错误（126 个）
+### 剩余错误（133 个）
 | 模块 | 错误数 |
 |------|--------|
-| form-designer | 32 |
+| form-designer | 18 |
 | report | 26 |
 | oss | 12 |
 | monitor/job | 10 |
@@ -332,14 +339,14 @@ if (typeof value === 'string') {
 | file-upload | 4 |
 | user | 3 |
 | dashboard | 3 |
-| api/utils | 3 |
 | notice | 2 |
 | composables | 2 |
 | menu | 1 |
 | components | 8 |
-| **总计** | **126** |
+| api/utils | 3 |
+| **总计** | **133** |
 
-### 已修复错误（72 个）
+### 已修复错误（65 个）
 | 类别 | 错误数 |
 |------|--------|
 | Mock 文件类型导入 | 19 |
@@ -348,4 +355,6 @@ if (typeof value === 'string') {
 | 用户管理页面 | 15 |
 | Mock 文件导入错误 | 4 |
 | 测试文件错误 | 5 |
-| **总计** | **72** |
+| API 响应类型错误 | 3 |
+| Form Designer 模块 | 9 |
+| **总计** | **65** |

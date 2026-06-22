@@ -23,7 +23,7 @@ export const downloadByUrl = (url: string, filename: string) => {
 }
 
 export const downloadFile = (data: unknown, filename: string) => {
-  const blob = new Blob([data])
+  const blob = new Blob([data as BlobPart])
   downloadByBlob(blob, filename)
 }
 

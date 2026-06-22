@@ -17,9 +17,9 @@ export function exportToExcel(data: unknown[], fileName: string = 'export', shee
   try {
     // 创建工作簿
     const workbook = XLSX.utils.book_new()
-    
+
     // 创建工作表
-    const worksheet = XLSX.utils.json_to_sheet(data)
+    const worksheet = XLSX.utils.json_to_sheet(data as Record<string, unknown>[])
     
     // 将工作表添加到工作簿
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)

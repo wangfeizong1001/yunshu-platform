@@ -3,6 +3,7 @@
  */
 
 import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
+import type { ApiResponse } from '@/utils/httpClient'
 
 // 验证码响应类型
 export interface CaptchaResponse {
@@ -42,7 +43,7 @@ export interface UserInfo {
 }
 
 // 获取验证码
-export function getCaptchaApi(): Promise<{ code: number; data: CaptchaResponse }> {
+export function getCaptchaApi(): Promise<ApiResponse<CaptchaResponse>> {
   return request<CaptchaResponse>({
     url: '/auth/captcha',
     method: 'GET'

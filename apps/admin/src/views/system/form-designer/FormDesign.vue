@@ -419,8 +419,8 @@ async function fetchFormInfo() {
   const formId = Number(route.params.id)
   try {
     const res = await getForm(formId)
-    formInfo.value = res
-    components.value = res.components || []
+    formInfo.value = res.data as unknown as FormInfo | null
+    components.value = (res.data as unknown as FormInfo)?.components || []
   } catch (error) {
     console.error('获取表单信息失败', error)
   }

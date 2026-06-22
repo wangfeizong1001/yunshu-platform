@@ -181,11 +181,11 @@ const getFormStatusLabel = (val: string) =>
 
 // 状态
 const loading = ref(false)
-const formList = ref<unknown[]>([])
+const formList = ref<FormForm[]>([])
 const total = ref(0)
-const selectedRows = ref<unknown[]>([])
+const selectedRows = ref<FormForm[]>([])
 const formDialogVisible = ref(false)
-const currentForm = ref<unknown>(null)
+const currentForm = ref<FormForm | null>(null)
 const formRef = ref<FormInstance>()
 const formData = reactive<FormForm>({
   formName: '',
@@ -218,8 +218,9 @@ async function fetchFormList() {
   loading.value = true
   try {
     const res = await getFormPage(queryParams)
-    formList.value = res.rows
-    total.value = res.total
+    const pageData = res?.data as { rows: FormForm[]; total: number } | undefined
+    formList.value = pageData?.rows ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -254,13 +255,14 @@ function handleAdd() {
 // 编辑
 async function handleEdit(row: Record<string, unknown>) {
   try {
-    const res = await getForm(row.formId)
-    currentForm.value = res
+    const res = await getForm(row.formId as number)
+    const formData_ = res?.data as FormForm | undefined
+    currentForm.value = formData_ ?? null
     Object.assign(formData, {
-      formName: res.formName,
-      formCode: res.formCode,
-      description: res.description,
-      remark: res.remark
+      formName: formData_?.formName,
+      formCode: formData_?.formCode,
+      description: formData_?.description,
+      remark: formData_?.remark
     })
     formDialogVisible.value = true
   } catch (error) {
@@ -274,7 +276,7 @@ async function handleDelete(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认删除表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await deleteForm(row.formId)
+    await deleteForm(row.formId as number)
     ElMessage.success('删除成功')
     fetchFormList()
   } catch (error) {
@@ -290,7 +292,7 @@ async function handleBatchDelete() {
     await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个表单？`, '提示', {
       type: 'warning'
     })
-    await batchDeleteForm(selectedRows.value.map(row => row.formId))
+    await batchDeleteForm(selectedRows.value.map(row => row.formId as number))
     ElMessage.success('删除成功')
     fetchFormList()
   } catch (error) {
@@ -306,7 +308,7 @@ async function handleCopy(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认复制表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await copyForm(row.formId)
+    await copyForm(row.formId as number)
     ElMessage.success('复制成功')
     fetchFormList()
   } catch (error) {
@@ -322,7 +324,7 @@ async function handlePublish(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认发布表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await publishForm(row.formId)
+    await publishForm(row.formId as number)
     ElMessage.success('发布成功')
     fetchFormList()
   } catch (error) {
@@ -338,7 +340,7 @@ async function handleStop(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认停用表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await stopForm(row.formId)
+    await stopForm(row.formId as number)
     ElMessage.success('停用成功')
     fetchFormList()
   } catch (error) {
@@ -350,12 +352,12 @@ async function handleStop(row: Record<string, unknown>) {
 
 // 设计
 function handleDesign(row: Record<string, unknown>) {
-  router.push(`/system/form-design/${row.formId}`)
+  router.push(`/system/form-design/${row.formId as number}`)
 }
 
 // 预览
 function handlePreview(row: Record<string, unknown>) {
-  router.push(`/system/form-preview/${row.formId}`)
+  router.push(`/system/form-preview/${row.formId as number}`)
 }
 
 // 提交
