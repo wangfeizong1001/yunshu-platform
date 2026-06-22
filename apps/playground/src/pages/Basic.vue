@@ -19,12 +19,33 @@
         <div class="card-title">Table 表格</div>
         <div class="card-desc">表格用于展示多条结构类似的数据</div>
       </router-link>
+      <router-link to="/language-switch" class="component-card">
+        <div class="card-icon">
+          <Globe />
+        </div>
+        <div class="card-title">LanguageSwitch 语言切换</div>
+        <div class="card-desc">支持中英文切换的组件</div>
+      </router-link>
+      <router-link to="/tenant-select" class="component-card">
+        <div class="card-icon">
+          <OfficeBuilding />
+        </div>
+        <div class="card-title">TenantSelect 租户选择</div>
+        <div class="card-desc">多租户系统中的租户切换组件</div>
+      </router-link>
+      <router-link to="/code-preview" class="component-card">
+        <div class="card-icon">
+          <Code />
+        </div>
+        <div class="card-title">CodePreview 代码预览</div>
+        <div class="card-desc">代码片段展示与复制组件</div>
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Button, Grid } from '@element-plus/icons-vue';
+import { Button, Grid, Globe, OfficeBuilding, Code } from '@element-plus/icons-vue';
 </script>
 
 <style lang="scss" scoped>
@@ -58,8 +79,12 @@ import { Button, Grid } from '@element-plus/icons-vue';
 
 .component-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .component-card {

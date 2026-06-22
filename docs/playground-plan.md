@@ -109,8 +109,8 @@ apps/playground/
 |---|---------|---------|---------|---------|------|------|
 | 3.1.1 | Button 组件演示 | [src/pages/Button.vue](file:///workspace/apps/playground/src/pages/Button.vue)（新建） | 展示按钮类型（primary/default/success/warning/danger）、尺寸（large/default/small）、状态（disabled/loading）、图标按钮 | 所有按钮样式和状态正常显示 | 0.5h | ✅ |
 | 3.1.2 | Table 组件演示 | [src/pages/Table.vue](file:///workspace/apps/playground/src/pages/Table.vue)（新建） | 展示表格列配置、分页、排序、筛选、固定列、斑马纹、边框样式 | 表格功能完整，数据正常显示 | 0.5h | ✅ |
-| 3.1.3 | LanguageSwitch 演示 | 暂未实现 | 展示中文/English 切换，切换后界面文字更新 | 语言切换即时生效 | 0.5h | ⬜ |
-| 3.1.4 | TenantSelect 演示 | 暂未实现 | 展示租户下拉选择，选择后显示租户信息 | 租户切换正常 | 0.5h | ⬜ |
+| 3.1.3 | LanguageSwitch 演示 | [src/pages/LanguageSwitch.vue](file:///workspace/apps/playground/src/pages/LanguageSwitch.vue)（新建） | 展示中文/English 切换，切换后界面文字更新 | 语言切换即时生效 | 0.5h | ✅ |
+| 3.1.4 | TenantSelect 演示 | [src/pages/TenantSelect.vue](file:///workspace/apps/playground/src/pages/TenantSelect.vue)（新建） | 展示租户下拉选择，选择后显示租户信息 | 租户切换正常 | 0.5h | ✅ |
 
 #### 3.2 图表组件演示（约 3 小时）
 
@@ -127,9 +127,9 @@ apps/playground/
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
 | 3.3.1 | 仪表盘演示 | [src/pages/Gauge.vue](file:///workspace/apps/playground/src/pages/Gauge.vue)（新建） | 展示仪表盘组件，支持数值范围、颜色分段 | 仪表盘正常渲染 | 0.5h | ✅ |
-| 3.3.2 | 数据表格演示 | 暂未实现 | 展示大屏表格组件，支持行列配置、样式定制 | 表格正常渲染 | 0.5h | ⬜ |
-| 3.3.3 | 文本组件演示 | 暂未实现 | 展示文本组件，支持字体大小、颜色、对齐方式 | 文本样式可配置 | 0.5h | ⬜ |
-| 3.3.4 | 图片组件演示 | 暂未实现 | 展示图片组件，支持图片 URL、宽高比、圆角 | 图片正常显示 | 0.5h | ⬜ |
+| 3.3.2 | 数据表格演示 | [src/pages/TableWidget.vue](file:///workspace/apps/playground/src/pages/TableWidget.vue)（新建） | 展示大屏表格组件，支持行列配置、样式定制、滚动 | 表格正常渲染 | 0.5h | ✅ |
+| 3.3.3 | 文本组件演示 | [src/pages/TextWidget.vue](file:///workspace/apps/playground/src/pages/TextWidget.vue)（新建） | 展示文本组件，支持字体大小、颜色、对齐方式、跑马灯 | 文本样式可配置 | 0.5h | ✅ |
+| 3.3.4 | 图片组件演示 | [src/pages/ImageWidget.vue](file:///workspace/apps/playground/src/pages/ImageWidget.vue)（新建） | 展示图片组件，支持图片 URL、宽高比、圆角、轮播 | 图片正常显示 | 0.5h | ✅ |
 
 #### 3.4 表单组件演示（约 1 小时）
 
@@ -144,10 +144,10 @@ apps/playground/
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
 | 4.1 | 创建属性配置面板 | 各演示页面内置 | 动态展示当前组件的可配置属性，支持实时调整 | 修改属性后组件即时更新 | 1h | ✅ |
-| 4.2 | 创建代码预览组件 | 暂未实现 | 展示当前组件的 Vue 代码片段，支持复制到剪贴板 | 代码格式正确，复制功能正常 | 0.5h | ⬜ |
+| 4.2 | 创建代码预览组件 | [src/components/CodePreview.vue](file:///workspace/apps/playground/src/components/CodePreview.vue)（新建） | 展示当前组件的 Vue 代码片段，支持复制到剪贴板 | 代码格式正确，复制功能正常 | 0.5h | ✅ |
 | 4.3 | 创建组件演示容器 | 各演示页面内置 | 整合演示区域、属性面板，提供清晰的布局 | 布局清晰，交互流畅 | 0.5h | ✅ |
 | 4.4 | 暗色主题支持 | [src/layouts/Layout.vue](file:///workspace/apps/playground/src/layouts/Layout.vue) | 在顶部标题栏添加主题切换按钮（sun/moon），支持亮色/暗色模式切换 | 切换主题后所有组件自适应 | 0.5h | ✅ |
-| 4.5 | 响应式布局优化 | [src/layouts/Layout.vue](file:///workspace/apps/playground/src/layouts/Layout.vue) | 侧边栏在小屏幕下自动折叠为图标模式，内容区自适应 | 移动端显示正常 | 0.5h | ⬜ |
+| 4.5 | 响应式布局优化 | [src/layouts/Layout.vue](file:///workspace/apps/playground/src/layouts/Layout.vue)、各分类页面 | 侧边栏在小屏幕下自动折叠为图标模式，内容区自适应 | 移动端显示正常 | 0.5h | ✅ |
 
 ---
 

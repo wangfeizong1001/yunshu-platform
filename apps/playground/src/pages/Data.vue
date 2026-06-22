@@ -12,19 +12,33 @@
         <div class="card-title">仪表盘</div>
         <div class="card-desc">展示关键指标的实时数值</div>
       </router-link>
-      <router-link to="/table" class="component-card">
+      <router-link to="/table-widget" class="component-card">
         <div class="card-icon">
           <Grid />
         </div>
         <div class="card-title">数据表格</div>
         <div class="card-desc">展示结构化数据的表格组件</div>
       </router-link>
+      <router-link to="/text-widget" class="component-card">
+        <div class="card-icon">
+          <Document />
+        </div>
+        <div class="card-title">文本组件</div>
+        <div class="card-desc">用于大屏展示的文本组件</div>
+      </router-link>
+      <router-link to="/image-widget" class="component-card">
+        <div class="card-icon">
+          <Picture />
+        </div>
+        <div class="card-title">图片组件</div>
+        <div class="card-desc">用于大屏展示的图片组件</div>
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Monitor, Grid } from '@element-plus/icons-vue';
+import { Monitor, Grid, Document, Picture } from '@element-plus/icons-vue';
 </script>
 
 <style lang="scss" scoped>

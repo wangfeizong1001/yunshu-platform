@@ -92,6 +92,42 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/Upload.vue'),
         meta: { title: '文件上传' },
       },
+      {
+        path: 'language-switch',
+        name: 'language-switch',
+        component: () => import('@/pages/LanguageSwitch.vue'),
+        meta: { title: '语言切换' },
+      },
+      {
+        path: 'tenant-select',
+        name: 'tenant-select',
+        component: () => import('@/pages/TenantSelect.vue'),
+        meta: { title: '租户选择' },
+      },
+      {
+        path: 'table-widget',
+        name: 'table-widget',
+        component: () => import('@/pages/TableWidget.vue'),
+        meta: { title: '数据表格' },
+      },
+      {
+        path: 'text-widget',
+        name: 'text-widget',
+        component: () => import('@/pages/TextWidget.vue'),
+        meta: { title: '文本组件' },
+      },
+      {
+        path: 'image-widget',
+        name: 'image-widget',
+        component: () => import('@/pages/ImageWidget.vue'),
+        meta: { title: '图片组件' },
+      },
+      {
+        path: 'code-preview',
+        name: 'code-preview',
+        component: () => import('@/pages/CodePreviewDemo.vue'),
+        meta: { title: '代码预览' },
+      },
     ],
   },
 ];
