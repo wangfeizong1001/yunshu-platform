@@ -36,18 +36,6 @@ export const constantRoutes = [
         meta: { title: '404', hidden: true }
     },
     {
-        path: '/403',
-        name: 'Forbidden',
-        component: () => import('@/views/error/403.vue'),
-        meta: { title: '403', hidden: true }
-    },
-    {
-        path: '/500',
-        name: 'ServerError',
-        component: () => import('@/views/error/500.vue'),
-        meta: { title: '500', hidden: true }
-    },
-    {
         path: '/:pathMatch(.*)*',
         redirect: '/404',
         meta: { hidden: true }

@@ -1,6 +1,5 @@
 import { ref, computed, watch } from 'vue';
 import { getTenantDetail } from '@/api/tenant/tenant.api';
-import { TenantStatusEnum } from '@yunshu/shared';
 const props = defineProps();
 const emit = defineEmits();
 // 状态

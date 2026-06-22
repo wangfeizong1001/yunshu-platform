@@ -62,28 +62,6 @@ export const useTagsViewStore = defineStore('tagsView', () => {
             cachedViews.value.splice(index, 1);
         }
     };
-    const delRightViews = (view) => {
-        const index = visitedViews.value.findIndex((v) => v.path === view.path);
-        if (index !== -1) {
-            const rightViews = visitedViews.value.slice(index + 1);
-            rightViews.forEach((v) => {
-                if (!v.meta?.affix) {
-                    delVisitedView(v);
-                }
-            });
-        }
-    };
-    const delLeftViews = (view) => {
-        const index = visitedViews.value.findIndex((v) => v.path === view.path);
-        if (index !== -1) {
-            const leftViews = visitedViews.value.slice(0, index);
-            leftViews.forEach((v) => {
-                if (!v.meta?.affix) {
-                    delVisitedView(v);
-                }
-            });
-        }
-    };
     const updateVisitedView = (view) => {
         const index = visitedViews.value.findIndex((v) => v.path === view.path);
         if (index !== -1) {
@@ -98,9 +76,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
         delOtherViews,
         delAllViews,
         delCachedView,
-        updateVisitedView,
-        delLeftViews,
-        delRightViews
+        updateVisitedView
     };
 });
 //# sourceMappingURL=tagsView.js.map

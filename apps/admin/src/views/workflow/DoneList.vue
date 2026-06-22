@@ -131,7 +131,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { Search, Refresh, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { type Task } from '@/api/workflow.api'
-import { getMockDoneTaskPage } from '@/mock/workflow.mock'
+import { getDoneTaskPage } from '@/api/workflow.api'
 
 const loading = ref(false)
 const taskList = ref<Task[]>([])
@@ -169,9 +169,11 @@ const taskHistory = ref([
 async function fetchTaskList() {
   loading.value = true
   try {
-    const res = getMockDoneTaskPage(queryParams)
-    taskList.value = res.rows as unknown as Task[]
+    const res = await getDoneTaskPage(queryParams)
+    taskList.value = res.rows
     total.value = res.total
+  } catch (error) {
+    console.error('获取已办任务失败', error)
   } finally {
     loading.value = false
   }

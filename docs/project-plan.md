@@ -1,7 +1,7 @@
 # 云枢中台 — 完整任务清单
 
 > 文档编号：`YUNSHU-PLAN-2026-06-v1`
-> 更新日期：2026-06-22
+> 更新日期：2026-06-16
 > 负责人：前端团队
 > 执行要求：**本仓库严格使用 pnpm 作为唯一包管理器，严禁使用 npm / yarn**
 
@@ -119,7 +119,7 @@ pnpm dev                # 应用能正常启动
 | 个人中心与体验 | 4 项 | ~~个人中心为纯占位符~~✅、~~TagsView 无右键菜单~~✅、~~缺 403/500 页~~✅、~~全局搜索无菜单搜索~~✅ |
 | 用户/租户完善 | 3 项 | ~~重置密码仅提示~~✅、~~TenantStatusEnum 未定义~~✅、~~套餐下拉无数据~~✅ |
 | 工作流 Mock→真实 | 5 项 | 流程定义/任务/实例全部用 mock、所有操作仅弹消息无后端交互 |
-| 大屏设计器完善 | 4 项 | ~~组件渲染为纯文本~~✅、~~不可二次拖动~~✅、~~保存未持久化~~✅、~~无数据源绑定~~✅ |
+| 大屏设计器完善 | 4 项 | 组件渲染为纯文本、不可二次拖动、保存未持久化、无数据源绑定 |
 | 测试覆盖补充 | 7 项 | 视图层 0 单测、9 个模块 0 测试、E2E 深度不足 |
 | **设计系统合规** | **4 项** | ~~46 个文件硬编码颜色~~✅、~~variables.scss 与 design-tokens 冲突~~✅、~~无 Stylelint 检查~~✅ |
 
@@ -219,14 +219,14 @@ pnpm dev                # 应用能正常启动
 **目标**：使大屏设计器从原型升级为可使用的工具。
 **预计总工时**：2 天
 **前置依赖**：无
-**状态**：✅ 已完成（远程 develop 已存在）
+**状态**：⬜ 待开始
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 6.1 | 画布组件渲染真实 ECharts | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue) | 参考 [DashboardScreen.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardScreen.vue) 的实现方式；为组件列表中每项（折线图、柱状图、饼图、环形图、面积图、表格、文本、图片）建立独立的渲染组件；画布内根据组件类型动态渲染对应组件；使用 vue-echarts 渲染图表 | 添加"折线图"组件后，画布显示真实的 ECharts 折线图而非纯文本；所有组件类型均可正确渲染 | 6h | ✅ |
-| 6.2 | 画布组件可拖拽移动和调整大小 | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue) | 为画布上每个组件添加拖拽手柄（mousedown/mousemove/mouseup），更新组件的 x/y 坐标；为每个组件添加 8 个方向的 resize 手柄，更新 width/height；添加选中高亮边框；使用 CSS transform 或 left/top 定位，保持响应式 | 组件可在画布自由拖动、改变大小；坐标和尺寸更新后持久存在配置对象中 | 4h | ✅ |
-| 6.3 | 属性面板新增数据源绑定配置 | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue), [admin-dashboard.api.ts](file:///workspace/apps/admin/src/api/admin-dashboard.api.ts) | 在属性面板添加"数据源"区块：下拉框选数据源类型（Mock数据/后端接口）、接口 URL 输入、请求方法（GET/POST）、字段映射（x轴字段、y轴字段、系列字段）；保存到组件配置对象的 `dataSource` 字段；预览/渲染时根据 dataSource 获取数据 | 可为每个图表组件配置数据源，配置后图表显示对应数据 | 3h | ✅ |
-| 6.4 | 模板选择与保存持久化 | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue), [admin-dashboard.api.ts](file:///workspace/apps/admin/src/api/admin-dashboard.api.ts) | 在 API 层新增 `getDashboardTemplates()`、`saveDashboard(dashboard)`、`updateDashboard(id, dashboard)`、`getDashboard(id)`；为设计器顶部工具栏添加"选择模板"下拉框与"保存"按钮；保存时弹出对话框输入大屏名称，确认后 POST 或 PUT | 模板下拉框可看到多个预设；点击保存对话框输入名称后后端存储成功；刷新后可从列表中加载之前保存的配置 | 3h | ✅ |
+| 6.1 | 画布组件渲染真实 ECharts | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue) | 参考 [DashboardScreen.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardScreen.vue) 的实现方式；为组件列表中每项（折线图、柱状图、饼图、环形图、面积图、表格、文本、图片）建立独立的渲染组件；画布内根据组件类型动态渲染对应组件；使用 vue-echarts 渲染图表 | 添加"折线图"组件后，画布显示真实的 ECharts 折线图而非纯文本；所有组件类型均可正确渲染 | 6h | ⬜ |
+| 6.2 | 画布组件可拖拽移动和调整大小 | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue) | 为画布上每个组件添加拖拽手柄（mousedown/mousemove/mouseup），更新组件的 x/y 坐标；为每个组件添加 8 个方向的 resize 手柄，更新 width/height；添加选中高亮边框；使用 CSS transform 或 left/top 定位，保持响应式 | 组件可在画布自由拖动、改变大小；坐标和尺寸更新后持久存在配置对象中 | 4h | ⬜ |
+| 6.3 | 属性面板新增数据源绑定配置 | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue), [admin-dashboard.api.ts](file:///workspace/apps/admin/src/api/admin-dashboard.api.ts) | 在属性面板添加"数据源"区块：下拉框选数据源类型（Mock数据/后端接口）、接口 URL 输入、请求方法（GET/POST）、字段映射（x轴字段、y轴字段、系列字段）；保存到组件配置对象的 `dataSource` 字段；预览/渲染时根据 dataSource 获取数据 | 可为每个图表组件配置数据源，配置后图表显示对应数据 | 3h | ⬜ |
+| 6.4 | 模板选择与保存持久化 | [DashboardDesign.vue](file:///workspace/apps/admin/src/views/dashboard-pro/DashboardDesign.vue), [admin-dashboard.api.ts](file:///workspace/apps/admin/src/api/admin-dashboard.api.ts) | 在 API 层新增 `getDashboardTemplates()`、`saveDashboard(dashboard)`、`updateDashboard(id, dashboard)`、`getDashboard(id)`；为设计器顶部工具栏添加"选择模板"下拉框与"保存"按钮；保存时弹出对话框输入大屏名称，确认后 POST 或 PUT | 模板下拉框可看到多个预设；点击保存对话框输入名称后后端存储成功；刷新后可从列表中加载之前保存的配置 | 3h | ⬜ |
 
 ---
 
@@ -310,17 +310,17 @@ pnpm dev                # 应用能正常启动
 
 ## 七、交付里程碑与时间估算
 
-| 批次 | 内容 | 预计工时 | 里程碑日期 | 状态 |
-|------|------|---------|-----------|------|
-| 第1批 | 基础设施修复 | 4 小时 | Day 1 | ✅ 已完成 |
-| 第2批 | 主题与布局完善 | 12 小时 | Day 2-3 | ✅ 已完成 |
-| 第3批 | 个人中心与体验 | 9 小时 | Day 4 | ✅ 已完成 |
-| 第4批 | 用户/租户完善 | 5 小时 | Day 4-5 | ✅ 已完成 |
-| 第5批 | 工作流真实 API | 20-28 小时 | Day 6-8 | ⬜ 待开始 |
-| 第6批 | 大屏设计器完善 | 16 小时 | Day 9-10 | ✅ 已完成 |
-| 第7批 | 测试覆盖补充 | 22 小时 | Day 11-13 | ⏳ 进行中 |
-| 第8批 | 设计系统合规检查 | 9 小时 | Day 3-4 | ✅ 已完成 |
-| **合计** | | **约 7-8 个工作日（1人）** | **2 周左右** | **6/8 完成** |
+| 批次 | 内容 | 预计工时 | 里程碑日期 |
+|------|------|---------|-----------|
+| 第1批 | 基础设施修复 | 4 小时 | Day 1 |
+| 第2批 | 主题与布局完善 | 12 小时 | Day 2-3 |
+| 第3批 | 个人中心与体验 | 9 小时 | Day 4 |
+| 第4批 | 用户/租户完善 | 5 小时 | Day 4-5 |
+| 第5批 | 工作流真实 API | 20-28 小时 | Day 6-8 |
+| 第6批 | 大屏设计器完善 | 16 小时 | Day 9-10 |
+| 第7批 | 测试覆盖补充 | 22 小时 | Day 11-13 |
+| 第8批 | 设计系统合规检查 | 9 小时 | Day 3-4（与第2批并行） |
+| **合计** | | **约 7-8 个工作日（1人）** | **2 周左右** |
 
 ---
 

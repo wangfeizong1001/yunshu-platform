@@ -151,8 +151,14 @@ import {
   type ProcessDefinitionForm,
 } from '@/api/workflow.api'
 import {
-  getMockProcessDefinitionPage,
-} from '@/mock/workflow.mock'
+  getProcessDefinitionPage,
+  addProcessDefinition,
+  updateProcessDefinition,
+  deleteProcessDefinition,
+  deployProcessDefinition,
+  suspendProcessDefinition,
+  activateProcessDefinition,
+} from '@/api/workflow.api'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -191,8 +197,8 @@ const formRules: FormRules<ProcessDefinitionForm> = {
 async function fetchProcessList() {
   loading.value = true
   try {
-    const res = getMockProcessDefinitionPage(queryParams)
-    processList.value = res.rows as unknown as ProcessDefinition[]
+    const res = await getProcessDefinitionPage(queryParams)
+    processList.value = res.rows
     total.value = res.total
   } catch (error) {
     console.error('获取流程列表失败', error)
@@ -270,11 +276,13 @@ async function handleDeploy(row: ProcessDefinition) {
     await ElMessageBox.confirm(`确认发布流程"${row.name}"吗？`, '提示', {
       type: 'warning',
     })
+    await deployProcessDefinition(row.id)
     ElMessage.success('发布成功')
     refreshTable()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('发布失败', error)
+      ElMessage.error('发布失败')
     }
   }
 }
@@ -285,11 +293,13 @@ async function handleSuspend(row: ProcessDefinition) {
     await ElMessageBox.confirm(`确认挂起流程"${row.name}"吗？`, '提示', {
       type: 'warning',
     })
+    await suspendProcessDefinition(row.id)
     ElMessage.success('挂起成功')
     refreshTable()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('挂起失败', error)
+      ElMessage.error('挂起失败')
     }
   }
 }
@@ -300,11 +310,13 @@ async function handleActivate(row: ProcessDefinition) {
     await ElMessageBox.confirm(`确认激活流程"${row.name}"吗？`, '提示', {
       type: 'warning',
     })
+    await activateProcessDefinition(row.id)
     ElMessage.success('激活成功')
     refreshTable()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('激活失败', error)
+      ElMessage.error('激活失败')
     }
   }
 }
@@ -325,11 +337,13 @@ async function handleDelete(row: ProcessDefinition) {
     await ElMessageBox.confirm(`确认删除流程"${row.name}"吗？`, '提示', {
       type: 'warning',
     })
+    await deleteProcessDefinition(row.id)
     ElMessage.success('删除成功')
     refreshTable()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除失败', error)
+      ElMessage.error('删除失败')
     }
   }
 }
@@ -337,9 +351,20 @@ async function handleDelete(row: ProcessDefinition) {
 // 表单提交
 async function handleFormSubmit() {
   await formRef.value?.validate()
-  ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
-  formDialogVisible.value = false
-  refreshTable()
+  try {
+    if (isEdit.value) {
+      await updateProcessDefinition(formData)
+      ElMessage.success('更新成功')
+    } else {
+      await addProcessDefinition(formData)
+      ElMessage.success('创建成功')
+    }
+    formDialogVisible.value = false
+    refreshTable()
+  } catch (error) {
+    console.error('提交失败', error)
+    ElMessage.error('提交失败')
+  }
 }
 
 // 选择变化

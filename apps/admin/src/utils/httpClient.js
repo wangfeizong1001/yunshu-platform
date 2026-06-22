@@ -54,11 +54,9 @@ service.interceptors.response.use((response) => {
     }
     else if (status === 403) {
         ElMessage.error('无访问权限');
-        window.location.hash = '#/403';
     }
     else if (status !== undefined && status >= 500) {
         ElMessage.error(`服务器异常 (${status})，请稍后重试`);
-        window.location.hash = '#/500';
     }
     else {
         ElMessage.error(message);

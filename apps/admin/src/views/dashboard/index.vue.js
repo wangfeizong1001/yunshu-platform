@@ -31,7 +31,7 @@ const OPER_TYPE_TAG_MAP = {
 };
 // 图表主题色 —— 统一定义，便于未来主题切换
 const CHART_THEME = {
-    primary: '#4a9eff',
+    primary: '#409EFF',
     success: '#67C23A',
     warning: '#E6A23C',
     danger: '#F56C6C',
