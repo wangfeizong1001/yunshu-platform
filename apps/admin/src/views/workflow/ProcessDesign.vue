@@ -323,7 +323,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   ArrowLeft,
@@ -332,13 +332,22 @@ import {
   RefreshLeft,
   RefreshRight,
 } from '@element-plus/icons-vue'
+import {
+  getProcessDefinition,
+  addProcessDefinition,
+  updateProcessDefinition,
+  deployProcessDefinition,
+} from '@/api/workflow.api'
 
 const router = useRouter()
+const route = useRoute()
 
 const canvasRef = ref<HTMLElement>()
 const svgRef = ref<SVGSVGElement>()
 
 const processName = ref('请假审批')
+const processId = ref<string | null>(null)
+const isEdit = ref(false)
 const viewMode = ref('design')
 
 const canvasWidth = 800
@@ -468,12 +477,47 @@ function goBack() {
   router.push('/workflow/process')
 }
 
-function handleSave() {
-  ElMessage.success('保存成功')
+// 保存流程定义
+async function handleSave() {
+  try {
+    const formData = {
+      name: processName.value,
+      key: `process_${Date.now()}`,
+      category: 'OA',
+      description: '流程描述',
+      xml: JSON.stringify({ nodes: nodes.value, connections: connections.value }),
+    }
+
+    if (processId.value) {
+      await updateProcessDefinition({ ...formData, id: processId.value })
+      ElMessage.success('保存成功')
+    } else {
+      const res = await addProcessDefinition(formData)
+      processId.value = (res as unknown as { id: string })?.id || null
+      isEdit.value = true
+      ElMessage.success('创建成功')
+    }
+  } catch (error) {
+    console.error('保存失败', error)
+    ElMessage.error('保存失败')
+  }
 }
 
-function handleDeploy() {
-  ElMessage.success('发布成功')
+// 发布流程定义
+async function handleDeploy() {
+  try {
+    // 如果未保存，先保存
+    if (!processId.value) {
+      await handleSave()
+    }
+    if (processId.value) {
+      await deployProcessDefinition(processId.value)
+      ElMessage.success('发布成功')
+    }
+  } catch (error) {
+    console.error('发布失败', error)
+    ElMessage.error('发布失败')
+  }
 }
 
 function handleUndo() {
@@ -691,7 +735,34 @@ function removeCondition(index: number) {
   selectedNode.value.conditions.splice(index, 1)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 从路由参数获取流程 ID
+  const id = route.params.id as string
+  if (id) {
+    try {
+      processId.value = id
+      isEdit.value = true
+      const res = await getProcessDefinition(id)
+      processName.value = res.name || '未命名流程'
+      // 如果有保存的 XML，解析并加载
+      if (res.xml) {
+        try {
+          const savedData = JSON.parse(res.xml)
+          if (savedData.nodes) {
+            nodes.value = savedData.nodes
+          }
+          if (savedData.connections) {
+            connections.value = savedData.connections
+          }
+        } catch {
+          // 解析失败，使用默认数据
+        }
+      }
+    } catch (error) {
+      console.error('获取流程定义失败', error)
+    }
+  }
+
   nextTick(() => {
     const nodeEls = document.querySelectorAll('.flow-node')
     nodeEls.forEach((el, idx) => {

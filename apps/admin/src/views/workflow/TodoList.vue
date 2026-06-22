@@ -275,7 +275,13 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Refresh, Download } from '@element-plus/icons-vue'
 import { type Task } from '@/api/workflow.api'
-import { getMockTodoTaskPage } from '@/mock/workflow.mock'
+import {
+  getTodoTaskPage,
+  approveTask,
+  rejectTask,
+  delegateTask,
+  assignTask,
+} from '@/api/workflow.api'
 
 const loading = ref(false)
 const taskList = ref<Task[]>([])
@@ -336,9 +342,11 @@ const taskHistory = ref([
 async function fetchTaskList() {
   loading.value = true
   try {
-    const res = getMockTodoTaskPage(queryParams)
-    taskList.value = res.rows as unknown as Task[]
+    const res = await getTodoTaskPage(queryParams)
+    taskList.value = res.rows
     total.value = res.total
+  } catch (error) {
+    console.error('获取待办任务失败', error)
   } finally {
     loading.value = false
   }
@@ -385,36 +393,80 @@ function handleView(row: Task) {
   viewDrawerVisible.value = true
 }
 
-function handleApproveSubmit() {
-  ElMessage.success('审批通过')
-  approveDialogVisible.value = false
-  refreshTable()
+// 审批通过
+async function handleApproveSubmit() {
+  if (!currentTask.value) return
+  try {
+    await approveTask({
+      taskId: currentTask.value.id,
+      comment: approveForm.comment,
+    })
+    ElMessage.success('审批通过')
+    approveDialogVisible.value = false
+    refreshTable()
+  } catch (error) {
+    console.error('审批失败', error)
+    ElMessage.error('审批失败')
+  }
 }
 
-function handleRejectSubmit() {
-  ElMessage.success('已驳回')
-  approveDialogVisible.value = false
-  refreshTable()
+// 审批驳回
+async function handleRejectSubmit() {
+  if (!currentTask.value) return
+  try {
+    await rejectTask({
+      taskId: currentTask.value.id,
+      comment: approveForm.comment,
+    })
+    ElMessage.success('已驳回')
+    approveDialogVisible.value = false
+    refreshTable()
+  } catch (error) {
+    console.error('驳回失败', error)
+    ElMessage.error('驳回失败')
+  }
 }
 
-function handleDelegateSubmit() {
-  if (!delegateForm.userId) {
+// 转办提交
+async function handleDelegateSubmit() {
+  if (!currentTask.value || !delegateForm.userId) {
     ElMessage.warning('请选择转办对象')
     return
   }
-  ElMessage.success('转办成功')
-  delegateDialogVisible.value = false
-  refreshTable()
+  try {
+    await delegateTask({
+      taskId: currentTask.value.id,
+      userId: delegateForm.userId,
+      comment: delegateForm.comment,
+    })
+    ElMessage.success('转办成功')
+    delegateDialogVisible.value = false
+    refreshTable()
+  } catch (error) {
+    console.error('转办失败', error)
+    ElMessage.error('转办失败')
+  }
 }
 
-function handleAssignSubmit() {
-  if (!assignForm.userId) {
+// 委托提交
+async function handleAssignSubmit() {
+  if (!currentTask.value || !assignForm.userId) {
     ElMessage.warning('请选择委托对象')
     return
   }
-  ElMessage.success('委托成功')
-  assignDialogVisible.value = false
-  refreshTable()
+  try {
+    await assignTask({
+      taskId: currentTask.value.id,
+      userId: assignForm.userId,
+      comment: assignForm.comment,
+    })
+    ElMessage.success('委托成功')
+    assignDialogVisible.value = false
+    refreshTable()
+  } catch (error) {
+    console.error('委托失败', error)
+    ElMessage.error('委托失败')
+  }
 }
 
 function handleAddSign(row: Task) {
@@ -440,26 +492,45 @@ function handleSelectionChange(selection: Task[]) {
   selectedTasks.value = selection
 }
 
-function handleBatchApprove() {
+// 批量通过
+async function handleBatchApprove() {
   if (selectedTasks.value.length === 0) {
     ElMessage.warning('请先选择任务')
     return
   }
-  ElMessage.success(`已批量通过 ${selectedTasks.value.length} 项任务`)
-  selectedTasks.value = []
-  refreshTable()
+  try {
+    for (const task of selectedTasks.value) {
+      await approveTask({ taskId: task.id, comment: '批量通过' })
+    }
+    ElMessage.success(`已批量通过 ${selectedTasks.value.length} 项任务`)
+    selectedTasks.value = []
+    refreshTable()
+  } catch (error) {
+    console.error('批量通过失败', error)
+    ElMessage.error('批量通过失败')
+  }
 }
 
-function handleBatchReject() {
+// 批量驳回
+async function handleBatchReject() {
   if (selectedTasks.value.length === 0) {
     ElMessage.warning('请先选择任务')
     return
   }
-  ElMessage.success(`已批量驳回 ${selectedTasks.value.length} 项任务`)
-  selectedTasks.value = []
-  refreshTable()
+  try {
+    for (const task of selectedTasks.value) {
+      await rejectTask({ taskId: task.id, comment: '批量驳回' })
+    }
+    ElMessage.success(`已批量驳回 ${selectedTasks.value.length} 项任务`)
+    selectedTasks.value = []
+    refreshTable()
+  } catch (error) {
+    console.error('批量驳回失败', error)
+    ElMessage.error('批量驳回失败')
+  }
 }
 
+// 批量转办
 function handleBatchTransfer() {
   if (selectedTasks.value.length === 0) {
     ElMessage.warning('请先选择任务')
@@ -470,15 +541,28 @@ function handleBatchTransfer() {
   batchTransferDialogVisible.value = true
 }
 
-function handleBatchTransferSubmit() {
+// 批量转办提交
+async function handleBatchTransferSubmit() {
   if (!batchTransferForm.userId) {
     ElMessage.warning('请选择转办对象')
     return
   }
-  ElMessage.success(`已批量转办 ${selectedTasks.value.length} 项任务`)
-  batchTransferDialogVisible.value = false
-  selectedTasks.value = []
-  refreshTable()
+  try {
+    for (const task of selectedTasks.value) {
+      await delegateTask({
+        taskId: task.id,
+        userId: batchTransferForm.userId,
+        comment: batchTransferForm.reason,
+      })
+    }
+    ElMessage.success(`已批量转办 ${selectedTasks.value.length} 项任务`)
+    batchTransferDialogVisible.value = false
+    selectedTasks.value = []
+    refreshTable()
+  } catch (error) {
+    console.error('批量转办失败', error)
+    ElMessage.error('批量转办失败')
+  }
 }
 
 function handleExport() {
