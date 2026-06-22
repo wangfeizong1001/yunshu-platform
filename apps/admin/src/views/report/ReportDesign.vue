@@ -171,7 +171,7 @@ import { ElMessage } from 'element-plus'
 import { ArrowLeft, View, Check, Plus, Delete, Upload } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import type { EChartsOption } from 'echarts'
-import { getReport, updateReport, type ReportForm } from '@/api/report.api'
+import { getReport, updateReport, type ReportForm, type ReportInfo } from '@/api/report.api'
 import { exportToPDF } from '@/utils/export'
 
 const router = useRouter()
@@ -181,7 +181,7 @@ const route = useRoute()
 const loading = ref(false)
 const saving = ref(false)
 const reportId = ref<number>()
-const reportInfo = ref<unknown>(null)
+const reportInfo = ref<ReportInfo | null>(null)
 const activeTab = ref('basic')
 const previewDialogVisible = ref(false)
 const chartRef = ref<HTMLElement>()
@@ -402,7 +402,7 @@ async function handleSave() {
     
     const updateData: ReportForm = {
       reportId: reportId.value,
-      reportName: reportConfig.title || reportInfo.value?.reportName,
+      reportName: reportConfig.title || reportInfo.value?.reportName || '',
       reportType: reportType.value,
       description: reportConfig.description,
       config: JSON.stringify(config),
@@ -423,23 +423,24 @@ async function handleSave() {
 async function loadReport() {
   const id = route.params.id as string
   if (!id) return
-  
+
   reportId.value = parseInt(id)
-  
+
   loading.value = true
   try {
-    const res = await getReport(reportId.value) as Record<string, unknown>
-    reportInfo.value = res.data
-    
+    const res = await getReport(reportId.value)
+    const data = res?.data
+    reportInfo.value = data ?? null
+
     // 设置基础信息
-    reportConfig.title = res.data.reportName
-    reportConfig.description = res.data.description
-    reportType.value = res.data.reportType as 'chart' | 'table'
-    
+    reportConfig.title = data?.reportName || ''
+    reportConfig.description = data?.description || ''
+    reportType.value = data?.reportType as 'chart' | 'table' || 'chart'
+
     // 解析配置
-    if (res.data.config) {
+    if (data?.config) {
       try {
-        const config = JSON.parse(res.data.config)
+        const config = JSON.parse(data.config)
         if (config.title) reportConfig.title = config.title
         if (config.description) reportConfig.description = config.description
         if (config.chartType) chartConfig.type = config.chartType
@@ -452,7 +453,7 @@ async function loadReport() {
           rawData.value = config.data
           previewData.value = config.data
           dataJson.value = JSON.stringify(config.data, null, 2)
-          
+
           if (config.data.length > 0) {
             availableFields.value = Object.keys(config.data[0])
           }

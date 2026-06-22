@@ -30,7 +30,8 @@ export function useCache<T = unknown>(
 ): UseCacheReturn<T> {
   const { autoLoad = true, autoSave = true, ...cacheOptions } = options
 
-  const data = ref<T | undefined>(autoLoad ? cache.get<T>(key, defaultValue, cacheOptions) : defaultValue)
+  const initialValue = autoLoad ? cache.get<T>(key, defaultValue, cacheOptions) : defaultValue
+  const data = ref<T | undefined>(initialValue) as Ref<T | undefined>
 
   const hasCache = computed(() => cache.has(key, cacheOptions))
 

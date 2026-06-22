@@ -108,7 +108,7 @@ const route = useRoute()
 const loading = ref(true)
 const error = ref(false)
 const reportId = ref<number>()
-const reportInfo = ref<unknown>(null)
+const reportInfo = ref<ReportInfo | null>(null)
 const reportType = ref<'chart' | 'table'>('chart')
 const chartRef = ref<HTMLElement>()
 const reportRef = ref<HTMLElement>()
@@ -275,30 +275,31 @@ async function handleExport(type: string) {
 async function loadReport() {
   const id = route.params.id as string
   if (!id) return
-  
+
   reportId.value = parseInt(id)
   loading.value = true
   error.value = false
-  
+
   try {
     // 获取报表信息
-    const res = await getReport(reportId.value) as { data: ReportInfo }
-    reportInfo.value = res.data
-    reportType.value = res.data.reportType as 'chart' | 'table'
-    
+    const res = await getReport(reportId.value)
+    const data = res?.data
+    reportInfo.value = data ?? null
+    reportType.value = (data?.reportType as 'chart' | 'table') || 'chart'
+
     // 解析配置
-    if (res.data.config) {
+    if (data?.config) {
       try {
-        const config = JSON.parse(res.data.config) as ReportColumn[]
+        const config = JSON.parse(data.config) as ReportColumn[]
         reportConfig.columns = config
       } catch (e) {
         console.error('解析配置失败:', e)
       }
     }
-    
+
     // 等待DOM更新后渲染
     await nextTick()
-    
+
     if (reportType.value === 'chart') {
       renderChart()
     }

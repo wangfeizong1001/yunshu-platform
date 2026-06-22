@@ -321,8 +321,8 @@ const qiniuRules = {
 // 加载配置数据
 async function loadConfig() {
   try {
-    const res = await getOssConfig() as Record<string, unknown>
-    const configs = res?.configs || []
+    const res = await getOssConfig()
+    const configs = res?.data?.configs || []
 
     // 更新各平台表单数据
     configs.forEach((config: Record<string, unknown>) => {
@@ -355,8 +355,8 @@ async function loadConfig() {
     })
 
     // 设置当前使用的标签页
-    if (res?.current) {
-      activeTab.value = res.current.type
+    if (res?.data?.current) {
+      activeTab.value = res.data.current.type
     }
   } catch (error) {
     console.error('加载配置失败', error)

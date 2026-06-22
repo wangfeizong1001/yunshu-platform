@@ -149,14 +149,14 @@ export async function exportToPDF(
     let position = margin
     
     // 添加第一页
-    pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
+    ;(pdf as unknown as { addImage: Function }).addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
     heightLeft -= pageHeight
     
     // 如果内容超过一页，添加分页
     while (heightLeft >= 0) {
       position = heightLeft - imgHeight
       pdf.addPage()
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
+      ;(pdf as unknown as { addImage: Function }).addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight)
       heightLeft -= pageHeight
     }
     
@@ -182,9 +182,9 @@ export function exportToPDFFromText(content: string, fileName: string = 'export'
     // 设置字体和字体大小
     pdf.setFont('helvetica')
     pdf.setFontSize(12)
-    
+
     // 分割文本为多行
-    const lines = pdf.splitTextToSize(content, 180)
+    const lines = (pdf as unknown as { splitTextToSize: Function }).splitTextToSize(content, 180)
     
     // 添加文本到 PDF
     let y = 20

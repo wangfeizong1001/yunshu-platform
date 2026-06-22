@@ -233,7 +233,8 @@ import {
   batchDeleteReport,
   exportReport,
   getReportData,
-  type ReportForm
+  type ReportForm,
+  type ReportInfo
 } from '@/api/report.api'
 import { exportToExcel } from '@/utils/export'
 
@@ -253,14 +254,14 @@ const router = useRouter()
 const loading = ref(false)
 const submitLoading = ref(false)
 const exportLoading = ref(false)
-const reportList = ref<unknown[]>([])
+const reportList = ref<ReportInfo[]>([])
 const total = ref(0)
-const selectedRows = ref<unknown[]>([])
+const selectedRows = ref<ReportInfo[]>([])
 const dialogVisible = ref(false)
 const exportDialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
-const currentReport = ref<unknown>(null)
+const currentReport = ref<ReportInfo | null>(null)
 const exportFormat = ref('excel')
 
 // 查询参数
@@ -296,9 +297,10 @@ const formRules: FormRules = {
 async function fetchReportList() {
   loading.value = true
   try {
-    const res = await getReportPage(queryParams) as { rows: unknown[]; total: number }
-    reportList.value = res.rows
-    total.value = res.total
+    const res = await getReportPage(queryParams)
+    const pageData = res?.data
+    reportList.value = pageData?.rows ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -339,17 +341,17 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: Record<string, unknown>) {
+function handleEdit(row: ReportInfo) {
   router.push(`/report/design/${row.reportId}`)
 }
 
 // 查看
-function handleView(row: Record<string, unknown>) {
+function handleView(row: ReportInfo) {
   router.push(`/report/view/${row.reportId}`)
 }
 
 // 删除
-async function handleDelete(row: Record<string, unknown>) {
+async function handleDelete(row: ReportInfo) {
   try {
     await ElMessageBox.confirm(`是否确认删除报表"${row.reportName}"？`, '提示', {
       type: 'warning'
@@ -374,19 +376,19 @@ async function handleBatchDelete() {
         type: 'warning'
       }
     )
-    const ids = selectedRows.value.map(item => item.reportId)
+    const ids = selectedRows.value.map((item) => item.reportId)
     await batchDeleteReport(ids)
     ElMessage.success('删除成功')
     fetchReportList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
+      console.error('批量删除失败:', error)
     }
   }
 }
 
 // 导出
-function handleExport(row: Record<string, unknown>) {
+function handleExport(row: ReportInfo) {
   currentReport.value = row
   exportFormat.value = 'excel'
   exportDialogVisible.value = true
@@ -395,25 +397,23 @@ function handleExport(row: Record<string, unknown>) {
 // 确认导出
 async function handleConfirmExport() {
   if (!currentReport.value) return
-  
+
   exportLoading.value = true
   try {
-    // 获取报表数据
-    const dataRes = await getReportData({ reportId: currentReport.value.reportId }) as { data: unknown }
-    const reportData = dataRes.data
-    
-    if (reportData && reportData.data) {
+    const res = await getReportData({ reportId: currentReport.value.reportId })
+    const reportData = res?.data
+
+    if (reportData) {
       if (exportFormat.value === 'excel') {
-        exportToExcel(reportData.data, currentReport.value.reportName)
+        exportToExcel(reportData as Record<string, unknown>[], currentReport.value.reportName)
       } else if (exportFormat.value === 'pdf') {
-        // 使用 API 导出
         await exportReport(currentReport.value.reportId, 'pdf')
       }
       ElMessage.success('导出成功')
     } else {
       ElMessage.warning('报表数据为空')
     }
-    
+
     exportDialogVisible.value = false
   } catch (error) {
     console.error('导出失败:', error)
@@ -450,7 +450,7 @@ async function handleSubmit() {
 }
 
 // 选择变化
-function handleSelectionChange(selection: unknown[]) {
+function handleSelectionChange(selection: ReportInfo[]) {
   selectedRows.value = selection
 }
 

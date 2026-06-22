@@ -104,7 +104,7 @@ export function sanitizeHtml(dirtyHtml: string): string {
       // 对 <a> 标签强制添加安全属性
       // eslint-disable-next-line @typescript-eslint/naming-convention
       HOOKS: {
-        afterSanitizeAttributes: (node) => {
+        afterSanitizeAttributes: (node: Element) => {
           if (node.nodeName === 'A' && node instanceof Element) {
             node.setAttribute('rel', 'noopener noreferrer')
             const href = node.getAttribute('href')
@@ -114,7 +114,7 @@ export function sanitizeHtml(dirtyHtml: string): string {
           }
         }
       }
-    })
+    } as unknown as Parameters<typeof DOMPurify.sanitize>[1])
   } catch {
     // 对不完整的 DOM（如 happy-dom）退化到简单文本清洗
     return stripTagsSimple(dirtyHtml)
