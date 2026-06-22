@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <linearGradient id="hero-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a9eff"/>
+      <stop offset="100%" stop-color="#2c7ad6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#hero-gradient)"/>
+  <text x="640" y="320" text-anchor="middle" font-size="80" fill="white" font-family="sans-serif" font-weight="bold">云枢中台</text>
+  <text x="640" y="400" text-anchor="middle" font-size="32" fill="rgba(255,255,255,0.9)" font-family="sans-serif">开箱即用的中台解决方案</text>
+</svg>

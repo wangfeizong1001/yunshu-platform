@@ -55,13 +55,25 @@ pnpm add @yunshu/server-express @yunshu/server-core
 
 ## 包列表
 
-| 包名 | 说明 |
-|------|------|
-| `@yunshu/design-tokens` | 设计令牌 — 输出 CSS/SCSS/JS/Tailwind 多格式 |
-| `@yunshu/shared` | 前后端共享类型和工具函数 |
-| `@yunshu/api-client` | HTTP 客户端 — 去重/缓存/Token 刷新 |
-| `@yunshu/ui` | Vue 3 UI 组件库 — 三层架构 |
-| `@yunshu/server-core` | 后端核心 — BaseService/装饰器/错误体系 |
-| `@yunshu/server-express` | Express 适配器 — BaseController/中间件 |
-| `@yunshu/admin-pro` | 后台管理 Pro 版（计划中） |
-| `@yunshu/cli` | CLI 脚手架（计划中） |
+| 包名 | 说明 | 状态 |
+|------|------|------|
+| `@yunshu/design-tokens` | 设计令牌 — 输出 CSS/SCSS/JS/Tailwind 多格式 | ✅ 完成 |
+| `@yunshu/shared` | 前后端共享类型和工具函数 | ✅ 完成 |
+| `@yunshu/api-client` | HTTP 客户端 — 去重/缓存/Token 刷新 | ✅ 完成 |
+| `@yunshu/ui` | Vue 3 UI 组件库 — 三层架构 | ✅ 完成 |
+| `@yunshu/server-core` | 后端核心 — BaseService/装饰器/错误体系 | ✅ 完成 |
+| `@yunshu/server-express` | Express 适配器 — BaseController/中间件 | ✅ 完成 |
+| `@yunshu/admin` | 权限管理后台 — 完整业务系统 | ✅ 完成 |
+| `@yunshu/cli` | CLI 脚手架 | 🚧 计划中 |
+
+## 核心特性
+
+- ✅ 完整的 RBAC 权限系统（用户/角色/菜单/部门/岗位）
+- ✅ 多租户架构（租户管理 + 套餐管理）
+- ✅ 流程引擎（流程定义/待办/已办/实例）
+- ✅ 大屏设计器（拖拽/数据源/模板保存）
+- ✅ 表单设计器（可视化设计）
+- ✅ 报表系统（设计/查看/导出）
+- ✅ 国际化（i18n 完整中英文支持）
+- ✅ 暗色模式 + 主题切换
+- ✅ 设计系统统一（品牌色 `#4a9eff`）
