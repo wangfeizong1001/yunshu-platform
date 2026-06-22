@@ -4,7 +4,15 @@
     <aside class="sidebar" :class="{ 'is-collapse': isCollapse }">
       <div class="sidebar-header">
         <div class="logo">
-          <img src="/vite.svg" alt="logo" class="logo-img" />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4a9eff" />
+              <stop offset="100%" style="stop-color:#2c7ad6" />
+            </linearGradient>
+            <path d="M12 2L2 7l10 5 10-5-10-5z" fill="url(#logoGrad)" />
+            <path d="M2 17l10 5 10-5" stroke="url(#logoGrad)" stroke-width="2" fill="none" />
+            <path d="M2 12l10 5 10-5" stroke="url(#logoGrad)" stroke-width="2" fill="none" />
+          </svg>
           <span v-show="!isCollapse" class="logo-text">云枢中台</span>
         </div>
       </div>

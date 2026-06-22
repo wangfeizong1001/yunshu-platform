@@ -197,6 +197,61 @@ importers:
         specifier: ^1.0.0
         version: 1.6.4(@algolia/client-search@5.54.1)(@types/node@20.19.43)(async-validator@4.2.5)(axios@1.18.0)(nprogress@0.2.0)(postcss@8.5.15)(react@18.3.1)(sass@1.101.0)(search-insights@2.17.3)(sortablejs@1.14.0)(terser@5.48.0)(typescript@5.9.3)
 
+  apps/playground:
+    dependencies:
+      '@element-plus/icons-vue':
+        specifier: ^2.3.0
+        version: 2.3.2(vue@3.5.38(typescript@5.9.3))
+      '@yunshu/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
+      '@yunshu/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      echarts:
+        specifier: ^6.1.0
+        version: 6.1.0
+      element-plus:
+        specifier: ^2.10.0
+        version: 2.14.2(vue@3.5.38(typescript@5.9.3))
+      vue:
+        specifier: ^3.4.0
+        version: 3.5.38(typescript@5.9.3)
+      vue-echarts:
+        specifier: ^8.0.1
+        version: 8.0.1(echarts@6.1.0)(vue@3.5.38(typescript@5.9.3))
+      vue-router:
+        specifier: ^4.2.0
+        version: 4.6.4(vue@3.5.38(typescript@5.9.3))
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.43
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.0
+        version: 5.2.4(vite@5.4.21(@types/node@20.19.43)(sass@1.101.0)(terser@5.48.0))(vue@3.5.38(typescript@5.9.3))
+      '@yunshu/eslint-config':
+        specifier: workspace:*
+        version: link:../../tools/eslint-config
+      '@yunshu/tsconfig':
+        specifier: workspace:*
+        version: link:../../tools/tsconfig
+      prettier:
+        specifier: ^3.2.0
+        version: 3.8.4
+      sass:
+        specifier: ^1.70.0
+        version: 1.101.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vite:
+        specifier: ^5.0.0
+        version: 5.4.21(@types/node@20.19.43)(sass@1.101.0)(terser@5.48.0)
+      vue-tsc:
+        specifier: ^2.0.0
+        version: 2.2.12(typescript@5.9.3)
+
   packages/api-client:
     dependencies:
       '@yunshu/shared':
