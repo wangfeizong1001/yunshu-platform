@@ -47,7 +47,7 @@ describe('usePermissionStore', () => {
           children: [],
         },
       ],
-    } as unknown)
+    } as any)
 
     const store = usePermissionStore()
     const allRoutes = await store.generateRoutes()
@@ -74,7 +74,7 @@ describe('usePermissionStore', () => {
 
   it('resetRoutes 应清空所有状态（含新加的 dynamicRouteAdded）', async () => {
     // 先触发 generateRoutes 让状态有内容
-    mockedGetRoutersApi.mockResolvedValueOnce({ data: [] } as unknown)
+    mockedGetRoutersApi.mockResolvedValueOnce({ data: [] } as any)
     const store = usePermissionStore()
     await store.generateRoutes()
 
@@ -99,7 +99,7 @@ describe('usePermissionStore', () => {
 
   it('dynamicRouteAdded 应在 generateRoutes 成功后保持 false（由 router 守卫标记）', async () => {
     // 这是一个约定：store 不主动标记，由 router 守卫在 addRoute 后标记
-    mockedGetRoutersApi.mockResolvedValueOnce({ data: [] } as unknown)
+    mockedGetRoutersApi.mockResolvedValueOnce({ data: [] } as any)
     const store = usePermissionStore()
     await store.generateRoutes()
     expect(store.dynamicRouteAdded).toBe(false)

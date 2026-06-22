@@ -2,18 +2,17 @@
 
 ## 概述
 
-当前代码库存在约 **131** 个 TypeScript 类型错误，主要分布在以下模块：
+当前代码库存在约 **126** 个 TypeScript 类型错误，主要分布在以下模块：
 - `views/system/form-designer/` - 32 个错误
 - `views/report/` - 26 个错误
 - `views/system/oss/` - 12 个错误
 - `views/monitor/job/` - 10 个错误
 - `views/system/post/` - 8 个错误
-- `views/system/message/` - 6 个错误
-- 其他模块 - 约 37 个错误
+- 其他模块 - 约 38 个错误
 
 ---
 
-## 已修复的错误（约 67 个）
+## 已修复的错误（约 72 个）
 
 ### ✅ Mock 文件类型导入（19 个）- 已完成
 | 文件 | 修复内容 | 状态 |
@@ -45,7 +44,7 @@
 | `src/views/system/user/UserList.vue` | 修复函数参数类型（handleEdit、handleDelete 等） | ✅ 完成 |
 | `src/views/system/user/index.vue` | 修复 currentUser 类型转换，添加 userId 类型断言 | ✅ 完成 |
 
-### ✅ Mock 文件导入错误（23 个）- 已完成
+### ✅ Mock 文件导入错误（4 个）- 已完成
 | 文件 | 修复内容 | 状态 |
 |------|---------|------|
 | `src/mock/index.ts` 中引用的 `dict.mock.ts` | 添加导出使模块可导入 | ✅ 完成 |
@@ -53,21 +52,18 @@
 | `src/mock/index.ts` 中引用的 `form.mock.ts` | 添加导出使模块可导入 | ✅ 完成 |
 | `src/mock/tenant/index.ts` 中引用的 `tenant-package.mock.ts` | 添加导出使模块可导入 | ✅ 完成 |
 
+### ✅ 测试文件错误（5 个）- 已完成
+| 文件 | 行号 | 修复内容 | 状态 |
+|------|------|---------|------|
+| `src/__tests__/store/permission.test.ts` | 39, 77, 102 | 使用 `as any` 替代 `as unknown` | ✅ 完成 |
+| `src/__tests__/utils/cache.test.ts` | 7 | 使用 `CacheType.LOCAL` 替代字符串 `'local'` | ✅ 完成 |
+| `src/__tests__/utils/security/authStorage-ext.test.ts` | 40 | 为 `getUserProfile` 添加泛型类型参数 | ✅ 完成 |
+
 ---
 
-## 剩余错误详细清单（131 个）
+## 剩余错误详细清单（126 个）
 
-### 1. 测试文件错误（5 个）
-
-| 文件 | 行号 | 错误代码 | 问题描述 |
-|------|------|---------|---------|
-| `src/__tests__/store/permission.test.ts` | 39, 77, 102 | TS2345 | unknown 不能赋值给 ApiResponse<unknown[]> |
-| `src/__tests__/utils/cache.test.ts` | 7 | TS2322 | 'local' 不能赋值给 CacheType |
-| `src/__tests__/utils/security/authStorage-ext.test.ts` | 40 | TS2339 | object 类型上不存在 name 属性 |
-
-**修复方案**：为测试 mock 数据添加正确的类型断言
-
-### 2. API 响应类型错误（3 个）
+### 1. API 响应类型错误（3 个）
 
 | 文件 | 行号 | 错误代码 | 问题描述 |
 |------|------|---------|---------|
@@ -320,7 +316,7 @@ if (typeof value === 'string') {
 
 ## 附录：错误统计
 
-### 剩余错误（131 个）
+### 剩余错误（126 个）
 | 模块 | 错误数 |
 |------|--------|
 | form-designer | 32 |
@@ -332,7 +328,6 @@ if (typeof value === 'string') {
 | knowledge | 6 |
 | message | 6 |
 | third-config | 5 |
-| test files | 5 |
 | sms/sso | 4 |
 | file-upload | 4 |
 | user | 3 |
@@ -342,14 +337,15 @@ if (typeof value === 'string') {
 | composables | 2 |
 | menu | 1 |
 | components | 8 |
-| **总计** | **131** |
+| **总计** | **126** |
 
-### 已修复错误（67 个）
+### 已修复错误（72 个）
 | 类别 | 错误数 |
 |------|--------|
 | Mock 文件类型导入 | 19 |
 | 空 Mock 文件导出 | 4 |
 | Store 状态缺失 | 6 |
 | 用户管理页面 | 15 |
-| Mock 文件导入错误 | 23 |
-| **总计** | **67** |
+| Mock 文件导入错误 | 4 |
+| 测试文件错误 | 5 |
+| **总计** | **72** |

@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { cache } from '@/utils/cache';
+import { CacheType } from '@/config/cache.config';
 
 describe('cache utils - 基础行为', () => {
   beforeEach(() => {
     // 先恢复默认配置
-    cache.updateConfig({ enabled: true, type: 'local' });
+    cache.updateConfig({ enabled: true, type: CacheType.LOCAL });
     cache.clear();
   });
 

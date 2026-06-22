@@ -36,8 +36,8 @@ describe('security/authStorage - token 管理', () => {
 
   it('用户信息可存取', () => {
     expect(getUserProfile()).toBeNull();
-    setUserProfile({ name: 'admin', roles: ['admin'] });
-    expect(getUserProfile()?.name).toBe('admin');
+    setUserProfile<{ name: string; roles: string[] }>({ name: 'admin', roles: ['admin'] });
+    expect(getUserProfile<{ name: string }>()?.name).toBe('admin');
     clearUserProfile();
     expect(getUserProfile()).toBeNull();
   });
