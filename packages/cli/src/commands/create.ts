@@ -7,9 +7,9 @@
  */
 
 import { Command } from 'commander';
-import { input } from '@inquirer/input';
-import { select } from '@inquirer/select';
-import { confirm } from '@inquirer/confirm';
+import input from '@inquirer/input';
+import select from '@inquirer/select';
+import confirm from '@inquirer/confirm';
 import chalk from 'chalk';
 import ora from 'ora';
 import { createProject } from '../utils/projectCreator';

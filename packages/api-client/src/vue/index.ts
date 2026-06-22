@@ -142,7 +142,7 @@ interface UseApiListReturn<T> extends UseApiListState<T> {
  * ```
  */
 export function useApiList<T>(
-  fn: (params: Record<string, unknown>) => Promise<ApiResponse<{ list?: T[]; items?: T[]; total: number }>>,
+  fn: (...args: unknown[]) => Promise<ApiResponse<{ list?: T[]; items?: T[]; total: number }>>,
   initialPageSize = 10,
 ): UseApiListReturn<T> {
   const data: Ref<T[]> = ref([]);

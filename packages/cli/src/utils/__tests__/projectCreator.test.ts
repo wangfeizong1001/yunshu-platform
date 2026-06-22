@@ -34,6 +34,7 @@ describe('projectCreator', () => {
           name: projectName,
           template: 'basic',
           packageManager: 'pnpm',
+          features: [],
         },
         testDir,
       );
@@ -62,6 +63,7 @@ describe('projectCreator', () => {
           name: projectName,
           template: 'admin',
           packageManager: 'npm',
+          features: [],
         },
         testDir,
       );
@@ -88,6 +90,7 @@ describe('projectCreator', () => {
           name: projectName,
           template: 'full-stack',
           packageManager: 'yarn',
+          features: [],
         },
         testDir,
       );
@@ -115,6 +118,7 @@ describe('projectCreator', () => {
             name: projectName,
             template: 'basic',
             packageManager: 'pnpm',
+            features: [],
           },
           testDir,
         ),
@@ -128,6 +132,7 @@ describe('projectCreator', () => {
             name: 'test-invalid',
             template: 'non-existent-template' as 'basic',
             packageManager: 'pnpm',
+            features: [],
           },
           testDir,
         ),
@@ -141,6 +146,7 @@ describe('projectCreator', () => {
           name: projectName,
           template: 'basic',
           packageManager: 'pnpm',
+          features: [],
         },
         testDir,
       );
