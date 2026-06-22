@@ -105,7 +105,8 @@ describe('createAuthMiddleware', () => {
     expect(res.data).toEqual({ success: true, data: { id: 1 } });
     expect(next).toHaveBeenCalledTimes(2);
     // 第二次的 token 应该是新 token
-    expect(next.mock.calls[1][0].headers['Authorization']).toBe('Bearer new-token');
+    const secondCall = next.mock.calls[1] as any;
+    expect(secondCall[0].headers['Authorization']).toBe('Bearer new-token');
   });
 
   it('refreshToken 并发 401 请求：只刷新一次（互斥锁）', async () => {
@@ -194,7 +195,8 @@ describe('createCsrfMiddleware', () => {
     const mw = createCsrfMiddleware();
     const next = vi.fn(async () => makeResponse(null));
     await mw({ method: 'POST', url: '/a', headers: {} }, next);
-    expect(next.mock.calls[0][0].headers['X-XSRF-TOKEN']).toBeUndefined();
+    const firstCall = next.mock.calls[0] as any;
+    expect(firstCall[0].headers['X-XSRF-TOKEN']).toBeUndefined();
   });
 
   it('浏览器环境：应从 cookie 读取 XSRF-TOKEN 并注入 X-XSRF-TOKEN', async () => {
@@ -206,7 +208,8 @@ describe('createCsrfMiddleware', () => {
     const mw = createCsrfMiddleware();
     const next = vi.fn(async () => makeResponse(null));
     await mw({ method: 'POST', url: '/a', headers: {} }, next);
-    expect(next.mock.calls[0][0].headers['X-XSRF-TOKEN']).toBe('secret-token');
+    const firstCall = next.mock.calls[0] as any;
+    expect(firstCall[0].headers['X-XSRF-TOKEN']).toBe('secret-token');
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any).document = originalDoc;
@@ -219,7 +222,8 @@ describe('createCsrfMiddleware', () => {
     const mw = createCsrfMiddleware({ cookieName: 'CSRF', headerName: 'X-CSRF' });
     const next = vi.fn(async () => makeResponse(null));
     await mw({ method: 'POST', url: '/a', headers: {} }, next);
-    expect(next.mock.calls[0][0].headers['X-CSRF']).toBe('abc');
+    const firstCall = next.mock.calls[0] as any;
+    expect(firstCall[0].headers['X-CSRF']).toBe('abc');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any).document = originalDoc;
   });
@@ -407,7 +411,7 @@ describe('createLoggingMiddleware', () => {
     const mw = createLoggingMiddleware({ logger, truncateLength: 100 });
     const next = vi.fn(async () => {
       return { data: bigBody, status: 500, headers: {} };
-    });
+    }) as any;
     await mw({ method: 'GET', url: '/x' }, next);
     const loggedMsg = logger.mock.calls[0][0] as string;
     expect(loggedMsg.length).toBeLessThan(bigBody.length);

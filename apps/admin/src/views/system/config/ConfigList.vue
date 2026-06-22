@@ -141,6 +141,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download, Delete } from '@element-plus/icons-vue'
 import { getConfigPage, deleteConfig, batchDeleteConfig, exportConfig } from '@/api/system/config.api'
+import type { ConfigInfo } from '@/api/system/config.api'
 import type { SysConfig, SysConfigQuery } from '@yunshu/shared'
 import ConfigForm from './ConfigForm.vue'
 
@@ -164,9 +165,10 @@ const queryParams = reactive<SysConfigQuery>({
 async function fetchConfigList() {
   loading.value = true
   try {
-    const res = await getConfigPage(queryParams) as { rows: SysConfig[]; total: number }
-    configList.value = res.rows
-    total.value = res.total
+    const res = await getConfigPage(queryParams)
+    const pageData = res?.data as { rows: ConfigInfo[]; total: number } | undefined
+    configList.value = (pageData?.rows as unknown as SysConfig[]) ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }

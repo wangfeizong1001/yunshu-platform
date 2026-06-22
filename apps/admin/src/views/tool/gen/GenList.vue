@@ -175,7 +175,7 @@ const handleGenerate = async (row: IGenTable) => {
 const handleDelete = async (row: Record<string, unknown>) => {
   try {
     await ElMessageBox.confirm('确认删除该表的生成配置吗？', '提示', { type: 'warning' })
-    await deleteGenTable(row.tableName as string)
+    await deleteGenTable([row.tableName as string])
     ElMessage.success('删除成功')
     handleQuery()
   } catch (err) {

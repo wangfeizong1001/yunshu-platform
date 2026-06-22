@@ -126,6 +126,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
 import { getDictTypePage, deleteDictType, exportDictType } from '@/api/system/dict.api'
+import type { DictTypeInfo } from '@/api/system/dict.api'
 import type { SysDictType, SysDictTypeQuery } from '@yunshu/shared'
 import DictTypeForm from './DictTypeForm.vue'
 import DictDataList from './DictDataList.vue'
@@ -162,9 +163,10 @@ const queryParams = reactive<SysDictTypeQuery>({
 async function fetchDictTypeList() {
   loading.value = true
   try {
-    const res = await getDictTypePage(queryParams) as { rows: SysDictType[]; total: number }
-    dictTypeList.value = res.rows
-    total.value = res.total
+    const res = await getDictTypePage(queryParams)
+    const pageData = res?.data as { rows: DictTypeInfo[]; total: number } | undefined
+    dictTypeList.value = (pageData?.rows as unknown as SysDictType[]) ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }

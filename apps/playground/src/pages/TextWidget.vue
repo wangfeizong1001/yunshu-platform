@@ -120,7 +120,7 @@
             :style="{
               fontSize: titleSize + 'px',
               color: textColor,
-              textAlign: textAlign
+              textAlign: textAlign as 'left' | 'center' | 'right'
             }"
           >
             {{ titleText }}

@@ -28,7 +28,7 @@ type FetchCall = {
 type MockResponse = {
   status: number;
   statusText?: string;
-  body: unknown; // 非 JSON 时使用字符串；JSON 时使用对象
+  body?: unknown; // 非 JSON 时使用字符串；JSON 时使用对象
   headers?: Record<string, string>;
   bodyText?: string; // 完全自定义文本
 };
@@ -44,7 +44,7 @@ function setupFetchMock() {
         ? res.bodyText
         : typeof res.body === 'string'
           ? res.body
-          : JSON.stringify(res.body);
+          : JSON.stringify(res.body ?? null);
     const response = new Response(textBody, {
       status: res.status,
       statusText: res.statusText,

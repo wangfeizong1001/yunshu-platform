@@ -138,7 +138,7 @@ describe('BaseService', () => {
   it('findWithPagination 应返回分页对象', async () => {
     const result = await service.findWithPagination({ page: 1, limit: 10 });
     expect(result.success).toBe(true);
-    expect(result.data.pagination).toBeDefined();
+    expect(result.data!.pagination).toBeDefined();
   });
 
   it('findOne 应通过条件查询', async () => {

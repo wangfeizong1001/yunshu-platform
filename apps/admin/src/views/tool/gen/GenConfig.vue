@@ -296,7 +296,7 @@
       <el-button @click="handleBack">返回</el-button>
     </div>
 
-    <GenPreview v-model="previewVisible" :table-name="formData.tableName" :config="formData" />
+    <GenPreview v-model="previewVisible" :table-name="formData.tableName" :config="formData as any" />
   </div>
 </template>
 
@@ -380,11 +380,11 @@ const loadConfig = async () => {
   }
 
   try {
-    const res = await getGenConfig(tableName) as { success: boolean; data: { config: IGenConfig; columns: IGenColumn[] } | null }
+    const res = await getGenConfig(tableName) as any
     if (res.success && res.data) {
       const { config, columns: colsData } = res.data
       Object.assign(formData, config)
-      columns.value = colsData.map((col: IGenColumn) => ({
+      columns.value = (colsData as any[]).map((col: any) => ({
         ...col,
         isQuery: !!col.queryType,
         isDisplay: !col.isPK,
@@ -415,7 +415,7 @@ const handleSave = async () => {
         ...col,
         queryType: col.isQuery ? col.queryType : undefined
       }))
-    })
+    } as any)
     ElMessage.success('保存成功')
   } catch (err) {
     if (!String((err as Error)?.message)?.includes('cancel')) {
@@ -433,9 +433,9 @@ const handleSyncTable = async () => {
       type: 'warning'
     })
 
-    const res = await syncTable(formData.tableName)
+    const res = await syncTable(formData.tableName) as any
     if (res.success && res.data) {
-      columns.value = res.data.map((col: IGenColumn) => ({
+      columns.value = res.data.map((col: any) => ({
         ...col,
         isQuery: !!col.queryType,
         isDisplay: !col.isPK,
@@ -477,7 +477,7 @@ const handlePreview = () => {
 const handleGenerate = async () => {
   try {
     await handleSave()
-    await downloadCode(formData.tableName, formData)
+    await downloadCode(formData.tableName, formData as any)
     ElMessage.success('代码已生成，正在下载...')
   } catch {
     ElMessage.error('生成失败')

@@ -137,6 +137,7 @@ import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addMenu, updateMenu } from '@/api/system/menu.api'
 import { getMenuTreeSelect } from '@/api/system/menu.api'
+import type { MenuInfo } from '@/api/system/menu.api'
 import type { SysMenu } from '@yunshu/shared'
 import MenuIcon from './MenuIcon.vue'
 
@@ -200,8 +201,8 @@ const rules: FormRules = {
 // 加载菜单树
 async function fetchMenuTree() {
   try {
-    const res = await getMenuTreeSelect() as SysMenu[]
-    menuTree.value = res
+    const res = await getMenuTreeSelect()
+    menuTree.value = res.data as MenuInfo[]
   } catch (error) {
     console.error('加载菜单树失败', error)
   }

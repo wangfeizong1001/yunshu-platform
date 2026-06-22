@@ -154,7 +154,7 @@ const getCaptcha = async () => {
   captchaLoading.value = true
   try {
     const res = await getCaptchaApi()
-    if (res.code === 200) {
+    if (res.code === 200 && res.data) {
       captchaData.uuid = res.data.uuid
       captchaData.img = res.data.img
       captchaData.code = res.data.code || ''
@@ -188,10 +188,10 @@ const handleLogin = async () => {
         uuid: captchaData.uuid
       }
 
-      const res: Record<string, unknown> = await loginApi(loginData)
+      const res = await loginApi(loginData)
 
-      if (res.code === 200) {
-        const token = res.data.token
+      if (res.code === 200 && res.data) {
+        const token = (res.data as { token: string }).token
         setToken(token)
 
         ElMessage.success('登录成功')

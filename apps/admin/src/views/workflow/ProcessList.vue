@@ -198,8 +198,8 @@ async function fetchProcessList() {
   loading.value = true
   try {
     const res = await getProcessDefinitionPage(queryParams)
-    processList.value = res.rows
-    total.value = res.total
+    processList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
   } catch (error) {
     console.error('获取流程列表失败', error)
   } finally {

@@ -9,7 +9,7 @@
  *   - 构建 URL：endpoint 相对/绝对两种形式
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BaseAPI } from './BaseAPI';
 import type { HttpClient } from './HttpClient';
 
@@ -20,7 +20,7 @@ interface TestEntity {
 
 // 构造一个 mock 的 HttpClient：只依赖 get / post / put / patch / delete 等方法签名
 function createMockHttpClient() {
-  const http: Mock<HttpClient> = {
+  return {
     get: vi.fn(),
     post: vi.fn(),
     put: vi.fn(),
@@ -33,8 +33,7 @@ function createMockHttpClient() {
     removeCache: vi.fn(),
     cancelRequest: vi.fn(),
     cancelAllRequests: vi.fn(),
-  } as unknown as Mock<HttpClient>;
-  return http;
+  } as any;
 }
 
 describe('BaseAPI', () => {
@@ -64,10 +63,10 @@ describe('BaseAPI', () => {
     const http = createMockHttpClient();
     const api = new UserAPI(http);
 
-    (http.get as Mock).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
+    (http.get as any).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
     const res = await api.getById(1);
     expect(http.get).toHaveBeenCalled();
-    const firstArg = (http.get as Mock).mock.calls[0][0];
+    const firstArg = (http.get as any).mock.calls[0][0];
     // 不以 / 开头时应得到 '/users/1'
     expect(firstArg).toBe('/users/1');
     expect(res).toEqual({ success: true, data: { id: 1, name: 'a' } });
@@ -79,9 +78,9 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.get as Mock).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
+    (http.get as any).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
     await api.getById(1);
-    const firstArg = (http.get as Mock).mock.calls[0][0];
+    const firstArg = (http.get as any).mock.calls[0][0];
     expect(firstArg).toBe('/users/1');
   });
 
@@ -94,7 +93,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.get as Mock).mockResolvedValueOnce({ success: true, data: { list: [], total: 0 } });
+    (http.get as any).mockResolvedValueOnce({ success: true, data: { list: [], total: 0 } });
 
     await api.getList({ page: 1, pageSize: 10, search: 'a' });
 
@@ -111,7 +110,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.get as Mock).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
+    (http.get as any).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
 
     await api.getById(1);
     expect(http.get).toHaveBeenCalledWith('/users/1');
@@ -123,7 +122,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.post as Mock).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
+    (http.post as any).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'a' } });
 
     await api.create({ name: 'a' });
     expect(http.post).toHaveBeenCalledWith('/users', { name: 'a' });
@@ -135,7 +134,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.put as Mock).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'b' } });
+    (http.put as any).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'b' } });
 
     await api.update(1, { name: 'b' });
     expect(http.put).toHaveBeenCalledWith('/users/1', { name: 'b' });
@@ -147,7 +146,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.patch as Mock).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'c' } });
+    (http.patch as any).mockResolvedValueOnce({ success: true, data: { id: 1, name: 'c' } });
 
     await api.patch(1, { name: 'c' });
     expect(http.patch).toHaveBeenCalledWith('/users/1', { name: 'c' });
@@ -159,7 +158,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.delete as Mock).mockResolvedValueOnce({ success: true, data: undefined });
+    (http.delete as any).mockResolvedValueOnce({ success: true, data: undefined });
 
     await api.delete(1);
     expect(http.delete).toHaveBeenCalledWith('/users/1');
@@ -174,7 +173,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.post as Mock).mockResolvedValueOnce({ success: true, data: undefined });
+    (http.post as any).mockResolvedValueOnce({ success: true, data: undefined });
 
     await api.batchDelete([1, 2, 3]);
     expect(http.post).toHaveBeenCalledWith('/users/batch-delete', { ids: [1, 2, 3] });
@@ -186,7 +185,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.post as Mock).mockResolvedValueOnce({ success: true, data: [] });
+    (http.post as any).mockResolvedValueOnce({ success: true, data: [] });
 
     await api.batchCreate([{ name: 'a' }, { name: 'b' }]);
     expect(http.post).toHaveBeenCalledWith('/users/batch', [{ name: 'a' }, { name: 'b' }]);
@@ -201,7 +200,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.get as Mock).mockResolvedValueOnce({ success: true, data: 42 });
+    (http.get as any).mockResolvedValueOnce({ success: true, data: 42 });
 
     const result = await api.count({ search: 'a' });
     expect(http.get).toHaveBeenCalledWith('/users/count', { search: 'a' });
@@ -214,7 +213,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.get as Mock).mockResolvedValueOnce({ success: true, data: true });
+    (http.get as any).mockResolvedValueOnce({ success: true, data: true });
 
     const result = await api.exists(1);
     expect(http.get).toHaveBeenCalledWith('/users/1/exists');
@@ -230,7 +229,7 @@ describe('BaseAPI', () => {
     }
     const http = createMockHttpClient();
     const api = new UserAPI(http);
-    (http.get as Mock).mockRejectedValueOnce(new Error('network'));
+    (http.get as any).mockRejectedValueOnce(new Error('network'));
     await expect(api.getList({ page: 1 })).rejects.toThrow('network');
   });
 });

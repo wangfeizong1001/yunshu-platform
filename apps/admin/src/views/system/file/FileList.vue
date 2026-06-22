@@ -169,6 +169,7 @@ import {
   downloadFile,
   previewFile as previewFileApi,
 } from '@/api/system/file.api'
+import type { FileInfo } from '@/api/system/file.api'
 import type { SysFile, SysFileQuery } from '@yunshu/shared'
 import FileUpload from './FileUpload.vue'
 
@@ -230,9 +231,10 @@ function isImageFile(fileType: string | undefined): boolean {
 async function fetchFileList() {
   loading.value = true
   try {
-    const res = await getFilePage(queryParams) as { rows: SysFile[]; total: number }
-    fileList.value = res.rows
-    total.value = res.total
+    const res = await getFilePage(queryParams)
+    const pageData = res?.data as { rows: FileInfo[]; total: number } | undefined
+    fileList.value = (pageData?.rows as unknown as SysFile[]) ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -268,7 +270,8 @@ async function handlePreview(row: SysFile) {
   previewFile.value = row
   if (isImageFile(row.fileType)) {
     try {
-      previewUrl.value = await previewFileApi(row.fileId) as string
+      const res = await previewFileApi(row.fileId)
+      previewUrl.value = (res?.data as FileInfo)?.fileUrl || ''
       previewVisible.value = true
     } catch (error) {
       ElMessage.error('预览失败')

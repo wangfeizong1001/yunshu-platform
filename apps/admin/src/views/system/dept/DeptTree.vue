@@ -105,7 +105,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus } from '@element-plus/icons-vue'
 import { getDeptTree, deleteDept } from '@/api/system/dept.api'
-import type { DeptQuery } from '@/api/system/dept.api'
+import type { DeptInfo, DeptQuery } from '@/api/system/dept.api'
 import type { SysDept } from '@yunshu/shared'
 import DeptForm from './DeptForm.vue'
 
@@ -137,8 +137,8 @@ const queryParams = reactive<DeptQuery>({
 async function fetchDeptTree() {
   loading.value = true
   try {
-    const res = await getDeptTree(queryParams) as SysDept[]
-    deptList.value = res
+    const res = await getDeptTree(queryParams)
+    deptList.value = (res.data as DeptInfo[]) as unknown as SysDept[]
   } finally {
     loading.value = false
   }

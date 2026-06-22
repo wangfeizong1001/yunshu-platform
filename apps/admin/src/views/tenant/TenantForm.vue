@@ -189,7 +189,7 @@ const rules: FormRules = {
 async function fetchPackageList() {
   try {
     const res = await getPackageList()
-    packageList.value = res
+    packageList.value = (res as any).data ?? []
   } catch (error) {
     console.error('加载套餐列表失败', error)
   }

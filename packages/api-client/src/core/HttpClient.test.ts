@@ -12,10 +12,10 @@
  *   - CSRF：启用时应注入 token，禁用时不注入
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HttpClient, type HttpClientOptions } from './HttpClient';
 import { RequestError } from './types';
-import type { HttpResponse, IHttpAdapter } from './types';
+import type { HttpResponse } from './types';
 
 // ============================================================================
 // 通用工具：构造一个 mock adapter
@@ -40,7 +40,7 @@ function createMockAdapter(
   }),
 ) {
   const calls: CallRecord[] = [];
-  const adapter: IHttpAdapter = {
+  const adapter = {
     request: vi.fn(async (config) => {
       calls.push({
         url: config.url,
@@ -54,7 +54,7 @@ function createMockAdapter(
       });
       return responseFactory(calls);
     }),
-  };
+  } as any;
   return { adapter, calls };
 }
 
@@ -132,7 +132,7 @@ describe('HttpClient', () => {
 
     it('adapter.request 抛错时应原样抛出', async () => {
       const { adapter } = createMockAdapter();
-      (adapter.request as Mock).mockRejectedValueOnce(new RequestError('boom', 500));
+      (adapter.request as any).mockRejectedValueOnce(new RequestError('boom', 500));
       const client = new HttpClient(adapter);
       await expect(client.request({ method: 'GET', url: '/a' })).rejects.toThrow('boom');
     });

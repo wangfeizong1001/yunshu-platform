@@ -137,6 +137,7 @@ import { ref, reactive, watch, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Download } from '@element-plus/icons-vue'
 import { getDictDataPage, deleteDictData, exportDictData } from '@/api/system/dict.api'
+import type { DictDataInfo } from '@/api/system/dict.api'
 import type { SysDictData, SysDictDataQuery } from '@yunshu/shared'
 import DictDataForm from './DictDataForm.vue'
 
@@ -215,9 +216,10 @@ async function fetchDictDataList() {
   loading.value = true
   try {
     queryParams.dictType = props.dictType
-    const res = await getDictDataPage(queryParams) as { rows: SysDictData[]; total: number }
-    dictDataList.value = res.rows
-    total.value = res.total
+    const res = await getDictDataPage(queryParams)
+    const pageData = res?.data as { rows: DictDataInfo[]; total: number } | undefined
+    dictDataList.value = (pageData?.rows as unknown as SysDictData[]) ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }

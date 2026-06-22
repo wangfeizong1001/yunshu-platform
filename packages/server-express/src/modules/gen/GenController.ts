@@ -7,7 +7,7 @@
  */
 
 import type { Request, Response } from 'express';
-import type { IGenQuery, IGenConfig } from '@yunshu/shared';
+import type { IGenQuery, IGenConfig, GenerateType } from '@yunshu/shared';
 import { BaseController } from '../../controller/BaseController';
 import { genService } from './GenService';
 
@@ -178,7 +178,7 @@ export class GenController extends BaseController {
       packageName: req.query.packageName as string || 'com.yunshu.generator',
       author: req.query.author as string || '云枢',
       email: req.query.email as string,
-      generateType: (req.query.generateType as string) || 'single',
+      generateType: (req.query.generateType as GenerateType) || 'single',
       generateMenu: req.query.generateMenu !== 'false',
       generateApi: req.query.generateApi !== 'false',
       generateView: req.query.generateView !== 'false',

@@ -102,7 +102,7 @@ describe('CacheDecorator', () => {
 
   it('warmupCache 应将数据写入缓存', async () => {
     await warmupCache([{ key: 'cd-warm:1', value: { id: '1', name: 'Alice' }, ttl: 100 }], { enableL2: false });
-    const impl = vi.fn(async () => ({ id: '1', name: 'Alice' }));
+    const impl = vi.fn(async (_id: string) => ({ id: '1', name: 'Alice' }));
     const cached = withCache(impl, { keyPrefix: 'cd-warm', ttl: 100, enableL2: false, enableBloomFilter: false });
     await cached('1');
     expect(impl).toHaveBeenCalledTimes(0);

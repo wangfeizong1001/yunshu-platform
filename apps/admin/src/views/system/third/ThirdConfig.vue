@@ -185,7 +185,7 @@ async function loadConfigList() {
   loading.value = true
   try {
     const res = await getThirdConfigList()
-    configList.value = res as unknown[]
+    configList.value = (res.data as ThirdLoginConfig[]) || []
   } finally {
     loading.value = false
   }
@@ -217,7 +217,7 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: Record<string, unknown>) {
+function handleEdit(row: ThirdConfig) {
   Object.assign(form, row)
   formVisible.value = true
 }

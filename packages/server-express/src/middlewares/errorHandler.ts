@@ -100,7 +100,7 @@ function handleUploadError(error: unknown): AppError {
 }
 
 export function asyncHandler(
-  fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>,
+  fn: (req: Request, res: Response, next: NextFunction) => unknown,
 ) {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);

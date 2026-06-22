@@ -227,10 +227,8 @@ export function useUserImportExport(): UseUserImportExportReturn {
   async function importUsers(file: File): Promise<void> {
     importing.value = true
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      await userAPI.post('/import', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      await userAPI.upload('/import', file, {
+        additionalData: { file },
       })
     } finally {
       importing.value = false
@@ -240,7 +238,11 @@ export function useUserImportExport(): UseUserImportExportReturn {
   async function exportUsers(params?: SysUserQuery): Promise<void> {
     exporting.value = true
     try {
-      await userAPI.download('/export', params || {}, '用户列表.xlsx')
+      await userAPI.request({
+        method: 'GET',
+        url: '/export',
+        params: (params || {}) as Record<string, unknown>,
+      })
     } finally {
       exporting.value = false
     }

@@ -230,8 +230,8 @@ async function fetchTenantList() {
   loading.value = true
   try {
     const res = await getTenantPage(queryParams)
-    tenantList.value = res.rows
-    total.value = res.total
+    tenantList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -265,31 +265,31 @@ function handleAdd() {
 
 // 编辑
 function handleEdit(row: Record<string, unknown>) {
-  currentTenant.value = { ...row }
+  currentTenant.value = { ...row } as unknown as Tenant
   formVisible.value = true
 }
 
 // 详情
 function handleDetail(row: Record<string, unknown>) {
-  currentTenantId.value = row.tenantId
+  currentTenantId.value = row.tenantId as number
   detailVisible.value = true
 }
 
 // 套餐配置
 function handlePackage(row: Record<string, unknown>) {
-  currentTenantId.value = row.tenantId
+  currentTenantId.value = row.tenantId as number
   packageVisible.value = true
 }
 
 // 修改状态
 async function handleChangeStatus(row: Record<string, unknown>) {
   const newStatus = row.status === TENANT_STATUS_NORMAL ? TENANT_STATUS_DISABLED : TENANT_STATUS_NORMAL
-  const actionLabel = getTenantStatusToggleLabel(row.status)
+  const actionLabel = getTenantStatusToggleLabel(row.status as string)
   try {
     await ElMessageBox.confirm(`是否确认${actionLabel}租户"${row.tenantName}"？`, '提示', {
       type: 'warning',
     })
-    await changeTenantStatus(row.tenantId, newStatus as '0' | '1' | '2')
+    await changeTenantStatus(row.tenantId as number, newStatus as '0' | '1' | '2')
     ElMessage.success(`${actionLabel}成功`)
     fetchTenantList()
   } catch (error) {
@@ -306,7 +306,7 @@ async function handleDelete(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认删除租户"${row.tenantName}"？`, '提示', {
       type: 'warning',
     })
-    await deleteTenant(row.tenantId)
+    await deleteTenant(row.tenantId as number)
     ElMessage.success('删除成功')
     fetchTenantList()
   } catch (error) {
@@ -330,7 +330,7 @@ onMounted(() => {
 async function fetchPackageList() {
   try {
     const res = await getPackageList({ pageSize: 100 })
-    packageList.value = (res?.data as TenantPackageInfo[]) || []
+    packageList.value = ((res as any).data ?? []) as TenantPackageInfo[]
   } catch (error) {
     console.error('加载套餐列表失败', error)
   }

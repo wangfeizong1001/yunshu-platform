@@ -52,7 +52,7 @@ export interface ITokenVerifier {
 /** 用户查询器接口 */
 export interface IUserLookup {
   /** 根据 ID 查找用户 */
-  findById(id: string): Promise<Record<string, unknown> | null>;
+  findById(id: string): Promise<{ userId: string; userName?: string; role?: string; [key: string]: unknown } | null>;
 }
 
 // ============================================================================
@@ -191,6 +191,7 @@ export interface MockUser {
   userId: string;
   userName: string;
   role: 'admin' | 'user' | 'super_admin';
+  [key: string]: unknown;
 }
 
 /**

@@ -160,13 +160,21 @@ const exporting = ref(false)
 const roleList = ref<SysRole[]>([])
 const total = ref(0)
 const selectedRows = ref<SysRole[]>([])
+interface RoleQueryParams {
+  roleName?: string
+  roleKey?: string
+  status?: string
+  pageNum?: number
+  pageSize?: number
+}
+
 const formVisible = ref(false)
 const permissionVisible = ref(false)
 const currentRole = ref<SysRole | null>(null)
 const currentRoleId = ref<number>()
 
 // 查询参数
-const queryParams = reactive<Record<string, unknown>>({
+const queryParams = reactive<RoleQueryParams>({
   roleName: '',
   roleKey: '',
   status: undefined,
@@ -178,9 +186,10 @@ const queryParams = reactive<Record<string, unknown>>({
 async function fetchRoleList() {
   loading.value = true
   try {
-    const res = await getRolePage(queryParams) as Record<string, unknown>
-    roleList.value = res.rows
-    total.value = res.total
+    const res = await getRolePage(queryParams)
+    const pageData = res?.data as { rows: SysRole[]; total: number } | undefined
+    roleList.value = pageData?.rows ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -213,19 +222,19 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: Record<string, unknown>) {
+function handleEdit(row: SysRole) {
   currentRole.value = { ...row }
   formVisible.value = true
 }
 
 // 权限分配
-function handlePermission(row: Record<string, unknown>) {
+function handlePermission(row: SysRole) {
   currentRoleId.value = row.roleId
   permissionVisible.value = true
 }
 
 // 删除
-async function handleDelete(row: Record<string, unknown>) {
+async function handleDelete(row: SysRole) {
   try {
     await ElMessageBox.confirm(`是否确认删除角色"${row.roleName}"？`, '提示', {
       type: 'warning',

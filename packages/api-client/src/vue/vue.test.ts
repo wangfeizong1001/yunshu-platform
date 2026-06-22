@@ -67,7 +67,7 @@ describe('useApi', () => {
       success: true,
       data: { page, size },
     }));
-    const { execute } = useApi(fn);
+    const { execute } = useApi(fn as any);
     await execute(3, 20);
     expect(fn).toHaveBeenCalledWith(3, 20);
   });
@@ -78,7 +78,7 @@ describe('useApi', () => {
       counter += 1;
       return { success: true, data: { page, counter } };
     });
-    const { execute, refresh, data } = useApi<{ page: number; counter: number }>(fn);
+    const { execute, refresh, data } = useApi<{ page: number; counter: number }>(fn as any);
     await execute(5);
     expect(data.value).toEqual({ page: 5, counter: 1 });
     await refresh();
@@ -119,7 +119,7 @@ describe('useApiList', () => {
         ...params,
       },
     }));
-    const { data, total, loading, execute } = useApiList<{ id: number; name: string }>(fn);
+    const { data, total, loading, execute } = useApiList<{ id: number; name: string }>(fn as any);
 
     await execute({ page: 1, pageSize: 10 });
 
@@ -164,17 +164,17 @@ describe('useApiList', () => {
         data: { list: [{ counter, p: params.page }], total: 1 },
       };
     });
-    const { execute, refresh, data } = useApiList<{ counter: number; p: unknown }>(fn);
+    const { execute, refresh, data } = useApiList<{ counter: number; p: unknown }>(fn as any);
     await execute({ page: 3 });
     await refresh();
     expect(fn).toHaveBeenCalledTimes(2);
-    expect(data.value[0].p).toBe(3);
-    expect(data.value[0].counter).toBe(2);
+    expect(data.value![0].p).toBe(3);
+    expect(data.value![0].counter).toBe(2);
   });
 
   it('setPage：修改 page 的 reactive 值', async () => {
     const fn = vi.fn(async () => ({ success: true, data: { list: [], total: 0 } }));
-    const { setPage } = useApiList(fn);
+    const { setPage } = useApiList(fn as any);
     setPage(7);
     // 间接：通过执行并检查传入参数
     await expect(Promise.resolve()).resolves;
@@ -189,11 +189,11 @@ describe('useApiList', () => {
       }
       return { success: true, data: { list: [{ id: 1 }, { id: 2 }, { id: 3 }], total: 3 } };
     });
-    const { hasMore, execute, data } = useApiList<{ id: number }>(fn);
+    const { hasMore, execute, data } = useApiList<{ id: number }>(fn as any);
     await execute({ page: 1 });
     expect(hasMore.value).toBe(true); // 1 < 3
     await execute({ page: 2 });
-    expect(data.value.length).toBe(3);
+    expect(data.value!.length).toBe(3);
     expect(hasMore.value).toBe(false);
   });
 });
@@ -205,7 +205,7 @@ describe('useMutation', () => {
 
   it('mutate 成功：data 赋值', async () => {
     const fn = vi.fn(async (name: string) => ({ success: true, data: { id: 1, name } }));
-    const { data, loading, mutate } = useMutation<{ id: number; name: string }>(fn);
+    const { data, loading, mutate } = useMutation<{ id: number; name: string }>(fn as any);
     const res = await mutate('bob');
     expect(res).toEqual({ id: 1, name: 'bob' });
     expect(data.value).toEqual({ id: 1, name: 'bob' });
@@ -226,7 +226,7 @@ describe('useMutation', () => {
 
   it('reset：data / error / loading 清空', async () => {
     const fn = vi.fn(async () => ({ success: true, data: { id: 1 } }));
-    const { mutate, reset, data, error, loading } = useMutation(fn);
+    const { mutate, reset, data, error, loading } = useMutation(fn as any);
     await mutate();
     reset();
     expect(data.value).toBeNull();
@@ -239,7 +239,7 @@ describe('useMutation', () => {
       success: true,
       data: { a, b },
     }));
-    const { mutate } = useMutation<{ a: number; b: string }>(fn);
+    const { mutate } = useMutation<{ a: number; b: string }>(fn as any);
     await mutate(42, 'hello');
     expect(fn).toHaveBeenCalledWith(42, 'hello');
   });
@@ -247,9 +247,7 @@ describe('useMutation', () => {
 
 describe('createYunshuAPI', () => {
   it('install 应调用 provide 并设置全局属性', () => {
-    const httpClient = { request: vi.fn() } as unknown as {
-      request: unknown;
-    };
+    const httpClient = { request: vi.fn() } as any;
     const api = createYunshuAPI({ httpClient });
 
     const provided: Record<string, unknown> = {};
@@ -267,8 +265,8 @@ describe('createYunshuAPI', () => {
   });
 
   it('install 可在不同 app 实例上重复调用', () => {
-    const httpClient = { ok: true };
-    const api = createYunshuAPI({ httpClient: httpClient as unknown as { request: unknown } });
+    const httpClient = { ok: true } as any;
+    const api = createYunshuAPI({ httpClient });
     const app1 = { provide: vi.fn(), config: { globalProperties: {} } };
     const app2 = { provide: vi.fn(), config: { globalProperties: {} } };
     api.install(app1);

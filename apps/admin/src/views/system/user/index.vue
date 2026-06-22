@@ -269,9 +269,10 @@ const queryParams = reactive({
 async function fetchUserList() {
   loading.value = true
   try {
-    const res = await getUserPage(queryParams) as Record<string, unknown>
-    userList.value = res.rows
-    total.value = res.total
+    const res = await getUserPage(queryParams)
+    const pageData = res?.data as { rows: SysUser[]; total: number } | undefined
+    userList.value = pageData?.rows ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -280,7 +281,8 @@ async function fetchUserList() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = (await getDeptTreeSelect()) as unknown[]
+    const res = await getDeptTreeSelect()
+    deptTree.value = (res?.data as SysDept[]) || []
   } catch (error) {
     console.error('加载部门树失败', error)
   }

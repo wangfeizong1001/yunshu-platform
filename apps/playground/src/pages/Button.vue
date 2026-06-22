@@ -130,8 +130,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const buttonType = ref('primary');
-const buttonSize = ref('default');
+const buttonType = ref<'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'text'>('primary');
+const buttonSize = ref<'large' | 'default' | 'small'>('default');
 const buttonDisabled = ref(false);
 const buttonLoading = ref(false);
 </script>

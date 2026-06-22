@@ -343,8 +343,8 @@ async function fetchTaskList() {
   loading.value = true
   try {
     const res = await getTodoTaskPage(queryParams)
-    taskList.value = res.rows
-    total.value = res.total
+    taskList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
   } catch (error) {
     console.error('获取待办任务失败', error)
   } finally {

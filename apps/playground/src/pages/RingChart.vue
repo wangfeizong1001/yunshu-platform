@@ -65,8 +65,6 @@ const innerRadius = ref(50);
 const outerRadius = ref(75);
 const showCenterText = ref(true);
 
-const totalValue = 1060;
-
 const basicOption = computed(() => ({
   tooltip: { trigger: 'item' },
   legend: { orient: 'horizontal', bottom: 0 },

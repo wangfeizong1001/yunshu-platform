@@ -132,10 +132,11 @@ describe('DistributedLock', () => {
 
   it('可重入模式下应允许同一进程重复获取', async () => {
     const key = 'reentrant:1';
-    const value = 'client:1:abc';
-    const l1 = await acquireLock(key, { ttl: 5000, value, reentrant: true, autoExtend: false });
+    const clientId = 'client:1:abc';
+    const l1 = await acquireLock(key, { ttl: 5000, reentrant: true, autoExtend: false });
     expect(l1.acquired).toBe(true);
-    const l2 = await acquireLock(key, { ttl: 5000, value, reentrant: true, autoExtend: false });
+    expect(l1.value).toBe(clientId);
+    const l2 = await acquireLock(key, { ttl: 5000, reentrant: true, autoExtend: false });
     expect(l2.acquired).toBe(true);
     await l1.release();
     await l2.release();

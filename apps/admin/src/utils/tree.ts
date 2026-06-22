@@ -9,19 +9,19 @@ export interface TreeNode {
 }
 
 export const arrayToTree = (
-  array: unknown[], idKey = 'id', parentKey = 'parentId', childrenKey = 'children') => {
-  const map: Record<string, unknown> = {}
-  const result: unknown[] = []
+  array: Record<string, unknown>[], idKey = 'id', parentKey = 'parentId', childrenKey = 'children') => {
+  const map: Record<string, Record<string, unknown>> = {}
+  const result: Record<string, unknown>[] = []
   array.forEach(item => {
-    map[item[idKey]] = item
+    map[item[idKey] as string] = item
   })
   array.forEach(item => {
-    const parent = map[item[parentKey]]
+    const parent = map[item[parentKey] as string]
     if (parent) {
       if (!parent[childrenKey]) {
         parent[childrenKey] = []
       }
-      parent[childrenKey].push(item)
+      ;(parent[childrenKey] as Record<string, unknown>[]).push(item)
     } else {
       result.push(item)
     }
@@ -29,14 +29,14 @@ export const arrayToTree = (
   return result
 }
 
-export const treeToArray = (tree: unknown[], childrenKey = 'children') => {
-  const result: unknown[] = []
-  const traverse = (nodes: unknown[]) => {
+export const treeToArray = (tree: Record<string, unknown>[], childrenKey = 'children') => {
+  const result: Record<string, unknown>[] = []
+  const traverse = (nodes: Record<string, unknown>[]) => {
     nodes.forEach(node => {
       const { [childrenKey]: children, ...rest } = node
       result.push(rest)
-      if (children && children.length) {
-        traverse(children)
+      if (children && (children as Record<string, unknown>[]).length) {
+        traverse(children as Record<string, unknown>[])
       }
     })
   }
@@ -49,8 +49,8 @@ export const findNodeById = <T extends Record<string, unknown>>(tree: T[], id: u
     if (node[idKey] === id) {
       return node
     }
-    if (node[childrenKey] && node[childrenKey].length) {
-      const found = findNodeById(node[childrenKey], id, idKey, childrenKey) as T | null
+    if (node[childrenKey] && (node[childrenKey] as T[]).length) {
+      const found = findNodeById(node[childrenKey] as T[], id, idKey, childrenKey)
       if (found) {
         return found
       }
@@ -59,9 +59,9 @@ export const findNodeById = <T extends Record<string, unknown>>(tree: T[], id: u
   return null
 }
 
-export const findParentIds = (tree: unknown[], id: unknown, idKey = 'id', _parentKey = 'parentId', childrenKey = 'children') => {
+export const findParentIds = (tree: Record<string, unknown>[], id: unknown, idKey = 'id', _parentKey = 'parentId', childrenKey = 'children') => {
   const parents: unknown[] = []
-  const traverse = (nodes: unknown[], parentNode?: unknown) => {
+  const traverse = (nodes: Record<string, unknown>[], parentNode?: Record<string, unknown>) => {
     for (const node of nodes) {
       if (node[idKey] === id) {
         if (parentNode) {
@@ -70,8 +70,8 @@ export const findParentIds = (tree: unknown[], id: unknown, idKey = 'id', _paren
         }
         return true
       }
-      if (node[childrenKey] && node[childrenKey].length) {
-        if (traverse(node[childrenKey], node)) {
+      if (node[childrenKey] && (node[childrenKey] as Record<string, unknown>[]).length) {
+        if (traverse(node[childrenKey] as Record<string, unknown>[], node)) {
           return true
         }
       }
@@ -81,4 +81,3 @@ export const findParentIds = (tree: unknown[], id: unknown, idKey = 'id', _paren
   traverse(tree)
   return parents.reverse()
 }
-

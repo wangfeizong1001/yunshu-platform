@@ -99,7 +99,7 @@ async function fetchTenantDetail() {
   if (!props.tenantId) return
 
   try {
-    tenantData.value = await getTenantDetail(props.tenantId)
+    tenantData.value = (await getTenantDetail(props.tenantId) as any).data
   } catch (error) {
     console.error('加载租户详情失败', error)
   }

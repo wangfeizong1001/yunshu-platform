@@ -62,7 +62,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import {
   HomeFilled,
-  Button,
+  Edit,
   Grid,
   PieChart,
   Upload,
@@ -86,7 +86,7 @@ const navGroups = [
   {
     name: '基础组件',
     items: [
-      { path: '/button', name: 'button', title: 'Button 按钮', icon: Button },
+      { path: '/button', name: 'button', title: 'Button 按钮', icon: Edit },
       { path: '/table', name: 'table', title: 'Table 表格', icon: Grid },
     ],
   },

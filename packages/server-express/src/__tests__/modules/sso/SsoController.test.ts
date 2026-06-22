@@ -4,7 +4,7 @@ import type { Request, Response } from 'express';
 
 interface MockResponse extends Response {
   _statusCode: number;
-  _jsonData: unknown;
+  _jsonData: Record<string, unknown>;
 }
 
 function createMockRequest(overrides: Partial<Request> = {}): Request {
@@ -20,14 +20,14 @@ function createMockRequest(overrides: Partial<Request> = {}): Request {
 function createMockResponse(): MockResponse {
   const res = {
     _statusCode: 200,
-    _jsonData: null,
+    _jsonData: null as unknown as Record<string, unknown>,
   } as unknown as MockResponse;
   res.status = (code: number) => {
     res._statusCode = code;
     return res;
   };
   res.json = (data: unknown) => {
-    res._jsonData = data;
+    res._jsonData = data as Record<string, unknown>;
     return res;
   };
   return res;

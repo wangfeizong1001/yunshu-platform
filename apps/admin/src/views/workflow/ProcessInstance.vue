@@ -268,8 +268,8 @@ async function fetchInstanceList() {
   loading.value = true
   try {
     const res = await getProcessInstancePage(queryParams)
-    instanceList.value = res.rows
-    total.value = res.total
+    instanceList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
   } catch (error) {
     console.error('获取流程实例失败', error)
   } finally {
@@ -304,8 +304,9 @@ async function loadInstanceDetail(row: ProcessInstance) {
   try {
     // 从后端获取流程历史
     const historyRes = await getProcessHistory(row.id)
-    if (historyRes.rows && historyRes.rows.length > 0) {
-      instanceHistory.value = historyRes.rows.map((task) => ({
+    const rows = (historyRes as any).data?.rows
+    if (rows && rows.length > 0) {
+      instanceHistory.value = rows.map((task: any) => ({
         taskName: task.name || '',
         assignee: task.assignee || '',
         action: 'approve',

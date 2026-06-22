@@ -212,14 +212,20 @@ const handleBeforeUpload = (file: File) => {
 /**
  * 自定义上传方法（实际项目中替换为真实 API）
  */
-const handleAvatarUpload = (options: { file: File }) => {
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    const result = e.target?.result as string
-    userStore.avatar = result
-    ElMessage.success('头像更换成功')
-  }
-  reader.readAsDataURL(options.file)
+const handleAvatarUpload = (options: { file: File }): Promise<unknown> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      userStore.avatar = result
+      ElMessage.success('头像更换成功')
+      resolve(result)
+    }
+    reader.onerror = () => {
+      reject(new Error('头像读取失败'))
+    }
+    reader.readAsDataURL(options.file)
+  })
 }
 
 // ========== 修改密码表单 ==========

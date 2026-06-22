@@ -7,7 +7,7 @@
     <div class="component-grid">
       <router-link to="/button" class="component-card">
         <div class="card-icon">
-          <Button />
+          <Edit />
         </div>
         <div class="card-title">Button 按钮</div>
         <div class="card-desc">按钮用于触发一个操作，如提交表单、打开对话框等</div>
@@ -21,7 +21,7 @@
       </router-link>
       <router-link to="/language-switch" class="component-card">
         <div class="card-icon">
-          <Globe />
+          <Document />
         </div>
         <div class="card-title">LanguageSwitch 语言切换</div>
         <div class="card-desc">支持中英文切换的组件</div>
@@ -35,7 +35,7 @@
       </router-link>
       <router-link to="/code-preview" class="component-card">
         <div class="card-icon">
-          <Code />
+          <DocumentCopy />
         </div>
         <div class="card-title">CodePreview 代码预览</div>
         <div class="card-desc">代码片段展示与复制组件</div>
@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { Button, Grid, Globe, OfficeBuilding, Code } from '@element-plus/icons-vue';
+import { Edit, Grid, Document, OfficeBuilding, DocumentCopy } from '@element-plus/icons-vue';
 </script>
 
 <style lang="scss" scoped>

@@ -154,10 +154,10 @@ const formVisible = ref(false)
 const currentPackage = ref<TenantPackage | null>(null)
 
 // 查询参数
-const queryParams = reactive<TenantPackageQuery>({
+const queryParams = reactive<any>({
   keyword: '',
-  status: undefined as unknown as number | undefined,
-  packageType: undefined as unknown as string | undefined,
+  status: undefined,
+  packageType: undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -182,8 +182,8 @@ async function fetchPackageList() {
   loading.value = true
   try {
     const res = await getPackagePage(queryParams)
-    packageList.value = res.rows
-    total.value = res.total
+    packageList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -198,8 +198,8 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = undefined as unknown as number | undefined
-  queryParams.packageType = undefined as unknown as string | undefined
+  queryParams.status = undefined
+  queryParams.packageType = undefined
   queryParams.pageNum = 1
   handleQuery()
 }

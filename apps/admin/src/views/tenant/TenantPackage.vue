@@ -102,11 +102,14 @@ async function fetchTenantDetail() {
   if (!props.tenantId) return
 
   try {
-    currentTenant.value = await getTenantDetail(props.tenantId)
-    formData.value = {
-      packageId: currentTenant.value.packageId,
-      expireTime: currentTenant.value.expireTime,
-      userLimit: currentTenant.value.userLimit,
+    const data = (await getTenantDetail(props.tenantId) as any).data
+    currentTenant.value = data
+    if (data) {
+      formData.value = {
+        packageId: data.packageId,
+        expireTime: data.expireTime,
+        userLimit: data.userLimit,
+      }
     }
   } catch (error) {
     console.error('加载租户详情失败', error)
@@ -116,7 +119,7 @@ async function fetchTenantDetail() {
 // 加载套餐列表
 async function fetchPackageList() {
   try {
-    packageList.value = await getPackageList()
+    packageList.value = ((await getPackageList()) as any).data ?? []
   } catch (error) {
     console.error('加载套餐列表失败', error)
   }

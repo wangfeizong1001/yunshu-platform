@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import { messages as defaultMessages } from './locales';
 
-const messagesStore: Record<string, Record<string, unknown>> = {
+const messagesStore: Record<string, Record<string, string>> = {
   'zh-CN': {},
   'en-US': {},
 };
@@ -24,7 +24,7 @@ function flatten(
 }
 
 // 合并默认翻译到 store
-for (const locale of Object.keys(defaultMessages)) {
+for (const locale of Object.keys(defaultMessages) as (keyof typeof defaultMessages)[]) {
   const flat = flatten(defaultMessages[locale] as Record<string, unknown>);
   messagesStore[locale] = flat;
 }

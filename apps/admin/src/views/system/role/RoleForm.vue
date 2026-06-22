@@ -76,6 +76,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import type { ElTree } from 'element-plus'
 import { addRole, updateRole } from '@/api/system/role.api'
 import { getMenuTree } from '@/api/system/menu.api'
+import type { MenuInfo } from '@/api/system/menu.api'
 import type { SysRole, SysMenu } from '@yunshu/shared'
 
 interface Props {
@@ -133,8 +134,8 @@ const rules: FormRules = {
 // 加载菜单树
 async function fetchMenuTree() {
   try {
-    const res = await getMenuTree() as SysMenu[]
-    menuTree.value = res
+    const res = await getMenuTree()
+    menuTree.value = res.data as MenuInfo[]
   } catch (error) {
     console.error('加载菜单树失败', error)
   }

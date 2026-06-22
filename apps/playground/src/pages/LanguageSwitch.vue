@@ -14,7 +14,7 @@
         <div class="language-selector">
           <el-dropdown @command="handleCommand">
             <span class="dropdown-link">
-              <el-icon><Globe /></el-icon>
+              <el-icon><Document /></el-icon>
               {{ currentLanguage }}
               <el-icon class="el-icon--right"><ArrowDown /></el-icon>
             </span>
@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Globe, ArrowDown } from '@element-plus/icons-vue';
+import { Document, ArrowDown } from '@element-plus/icons-vue';
 
 const locale = ref('zh-CN');
 const currentLanguage = ref('中文');
@@ -139,13 +139,17 @@ const translations = {
   },
 };
 
-const t = (key: string) => {
+const t = (key: string): string => {
   const keys = key.split('.');
-  let value: Record<string, unknown> = translations[locale.value as keyof typeof translations] || translations['zh-CN'];
+  let value: unknown = translations[locale.value as keyof typeof translations] || translations['zh-CN'];
   for (const k of keys) {
-    value = value[k] as Record<string, unknown>;
+    if (value && typeof value === 'object' && k in value) {
+      value = (value as Record<string, unknown>)[k];
+    } else {
+      return key;
+    }
   }
-  return value as string;
+  return typeof value === 'string' ? value : key;
 };
 
 const handleCommand = (command: string) => {

@@ -145,11 +145,18 @@ const total = ref(0)
 const selectedRows = ref<SysRole[]>([])
 const formVisible = ref(false)
 const permissionVisible = ref(false)
+interface RoleQueryParams {
+  keyword?: string
+  status?: string
+  pageNum?: number
+  pageSize?: number
+}
+
 const currentRole = ref<SysRole | null>(null)
 const currentRoleId = ref<number>()
 
 // 查询参数
-const queryParams = reactive<Record<string, unknown>>({
+const queryParams = reactive<RoleQueryParams>({
   keyword: '',
   status: undefined,
   pageNum: 1,
@@ -160,9 +167,9 @@ const queryParams = reactive<Record<string, unknown>>({
 async function fetchRoleList() {
   loading.value = true
   try {
-    const res = await getRolePage(queryParams) as Record<string, unknown>
-    roleList.value = res.rows
-    total.value = res.total
+    const res = await getRolePage(queryParams)
+    roleList.value = (res.data as { rows: SysRole[]; total: number }).rows
+    total.value = (res.data as { rows: SysRole[]; total: number }).total
   } finally {
     loading.value = false
   }
@@ -194,13 +201,13 @@ function handleAdd() {
 }
 
 // 编辑
-function handleEdit(row: Record<string, unknown>) {
+function handleEdit(row: SysRole) {
   currentRole.value = { ...row }
   formVisible.value = true
 }
 
 // 权限分配
-function handlePermission(row: Record<string, unknown>) {
+function handlePermission(row: SysRole) {
   currentRoleId.value = row.roleId
   permissionVisible.value = true
 }

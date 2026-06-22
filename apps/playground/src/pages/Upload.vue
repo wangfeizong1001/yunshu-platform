@@ -119,12 +119,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { UploadFilled, Plus } from '@element-plus/icons-vue';
-import type { UploadFile, UploadProps } from 'element-plus';
+import type { UploadFile } from 'element-plus';
 
 const fileList = ref<UploadFile[]>([
   {
     name: 'example.jpg',
     url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=200',
+    status: 'success',
+    uid: 1,
   },
 ]);
 
@@ -133,7 +135,7 @@ const multiple = ref(true);
 const autoUpload = ref(true);
 const listType = ref<'text' | 'picture' | 'picture-card'>('text');
 
-const uploadRef = ref<InstanceType<typeof UploadProps>>();
+const uploadRef = ref<any>();
 
 const handleRemove = (file: UploadFile, list: UploadFile[]) => {
   console.log(file, list);

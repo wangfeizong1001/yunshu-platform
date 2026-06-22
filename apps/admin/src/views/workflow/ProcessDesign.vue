@@ -743,11 +743,12 @@ onMounted(async () => {
       processId.value = id
       isEdit.value = true
       const res = await getProcessDefinition(id)
-      processName.value = res.name || '未命名流程'
+      const data = (res as any).data
+      processName.value = data?.name || '未命名流程'
       // 如果有保存的 XML，解析并加载
-      if (res.xml) {
+      if (data?.xml) {
         try {
-          const savedData = JSON.parse(res.xml)
+          const savedData = JSON.parse(data.xml)
           if (savedData.nodes) {
             nodes.value = savedData.nodes
           }

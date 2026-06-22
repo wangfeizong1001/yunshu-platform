@@ -9,14 +9,14 @@
       <div class="hero-visual">
         <div class="visual-card">
           <div class="card-icon">
-            <component :is="Palette" />
+            <component :is="Setting" />
           </div>
           <div class="card-title">设计系统</div>
           <div class="card-desc">基于设计令牌的统一设计体系</div>
         </div>
         <div class="visual-card">
           <div class="card-icon">
-            <component :is="Component" />
+            <component :is="Grid" />
           </div>
           <div class="card-title">组件库</div>
           <div class="card-desc">丰富的 Vue 3 组件</div>
@@ -57,10 +57,10 @@
 </template>
 
 <script setup lang="ts">
-import { Palette, Component, PieChart, Button, Grid, Upload, Monitor } from '@element-plus/icons-vue';
+import { Setting, Grid, PieChart, Edit, Upload } from '@element-plus/icons-vue';
 
 const categories = [
-  { name: '基础组件', path: '/basic', icon: Button, count: 4 },
+  { name: '基础组件', path: '/basic', icon: Edit, count: 4 },
   { name: '图表组件', path: '/chart', icon: PieChart, count: 6 },
   { name: '数据组件', path: '/data', icon: Grid, count: 4 },
   { name: '表单组件', path: '/form', icon: Upload, count: 2 },
