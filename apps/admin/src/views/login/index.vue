@@ -235,10 +235,13 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+// 登录页背景渐变 - 使用品牌色变量（批次8：消除硬编码颜色）
+$gradient-start: #4a9eff;
+$gradient-end: #2c7ad6;
 .login-container {
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $gradient-start 0%, $gradient-end 100%);
 }
 
 .login-left {
@@ -248,7 +251,7 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   padding: 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, $gradient-start 0%, $gradient-end 100%);
   color: white;
 
   .brand {
