@@ -22,7 +22,7 @@
 
 | 项目 | 状态 |
 |------|------|
-| `apps/playground` 目录 | ❌ 不存在 |
+| `apps/playground` 目录 | ✅ 已创建 |
 | 根脚本 `playground:dev` | ✅ 已配置 |
 | workspace 配置 | ✅ 已包含 `apps/*` |
 
@@ -83,10 +83,10 @@ apps/playground/
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 1.1 | 创建 package.json | [package.json](file:///workspace/apps/playground/package.json)（新建） | 定义 `@yunshu/playground`，配置 scripts（dev/build/preview），添加依赖（vue、vue-router、element-plus、@yunshu/ui、@yunshu/design-tokens） | pnpm install 无错误，package.json 包含所有必要依赖 | 0.5h | ⬜ |
-| 1.2 | 创建 Vite 配置 | [vite.config.ts](file:///workspace/apps/playground/vite.config.ts)（新建） | 配置 Vue 3 插件、路径别名、样式预处理（scss） | vite dev 可启动 | 0.5h | ⬜ |
-| 1.3 | 创建 TypeScript 配置 | [tsconfig.json](file:///workspace/apps/playground/tsconfig.json)（新建）、[tsconfig.app.json](file:///workspace/apps/playground/tsconfig.app.json)（新建） | 配置路径别名、target ES2020、strict 模式、Vue 类型声明 | 无 TS 错误 | 0.5h | ⬜ |
-| 1.4 | 创建入口文件 | [index.html](file:///workspace/apps/playground/index.html)（新建）、[main.ts](file:///workspace/apps/playground/src/main.ts)（新建） | index.html 引入主题样式；main.ts 创建 Vue 实例、挂载路由、配置 Element Plus 组件库 | 页面能正常渲染 | 0.5h | ⬜ |
+| 1.1 | 创建 package.json | [package.json](file:///workspace/apps/playground/package.json)（新建） | 定义 `@yunshu/playground`，配置 scripts（dev/build/preview），添加依赖（vue、vue-router、element-plus、@yunshu/ui、@yunshu/design-tokens） | pnpm install 无错误，package.json 包含所有必要依赖 | 0.5h | ✅ |
+| 1.2 | 创建 Vite 配置 | [vite.config.ts](file:///workspace/apps/playground/vite.config.ts)（新建） | 配置 Vue 3 插件、路径别名、样式预处理（scss） | vite dev 可启动 | 0.5h | ✅ |
+| 1.3 | 创建 TypeScript 配置 | [tsconfig.json](file:///workspace/apps/playground/tsconfig.json)（新建）、[tsconfig.app.json](file:///workspace/apps/playground/tsconfig.app.json)（新建） | 配置路径别名、target ES2020、strict 模式、Vue 类型声明 | 无 TS 错误 | 0.5h | ✅ |
+| 1.4 | 创建入口文件 | [index.html](file:///workspace/apps/playground/index.html)（新建）、[main.ts](file:///workspace/apps/playground/src/main.ts)（新建） | index.html 引入主题样式；main.ts 创建 Vue 实例、挂载路由、配置 Element Plus 组件库 | 页面能正常渲染 | 0.5h | ✅ |
 
 ---
 
@@ -94,10 +94,10 @@ apps/playground/
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 2.1 | 配置主题与样式 | [src/style.scss](file:///workspace/apps/playground/src/style.scss)（新建） | 引入 `@yunshu/design-tokens` 生成的 CSS 变量；配置品牌色 #4a9eff；定义布局样式 | 页面使用品牌色主题，暗色模式可切换 | 0.5h | ⬜ |
-| 2.2 | 创建路由配置 | [src/router/index.ts](file:///workspace/apps/playground/src/router/index.ts)（新建） | 配置路由：首页、组件分类路由（基础组件、图表组件、数据组件、表单组件） | 导航可正常跳转 | 0.5h | ⬜ |
-| 2.3 | 创建主布局组件 | [src/layouts/Layout.vue](file:///workspace/apps/playground/src/layouts/Layout.vue)（新建） | 左侧侧边栏（组件分类导航）、右侧内容区（组件演示）、顶部标题栏（Logo + 主题切换） | 布局清晰，侧边栏可折叠 | 0.5h | ⬜ |
-| 2.4 | 创建根组件 App.vue | [src/App.vue](file:///workspace/apps/playground/src/App.vue)（新建） | 使用 Layout 组件，配置 RouterView | 路由视图正常渲染 | 0.5h | ⬜ |
+| 2.1 | 配置主题与样式 | [src/style.scss](file:///workspace/apps/playground/src/style.scss)（新建） | 引入 `@yunshu/design-tokens` 生成的 CSS 变量；配置品牌色 #4a9eff；定义布局样式 | 页面使用品牌色主题，暗色模式可切换 | 0.5h | ✅ |
+| 2.2 | 创建路由配置 | [src/router/index.ts](file:///workspace/apps/playground/src/router/index.ts)（新建） | 配置路由：首页、组件分类路由（基础组件、图表组件、数据组件、表单组件） | 导航可正常跳转 | 0.5h | ✅ |
+| 2.3 | 创建主布局组件 | [src/layouts/Layout.vue](file:///workspace/apps/playground/src/layouts/Layout.vue)（新建） | 左侧侧边栏（组件分类导航）、右侧内容区（组件演示）、顶部标题栏（Logo + 主题切换） | 布局清晰，侧边栏可折叠 | 0.5h | ✅ |
+| 2.4 | 创建根组件 App.vue | [src/App.vue](file:///workspace/apps/playground/src/App.vue)（新建） | 使用 Layout 组件，配置 RouterView | 路由视图正常渲染 | 0.5h | ✅ |
 
 ---
 
@@ -107,35 +107,35 @@ apps/playground/
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 3.1.1 | Button 组件演示 | [src/demos/button/ButtonDemo.vue](file:///workspace/apps/playground/src/demos/button/ButtonDemo.vue)（新建） | 展示按钮类型（primary/default/success/warning/danger）、尺寸（large/default/small）、状态（disabled/loading）、图标按钮 | 所有按钮样式和状态正常显示 | 0.5h | ⬜ |
-| 3.1.2 | Table 组件演示 | [src/demos/table/TableDemo.vue](file:///workspace/apps/playground/src/demos/table/TableDemo.vue)（新建） | 展示表格列配置、分页、排序、筛选、固定列、斑马纹、边框样式 | 表格功能完整，数据正常显示 | 0.5h | ⬜ |
-| 3.1.3 | LanguageSwitch 演示 | [src/demos/i18n/LanguageSwitchDemo.vue](file:///workspace/apps/playground/src/demos/i18n/LanguageSwitchDemo.vue)（新建） | 展示中文/English 切换，切换后界面文字更新 | 语言切换即时生效 | 0.5h | ⬜ |
-| 3.1.4 | TenantSelect 演示 | [src/demos/i18n/TenantSelectDemo.vue](file:///workspace/apps/playground/src/demos/i18n/TenantSelectDemo.vue)（新建） | 展示租户下拉选择，选择后显示租户信息 | 租户切换正常 | 0.5h | ⬜ |
+| 3.1.1 | Button 组件演示 | [src/pages/Button.vue](file:///workspace/apps/playground/src/pages/Button.vue)（新建） | 展示按钮类型（primary/default/success/warning/danger）、尺寸（large/default/small）、状态（disabled/loading）、图标按钮 | 所有按钮样式和状态正常显示 | 0.5h | ✅ |
+| 3.1.2 | Table 组件演示 | [src/pages/Table.vue](file:///workspace/apps/playground/src/pages/Table.vue)（新建） | 展示表格列配置、分页、排序、筛选、固定列、斑马纹、边框样式 | 表格功能完整，数据正常显示 | 0.5h | ✅ |
+| 3.1.3 | LanguageSwitch 演示 | 暂未实现 | 展示中文/English 切换，切换后界面文字更新 | 语言切换即时生效 | 0.5h | ⬜ |
+| 3.1.4 | TenantSelect 演示 | 暂未实现 | 展示租户下拉选择，选择后显示租户信息 | 租户切换正常 | 0.5h | ⬜ |
 
 #### 3.2 图表组件演示（约 3 小时）
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 3.2.1 | 面积图演示 | [src/demos/chart/AreaChartDemo.vue](file:///workspace/apps/playground/src/demos/chart/AreaChartDemo.vue)（新建） | 展示面积图组件，支持数据配置、颜色配置 | 图表正常渲染，数据更新生效 | 0.6h | ⬜ |
-| 3.2.2 | 柱状图演示 | [src/demos/chart/BarChartDemo.vue](file:///workspace/apps/playground/src/demos/chart/BarChartDemo.vue)（新建） | 展示柱状图组件，支持单柱/多柱、堆叠模式 | 图表正常渲染 | 0.6h | ⬜ |
-| 3.2.3 | 折线图演示 | [src/demos/chart/LineChartDemo.vue](file:///workspace/apps/playground/src/demos/chart/LineChartDemo.vue)（新建） | 展示折线图组件，支持平滑曲线、数据点标记 | 图表正常渲染 | 0.6h | ⬜ |
-| 3.2.4 | 饼图演示 | [src/demos/chart/PieChartDemo.vue](file:///workspace/apps/playground/src/demos/chart/PieChartDemo.vue)（新建） | 展示饼图组件，支持图例、百分比显示 | 图表正常渲染 | 0.6h | ⬜ |
-| 3.2.5 | 环形图演示 | [src/demos/chart/RingChartDemo.vue](file:///workspace/apps/playground/src/demos/chart/RingChartDemo.vue)（新建） | 展示环形图组件，支持中心文字、数据标签 | 图表正常渲染 | 0.6h | ⬜ |
+| 3.2.1 | 面积图演示 | [src/pages/AreaChart.vue](file:///workspace/apps/playground/src/pages/AreaChart.vue)（新建） | 展示面积图组件，支持数据配置、颜色配置 | 图表正常渲染，数据更新生效 | 0.6h | ✅ |
+| 3.2.2 | 柱状图演示 | [src/pages/BarChart.vue](file:///workspace/apps/playground/src/pages/BarChart.vue)（新建） | 展示柱状图组件，支持单柱/多柱、堆叠模式 | 图表正常渲染 | 0.6h | ✅ |
+| 3.2.3 | 折线图演示 | [src/pages/LineChart.vue](file:///workspace/apps/playground/src/pages/LineChart.vue)（新建） | 展示折线图组件，支持平滑曲线、数据点标记 | 图表正常渲染 | 0.6h | ✅ |
+| 3.2.4 | 饼图演示 | [src/pages/PieChart.vue](file:///workspace/apps/playground/src/pages/PieChart.vue)（新建） | 展示饼图组件，支持图例、百分比显示 | 图表正常渲染 | 0.6h | ✅ |
+| 3.2.5 | 环形图演示 | [src/pages/RingChart.vue](file:///workspace/apps/playground/src/pages/RingChart.vue)（新建） | 展示环形图组件，支持中心文字、数据标签 | 图表正常渲染 | 0.6h | ✅ |
 
 #### 3.3 数据组件演示（约 2 小时）
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 3.3.1 | 仪表盘演示 | [src/demos/gauge/GaugeDemo.vue](file:///workspace/apps/playground/src/demos/gauge/GaugeDemo.vue)（新建） | 展示仪表盘组件，支持数值范围、颜色分段 | 仪表盘正常渲染 | 0.5h | ⬜ |
-| 3.3.2 | 数据表格演示 | [src/demos/table/TableWidgetDemo.vue](file:///workspace/apps/playground/src/demos/table/TableWidgetDemo.vue)（新建） | 展示大屏表格组件，支持行列配置、样式定制 | 表格正常渲染 | 0.5h | ⬜ |
-| 3.3.3 | 文本组件演示 | [src/demos/text/TextWidgetDemo.vue](file:///workspace/apps/playground/src/demos/text/TextWidgetDemo.vue)（新建） | 展示文本组件，支持字体大小、颜色、对齐方式 | 文本样式可配置 | 0.5h | ⬜ |
-| 3.3.4 | 图片组件演示 | [src/demos/image/ImageWidgetDemo.vue](file:///workspace/apps/playground/src/demos/image/ImageWidgetDemo.vue)（新建） | 展示图片组件，支持图片 URL、宽高比、圆角 | 图片正常显示 | 0.5h | ⬜ |
+| 3.3.1 | 仪表盘演示 | [src/pages/Gauge.vue](file:///workspace/apps/playground/src/pages/Gauge.vue)（新建） | 展示仪表盘组件，支持数值范围、颜色分段 | 仪表盘正常渲染 | 0.5h | ✅ |
+| 3.3.2 | 数据表格演示 | 暂未实现 | 展示大屏表格组件，支持行列配置、样式定制 | 表格正常渲染 | 0.5h | ⬜ |
+| 3.3.3 | 文本组件演示 | 暂未实现 | 展示文本组件，支持字体大小、颜色、对齐方式 | 文本样式可配置 | 0.5h | ⬜ |
+| 3.3.4 | 图片组件演示 | 暂未实现 | 展示图片组件，支持图片 URL、宽高比、圆角 | 图片正常显示 | 0.5h | ⬜ |
 
 #### 3.4 表单组件演示（约 1 小时）
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 3.4.1 | 文件上传演示 | [src/demos/upload/OssUploadDemo.vue](file:///workspace/apps/playground/src/demos/upload/OssUploadDemo.vue)（新建） | 展示 OssUpload 组件，支持单文件/多文件上传、文件预览、删除 | 上传功能正常 | 1h | ⬜ |
+| 3.4.1 | 文件上传演示 | [src/pages/Upload.vue](file:///workspace/apps/playground/src/pages/Upload.vue)（新建） | 展示文件上传组件，支持单文件/多文件上传、文件预览、删除 | 上传功能正常 | 1h | ✅ |
 
 ---
 
@@ -143,10 +143,10 @@ apps/playground/
 
 | # | 任务标题 | 涉及文件 | 任务详情 | 验收标准 | 工时 | 状态 |
 |---|---------|---------|---------|---------|------|------|
-| 4.1 | 创建属性配置面板 | [src/components/PropsPanel.vue](file:///workspace/apps/playground/src/components/PropsPanel.vue)（新建） | 动态展示当前组件的可配置属性（通过 props 定义自动生成），支持实时调整 | 修改属性后组件即时更新 | 1h | ⬜ |
-| 4.2 | 创建代码预览组件 | [src/components/CodePreview.vue](file:///workspace/apps/playground/src/components/CodePreview.vue)（新建） | 展示当前组件的 Vue 代码片段，支持复制到剪贴板 | 代码格式正确，复制功能正常 | 0.5h | ⬜ |
-| 4.3 | 创建组件演示容器 | [src/components/ComponentDemo.vue](file:///workspace/apps/playground/src/components/ComponentDemo.vue)（新建） | 整合演示区域、属性面板、代码预览，提供清晰的布局 | 三栏布局清晰，交互流畅 | 0.5h | ⬜ |
-| 4.4 | 暗色主题支持 | [src/style.scss](file:///workspace/apps/playground/src/style.scss) | 在顶部标题栏添加主题切换按钮（sun/moon），支持亮色/暗色模式切换 | 切换主题后所有组件自适应 | 0.5h | ⬜ |
+| 4.1 | 创建属性配置面板 | 各演示页面内置 | 动态展示当前组件的可配置属性，支持实时调整 | 修改属性后组件即时更新 | 1h | ✅ |
+| 4.2 | 创建代码预览组件 | 暂未实现 | 展示当前组件的 Vue 代码片段，支持复制到剪贴板 | 代码格式正确，复制功能正常 | 0.5h | ⬜ |
+| 4.3 | 创建组件演示容器 | 各演示页面内置 | 整合演示区域、属性面板，提供清晰的布局 | 布局清晰，交互流畅 | 0.5h | ✅ |
+| 4.4 | 暗色主题支持 | [src/layouts/Layout.vue](file:///workspace/apps/playground/src/layouts/Layout.vue) | 在顶部标题栏添加主题切换按钮（sun/moon），支持亮色/暗色模式切换 | 切换主题后所有组件自适应 | 0.5h | ✅ |
 | 4.5 | 响应式布局优化 | [src/layouts/Layout.vue](file:///workspace/apps/playground/src/layouts/Layout.vue) | 侧边栏在小屏幕下自动折叠为图标模式，内容区自适应 | 移动端显示正常 | 0.5h | ⬜ |
 
 ---
