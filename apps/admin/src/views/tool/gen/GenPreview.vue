@@ -312,17 +312,17 @@ const handleClose = () => {
 
     .file-list {
       width: 280px;
-      border-right: 1px solid #e4e7ed;
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      background: #f5f7fa;
+      background: var(--surface-2);
 
       .file-list-header {
         padding: 12px 16px;
-        background: #fff;
-        border-bottom: 1px solid #e4e7ed;
+        background: var(--background);
+        border-bottom: 1px solid var(--border);
         font-weight: 600;
-        color: #303133;
+        color: var(--text-primary);
         font-size: 14px;
       }
 
@@ -340,21 +340,21 @@ const handleClose = () => {
           border-radius: 6px;
           margin-bottom: 4px;
           transition: all 0.2s;
-          background: #fff;
+          background: var(--background);
           border: 1px solid transparent;
 
           &:hover {
-            background: #ecf5ff;
-            border-color: #d9ecff;
+            background: var(--el-color-primary-light-8);
+            border-color: var(--el-color-primary-light-7);
           }
 
           &.active {
-            background: #ecf5ff;
-            border-color: #409eff;
-            color: #409eff;
+            background: var(--el-color-primary-light-8);
+            border-color: var(--el-color-primary);
+            color: var(--el-color-primary);
 
             .el-icon {
-              color: #409eff;
+              color: var(--el-color-primary);
             }
           }
 
@@ -367,7 +367,7 @@ const handleClose = () => {
           }
 
           .el-icon {
-            color: #909399;
+            color: var(--text-muted);
           }
         }
       }
@@ -384,8 +384,8 @@ const handleClose = () => {
         justify-content: space-between;
         align-items: center;
         padding: 12px 16px;
-        background: #f5f7fa;
-        border-bottom: 1px solid #e4e7ed;
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--border);
 
         .header-left {
           display: flex;
@@ -399,7 +399,7 @@ const handleClose = () => {
           .file-path {
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 13px;
-            color: #606266;
+            color: var(--text-secondary);
           }
         }
       }

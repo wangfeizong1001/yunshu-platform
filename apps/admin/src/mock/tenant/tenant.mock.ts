@@ -2,6 +2,8 @@
  * 租户管理 Mock 数据
  */
 
+import type { Tenant } from '@yunshu/shared'
+
 
 /** 模拟租户数据 */
 const mockTenants: any[] = [

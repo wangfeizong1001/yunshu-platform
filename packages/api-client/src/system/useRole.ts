@@ -201,7 +201,7 @@ export function useRolePermission(): UseRolePermissionReturn {
   async function assignMenus(roleId: number, menuIds: number[]): Promise<void> {
     submitting.value = true
     try {
-      await roleAPI.put(`/role/${roleId}/menus`, { menuIds })
+      await roleAPI.put(`/${roleId}/menus`, { menuIds })
     } finally {
       submitting.value = false
     }
@@ -214,7 +214,7 @@ export function useRolePermission(): UseRolePermissionReturn {
   ): Promise<void> {
     submitting.value = true
     try {
-      await roleAPI.put(`/role/${roleId}/dataScope`, { dataScope, deptIds })
+      await roleAPI.put(`/${roleId}/dataScope`, { dataScope, deptIds })
     } finally {
       submitting.value = false
     }

@@ -68,6 +68,7 @@ import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { addDept, updateDept } from '@/api/system/dept.api'
 import { getDeptTreeSelect } from '@/api/system/dept.api'
+import type { DeptInfo } from '@/api/system/dept.api'
 import type { SysDept } from '@yunshu/shared'
 
 interface Props {
@@ -121,8 +122,8 @@ const rules: FormRules = {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    const res = await getDeptTreeSelect() as SysDept[]
-    deptTree.value = res
+    const res = await getDeptTreeSelect()
+    deptTree.value = (res.data as DeptInfo[]) as unknown as SysDept[]
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -134,7 +135,7 @@ function fillFormData() {
     formData.value = {
       parentId: props.deptData.parentId,
       deptName: props.deptData.deptName,
-      orderNum: (props.deptData as Record<string, unknown>).orderNum || 0,
+      orderNum: (props.deptData as unknown as Record<string, unknown>).orderNum as number || 0,
       leader: props.deptData.leader,
       phone: props.deptData.phone,
       email: props.deptData.email,

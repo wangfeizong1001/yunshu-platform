@@ -90,14 +90,14 @@
                 refY="3"
                 orient="auto"
               >
-                <polygon points="0 0, 10 3, 0 6" fill="#606266" />
+                <polygon points="0 0, 10 3, 0 6" fill="var(--text-secondary)" />
               </marker>
             </defs>
             <g v-for="(line, idx) in connections" :key="'line-' + idx">
               <path
                 :d="getLinePath(line)"
                 fill="none"
-                stroke="#606266"
+                stroke="var(--text-secondary)"
                 stroke-width="2"
                 marker-end="url(#arrowhead)"
               />
@@ -323,7 +323,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   ArrowLeft,
@@ -332,13 +332,22 @@ import {
   RefreshLeft,
   RefreshRight,
 } from '@element-plus/icons-vue'
+import {
+  getProcessDefinition,
+  addProcessDefinition,
+  updateProcessDefinition,
+  deployProcessDefinition,
+} from '@/api/workflow.api'
 
 const router = useRouter()
+const route = useRoute()
 
 const canvasRef = ref<HTMLElement>()
 const svgRef = ref<SVGSVGElement>()
 
 const processName = ref('请假审批')
+const processId = ref<string | null>(null)
+const isEdit = ref(false)
 const viewMode = ref('design')
 
 const canvasWidth = 800
@@ -468,12 +477,47 @@ function goBack() {
   router.push('/workflow/process')
 }
 
-function handleSave() {
-  ElMessage.success('保存成功')
+// 保存流程定义
+async function handleSave() {
+  try {
+    const formData = {
+      name: processName.value,
+      key: `process_${Date.now()}`,
+      category: 'OA',
+      description: '流程描述',
+      xml: JSON.stringify({ nodes: nodes.value, connections: connections.value }),
+    }
+
+    if (processId.value) {
+      await updateProcessDefinition({ ...formData, id: processId.value })
+      ElMessage.success('保存成功')
+    } else {
+      const res = await addProcessDefinition(formData)
+      processId.value = (res as unknown as { id: string })?.id || null
+      isEdit.value = true
+      ElMessage.success('创建成功')
+    }
+  } catch (error) {
+    console.error('保存失败', error)
+    ElMessage.error('保存失败')
+  }
 }
 
-function handleDeploy() {
-  ElMessage.success('发布成功')
+// 发布流程定义
+async function handleDeploy() {
+  try {
+    // 如果未保存，先保存
+    if (!processId.value) {
+      await handleSave()
+    }
+    if (processId.value) {
+      await deployProcessDefinition(processId.value)
+      ElMessage.success('发布成功')
+    }
+  } catch (error) {
+    console.error('发布失败', error)
+    ElMessage.error('发布失败')
+  }
 }
 
 function handleUndo() {
@@ -691,7 +735,35 @@ function removeCondition(index: number) {
   selectedNode.value.conditions.splice(index, 1)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 从路由参数获取流程 ID
+  const id = route.params.id as string
+  if (id) {
+    try {
+      processId.value = id
+      isEdit.value = true
+      const res = await getProcessDefinition(id)
+      const data = (res as any).data
+      processName.value = data?.name || '未命名流程'
+      // 如果有保存的 XML，解析并加载
+      if (data?.xml) {
+        try {
+          const savedData = JSON.parse(data.xml)
+          if (savedData.nodes) {
+            nodes.value = savedData.nodes
+          }
+          if (savedData.connections) {
+            connections.value = savedData.connections
+          }
+        } catch {
+          // 解析失败，使用默认数据
+        }
+      }
+    } catch (error) {
+      console.error('获取流程定义失败', error)
+    }
+  }
+
   nextTick(() => {
     const nodeEls = document.querySelectorAll('.flow-node')
     nodeEls.forEach((el, idx) => {
@@ -733,40 +805,40 @@ onMounted(() => {
         align-items: center;
         gap: 8px;
         padding: 12px;
-        background: #f5f7fa;
+        background: var(--surface-2);
         border-radius: 8px;
         cursor: grab;
         transition: all 0.2s;
         &:hover {
-          background: #e6f4ff;
+          background: var(--el-color-primary-light-8);
         }
         .icon {
           font-size: 20px;
           font-weight: bold;
         }
         &.start .icon {
-          color: #67c23a;
+          color: var(--success);
         }
         &.end .icon {
-          color: #f56c6c;
+          color: var(--danger);
         }
         &.task .icon {
-          color: #409eff;
+          color: var(--el-color-primary);
         }
         &.approval .icon {
-          color: #409eff;
+          color: var(--el-color-primary);
         }
         &.copy .icon {
-          color: #909399;
+          color: var(--text-muted);
         }
         &.gateway .icon {
-          color: #e6a23c;
+          color: var(--warning);
         }
         &.condition .icon {
-          color: #f0a020;
+          color: var(--warning);
         }
         &.subtask .icon {
-          color: #8c8c8c;
+          color: var(--text-muted);
         }
       }
     }
@@ -814,7 +886,7 @@ onMounted(() => {
         color: white;
       }
       &.task .node-body {
-        background: linear-gradient(135deg, #93c5fd, #409eff);
+        background: linear-gradient(135deg, #93c5fd, #4a9eff);
         color: white;
       }
       &.approval .node-body {
@@ -838,7 +910,7 @@ onMounted(() => {
         color: white;
       }
       &.selected .node-body {
-        box-shadow: 0 0 0 3px #409eff;
+        box-shadow: 0 0 0 3px var(--el-color-primary);
       }
       .node-body {
         width: 100%;
@@ -868,12 +940,12 @@ onMounted(() => {
           width: 12px;
           height: 12px;
           background: white;
-          border: 2px solid #409eff;
+          border: 2px solid var(--el-color-primary);
           border-radius: 50%;
           pointer-events: auto;
           cursor: crosshair;
           &:hover {
-            background: #409eff;
+            background: var(--el-color-primary);
           }
           &.port-top {
             top: -6px;
@@ -893,7 +965,7 @@ onMounted(() => {
         right: -8px;
         width: 20px;
         height: 20px;
-        background: #f56c6c;
+        background: var(--danger);
         color: white;
         border-radius: 50%;
         display: flex;

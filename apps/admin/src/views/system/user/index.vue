@@ -80,13 +80,13 @@
         <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
         <el-table-column prop="sex" label="性别" width="80">
           <template #default="{ row }">
-            {{ row.sex === '0' ? '男' : row.sex === '1' ? '女' : '未知' }}
+            {{ getSexLabel(row.sex) }}
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getUserStatusTagType(row.status)">
+              {{ getUserStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -200,6 +200,23 @@ import type { SysUser, SysDept } from '@yunshu/shared'
 import UserForm from './UserForm.vue'
 import AssignRoleDialog from './AssignRoleDialog.vue'
 
+// ========== 状态常量（与后端约定字段值） ==========
+const USER_SEX_MALE = '0'
+const USER_SEX_FEMALE = '1'
+const USER_STATUS_NORMAL = '0'
+
+/** 性别文本 */
+const getSexLabel = (val: string) =>
+  val === USER_SEX_MALE ? '男' : val === USER_SEX_FEMALE ? '女' : '未知'
+
+/** 用户状态 tag 类型 */
+const getUserStatusTagType = (val: string) =>
+  val === USER_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 用户状态文本 */
+const getUserStatusLabel = (val: string) =>
+  val === USER_STATUS_NORMAL ? '正常' : '停用'
+
 // 状态
 const loading = ref(false)
 const userList = ref<SysUser[]>([])
@@ -252,9 +269,10 @@ const queryParams = reactive({
 async function fetchUserList() {
   loading.value = true
   try {
-    const res = await getUserPage(queryParams) as Record<string, unknown>
-    userList.value = res.rows
-    total.value = res.total
+    const res = await getUserPage(queryParams)
+    const pageData = res?.data as { rows: SysUser[]; total: number } | undefined
+    userList.value = pageData?.rows ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -263,7 +281,8 @@ async function fetchUserList() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = (await getDeptTreeSelect()) as unknown[]
+    const res = await getDeptTreeSelect()
+    deptTree.value = (res?.data as SysDept[]) || []
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -297,7 +316,7 @@ function handleAdd() {
 
 // 编辑
 function handleEdit(row: Record<string, unknown>) {
-  currentUser.value = { ...row }
+  currentUser.value = { ...row } as unknown as SysUser | null
   formVisible.value = true
 }
 
@@ -307,7 +326,7 @@ async function handleDelete(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认删除用户"${row.username}"？`, '提示', {
       type: 'warning',
     })
-    await deleteUser(row.userId)
+    await deleteUser(row.userId as number)
     ElMessage.success('删除成功')
     fetchUserList()
   } catch (error) {
@@ -319,7 +338,7 @@ async function handleDelete(row: Record<string, unknown>) {
 
 // 重置密码
 function handleResetPassword(row: Record<string, unknown>) {
-  currentUserId.value = row.userId
+  currentUserId.value = row.userId as number
   resetPwdForm.password = ''
   resetPwdForm.confirmPassword = ''
   resetPwdVisible.value = true
@@ -343,7 +362,7 @@ async function handleResetPwdSubmit() {
 
 // 分配角色
 function handleAssignRole(row: Record<string, unknown>) {
-  currentUserId.value = row.userId
+  currentUserId.value = row.userId as number
   assignRoleVisible.value = true
 }
 

@@ -16,8 +16,8 @@
         </el-descriptions-item>
         <el-descriptions-item label="操作模块">{{ detailData.operModule }}</el-descriptions-item>
         <el-descriptions-item label="操作状态">
-          <el-tag :type="detailData.status === '0' ? 'success' : 'danger'">
-            {{ detailData.status === '0' ? '成功' : '失败' }}
+          <el-tag :type="getOperlogStatusTagType(detailData.status)">
+            {{ getOperlogStatusLabel(detailData.status) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="请求方法">{{ detailData.requestMethod }}</el-descriptions-item>
@@ -45,6 +45,16 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { IOperlog } from '@yunshu/shared'
 import { getOperlog } from '@/api/monitor/operlog.api'
+
+// 状态常量
+const OPERLOG_STATUS_SUCCESS = '0'
+const OPERLOG_STATUS_FAIL = '1'
+
+const getOperlogStatusTagType = (val: string) =>
+  val === OPERLOG_STATUS_SUCCESS ? 'success' : 'danger'
+
+const getOperlogStatusLabel = (val: string) =>
+  val === OPERLOG_STATUS_SUCCESS ? '成功' : '失败'
 
 const router = useRouter()
 const route = useRoute()
@@ -87,7 +97,8 @@ const loadDetail = async () => {
     if (res.success) {
       detailData.value = res.data
     }
-  } catch {
+  } catch (err) {
+    console.error('[OperlogDetail] loadDetail failed:', err)
     ElMessage.error('获取日志详情失败')
   }
 }
@@ -111,7 +122,7 @@ onMounted(() => {
   .json-content {
     margin: 0;
     padding: 8px;
-    background: #f5f7fa;
+    background: var(--surface-2);
     border-radius: 4px;
     white-space: pre-wrap;
     word-break: break-all;

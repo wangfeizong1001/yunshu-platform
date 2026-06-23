@@ -240,9 +240,10 @@ function isImageFile(fileType: string | undefined): boolean {
 async function fetchFileList() {
   loading.value = true
   try {
-    const res = await getOssPage(queryParams) as Record<string, unknown>
-    fileList.value = res.rows
-    total.value = res.total
+    const res = await getOssPage(queryParams)
+    const pageData = res?.data
+    fileList.value = pageData?.rows ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -279,7 +280,7 @@ function handleConfig() {
 }
 
 // 预览
-async function handlePreview(row: Record<string, unknown>) {
+async function handlePreview(row: OssFile) {
   previewFile.value = row
   if (isImageFile(row.fileType)) {
     previewUrl.value = row.url
@@ -290,7 +291,7 @@ async function handlePreview(row: Record<string, unknown>) {
 }
 
 // 下载
-async function handleDownload(row: Record<string, unknown>) {
+async function handleDownload(row: OssFile) {
   try {
     await downloadOss(row.id)
     ElMessage.success('下载成功')
@@ -300,7 +301,7 @@ async function handleDownload(row: Record<string, unknown>) {
 }
 
 // 删除
-async function handleDelete(row: Record<string, unknown>) {
+async function handleDelete(row: OssFile) {
   try {
     await ElMessageBox.confirm(`是否确认删除文件"${row.fileName}"？`, '提示', {
       type: 'warning',
@@ -321,7 +322,7 @@ async function handleBatchDelete() {
     await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个文件？`, '提示', {
       type: 'warning',
     })
-    const ids = selectedRows.value.map((row: Record<string, unknown>) => row.id)
+    const ids = selectedRows.value.map((row) => row.id)
     await batchDeleteOss(ids)
     ElMessage.success('删除成功')
     fetchFileList()

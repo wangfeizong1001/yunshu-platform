@@ -58,10 +58,10 @@
         <el-table-column prop="formName" label="表单名称" width="200" />
         <el-table-column prop="formCode" label="表单编码" width="200" />
         <el-table-column prop="description" label="描述" show-overflow-tooltip />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'info'">
-              {{ row.status === '1' ? '已发布' : '草稿' }}
+            <el-tag :type="getFormStatusTagType(row.status)">
+              {{ getFormStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -72,7 +72,7 @@
             <el-button link type="primary" @click="handleDesign(row)">设计</el-button>
             <el-button link type="primary" @click="handlePreview(row)">预览</el-button>
             <el-button
-              v-if="row.status === '0'"
+              v-if="row.status === FORM_STATUS_DRAFT"
               link
               type="success"
               @click="handlePublish(row)"
@@ -80,7 +80,7 @@
               发布
             </el-button>
             <el-button
-              v-if="row.status === '1'"
+              v-if="row.status === FORM_STATUS_PUBLISHED"
               link
               type="warning"
               @click="handleStop(row)"
@@ -167,13 +167,25 @@ import {
 
 const router = useRouter()
 
+// ========== 状态常量（与后端约定字段值） ==========
+const FORM_STATUS_DRAFT = '0'
+const FORM_STATUS_PUBLISHED = '1'
+
+/** 表单状态 tag 类型 */
+const getFormStatusTagType = (val: string) =>
+  val === FORM_STATUS_PUBLISHED ? 'success' : 'info'
+
+/** 表单状态文本 */
+const getFormStatusLabel = (val: string) =>
+  val === FORM_STATUS_PUBLISHED ? '已发布' : '草稿'
+
 // 状态
 const loading = ref(false)
-const formList = ref<unknown[]>([])
+const formList = ref<FormForm[]>([])
 const total = ref(0)
-const selectedRows = ref<unknown[]>([])
+const selectedRows = ref<FormForm[]>([])
 const formDialogVisible = ref(false)
-const currentForm = ref<unknown>(null)
+const currentForm = ref<FormForm | null>(null)
 const formRef = ref<FormInstance>()
 const formData = reactive<FormForm>({
   formName: '',
@@ -206,8 +218,9 @@ async function fetchFormList() {
   loading.value = true
   try {
     const res = await getFormPage(queryParams)
-    formList.value = res.rows
-    total.value = res.total
+    const pageData = res?.data as { rows: FormForm[]; total: number } | undefined
+    formList.value = pageData?.rows ?? []
+    total.value = pageData?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -242,13 +255,14 @@ function handleAdd() {
 // 编辑
 async function handleEdit(row: Record<string, unknown>) {
   try {
-    const res = await getForm(row.formId)
-    currentForm.value = res
+    const res = await getForm(row.formId as number)
+    const formData_ = res?.data as FormForm | undefined
+    currentForm.value = formData_ ?? null
     Object.assign(formData, {
-      formName: res.formName,
-      formCode: res.formCode,
-      description: res.description,
-      remark: res.remark
+      formName: formData_?.formName,
+      formCode: formData_?.formCode,
+      description: formData_?.description,
+      remark: formData_?.remark
     })
     formDialogVisible.value = true
   } catch (error) {
@@ -262,7 +276,7 @@ async function handleDelete(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认删除表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await deleteForm(row.formId)
+    await deleteForm(row.formId as number)
     ElMessage.success('删除成功')
     fetchFormList()
   } catch (error) {
@@ -278,7 +292,7 @@ async function handleBatchDelete() {
     await ElMessageBox.confirm(`是否确认删除选中的${selectedRows.value.length}个表单？`, '提示', {
       type: 'warning'
     })
-    await batchDeleteForm(selectedRows.value.map(row => row.formId))
+    await batchDeleteForm(selectedRows.value.map(row => row.formId as number))
     ElMessage.success('删除成功')
     fetchFormList()
   } catch (error) {
@@ -294,7 +308,7 @@ async function handleCopy(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认复制表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await copyForm(row.formId)
+    await copyForm(row.formId as number)
     ElMessage.success('复制成功')
     fetchFormList()
   } catch (error) {
@@ -310,12 +324,12 @@ async function handlePublish(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认发布表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await publishForm(row.formId)
+    await publishForm(row.formId as number)
     ElMessage.success('发布成功')
     fetchFormList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('发布失败', error)
+      console.error('[FormList] handlePublish failed:', error)
     }
   }
 }
@@ -326,24 +340,24 @@ async function handleStop(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认停用表单"${row.formName}"？`, '提示', {
       type: 'warning'
     })
-    await stopForm(row.formId)
+    await stopForm(row.formId as number)
     ElMessage.success('停用成功')
     fetchFormList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('停用失败', error)
+      console.error('[FormList] handleStop failed:', error)
     }
   }
 }
 
 // 设计
 function handleDesign(row: Record<string, unknown>) {
-  router.push(`/system/form-design/${row.formId}`)
+  router.push(`/system/form-design/${row.formId as number}`)
 }
 
 // 预览
 function handlePreview(row: Record<string, unknown>) {
-  router.push(`/system/form-preview/${row.formId}`)
+  router.push(`/system/form-preview/${row.formId as number}`)
 }
 
 // 提交

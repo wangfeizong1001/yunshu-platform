@@ -22,9 +22,13 @@ export interface CreateProjectOptions {
 /**
  * 创建项目目录和文件
  */
-export async function createProject(options: CreateProjectOptions): Promise<void> {
+export function getAvailableTemplates(): string[] {
+  return ['basic', 'admin', 'full-stack'];
+}
+
+export async function createProject(options: CreateProjectOptions, outputDir?: string): Promise<void> {
   const { name, template, features } = options;
-  const targetDir = path.resolve(process.cwd(), name);
+  const targetDir = path.resolve(outputDir || process.cwd(), name);
 
   // 检查目标目录是否已存在
   if (await fs.pathExists(targetDir)) {

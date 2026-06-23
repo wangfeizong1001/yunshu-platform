@@ -47,6 +47,16 @@ module.exports = {
     'eqeqeq': ['error', 'always'],
     'curly': ['error', 'all'],
     'no-debugger': 'error',
+
+    // 禁止在 Vue template 中硬编码 hex 颜色值
+    'vue/no-restricted-syntax': [
+      'warn',
+      {
+        // 检测 VLiteral 中包含 hex 颜色值
+        selector: 'VLiteral[value=/^#[0-9a-fA-F]{3,6}$/]',
+        message: '禁止使用硬编码 hex 颜色值，请使用 CSS 变量（如 var(--el-color-primary)）',
+      },
+    ],
   },
   ignorePatterns: ['dist', 'node_modules', '.turbo', 'coverage'],
 };

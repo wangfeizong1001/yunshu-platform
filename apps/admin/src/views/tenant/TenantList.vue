@@ -117,7 +117,7 @@
                     v-has-permi="['tenant:tenant:status']"
                     @click="handleChangeStatus(row)"
                   >
-                    {{ row.status === '0' ? '停用' : '启用' }}
+                    {{ getTenantStatusToggleLabel(row.status) }}
                   </el-dropdown-item>
                   <el-dropdown-item
                     v-has-permi="['tenant:tenant:delete']"
@@ -165,17 +165,36 @@ import {
   getTenantPage,
   deleteTenant,
   changeTenantStatus,
+  getPackageList,
 } from '@/api/tenant/tenant.api'
 import type { Tenant, TenantQuery } from '@yunshu/shared'
+import { TenantStatusEnum } from '@yunshu/shared'
+import type { TenantPackageInfo } from '@/api/tenant/tenant.api'
 import TenantForm from './TenantForm.vue'
 import TenantDetail from './TenantDetail.vue'
 import TenantPackage from './TenantPackage.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const TENANT_STATUS_NORMAL = '0'
+const TENANT_STATUS_DISABLED = '1'
+
+/** 租户状态 tag 类型 */
+const getTenantStatusTagType = (val: string) =>
+  val === TENANT_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 租户状态文本 */
+const getTenantStatusLabel = (val: string) =>
+  val === TENANT_STATUS_NORMAL ? '正常' : '停用'
+
+/** 租户状态切换操作文本 */
+const getTenantStatusToggleLabel = (val: string) =>
+  val === TENANT_STATUS_NORMAL ? '停用' : '启用'
 
 // 状态
 const loading = ref(false)
 const tenantList = ref<Tenant[]>([])
 const total = ref(0)
-const packageList = ref<{ packageId: number; packageName: string }[]>([])
+const packageList = ref<TenantPackageInfo[]>([])
 const formVisible = ref(false)
 const detailVisible = ref(false)
 const packageVisible = ref(false)
@@ -211,8 +230,8 @@ async function fetchTenantList() {
   loading.value = true
   try {
     const res = await getTenantPage(queryParams)
-    tenantList.value = res.rows
-    total.value = res.total
+    tenantList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -246,36 +265,37 @@ function handleAdd() {
 
 // 编辑
 function handleEdit(row: Record<string, unknown>) {
-  currentTenant.value = { ...row }
+  currentTenant.value = { ...row } as unknown as Tenant
   formVisible.value = true
 }
 
 // 详情
 function handleDetail(row: Record<string, unknown>) {
-  currentTenantId.value = row.tenantId
+  currentTenantId.value = row.tenantId as number
   detailVisible.value = true
 }
 
 // 套餐配置
 function handlePackage(row: Record<string, unknown>) {
-  currentTenantId.value = row.tenantId
+  currentTenantId.value = row.tenantId as number
   packageVisible.value = true
 }
 
 // 修改状态
 async function handleChangeStatus(row: Record<string, unknown>) {
-  const newStatus = row.status === '0' ? '1' : '0'
-  const action = newStatus === '0' ? '启用' : '停用'
+  const newStatus = row.status === TENANT_STATUS_NORMAL ? TENANT_STATUS_DISABLED : TENANT_STATUS_NORMAL
+  const actionLabel = getTenantStatusToggleLabel(row.status as string)
   try {
-    await ElMessageBox.confirm(`是否确认${action}租户"${row.tenantName}"？`, '提示', {
+    await ElMessageBox.confirm(`是否确认${actionLabel}租户"${row.tenantName}"？`, '提示', {
       type: 'warning',
     })
-    await changeTenantStatus(row.tenantId, newStatus as '0' | '1' | '2')
-    ElMessage.success(`${action}成功`)
+    await changeTenantStatus(row.tenantId as number, newStatus as '0' | '1' | '2')
+    ElMessage.success(`${actionLabel}成功`)
     fetchTenantList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error(`${action}失败`, error)
+      console.error(`[TenantList] handleChangeStatus failed:`, error)
+      ElMessage.error(`${actionLabel}失败，请重试`)
     }
   }
 }
@@ -286,7 +306,7 @@ async function handleDelete(row: Record<string, unknown>) {
     await ElMessageBox.confirm(`是否确认删除租户"${row.tenantName}"？`, '提示', {
       type: 'warning',
     })
-    await deleteTenant(row.tenantId)
+    await deleteTenant(row.tenantId as number)
     ElMessage.success('删除成功')
     fetchTenantList()
   } catch (error) {
@@ -304,7 +324,17 @@ async function handleExport() {
 // 初始化
 onMounted(() => {
   fetchTenantList()
+  fetchPackageList()
 })
+
+async function fetchPackageList() {
+  try {
+    const res = await getPackageList({ pageSize: 100 })
+    packageList.value = ((res as any).data ?? []) as TenantPackageInfo[]
+  } catch (error) {
+    console.error('加载套餐列表失败', error)
+  }
+}
 </script>
 
 <style scoped lang="scss">

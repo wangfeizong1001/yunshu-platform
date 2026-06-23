@@ -54,8 +54,8 @@
         <el-table-column label="用户名称" prop="userName" width="120" align="center" />
         <el-table-column label="登录状态" prop="status" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '成功' : '失败' }}
+            <el-tag :type="getLoginStatusTagType(row.status)">
+              {{ getLoginStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -96,8 +96,8 @@
         <el-descriptions-item label="访问编号">{{ currentRow?.infoId }}</el-descriptions-item>
         <el-descriptions-item label="用户名称">{{ currentRow?.userName }}</el-descriptions-item>
         <el-descriptions-item label="登录状态">
-          <el-tag :type="currentRow?.status === '0' ? 'success' : 'danger'">
-            {{ currentRow?.status === '0' ? '成功' : '失败' }}
+          <el-tag :type="getLoginStatusTagType(currentRow?.status)">
+            {{ getLoginStatusLabel(currentRow?.status) }}
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="登录地址">{{ currentRow?.loginLocation }}</el-descriptions-item>
@@ -117,6 +117,18 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
 import type { LogininforQuery, LogininforInfo } from '@/api/monitor/logininfor.api'
 import * as logininforApi from '@/api/monitor/logininfor.api'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const LOGIN_STATUS_SUCCESS = '0'
+const LOGIN_STATUS_FAIL = '1'
+
+/** 登录状态 tag 类型 */
+const getLoginStatusTagType = (val: string | undefined) =>
+  val === LOGIN_STATUS_SUCCESS ? 'success' : 'danger'
+
+/** 登录状态文本 */
+const getLoginStatusLabel = (val: string | undefined) =>
+  val === LOGIN_STATUS_SUCCESS ? '成功' : '失败'
 
 const loading = ref(false)
 const tableData = ref<LogininforInfo[]>([])
@@ -189,8 +201,11 @@ const handleDelete = async (row: LogininforInfo) => {
     await logininforApi.deleteLogininfor(row.infoId)
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[LogininforList] handleDelete failed:', err)
+      ElMessage.error('删除登录日志失败，请重试')
+    }
   }
 }
 
@@ -200,8 +215,11 @@ const handleBatchDelete = async () => {
     await logininforApi.batchDeleteLogininfor(selectedIds.value)
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[LogininforList] handleBatchDelete failed:', err)
+      ElMessage.error('批量删除失败，请重试')
+    }
   }
 }
 
@@ -211,13 +229,22 @@ const handleClean = async () => {
     await logininforApi.cleanLogininfor()
     ElMessage.success('清空成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[LogininforList] handleClean failed:', err)
+      ElMessage.error('清空失败，请重试')
+    }
   }
 }
 
-const handleExport = () => {
-  logininforApi.exportLogininfor(queryParams)
+const handleExport = async () => {
+  try {
+    await logininforApi.exportLogininfor(queryParams)
+    ElMessage.success('导出成功')
+  } catch (err) {
+    console.error('[LogininforList] handleExport failed:', err)
+    ElMessage.error('导出失败，请重试')
+  }
 }
 
 onMounted(() => {

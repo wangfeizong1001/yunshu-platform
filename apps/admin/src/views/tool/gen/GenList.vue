@@ -84,7 +84,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, Download } from '@element-plus/icons-vue'
-import { getGenTablePage, type IGenTable, type IGenQuery } from '@/api/tool/gen.api'
+import { getGenTablePage, deleteGenTable, type IGenTable, type IGenQuery } from '@/api/tool/gen.api'
 import GenImport from './GenImport.vue'
 import GenPreview from './GenPreview.vue'
 
@@ -164,29 +164,41 @@ const handleGenerate = async (row: IGenTable) => {
       path: '/tool/gen/config',
       query: { tableName: row.tableName as string, generate: 'true' },
     })
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[GenList] handleGenerate failed:', err)
+      ElMessage.error('生成代码失败，请重试')
+    }
   }
 }
 
-const handleDelete = async (_row: Record<string, unknown>) => {
+const handleDelete = async (row: Record<string, unknown>) => {
   try {
     await ElMessageBox.confirm('确认删除该表的生成配置吗？', '提示', { type: 'warning' })
+    await deleteGenTable([row.tableName as string])
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[GenList] handleDelete failed:', err)
+      ElMessage.error('删除失败，请重试')
+    }
   }
 }
 
 const handleBatchDelete = async () => {
   try {
     await ElMessageBox.confirm(`确认删除选中的 ${selectedIds.value.length} 个表配置吗？`, '提示', { type: 'warning' })
-    // TODO: 调用批量删除接口
+    for (const name of selectedIds.value) {
+      await deleteGenTable([name as string])
+    }
     ElMessage.success('删除成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[GenList] handleBatchDelete failed:', err)
+      ElMessage.error('批量删除失败，请重试')
+    }
   }
 }
 

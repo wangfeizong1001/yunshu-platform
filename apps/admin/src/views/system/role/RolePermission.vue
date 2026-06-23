@@ -66,7 +66,9 @@ import { ElMessage } from 'element-plus'
 import type { ElTree } from 'element-plus'
 import { authRoleAll, dataScope } from '@/api/system/role.api'
 import { getMenuTree } from '@/api/system/menu.api'
+import type { MenuInfo } from '@/api/system/menu.api'
 import { getDeptTree } from '@/api/system/dept.api'
+import type { DeptInfo } from '@/api/system/dept.api'
 import type { SysMenu, SysDept } from '@yunshu/shared'
 
 interface Props {
@@ -106,7 +108,8 @@ const formData = ref({
 // 加载菜单树
 async function fetchMenuTree() {
   try {
-    menuTree.value = (await getMenuTree()) as unknown[]
+    const res = await getMenuTree()
+    menuTree.value = (res.data as MenuInfo[]) as unknown as SysMenu[]
   } catch (error) {
     console.error('加载菜单树失败', error)
   }
@@ -115,7 +118,8 @@ async function fetchMenuTree() {
 // 加载部门树
 async function fetchDeptTree() {
   try {
-    deptTree.value = (await getDeptTree()) as unknown[]
+    const res = await getDeptTree()
+    deptTree.value = (res.data as DeptInfo[]) as unknown as SysDept[]
   } catch (error) {
     console.error('加载部门树失败', error)
   }
@@ -204,7 +208,7 @@ watch(visible, (val) => {
     width: 100%;
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #dcdfe6;
+    border: 1px solid var(--border);
     border-radius: 4px;
     padding: 8px;
   }

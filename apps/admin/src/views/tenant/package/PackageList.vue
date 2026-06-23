@@ -77,8 +77,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-              {{ row.status === '0' ? '正常' : '停用' }}
+            <el-tag :type="getPackageStatusTagType(row.status)">
+              {{ getPackageStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -134,6 +134,18 @@ import type { TenantPackage, TenantPackageQuery } from '@yunshu/shared'
 import { PackageTypeEnum, ExpireTypeEnum } from '@yunshu/shared'
 import PackageForm from './PackageForm.vue'
 
+// ========== 状态常量（与后端约定字段值） ==========
+const PACKAGE_STATUS_NORMAL = '0'
+const PACKAGE_STATUS_DISABLED = '1'
+
+/** 套餐状态 tag 类型 */
+const getPackageStatusTagType = (val: string) =>
+  val === PACKAGE_STATUS_NORMAL ? 'success' : 'danger'
+
+/** 套餐状态文本 */
+const getPackageStatusLabel = (val: string) =>
+  val === PACKAGE_STATUS_NORMAL ? '正常' : '停用'
+
 // 状态
 const loading = ref(false)
 const packageList = ref<TenantPackage[]>([])
@@ -142,10 +154,10 @@ const formVisible = ref(false)
 const currentPackage = ref<TenantPackage | null>(null)
 
 // 查询参数
-const queryParams = reactive<TenantPackageQuery>({
+const queryParams = reactive<any>({
   keyword: '',
-  status: undefined as unknown as number | undefined,
-  packageType: undefined as unknown as string | undefined,
+  status: undefined,
+  packageType: undefined,
   pageNum: 1,
   pageSize: 10,
 })
@@ -170,8 +182,8 @@ async function fetchPackageList() {
   loading.value = true
   try {
     const res = await getPackagePage(queryParams)
-    packageList.value = res.rows
-    total.value = res.total
+    packageList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
   } finally {
     loading.value = false
   }
@@ -186,8 +198,8 @@ function handleQuery() {
 // 重置查询
 function resetQuery() {
   queryParams.keyword = ''
-  queryParams.status = undefined as unknown as number | undefined
-  queryParams.packageType = undefined as unknown as string | undefined
+  queryParams.status = undefined
+  queryParams.packageType = undefined
   queryParams.pageNum = 1
   handleQuery()
 }

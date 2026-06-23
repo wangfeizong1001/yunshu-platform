@@ -265,8 +265,9 @@ async function fetchFormInfo() {
   const formId = Number(route.params.id)
   try {
     const res = await getForm(formId)
-    formInfo.value = res
-    components.value = res.components || []
+    const formData_ = res?.data as unknown as FormInfo | undefined
+    formInfo.value = formData_ ?? null
+    components.value = formData_?.components ?? []
     initFormData()
   } catch (error) {
     console.error('获取表单信息失败', error)
@@ -284,15 +285,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--surface-2);
 
   .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #e4e7ed;
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
 
     .left {
       display: flex;
@@ -302,7 +303,7 @@ onMounted(() => {
         margin-left: 16px;
         font-size: 16px;
         font-weight: 500;
-        color: #303133;
+        color: var(--text-primary);
       }
     }
   }
@@ -318,7 +319,7 @@ onMounted(() => {
   .preview-card {
     width: 100%;
     max-width: 800px;
-    background-color: #fff;
+    background-color: var(--background);
     border-radius: 4px;
     padding: 40px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -326,8 +327,8 @@ onMounted(() => {
     .form-description {
       margin-bottom: 24px;
       padding-bottom: 16px;
-      border-bottom: 1px solid #e4e7ed;
-      color: #606266;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
       font-size: 14px;
     }
 

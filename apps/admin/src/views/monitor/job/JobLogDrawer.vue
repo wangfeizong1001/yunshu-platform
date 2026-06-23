@@ -42,8 +42,8 @@
       <el-table-column label="调用目标" prop="invokeTarget" min-width="160" show-overflow-tooltip />
       <el-table-column label="执行状态" prop="status" width="80" align="center">
         <template #default="{ row }">
-          <el-tag :type="row.status === '0' ? 'success' : 'danger'">
-            {{ row.status === '0' ? '成功' : '失败' }}
+          <el-tag :type="getJobLogStatusTagType(row.status)">
+            {{ getJobLogStatusLabel(row.status) }}
           </el-tag>
         </template>
       </el-table-column>
@@ -87,6 +87,16 @@ import { Search, Refresh, Delete } from '@element-plus/icons-vue'
 import type { IJobLog } from '@yunshu/shared'
 import type { JobInfo, JobLogQuery } from '@/api/monitor/job.api'
 import * as jobApi from '@/api/monitor/job.api'
+
+// 状态常量
+const JOB_LOG_STATUS_SUCCESS = '0'
+const JOB_LOG_STATUS_FAIL = '1'
+
+const getJobLogStatusTagType = (val: string) =>
+  val === JOB_LOG_STATUS_SUCCESS ? 'success' : 'danger'
+
+const getJobLogStatusLabel = (val: string) =>
+  val === JOB_LOG_STATUS_SUCCESS ? '成功' : '失败'
 
 // IJobLogQuery 别名
 type IJobLogQuery = JobLogQuery
@@ -146,7 +156,8 @@ const handleQuery = async () => {
       const pagination = responseData.pagination as Record<string, unknown>
       total.value = Number(pagination.total) || 0
     }
-  } catch {
+  } catch (err) {
+    console.error('[JobLogDrawer] handleQuery failed:', err)
     ElMessage.error('获取任务日志失败')
   } finally {
     loading.value = false
@@ -169,8 +180,11 @@ const handleClean = async () => {
     await jobApi.cleanJobLog()
     ElMessage.success('清空成功')
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[JobLogDrawer] handleClean failed:', err)
+      ElMessage.error('清空失败，请重试')
+    }
   }
 }
 

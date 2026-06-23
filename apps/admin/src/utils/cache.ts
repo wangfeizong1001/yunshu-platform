@@ -128,11 +128,15 @@ class Cache {
     const storage = this.getStorage(options?.type)
     const prefix = `${this.config.namespace}:`
 
+    const toRemove: string[] = []
     for (let i = 0; i < storage.length; i++) {
       const key = storage.key(i)
       if (key?.startsWith(prefix)) {
-        storage.removeItem(key)
+        toRemove.push(key)
       }
+    }
+    for (const key of toRemove) {
+      storage.removeItem(key)
     }
   }
 
@@ -150,6 +154,7 @@ class Cache {
     const storage = this.getStorage(options?.type)
     const prefix = `${this.config.namespace}:`
 
+    const toRemove: string[] = []
     for (let i = 0; i < storage.length; i++) {
       const key = storage.key(i)
       if (key?.startsWith(prefix)) {
@@ -158,13 +163,16 @@ class Cache {
           if (cacheString) {
             const cacheItem: CacheItem = JSON.parse(cacheString)
             if (this.isExpired(cacheItem)) {
-              storage.removeItem(key)
+              toRemove.push(key)
             }
           }
         } catch {
-          storage.removeItem(key)
+          toRemove.push(key)
         }
       }
+    }
+    for (const key of toRemove) {
+      storage.removeItem(key)
     }
   }
 

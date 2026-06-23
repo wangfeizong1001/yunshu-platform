@@ -131,7 +131,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { Search, Refresh, Download } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { type Task } from '@/api/workflow.api'
-import { getMockDoneTaskPage } from '@/mock/workflow.mock'
+import { getDoneTaskPage } from '@/api/workflow.api'
 
 const loading = ref(false)
 const taskList = ref<Task[]>([])
@@ -169,9 +169,11 @@ const taskHistory = ref([
 async function fetchTaskList() {
   loading.value = true
   try {
-    const res = getMockDoneTaskPage(queryParams)
-    taskList.value = res.rows as unknown as Task[]
-    total.value = res.total
+    const res = await getDoneTaskPage(queryParams)
+    taskList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
+  } catch (error) {
+    console.error('获取已办任务失败', error)
   } finally {
     loading.value = false
   }
@@ -253,15 +255,15 @@ onMounted(() => {
         .timeline-action {
           margin-top: 4px;
           &.start {
-            color: #67c23a;
+            color: var(--success);
           }
           &.approve {
-            color: #409eff;
+            color: var(--el-color-primary);
           }
         }
         .timeline-comment {
           margin-top: 8px;
-          color: #606266;
+          color: var(--text-secondary);
         }
       }
     }

@@ -68,17 +68,17 @@
         </el-table-column>
         <el-table-column prop="senderName" label="发送人" width="120" />
         <el-table-column prop="sendTime" label="发送时间" width="180" />
-        <el-table-column label="状态" width="80">
+        <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'warning' : 'success'">
-              {{ row.status === '0' ? '未读' : '已读' }}
+            <el-tag :type="getMsgStatusTagType(row.status)">
+              {{ getMsgStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleView(row as MessageInfo)">查看</el-button>
-            <el-button v-if="row.status === '0'" link type="success" @click="handleMarkRead(row as MessageInfo)">标为已读</el-button>
+            <el-button v-if="row.status === MSG_STATUS_UNREAD" link type="success" @click="handleMarkRead(row as MessageInfo)">标为已读</el-button>
             <el-button link type="danger" @click="handleDelete(row as MessageInfo)">删除</el-button>
           </template>
         </el-table-column>
@@ -115,9 +115,23 @@ import {
   markAllAsRead,
   type MessageInfo
 } from '@/api/system/message.api'
+
 import MessageForm from './MessageForm.vue'
 import MessageDetail from './MessageDetail.vue'
 
+// ========== 状态常量（与后端约定字段值） ==========
+const MSG_STATUS_UNREAD = '0'
+const MSG_STATUS_READ = '1'
+
+/** 消息状态 tag 类型 */
+const getMsgStatusTagType = (val: string) =>
+  val === MSG_STATUS_UNREAD ? 'primary' : 'info'
+
+/** 消息状态文本 */
+const getMsgStatusLabel = (val: string) =>
+  val === MSG_STATUS_UNREAD ? '未读' : '已读'
+
+// 状态
 const loading = ref(false)
 const messageList = ref<MessageInfo[]>([])
 const total = ref(0)

@@ -196,9 +196,131 @@ export function generateCommand(): Command {
 }
 
 /** kebab-case → PascalCase */
-function toPascalCase(str: string): string {
+export function toPascalCase(str: string): string {
   return str
     .split(/[-_]/)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join('');
 }
+
+/** kebab-case → camelCase */
+export function toCamelCase(str: string): string {
+  const pascal = toPascalCase(str);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
+/** any → kebab-case */
+export function toKebabCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[-_]+/g, '-')
+    .toLowerCase();
+}
+
+export const generators = {
+  page: {
+    generate: (name: string) => GENERATORS.page(name, {}),
+    extension: 'vue',
+    description: '生成页面组件',
+  },
+  api: {
+    generate: (name: string) => GENERATORS.api(name, {}),
+    extension: 'ts',
+    description: '生成 API 模块',
+  },
+  component: {
+    generate: (name: string) => GENERATORS.component(name, {}),
+    extension: 'vue',
+    description: '生成 Vue 组件',
+  },
+  store: {
+    generate: (name: string) => {
+      const pascalName = toPascalCase(name);
+      const camelName = toCamelCase(name);
+      return `import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+export const use${pascalName}Store = defineStore('${camelName}', () => {
+  const items = ref([]);
+  
+  const activeItems = computed(() => items.value);
+  
+  function fetchItems() {
+    // TODO: 实现
+  }
+  
+  function addItem(item: any) {
+    items.value.push(item);
+  }
+  
+  function removeItem(id: string) {
+    items.value = items.value.filter((i: any) => i.id !== id);
+  }
+  
+  return {
+    items,
+    activeItems,
+    fetchItems,
+    addItem,
+    removeItem,
+  };
+});`;
+    },
+    extension: 'ts',
+    description: '生成 Pinia Store',
+  },
+  composable: {
+    generate: (name: string) => {
+      const pascalName = toPascalCase(name);
+      return `import { ref, onMounted, computed } from 'vue';
+
+interface Use${pascalName}Options {
+  autoLoad?: boolean;
+}
+
+export function use${pascalName}(options: Use${pascalName}Options = {}) {
+  const data = ref(null);
+  const loading = ref(false);
+  const error = ref(null);
+  
+  const hasData = computed(() => !!data.value);
+  
+  async function refresh() {
+    loading.value = true;
+    error.value = null;
+    try {
+      // TODO: 实现数据获取
+    } catch (e) {
+      error.value = e;
+    } finally {
+      loading.value = false;
+    }
+  }
+  
+  function clear() {
+    data.value = null;
+    error.value = null;
+  }
+  
+  if (options.autoLoad !== false) {
+    onMounted(refresh);
+  }
+  
+  return {
+    data,
+    loading,
+    error,
+    hasData,
+    refresh,
+    clear,
+  };
+}
+
+export function use${pascalName}List() {
+  return use${pascalName}();
+}`;
+    },
+    extension: 'ts',
+    description: '生成 Vue Composable',
+  },
+};

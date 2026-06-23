@@ -63,8 +63,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === '1' ? 'success' : 'danger'" size="small">
-              {{ row.status === '1' ? '成功' : '失败' }}
+            <el-tag :type="getSmsStatusTagType(row.status)" size="small">
+              {{ getSmsStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -97,6 +97,16 @@ import { ref, reactive, onMounted } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { getSmsLogList } from '@/api/system/sms.api'
 import type { SmsLog, SmsLogQuery } from '@yunshu/shared'
+
+// 状态常量
+const SMS_STATUS_SUCCESS = '1'
+const SMS_STATUS_FAIL = '0'
+
+const getSmsStatusTagType = (val: string) =>
+  val === SMS_STATUS_SUCCESS ? 'success' : 'danger'
+
+const getSmsStatusLabel = (val: string) =>
+  val === SMS_STATUS_SUCCESS ? '成功' : '失败'
 
 // 状态
 const loading = ref(false)

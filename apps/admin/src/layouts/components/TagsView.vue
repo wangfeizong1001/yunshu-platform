@@ -20,6 +20,8 @@
       <li @click="refreshSelectedTag(selectedTag)">刷新</li>
       <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">关闭</li>
       <li @click="closeOtherTags">关闭其它</li>
+      <li @click="handleCloseLeft(selectedTag)">关闭左侧</li>
+      <li @click="handleCloseRight(selectedTag)">关闭右侧</li>
       <li @click="closeAllTags">关闭所有</li>
     </ul>
   </div>
@@ -27,7 +29,7 @@
 
 <script setup lang="ts">
 import { onMounted, computed, ref, watch } from 'vue'
-import { Close } from '@element-plus/icons-vue'
+import { Close, DArrowLeft, DArrowRight } from '@element-plus/icons-vue'
 import { useTagsViewStore } from '@/store/modules/tagsView'
 import { usePermissionStore } from '@/store/modules/permission'
 import { useRoute, useRouter } from 'vue-router'
@@ -155,6 +157,16 @@ const closeAllTags = () => {
   router.push('/')
 }
 
+const handleCloseLeft = (tag: TagView) => {
+  tagsViewStore.delLeftViews(tag)
+  visible.value = false
+}
+
+const handleCloseRight = (tag: TagView) => {
+  tagsViewStore.delRightViews(tag)
+  visible.value = false
+}
+
 watch(
   () => route.path,
   () => {
@@ -182,8 +194,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 .tags-view {
   height: 100%;
-  background: #fff;
-  border-bottom: 1px solid #d8dce5;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
 
   .tags-view-wrapper {
     display: flex;
@@ -203,21 +215,21 @@ onMounted(() => {
     padding: 4px 12px;
     margin-right: 4px;
     font-size: 12px;
-    color: #495060;
-    background: #fff;
-    border: 1px solid #d8dce5;
+    color: var(--text-secondary);
+    background: var(--background);
+    border: 1px solid var(--border);
     border-radius: 4px;
     cursor: pointer;
 
     &:hover {
-      color: #409eff;
-      border-color: #409eff;
+      color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
     }
 
     &.is-active {
-      color: #fff;
-      background: #409eff;
-      border-color: #409eff;
+      color: white;
+      background: var(--el-color-primary);
+      border-color: var(--el-color-primary);
     }
   }
 
@@ -225,7 +237,7 @@ onMounted(() => {
     position: absolute;
     margin: 0;
     padding: 4px 0;
-    background: #fff;
+    background: var(--background);
     border-radius: 4px;
     z-index: 3000;
     list-style: none;
@@ -236,8 +248,8 @@ onMounted(() => {
       cursor: pointer;
 
       &:hover {
-        background: #f0f2f5;
-        color: #409eff;
+        background: var(--surface-2);
+        color: var(--el-color-primary);
       }
     }
   }

@@ -1,8 +1,14 @@
 node_modules/
+# 允许 design-tokens 的构建产物（取消全局 dist/ 规则的忽略）
+!packages/design-tokens/dist/
+!packages/design-tokens/dist/**
 dist/
 .turbo/
 .DS_Store
-pnpm-lock.yaml
+.pnpm-store/
+
+# pnpm lockfile 必须提交到版本控制（确保依赖一致）
+# 不要在 .gitignore 中忽略 pnpm-lock.yaml
 
 # 环境变量
 .env

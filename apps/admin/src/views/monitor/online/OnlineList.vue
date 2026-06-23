@@ -148,8 +148,9 @@ const loadStats = async () => {
       const data = responseData.data as Record<string, unknown>
       stats.value.onlineCount = Number(data.onlineCount) || 0
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    console.error('[OnlineList] loadStats failed:', err)
+    // 静默降级，保持 stats 为 0
   }
 }
 
@@ -193,8 +194,11 @@ const handleForceLogout = async (row: OnlineInfo) => {
     ElMessage.success('强制下线成功')
     loadStats()
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[OnlineList] handleForceLogout failed:', err)
+      ElMessage.error('强制下线失败，请重试')
+    }
   }
 }
 
@@ -205,8 +209,11 @@ const handleBatchForceLogout = async () => {
     ElMessage.success('批量强制下线成功')
     loadStats()
     handleQuery()
-  } catch {
-    // 用户取消
+  } catch (err) {
+    if (!String((err as Error)?.message)?.includes('cancel')) {
+      console.error('[OnlineList] handleBatchForceLogout failed:', err)
+      ElMessage.error('批量强制下线失败，请重试')
+    }
   }
 }
 
@@ -232,12 +239,12 @@ onMounted(() => {
       .stat-value {
         font-size: 32px;
         font-weight: 700;
-        color: #303133;
+        color: var(--text-primary);
       }
 
       .stat-label {
         font-size: 14px;
-        color: #909399;
+        color: var(--text-muted);
         margin-top: 4px;
       }
     }
@@ -249,7 +256,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
+      color: var(--background);
 
       &.total {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

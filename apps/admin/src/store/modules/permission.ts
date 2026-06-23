@@ -14,6 +14,7 @@ interface PermissionState {
   defaultRoutes: RouteRecordRaw[]
   topbarRouters: RouteRecordRaw[]
   cachedViews: string[]        // 缓存的视图
+  dynamicRouteAdded: boolean   // 动态路由是否已添加
 }
 
 /**
@@ -46,7 +47,8 @@ export const usePermissionStore = defineStore('permission', {
     addRoutes: [],
     defaultRoutes: [],
     topbarRouters: [],
-    cachedViews: []
+    cachedViews: [],
+    dynamicRouteAdded: false
   }),
 
   actions: {
@@ -113,6 +115,7 @@ export const usePermissionStore = defineStore('permission', {
 
     /**
      * 重置路由状态
+     * 包含新加的 dynamicRouteAdded 标志，用于 HMR 或登出后清理
      */
     resetRoutes() {
       this.routes = []
@@ -120,6 +123,7 @@ export const usePermissionStore = defineStore('permission', {
       this.defaultRoutes = []
       this.topbarRouters = []
       this.cachedViews = []
+      this.dynamicRouteAdded = false
     }
   }
 })

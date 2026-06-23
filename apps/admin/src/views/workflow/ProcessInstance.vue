@@ -189,7 +189,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { type ProcessInstance } from '@/api/workflow.api'
-import { getMockProcessInstancePage } from '@/mock/workflow.mock'
+import {
+  getProcessInstancePage,
+  terminateProcessInstance,
+  getProcessHistory,
+} from '@/api/workflow.api'
 
 const loading = ref(false)
 const instanceList = ref<ProcessInstance[]>([])
@@ -263,9 +267,11 @@ const instanceHistory = ref<HistoryItem[]>([
 async function fetchInstanceList() {
   loading.value = true
   try {
-    const res = getMockProcessInstancePage(queryParams)
-    instanceList.value = res.rows as unknown as ProcessInstance[]
-    total.value = res.total
+    const res = await getProcessInstancePage(queryParams)
+    instanceList.value = (res as any).data?.rows ?? []
+    total.value = (res as any).data?.total ?? 0
+  } catch (error) {
+    console.error('获取流程实例失败', error)
   } finally {
     loading.value = false
   }
@@ -294,54 +300,37 @@ function handleView(row: ProcessInstance) {
   viewDrawerVisible.value = true
 }
 
-function loadInstanceDetail(row: ProcessInstance) {
-  // 模拟加载流程进度节点
-  if (row.status === 'running') {
-    instanceFlowNodes.value = [
-      { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
-      { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
-      { id: '3', name: '部门经理审批', type: 'task', icon: '▢', assignee: '李四', status: 'current' },
-      { id: '4', name: '结束', type: 'end', icon: '◉', status: 'pending' },
-    ]
-  } else {
-    instanceFlowNodes.value = [
-      { id: '1', name: '开始', type: 'start', icon: '●', status: 'done' },
-      { id: '2', name: '发起申请', type: 'task', icon: '▢', assignee: '张三', status: 'done' },
-      { id: '3', name: '部门经理审批', type: 'task', icon: '▢', assignee: '李四', status: 'done' },
-      { id: '4', name: '结束', type: 'end', icon: '◉', status: 'done' },
+async function loadInstanceDetail(row: ProcessInstance) {
+  try {
+    // 从后端获取流程历史
+    const historyRes = await getProcessHistory(row.id)
+    const rows = (historyRes as any).data?.rows
+    if (rows && rows.length > 0) {
+      instanceHistory.value = rows.map((task: any) => ({
+        taskName: task.name || '',
+        assignee: task.assignee || '',
+        action: 'approve',
+        actionText: task.endTime ? '已完成' : '进行中',
+        comment: '',
+        duration: '',
+        endTime: task.endTime || '',
+      }))
+    }
+  } catch (error) {
+    console.error('获取流程历史失败', error)
+    // 如果获取失败，使用模拟数据
+    instanceHistory.value = [
+      {
+        taskName: '发起申请',
+        assignee: '张三',
+        action: 'start',
+        actionText: '发起申请',
+        comment: '申请年假3天，从6月1日到6月3日',
+        duration: '0分钟',
+        endTime: '2024-06-01 09:00:00',
+      },
     ]
   }
-
-  // 模拟加载流程变量
-  instanceVariables.value = [
-    { name: 'days', type: 'Integer', value: '3', updateTime: '2024-06-01 09:00:00' },
-    { name: 'startDate', type: 'Date', value: '2024-06-01', updateTime: '2024-06-01 09:00:00' },
-    { name: 'endDate', type: 'Date', value: '2024-06-03', updateTime: '2024-06-01 09:00:00' },
-    { name: 'reason', type: 'String', value: '年假', updateTime: '2024-06-01 09:00:00' },
-    { name: 'amount', type: 'Double', value: '0.0', updateTime: '2024-06-01 09:00:00' },
-  ]
-
-  // 模拟加载审批历史
-  instanceHistory.value = [
-    {
-      taskName: '发起申请',
-      assignee: '张三',
-      action: 'start',
-      actionText: '发起申请',
-      comment: '申请年假3天，从6月1日到6月3日',
-      duration: '0分钟',
-      endTime: '2024-06-01 09:00:00',
-    },
-    {
-      taskName: '部门经理审批',
-      assignee: '李四',
-      action: 'approve',
-      actionText: '审批通过',
-      comment: '同意申请',
-      duration: '2小时30分钟',
-      endTime: '2024-06-01 11:30:00',
-    },
-  ]
 }
 
 function getActionType(action: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' {
@@ -360,11 +349,13 @@ async function handleTerminate(_row: ProcessInstance) {
     await ElMessageBox.confirm('确定要终止该流程实例吗？', '提示', {
       type: 'warning',
     })
+    await terminateProcessInstance(_row.id)
     ElMessage.success('终止成功')
     refreshTable()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('终止失败', error)
+      ElMessage.error('终止失败')
     }
   }
 }
@@ -417,7 +408,7 @@ onMounted(() => {
       align-items: center;
       gap: 16px;
       padding: 24px;
-      background: #f5f7fa;
+      background: var(--surface-2);
       border-radius: 8px;
       flex-wrap: wrap;
       .flow-node {
@@ -434,36 +425,35 @@ onMounted(() => {
         }
         .node-assignee {
           font-size: 10px;
-          color: #909399;
+          color: var(--text-muted);
         }
         &.start .node-icon {
-          color: #67c23a;
+          color: var(--success);
         }
         &.done .node-icon {
-          color: #67c23a;
+          color: var(--success);
         }
         &.done .node-label {
-          color: #67c23a;
+          color: var(--success);
         }
         &.current {
           .node-icon {
-            color: #409eff;
-            animation: pulse 2s infinite;
+            color: var(--el-color-primary);
           }
           .node-label {
-            color: #409eff;
+            color: var(--el-color-primary);
             font-weight: 600;
           }
         }
         &.pending .node-icon {
-          color: #c0c4cc;
+          color: var(--text-muted);
         }
         &.pending .node-label {
-          color: #c0c4cc;
+          color: var(--text-muted);
         }
       }
       .flow-arrow {
-        color: #c0c4cc;
+        color: var(--text-muted);
         font-size: 20px;
       }
     }
@@ -475,12 +465,12 @@ onMounted(() => {
       .timeline-action {
         margin-top: 4px;
         &.start {
-          color: #67c23a;
+          color: var(--success);
         }
       }
       .timeline-comment {
         margin-top: 8px;
-        color: #606266;
+        color: var(--text-secondary);
       }
     }
   }

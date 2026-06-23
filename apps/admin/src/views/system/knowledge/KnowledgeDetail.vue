@@ -20,9 +20,9 @@
             >
               {{ tag }}
             </el-tag>
-            <el-tag :type="knowledgeData.status === '0' ? 'success' : 'info'" size="small">
-              {{ knowledgeData.status === '0' ? '已发布' : '草稿' }}
-            </el-tag>
+            <el-tag :type="getKnowledgeStatusTagType(knowledgeData.status)" size="small">
+          {{ getKnowledgeStatusLabel(knowledgeData.status) }}
+        </el-tag>
             <span class="meta-item">
               <el-icon><View /></el-icon>
               {{ knowledgeData.viewCount }}
@@ -68,6 +68,17 @@ import { ref, computed, watch } from 'vue'
 import SafeHtml from '@/components/SafeHtml/index.vue'
 import { View, User, Clock } from '@element-plus/icons-vue'
 import { getKnowledge, type KnowledgeInfo } from '@/api/system/knowledge.api'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const KNOWLEDGE_STATUS_PUBLISHED = '0'
+
+/** 知识库状态 tag 类型 */
+const getKnowledgeStatusTagType = (val?: string) =>
+  val === KNOWLEDGE_STATUS_PUBLISHED ? 'success' : 'info'
+
+/** 知识库状态文本 */
+const getKnowledgeStatusLabel = (val?: string) =>
+  val === KNOWLEDGE_STATUS_PUBLISHED ? '已发布' : '草稿'
 
 interface Props {
   modelValue: boolean
@@ -130,7 +141,7 @@ watch(visible, (val) => {
         font-size: 24px;
         font-weight: 600;
         margin: 0 0 12px 0;
-        color: #303133;
+        color: var(--text-primary);
       }
 
       .detail-meta {
@@ -138,7 +149,7 @@ watch(visible, (val) => {
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
-        color: #909399;
+        color: var(--text-muted);
         font-size: 14px;
 
         .meta-item {
@@ -150,7 +161,7 @@ watch(visible, (val) => {
     }
 
     .detail-summary {
-      background-color: #f5f7fa;
+      background-color: var(--surface-2);
       padding: 16px;
       border-radius: 4px;
       margin-bottom: 24px;
@@ -158,12 +169,12 @@ watch(visible, (val) => {
       h4 {
         margin: 0 0 8px 0;
         font-size: 14px;
-        color: #606266;
+        color: var(--text-secondary);
       }
 
       p {
         margin: 0;
-        color: #606266;
+        color: var(--text-secondary);
         line-height: 1.6;
       }
     }
@@ -171,7 +182,7 @@ watch(visible, (val) => {
     .detail-body {
       .content-wrapper {
         line-height: 1.8;
-        color: #303133;
+        color: var(--text-primary);
         font-size: 15px;
 
         :deep(h1),
@@ -182,7 +193,7 @@ watch(visible, (val) => {
         :deep(h6) {
           margin: 20px 0 10px 0;
           font-weight: 600;
-          color: #303133;
+          color: var(--text-primary);
         }
 
         :deep(h1) {
@@ -212,11 +223,11 @@ watch(visible, (val) => {
         }
 
         :deep(blockquote) {
-          border-left: 4px solid #409eff;
+          border-left: 4px solid var(--el-color-primary);
           padding: 10px 15px;
           margin: 16px 0;
           background-color: #f0f9ff;
-          color: #606266;
+          color: var(--text-secondary);
         }
 
         :deep(img) {
@@ -226,12 +237,12 @@ watch(visible, (val) => {
         }
 
         :deep(code) {
-          background-color: #f5f7fa;
+          background-color: var(--surface-2);
           padding: 2px 6px;
           border-radius: 3px;
           font-family: 'Consolas', 'Monaco', monospace;
           font-size: 14px;
-          color: #e6a23c;
+          color: var(--warning);
         }
 
         :deep(pre) {
@@ -255,13 +266,13 @@ watch(visible, (val) => {
 
           th,
           td {
-            border: 1px solid #dcdfe6;
+            border: 1px solid var(--border);
             padding: 8px 12px;
             text-align: left;
           }
 
           th {
-            background-color: #f5f7fa;
+            background-color: var(--surface-2);
             font-weight: 600;
           }
         }
@@ -270,7 +281,7 @@ watch(visible, (val) => {
 
     .detail-footer {
       .remark {
-        color: #909399;
+        color: var(--text-muted);
         font-size: 14px;
       }
     }

@@ -30,6 +30,7 @@ import monitorJob from './routes/monitor/job'
 import toolGen from './routes/tool/gen'
 import reportReport from './routes/report/report'
 import dashboardDashboard from './routes/dashboard/dashboard'
+import adminDashboard from './routes/admin-dashboard/admin-dashboard'
 import systemForm from './routes/system/form'
 import workflow from './routes/workflow'
 import tenantTenant from './routes/tenant/tenant'
@@ -59,6 +60,7 @@ const mockPlugins: MockMethod[] = [
   ...toolGen,
   ...reportReport,
   ...dashboardDashboard,
+  ...adminDashboard,
   ...systemForm,
   ...workflow,
   ...tenantTenant

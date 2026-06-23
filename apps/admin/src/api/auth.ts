@@ -3,6 +3,7 @@
  */
 
 import { request, httpGet, httpPost, httpPut, httpDelete } from '@/utils/httpClient'
+import type { ApiResponse } from '@/utils/httpClient'
 
 // 验证码响应类型
 export interface CaptchaResponse {
@@ -42,9 +43,9 @@ export interface UserInfo {
 }
 
 // 获取验证码
-export function getCaptchaApi(): Promise<{ code: number; data: CaptchaResponse }> {
+export function getCaptchaApi(): Promise<ApiResponse<CaptchaResponse>> {
   return request<CaptchaResponse>({
-    url: '/api/auth/captcha',
+    url: '/auth/captcha',
     method: 'GET'
   })
 }
@@ -52,7 +53,7 @@ export function getCaptchaApi(): Promise<{ code: number; data: CaptchaResponse }
 // 登录
 export function loginApi(data: LoginForm) {
   return request<{ token: string; user?: object }>({
-    url: '/api/auth/login',
+    url: '/auth/login',
     method: 'POST',
     data
   })
@@ -61,7 +62,7 @@ export function loginApi(data: LoginForm) {
 // 退出登录
 export function logoutApi() {
   return request<void>({
-    url: '/api/auth/logout',
+    url: '/auth/logout',
     method: 'POST'
   })
 }
@@ -69,7 +70,7 @@ export function logoutApi() {
 // 获取用户信息
 export function getUserInfoApi() {
   return request<UserInfo>({
-    url: '/api/auth/userinfo',
+    url: '/auth/userinfo',
     method: 'GET'
   })
 }

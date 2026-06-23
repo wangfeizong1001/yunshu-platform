@@ -113,7 +113,7 @@ let mockRoles: Role[] = [
 // ============================================================================
 
 export class RoleController extends BaseController {
-  private isCurrentUserAdmin(req: Request): boolean {
+  private checkIsAdmin(req: Request): boolean {
     const role = (req as unknown as { user?: { role?: string } }).user?.role;
     return role === 'admin' || role === 'super_admin';
   }
@@ -232,7 +232,7 @@ export class RoleController extends BaseController {
     if (idx === -1) return this.notFound(res, '角色不存在');
     const exist = mockRoles[idx]!;
 
-    if (!this.isCurrentUserAdmin(req) && exist.roleKey === 'admin') {
+    if (!this.checkIsAdmin(req) && exist.roleKey === 'admin') {
       return this.forbidden(res, '普通用户无权修改超级管理员角色');
     }
 
@@ -356,7 +356,7 @@ export class RoleController extends BaseController {
     if (role.roleKey === 'admin' && status === '1') {
       return this.forbidden(res, '不能将超级管理员角色设置为停用状态');
     }
-    if (!this.isCurrentUserAdmin(req) && role.roleKey === 'admin') {
+    if (!this.checkIsAdmin(req) && role.roleKey === 'admin') {
       return this.forbidden(res, '普通用户无权修改超级管理员角色状态');
     }
 

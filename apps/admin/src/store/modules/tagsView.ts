@@ -88,6 +88,30 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     }
   }
 
+  const delRightViews = (view: TagView) => {
+    const index = visitedViews.value.findIndex((v) => v.path === view.path)
+    if (index !== -1) {
+      const rightViews = visitedViews.value.slice(index + 1)
+      rightViews.forEach((v) => {
+        if (!(v.meta?.affix as boolean)) {
+          delVisitedView(v)
+        }
+      })
+    }
+  }
+
+  const delLeftViews = (view: TagView) => {
+    const index = visitedViews.value.findIndex((v) => v.path === view.path)
+    if (index !== -1) {
+      const leftViews = visitedViews.value.slice(0, index)
+      leftViews.forEach((v) => {
+        if (!(v.meta?.affix as boolean)) {
+          delVisitedView(v)
+        }
+      })
+    }
+  }
+
   const updateVisitedView = (view: TagView) => {
     const index = visitedViews.value.findIndex((v) => v.path === view.path)
     if (index !== -1) {
@@ -103,7 +127,9 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     delOtherViews,
     delAllViews,
     delCachedView,
-    updateVisitedView
+    updateVisitedView,
+    delLeftViews,
+    delRightViews
   }
 })
 

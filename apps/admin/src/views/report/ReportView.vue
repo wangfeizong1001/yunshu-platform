@@ -108,7 +108,7 @@ const route = useRoute()
 const loading = ref(true)
 const error = ref(false)
 const reportId = ref<number>()
-const reportInfo = ref<unknown>(null)
+const reportInfo = ref<ReportInfo | null>(null)
 const reportType = ref<'chart' | 'table'>('chart')
 const chartRef = ref<HTMLElement>()
 const reportRef = ref<HTMLElement>()
@@ -275,30 +275,31 @@ async function handleExport(type: string) {
 async function loadReport() {
   const id = route.params.id as string
   if (!id) return
-  
+
   reportId.value = parseInt(id)
   loading.value = true
   error.value = false
-  
+
   try {
     // 获取报表信息
-    const res = await getReport(reportId.value) as { data: ReportInfo }
-    reportInfo.value = res.data
-    reportType.value = res.data.reportType as 'chart' | 'table'
-    
+    const res = await getReport(reportId.value)
+    const data = res?.data
+    reportInfo.value = data ?? null
+    reportType.value = (data?.reportType as 'chart' | 'table') || 'chart'
+
     // 解析配置
-    if (res.data.config) {
+    if (data?.config) {
       try {
-        const config = JSON.parse(res.data.config) as ReportColumn[]
+        const config = JSON.parse(data.config) as ReportColumn[]
         reportConfig.columns = config
       } catch (e) {
         console.error('解析配置失败:', e)
       }
     }
-    
+
     // 等待DOM更新后渲染
     await nextTick()
-    
+
     if (reportType.value === 'chart') {
       renderChart()
     }
@@ -326,15 +327,15 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f7fa;
+  background-color: var(--surface-2);
 
   .toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: #fff;
-    border-bottom: 1px solid #e4e7ed;
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -347,7 +348,7 @@ onMounted(() => {
       .title {
         font-size: 16px;
         font-weight: 600;
-        color: #303133;
+        color: var(--text-primary);
       }
     }
   }
@@ -358,13 +359,13 @@ onMounted(() => {
 
     .loading-container,
     .error-container {
-      background-color: #fff;
+      background-color: var(--background);
       padding: 40px;
       border-radius: 4px;
     }
 
     .report-content {
-      background-color: #fff;
+      background-color: var(--background);
       padding: 40px;
       border-radius: 4px;
       max-width: 1400px;
@@ -374,18 +375,18 @@ onMounted(() => {
         text-align: center;
         margin-bottom: 40px;
         padding-bottom: 20px;
-        border-bottom: 2px solid #f0f2f5;
+        border-bottom: 2px solid var(--surface-2);
 
         .report-title {
           font-size: 28px;
           font-weight: 700;
-          color: #303133;
+          color: var(--text-primary);
           margin: 0 0 12px 0;
         }
 
         .report-description {
           font-size: 14px;
-          color: #909399;
+          color: var(--text-muted);
           margin: 0 0 16px 0;
         }
 
@@ -394,7 +395,7 @@ onMounted(() => {
           justify-content: center;
           gap: 32px;
           font-size: 12px;
-          color: #c0c4cc;
+          color: var(--text-muted);
         }
       }
 
@@ -412,7 +413,7 @@ onMounted(() => {
       }
 
       .data-detail {
-        border-top: 1px solid #f0f2f5;
+        border-top: 1px solid var(--surface-2);
         padding-top: 24px;
 
         .detail-header {
@@ -421,7 +422,7 @@ onMounted(() => {
           h3 {
             font-size: 16px;
             font-weight: 600;
-            color: #303133;
+            color: var(--text-primary);
             margin: 0;
           }
         }

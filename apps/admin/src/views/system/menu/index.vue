@@ -128,6 +128,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Expand, Fold } from '@element-plus/icons-vue'
 import { getMenuTree, deleteMenu } from '@/api/system/menu.api'
+import type { MenuInfo } from '@/api/system/menu.api'
 import type { SysMenu, SysMenuQuery } from '@yunshu/shared'
 import MenuForm from './MenuForm.vue'
 
@@ -149,8 +150,8 @@ const queryParams = reactive<SysMenuQuery>({
 async function fetchMenuList() {
   loading.value = true
   try {
-    const res = await getMenuTree(queryParams) as SysMenu[]
-    menuList.value = res
+    const res = await getMenuTree(queryParams)
+    menuList.value = (res.data as MenuInfo[]) as unknown as SysMenu[]
   } finally {
     loading.value = false
   }

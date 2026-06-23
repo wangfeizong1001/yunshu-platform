@@ -87,10 +87,10 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="80">
+        <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.status === '0' ? 'success' : 'info'">
-              {{ row.status === '0' ? '发布' : '草稿' }}
+            <el-tag :type="getKnowledgeStatusTagType(row.status)">
+              {{ getKnowledgeStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -116,7 +116,7 @@
               预览
             </el-button>
             <el-button
-              v-if="row.status === '1'"
+              v-if="row.status === KNOWLEDGE_STATUS_DRAFT"
               v-has-permi="['system:knowledge:publish']"
               link
               type="warning"
@@ -125,7 +125,7 @@
               发布
             </el-button>
             <el-button
-              v-if="row.status === '0'"
+              v-if="row.status === KNOWLEDGE_STATUS_PUBLISHED"
               v-has-permi="['system:knowledge:publish']"
               link
               type="info"
@@ -182,6 +182,18 @@ import {
 } from '@/api/system/knowledge.api'
 import KnowledgeForm from './KnowledgeForm.vue'
 import KnowledgeDetail from './KnowledgeDetail.vue'
+
+// ========== 状态常量（与后端约定字段值） ==========
+const KNOWLEDGE_STATUS_PUBLISHED = '0'
+const KNOWLEDGE_STATUS_DRAFT = '1'
+
+/** 知识库状态 tag 类型 */
+const getKnowledgeStatusTagType = (val: string) =>
+  val === KNOWLEDGE_STATUS_PUBLISHED ? 'success' : 'info'
+
+/** 知识库状态文本 */
+const getKnowledgeStatusLabel = (val: string) =>
+  val === KNOWLEDGE_STATUS_PUBLISHED ? '已发布' : '草稿'
 
 // 状态
 const loading = ref(false)
