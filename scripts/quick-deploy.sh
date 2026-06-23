@@ -2,8 +2,9 @@
 # ========================================
 # 云枢中台 - 一键部署脚本
 # ========================================
-# 功能：支持本地开发环境启动和 Docker Compose 生产部署
+# 功能：支持从 GitHub 克隆仓库、本地开发环境启动和 Docker Compose 生产部署
 # 使用方式：
+#   ./scripts/quick-deploy.sh clone    # 从 GitHub 克隆仓库
 #   ./scripts/quick-deploy.sh dev      # 启动本地开发环境
 #   ./scripts/quick-deploy.sh prod     # 启动 Docker Compose 生产环境
 #   ./scripts/quick-deploy.sh clean    # 清理所有容器和数据
@@ -47,7 +48,9 @@ check_command() {
 check_dependencies() {
     log_info "检查系统依赖..."
     
-    if [[ "$1" == "dev" ]]; then
+    if [[ "$1" == "clone" ]]; then
+        check_command git
+    elif [[ "$1" == "dev" ]]; then
         check_command node
         check_command pnpm
     elif [[ "$1" == "prod" ]]; then
@@ -56,6 +59,42 @@ check_dependencies() {
     fi
     
     log_info "依赖检查通过"
+}
+
+# 从 GitHub 克隆仓库
+clone_repo() {
+    log_info "从 GitHub 克隆仓库..."
+    
+    REPO_URL="https://github.com/wangfeizong1001/yunshu-platform.git"
+    REPO_DIR="yunshu-platform"
+    
+    if [[ -d "$REPO_DIR" ]]; then
+        log_warn "目录 $REPO_DIR 已存在"
+        read -p "是否删除现有目录并重新克隆？(y/N) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            log_info "删除现有目录..."
+            rm -rf "$REPO_DIR"
+        else
+            log_info "取消克隆操作"
+            exit 0
+        fi
+    fi
+    
+    log_info "克隆仓库: $REPO_URL"
+    git clone "$REPO_URL" "$REPO_DIR"
+    
+    log_info "进入项目目录..."
+    cd "$REPO_DIR"
+    
+    log_info "${GREEN}========================================${NC}"
+    log_info "${GREEN}         仓库克隆完成！${NC}"
+    log_info "${GREEN}========================================${NC}"
+    log_info "项目目录: $(pwd)"
+    log_info "后续操作:"
+    log_info "  cd yunshu-platform"
+    log_info "  ./scripts/quick-deploy.sh dev   # 启动开发环境"
+    log_info "  ./scripts/quick-deploy.sh prod  # 启动生产环境"
 }
 
 # 初始化环境变量
@@ -165,6 +204,7 @@ show_help() {
     echo "云枢中台 - 一键部署脚本"
     echo ""
     echo "使用方式:"
+    echo "  $0 clone    从 GitHub 克隆仓库"
     echo "  $0 dev      启动本地开发环境"
     echo "  $0 prod     启动 Docker Compose 生产环境"
     echo "  $0 clean    清理所有容器和数据"
@@ -179,6 +219,10 @@ show_help() {
 
 # 主入口
 case "${1:-help}" in
+    clone)
+        check_dependencies clone
+        clone_repo
+        ;;
     dev)
         check_dependencies dev
         start_dev
