@@ -1,0 +1,307 @@
+name: Production Release
+
+# 生产环境发布
+# 当代码合并到 main 分支或推送版本标签时触发
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  # 支持手动触发
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (如: v1.0.0)'
+        required: true
+        type: string
+      skip_tests:
+        description: '跳过测试 (生产环境不推荐)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PNPM_VERSION: '9.0.0'
+  NODE_VERSION: '20'
+
+jobs:
+  # --------------------------------------------------------------------------
+  # 发布前检查
+  # --------------------------------------------------------------------------
+  pre-release-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_tagged: ${{ steps.version.outputs.is_tagged }}
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 获取版本信息
+        id: version
+        run: |
+          # 从标签获取版本号
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+            IS_TAGGED=true
+          elif [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            IS_TAGGED=false
+          else
+            # 从 CHANGELOG 或 package.json 提取
+            VERSION="v0.0.0-preview"
+            IS_TAGGED=false
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_tagged=$IS_TAGGED" >> $GITHUB_OUTPUT
+
+      - name: 显示发布信息
+        run: |
+          echo "=========================================="
+          echo "       生产环境发布准备"
+          echo "=========================================="
+          echo "版本: ${{ steps.version.outputs.version }}"
+          echo "是否为标签发布: ${{ steps.version.outputs.is_tagged }}"
+          echo "分支: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "=========================================="
+
+  # --------------------------------------------------------------------------
+  # 代码检查
+  # --------------------------------------------------------------------------
+  lint-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: ESLint 检查
+        run: pnpm lint || true
+
+      - name: Stylelint 检查
+        run: pnpm lint:style || true
+
+      - name: TypeScript 类型检查
+        run: pnpm --filter @yunshu/admin type-check
+
+      - name: 后端类型检查
+        run: pnpm --filter @yunshu/server-express type-check || true
+
+  # --------------------------------------------------------------------------
+  # 测试
+  # --------------------------------------------------------------------------
+  test:
+    runs-on: ubuntu-latest
+    needs: [lint-and-check]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 构建 shared 包
+        run: pnpm --filter @yunshu/shared build
+
+      - name: 前端单元测试
+        run: pnpm --filter @yunshu/admin test -- --run
+
+      - name: 后端单元测试
+        run: pnpm --filter @yunshu/server-express test || true
+
+      - name: 核心包单元测试
+        run: pnpm --filter @yunshu/shared test || true
+
+  # --------------------------------------------------------------------------
+  # 构建
+  # --------------------------------------------------------------------------
+  build:
+    runs-on: ubuntu-latest
+    needs: [pre-release-check, lint-and-check, test]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 构建 shared 包
+        run: pnpm --filter @yunshu/shared build
+
+      - name: 构建应用
+        run: pnpm --filter @yunshu/admin build
+
+      - name: 后端构建
+        run: pnpm --filter @yunshu/server-express build || true
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build-${{ needs.pre-release-check.outputs.version }}
+          path: |
+            apps/admin/dist/**
+            packages/shared/dist/**
+            apps/docs/.vitepress/dist/**
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # 生产环境部署 (需要根据实际部署方式配置)
+  # --------------------------------------------------------------------------
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [pre-release-check, build]
+    environment: production
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build-${{ needs.pre-release-check.outputs.version }}
+          path: ./build
+
+      - name: 显示部署信息
+        run: |
+          echo "=========================================="
+          echo "       生产环境部署"
+          echo "=========================================="
+          echo "版本: ${{ needs.pre-release-check.outputs.version }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "=========================================="
+
+      # --------------------------------------------------------------------------
+      # 部署到生产服务器 (根据实际部署方式配置)
+      # --------------------------------------------------------------------------
+      # 示例: Docker 部署
+      # - name: 构建 Docker 镜像
+      #   run: |
+      #     docker build -t yunshu-platform:${{ needs.pre-release-check.outputs.version }} .
+      #     docker tag yunshu-platform:${{ needs.pre-release-check.outputs.version }} yunshu-platform:latest
+      #
+      # - name: 推送到镜像仓库
+      #   run: |
+      #     echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      #     docker push yunshu-platform:${{ needs.pre-release-check.outputs.version }}
+      #     docker push yunshu-platform:latest
+      #
+      # - name: 部署到 Kubernetes
+      #   run: |
+      #     kubectl set image deployment/yunshu-admin admin=yunshu-platform:${{ needs.pre-release-check.outputs.version }}
+
+      # 示例: 直接部署到服务器
+      # - name: 部署到生产服务器
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.PRODUCTION_HOST }}
+      #     username: ${{ secrets.PRODUCTION_USER }}
+      #     key: ${{ secrets.PRODUCTION_KEY }}
+      #     source: "./build"
+      #     target: "/var/www/yunshu-platform"
+
+      - name: 部署完成通知
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "       生产环境部署完成"
+          echo "=========================================="
+          echo "版本: ${{ needs.pre-release-check.outputs.version }}"
+          echo "状态: ${{ job.status }}"
+          echo "部署时间: $(date '+%Y-%m-%d %H:%M:%S')"
+          echo "=========================================="
+
+  # --------------------------------------------------------------------------
+  # 生成发布报告
+  # --------------------------------------------------------------------------
+  release-report:
+    runs-on: ubuntu-latest
+    needs: [pre-release-check, lint-and-check, test, build, deploy-production]
+    if: always()
+    steps:
+      - name: 生成发布报告
+        run: |
+          echo "## 生产环境发布报告" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 版本信息" >> $GITHUB_STEP_SUMMARY
+          echo "- 版本: **${{ needs.pre-release-check.outputs.version }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- 是否为标签发布: ${{ needs.pre-release-check.outputs.is_tagged }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 检查结果" >> $GITHUB_STEP_SUMMARY
+          echo "- 代码检查: ${{ needs.lint-and-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 构建: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 部署: ${{ needs.deploy-production.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 整体状态" >> $GITHUB_STEP_SUMMARY
+          OVERALL_RESULT='${{ needs.deploy-production.result }}'
+          if [ "$OVERALL_RESULT" == "success" ]; then
+            echo ":white_check_mark: **发布成功**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo ":x: **发布失败**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 创建 GitHub Release
+        if: needs.pre-release-check.outputs.is_tagged == 'true' && needs.deploy-production.result == 'success'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.pre-release-check.outputs.version }}
+          name: ${{ needs.pre-release-check.outputs.version }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
