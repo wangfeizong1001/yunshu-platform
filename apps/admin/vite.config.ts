@@ -7,6 +7,7 @@ import { viteMockServe } from 'vite-plugin-mock'
 import { resolve } from 'path'
 
 export default defineConfig({
+  base: '/admin/',
   plugins: [
     vue(),
     AutoImport({
@@ -18,15 +19,10 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
       dts: 'src/components.d.ts'
     }),
-    // Mock 服务配置
     viteMockServe({
       mockPath: './mock',
-      enable: true,
-      watchFiles: true,
-      injectCode: `
-        import { setupMockServer } from '../mock'
-        setupMockServer()
-      `
+      enable: process.env.NODE_ENV !== 'production',
+      watchFiles: process.env.NODE_ENV !== 'production'
     })
   ],
   resolve: {
