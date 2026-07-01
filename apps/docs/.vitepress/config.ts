@@ -5,6 +5,7 @@ export default defineConfig({
   description: '开箱即用的中台前端/设计解决方案',
   lang: 'zh-CN',
   lastUpdated: true,
+  base: '/docs/',
 
   themeConfig: {
     logo: '/logo.svg',
