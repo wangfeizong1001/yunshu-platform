@@ -1,0 +1,39 @@
+{
+  "name": "@yunshu/playground",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "云枢中台 — 组件演示 Playground",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "eslint . --ext .vue,.ts --fix",
+    "format": "prettier . --write"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.0",
+    "@yunshu/design-tokens": "workspace:*",
+    "@yunshu/ui": "workspace:*",
+    "echarts": "^6.1.0",
+    "element-plus": "^2.10.0",
+    "vue": "^3.4.0",
+    "vue-echarts": "^8.0.1",
+    "vue-router": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@yunshu/eslint-config": "workspace:*",
+    "@yunshu/tsconfig": "workspace:*",
+    "prettier": "^3.2.0",
+    "sass": "^1.70.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.0.0",
+    "vue-tsc": "^2.0.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  }
+}
